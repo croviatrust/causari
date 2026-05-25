@@ -1,0 +1,48 @@
+name: Feature request
+description: Propose a new capability that fits the causal-provenance thesis.
+title: "[feat] "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Causari is intentionally small. Before opening this, please make sure
+        the feature is about **agent provenance, causality, or MCP integration**,
+        not generic VCS or SaaS work.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the user pain — *not* the implementation yet.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed CLI / MCP surface
+      description: |
+        Show how it would be invoked. E.g.:
+
+        ```bash
+        re replay <event-id> --until <other-id>
+        ```
+      render: bash
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+      description: Existing commands, scripts or external tools that already do (some of) this.
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This is about agents / provenance / causality, not generic VCS.
+          required: true
+        - label: I am willing to open a draft PR if accepted.

@@ -1,0 +1,67 @@
+name: Bug report
+description: Something Causari does is wrong, broken, or surprising.
+title: "[bug] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please fill in everything you can — the
+        more we know, the faster we can fix it.
+
+  - type: input
+    id: version
+    attributes:
+      label: Causari version
+      description: Output of `re --version`.
+      placeholder: "causari 0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Linux (x86_64)
+        - Linux (aarch64)
+        - macOS (Intel)
+        - macOS (Apple Silicon)
+        - Windows (x86_64)
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal sequence of `re` commands. Paste them as a code block.
+      placeholder: |
+        re init
+        echo hello > a.txt
+        re record -m "..."
+        re why a.txt:1
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead?
+      description: Paste the full output. Include `RUST_BACKTRACE=1` traces if any.
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Logs, screenshots, links to a minimal reproduction repo.

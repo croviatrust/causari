@@ -1,0 +1,33 @@
+# === Rust build artifacts ===
+/target
+Cargo.lock.bak
+**/*.rs.bk
+
+# === Causari runtime ===
+/.reagent
+/.causari
+/demo
+/banner-test
+
+# === Editors / IDE ===
+.vscode/
+.idea/
+*.iml
+*.swp
+*~
+
+# === OS junk ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Env / secrets ===
+.env
+.env.local
+*.pem
+*.key
+
+# === Logs ===
+*.log
+npm-debug.log*
+

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" role="img" aria-label="Causari">
+  <title>Causari (monochrome on dark)</title>
+  <desc>Causari logo, white monochrome variant for dark backgrounds.</desc>
+
+  <path d="M 130 110
+           a 70 70 0 1 1 60 60
+           L 175 152
+           a 50 50 0 1 0 -45 -45
+           Z"
+        fill="#FFFFFF" transform="translate(-20 0)"/>
+
+  <g stroke="#FFFFFF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <polyline points="80,108 145,108 210,108 270,108 310,108"/>
+  </g>
+
+  <g fill="#FFFFFF">
+    <circle cx="80"  cy="108" r="11"/>
+    <circle cx="145" cy="108" r="11"/>
+    <circle cx="210" cy="108" r="11"/>
+    <circle cx="270" cy="108" r="11"/>
+  </g>
+  <g fill="#0B1437">
+    <circle cx="80"  cy="108" r="5"/>
+    <circle cx="145" cy="108" r="5"/>
+    <circle cx="210" cy="108" r="5"/>
+    <circle cx="270" cy="108" r="5"/>
+  </g>
+
+  <path d="M 295 108 L 330 108 M 318 96 L 332 108 L 318 120"
+        stroke="#FFFFFF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <text x="360" y="125"
+        font-family="'Inter', 'Segoe UI', system-ui, sans-serif"
+        font-weight="700" font-size="74" letter-spacing="-2"
+        fill="#FFFFFF">Causari</text>
+
+  <text x="360" y="170"
+        font-family="'JetBrains Mono', 'Fira Code', ui-monospace, monospace"
+        font-size="18" letter-spacing="2"
+        fill="#FFFFFF" opacity="0.85">intent-addressable code</text>
+</svg>
