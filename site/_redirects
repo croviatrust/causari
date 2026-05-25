@@ -22,15 +22,13 @@
 # Legal
 /license        https://github.com/croviatrust/causari/blob/main/LICENSE            302
 /notice         https://github.com/croviatrust/causari/blob/main/NOTICE             302
-/security       mailto:security@croviatrust.com                                      302
 
 # Install (will become a curl|sh one-liner once prebuilt binaries ship)
 /install        https://github.com/croviatrust/causari#quick-start                  302
 
 # Deep links into the site
-/mcp/*          /#mcp                                                                301
+/mcp            /#mcp                                                                301
 /quickstart     /#quickstart                                                         301
 /features       /#what                                                               301
-
-# www → apex
-https://www.causari.dev/*  https://causari.dev/:splat  301!
+# Note: apex/www canonicalization is handled by Cloudflare's "Bulk Redirects"
+# at the DNS/zone level, not here. _redirects only accepts relative source paths.
