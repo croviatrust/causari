@@ -8,6 +8,25 @@
 <h3 align="center">Trace intent. Debug causality.</h3>
 <p align="center"><em>Intent-addressable code for AI agents.</em></p>
 
+<p align="center">
+  <a href="https://causari.dev"><strong>causari.dev</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/croviatrust/causari/releases">Releases</a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/croviatrust/causari/discussions">Discussions</a>
+  &nbsp;·&nbsp;
+  <a href="#mcp-server">MCP</a>
+  &nbsp;·&nbsp;
+  <a href="LICENSE">License (BSL 1.1)</a>
+</p>
+
+<p align="center">
+  <img alt="CI" src="https://github.com/croviatrust/causari/actions/workflows/ci.yml/badge.svg?branch=main">
+  <img alt="License" src="https://img.shields.io/badge/license-BSL%201.1-7c3aed">
+  <img alt="Rust" src="https://img.shields.io/badge/rust-stable-orange">
+  <img alt="Platform" src="https://img.shields.io/badge/platform-linux%20%7C%20macOS%20%7C%20windows-blue">
+</p>
+
 ---
 
 > *Causari* (Latin, deponent verb): *to plead a cause, to argue why.* Because

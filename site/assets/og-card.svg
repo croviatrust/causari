@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Causari — Trace intent. Debug causality.">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#07091a"/>
+      <stop offset="55%"  stop-color="#0c1029"/>
+      <stop offset="100%" stop-color="#11163a"/>
+    </linearGradient>
+
+    <!-- Brand gradient -->
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#7c3aed"/>
+      <stop offset="50%"  stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+
+    <linearGradient id="brand2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+
+    <!-- Radial glow -->
+    <radialGradient id="glow1" cx="0.78" cy="0.15" r="0.55">
+      <stop offset="0%"   stop-color="#7c3aed" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0.18" cy="0.85" r="0.55">
+      <stop offset="0%"   stop-color="#22d3ee" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Grid pattern -->
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.035)" stroke-width="1"/>
+    </pattern>
+    <mask id="gridmask">
+      <rect width="1200" height="630" fill="url(#gridfade)"/>
+    </mask>
+    <radialGradient id="gridfade" cx="0.5" cy="0.5" r="0.6">
+      <stop offset="0%"  stop-color="white" stop-opacity="0.9"/>
+      <stop offset="80%" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Base -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)" mask="url(#gridmask)"/>
+  <rect width="1200" height="630" fill="url(#glow1)"/>
+  <rect width="1200" height="630" fill="url(#glow2)"/>
+
+  <!-- Top tag pill -->
+  <g transform="translate(80, 80)">
+    <rect x="0" y="0" width="220" height="40" rx="20" fill="#11163a" stroke="#232a5e" stroke-width="1"/>
+    <circle cx="22" cy="20" r="4.5" fill="#2ec27e"/>
+    <text x="40" y="26" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="600" fill="#a4abce">v0.1.0 — Now public</text>
+  </g>
+
+  <!-- Causari icon (graph) — top right -->
+  <g transform="translate(960, 70)" stroke="url(#brand)" stroke-width="6" stroke-linecap="round" fill="none">
+    <!-- Three nodes + connecting line -->
+    <circle cx="20" cy="80" r="14" fill="#07091a"/>
+    <circle cx="80" cy="80" r="14" fill="#07091a"/>
+    <circle cx="140" cy="80" r="14" fill="#07091a"/>
+    <line x1="34" y1="80" x2="66" y2="80"/>
+    <line x1="94" y1="80" x2="126" y2="80"/>
+    <!-- Arrow forward -->
+    <line x1="154" y1="80" x2="190" y2="80"/>
+    <polyline points="178,68 192,80 178,92" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Big tagline -->
+  <text x="80" y="280" font-family="Inter, system-ui, sans-serif" font-size="92" font-weight="800" letter-spacing="-3" fill="url(#brand)">Trace intent.</text>
+  <text x="80" y="384" font-family="Inter, system-ui, sans-serif" font-size="92" font-weight="800" letter-spacing="-3" fill="url(#brand2)">Debug causality.</text>
+
+  <!-- Subline -->
+  <text x="80" y="460" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="400" fill="#a4abce">
+    The first content-addressable ledger for AI agents.
+  </text>
+
+  <!-- Bottom bar: wordmark + url -->
+  <g transform="translate(80, 540)">
+    <!-- Wordmark "Causari" -->
+    <text x="0" y="34" font-family="Inter, system-ui, sans-serif" font-size="40" font-weight="700" letter-spacing="-1" fill="#ecedf6">Causari</text>
+
+    <!-- URL chip -->
+    <g transform="translate(1010, 0)">
+      <rect x="0" y="0" width="110" height="48" rx="10" fill="#11163a" stroke="#2e3676" stroke-width="1.5"/>
+      <text x="55" y="31" text-anchor="middle" font-family="JetBrains Mono, ui-monospace, monospace" font-size="18" font-weight="600" fill="#22d3ee">causari.dev</text>
+    </g>
+  </g>
+
+  <!-- Decorative scanline at very bottom -->
+  <rect x="0" y="624" width="1200" height="6" fill="url(#brand)"/>
+</svg>

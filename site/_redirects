@@ -1,6 +1,36 @@
-/github       https://github.com/croviatrust/causari                     302
-/repo         https://github.com/croviatrust/causari                     302
-/discussions  https://github.com/croviatrust/causari/discussions          302
-/license      https://github.com/croviatrust/causari/blob/main/LICENSE    302
-/releases     https://github.com/croviatrust/causari/releases             302
-/docs         https://github.com/croviatrust/causari#readme               302
+# =========================================================
+# Vanity URLs — share these in talks, slides, tweets
+# =========================================================
+
+# Repository & community
+/github         https://github.com/croviatrust/causari                              302
+/repo           https://github.com/croviatrust/causari                              302
+/discussions    https://github.com/croviatrust/causari/discussions                  302
+/issues         https://github.com/croviatrust/causari/issues                       302
+
+# Documentation
+/docs           https://github.com/croviatrust/causari#readme                       302
+/readme         https://github.com/croviatrust/causari#readme                       302
+/contributing   https://github.com/croviatrust/causari/blob/main/CONTRIBUTING.md    302
+/cla            https://github.com/croviatrust/causari/blob/main/CLA.md             302
+
+# Releases & binaries
+/releases       https://github.com/croviatrust/causari/releases                     302
+/latest         https://github.com/croviatrust/causari/releases/latest              302
+/download       https://github.com/croviatrust/causari/releases/latest              302
+
+# Legal
+/license        https://github.com/croviatrust/causari/blob/main/LICENSE            302
+/notice         https://github.com/croviatrust/causari/blob/main/NOTICE             302
+/security       mailto:security@croviatrust.com                                      302
+
+# Install (will become a curl|sh one-liner once prebuilt binaries ship)
+/install        https://github.com/croviatrust/causari#quick-start                  302
+
+# Deep links into the site
+/mcp/*          /#mcp                                                                301
+/quickstart     /#quickstart                                                         301
+/features       /#what                                                               301
+
+# www → apex
+https://www.causari.dev/*  https://causari.dev/:splat  301!
