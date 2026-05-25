@@ -292,7 +292,7 @@ fn tool_recall(args: &Value) -> Result<String> {
         }
         cur = ev.parent;
     }
-    hits.sort_by(|a, b| b.0.cmp(&a.0));
+    hits.sort_by_key(|h| std::cmp::Reverse(h.0));
 
     if hits.is_empty() {
         return Ok(format!("no past events match {:?}", query));

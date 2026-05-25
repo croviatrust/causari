@@ -63,7 +63,7 @@ pub fn run(args: FindArgs) -> Result<()> {
         return Ok(());
     }
 
-    hits.sort_by(|a, b| b.0.cmp(&a.0));
+    hits.sort_by_key(|h| std::cmp::Reverse(h.0));
     let limit = args.limit.unwrap_or(10);
     println!(
         "{} {} match(es) for {:?}",
