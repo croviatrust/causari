@@ -494,12 +494,17 @@ found: first bad event: <span class="t-id">17cbc28d</span>
         <div class="step-num">1</div>
         <div class="step-body">
           <h3>Install</h3>
-          <p>From source, with the latest Rust toolchain:</p>
+          <p>One line. Linux &amp; macOS:</p>
           <div class="code-block">
             <button class="copy-btn" data-copy="qs1">Copy</button>
-<pre id="qs1"><code>cargo install --git https://github.com/croviatrust/causari</code></pre>
+<pre id="qs1"><code>curl -sSf https://causari.dev/install.sh | sh</code></pre>
           </div>
-          <p class="muted">Pre-built binaries land at the next release. Until then, builds take ~45s on a modern laptop.</p>
+          <p style="margin-top:14px">Windows (PowerShell):</p>
+          <div class="code-block">
+            <button class="copy-btn" data-copy="qs1ps">Copy</button>
+<pre id="qs1ps"><code>iwr -useb https://causari.dev/install.ps1 | iex</code></pre>
+          </div>
+          <p class="muted">SHA256-verified, ~800 KB download, installs to <code>~/.local/bin</code> (or <code>%LOCALAPPDATA%\Programs\causari</code> on Windows). Prefer source? <code>cargo install --git https://github.com/croviatrust/causari</code>.</p>
         </div>
       </li>
 
@@ -587,7 +592,7 @@ re bisect --test "npm test"</code></pre>
 
     <div class="code-block code-big">
       <button class="copy-btn" data-copy="ctacmd">Copy</button>
-<pre id="ctacmd"><code>cargo install --git https://github.com/croviatrust/causari</code></pre>
+<pre id="ctacmd"><code>curl -sSf https://causari.dev/install.sh | sh</code></pre>
     </div>
 
     <div class="cta-buttons">

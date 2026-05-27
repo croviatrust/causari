@@ -31,3 +31,7 @@ desktop.ini
 *.log
 npm-debug.log*
 
+# === Release packaging artifacts (built locally before `gh release upload`) ===
+/dist
+/release-assets
+

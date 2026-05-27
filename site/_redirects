@@ -23,8 +23,8 @@
 /license        https://github.com/croviatrust/causari/blob/main/LICENSE            302
 /notice         https://github.com/croviatrust/causari/blob/main/NOTICE             302
 
-# Install (will become a curl|sh one-liner once prebuilt binaries ship)
-/install        https://github.com/croviatrust/causari#quick-start                  302
+# Install one-liner (POSIX shell)
+/install        /install.sh                                                          302
 
 # Deep links into the site
 /mcp            /#mcp                                                                301

@@ -190,7 +190,28 @@ silently builds a complete, queryable, causally-linked history of the session.
 
 ## Quickstart
 
+### Install (one line)
+
+Linux & macOS:
+
 ```bash
+curl -sSf https://causari.dev/install.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+iwr -useb https://causari.dev/install.ps1 | iex
+```
+
+Installs a SHA256-verified, ~800 KB pre-built binary into `~/.local/bin`
+(or `%LOCALAPPDATA%\Programs\causari` on Windows).
+
+Prefer building from source?
+
+```bash
+cargo install --git https://github.com/croviatrust/causari
+# or, with a local clone:
 cargo build --release
 ./target/release/re --help
 ```
