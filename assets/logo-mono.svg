@@ -1,41 +1,34 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" role="img" aria-label="Causari">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" role="img" aria-label="Causari — intent-addressable code">
   <title>Causari (monochrome)</title>
-  <desc>Causari logo, monochrome variant for light backgrounds.</desc>
+  <desc>Causari logo, monochrome variant for light backgrounds. Causal chain of four nodes ending in an arrow, followed by the wordmark.</desc>
 
-  <path d="M 130 110
-           a 70 70 0 1 1 60 60
-           L 175 152
-           a 50 50 0 1 0 -45 -45
-           Z"
-        fill="#0B1437" transform="translate(-20 0)"/>
-
-  <g stroke="#0B1437" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none">
-    <polyline points="80,108 145,108 210,108 270,108 310,108"/>
-  </g>
+  <polyline points="48,110 112,110 176,110 240,110"
+            stroke="#0B1437" stroke-width="11" stroke-linecap="round"
+            stroke-linejoin="round" fill="none"/>
 
   <g fill="#0B1437">
-    <circle cx="80"  cy="108" r="11"/>
-    <circle cx="145" cy="108" r="11"/>
-    <circle cx="210" cy="108" r="11"/>
-    <circle cx="270" cy="108" r="11"/>
+    <circle cx="48"  cy="110" r="13"/>
+    <circle cx="112" cy="110" r="13"/>
+    <circle cx="176" cy="110" r="13"/>
+    <circle cx="240" cy="110" r="13"/>
   </g>
   <g fill="#FFFFFF">
-    <circle cx="80"  cy="108" r="5"/>
-    <circle cx="145" cy="108" r="5"/>
-    <circle cx="210" cy="108" r="5"/>
-    <circle cx="270" cy="108" r="5"/>
+    <circle cx="48"  cy="110" r="6"/>
+    <circle cx="112" cy="110" r="6"/>
+    <circle cx="176" cy="110" r="6"/>
+    <circle cx="240" cy="110" r="6"/>
   </g>
 
-  <path d="M 295 108 L 330 108 M 318 96 L 332 108 L 318 120"
+  <path d="M 253 110 L 308 110 M 294 96 L 310 110 L 294 124"
         stroke="#0B1437" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 
-  <text x="360" y="125"
+  <text x="334" y="128"
         font-family="'Inter', 'Segoe UI', system-ui, sans-serif"
-        font-weight="700" font-size="74" letter-spacing="-2"
+        font-weight="800" font-size="78" letter-spacing="-2.5"
         fill="#0B1437">Causari</text>
 
-  <text x="360" y="170"
+  <text x="336" y="170"
         font-family="'JetBrains Mono', 'Fira Code', ui-monospace, monospace"
-        font-size="18" letter-spacing="2"
+        font-size="17" letter-spacing="2"
         fill="#0B1437">intent-addressable code</text>
 </svg>
