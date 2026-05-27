@@ -35,3 +35,6 @@ npm-debug.log*
 /dist
 /release-assets
 
+
+# === Demo recording scratch dir (created by scripts/demo-record.sh) ===
+/demo-recording

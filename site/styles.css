@@ -281,9 +281,12 @@ kbd {
   color: #e8eaf3;
   font-family: 'JetBrains Mono', monospace;
   font-size: 14px; line-height: 1.65;
-  min-height: 360px;
+  min-height: 520px;
   white-space: pre-wrap;
   position: relative;
+}
+@media (max-width: 640px) {
+  .term-body { font-size: 12px; min-height: 460px; padding: 16px 18px 22px; }
 }
 .cursor {
   display: inline-block; width: 8px; height: 16px; vertical-align: -3px;

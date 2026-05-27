@@ -78,52 +78,88 @@
   }
 
   // ---------------------------------------------------------- Terminal typer
-  // Simulates: $ re why src/auth.ts:42  → rich answer
+  //
+  // Replays a real Causari session captured from the v0.1.0 binary:
+  //   $ re init
+  //   $ re record --stdin   (rich JSON event)
+  //   $ re why src/auth.ts:5
+  //
+  // The output blocks below are verbatim from the actual CLI; only the
+  // line widths were trimmed to fit a 880px-wide terminal viewport.
+  // -------------------------------------------------------------------
   const typer = document.getElementById('typer');
   if (typer) {
-    const lines = [
-      { t: '$ ',                    c: 't-prompt', delay: 250 },
-      { t: 're why src/auth.ts:42', c: '',         delay: 22 },
-      { t: '\n\n',                  c: '',         delay: 320 },
-      { t: 'src/auth.ts:42',        c: 't-key',    delay: 0 },
-      { t: '  →  introduced by event ', c: '',     delay: 0 },
-      { t: 'a3f7b2c9',              c: 't-id',     delay: 0 },
-      { t: '\n  agent:    ',        c: '',         delay: 80 },
-      { t: 'claude-3.5-sonnet',     c: 't-val',    delay: 0 },
-      { t: '\n  prompt:   ',        c: '',         delay: 0 },
-      { t: '"Add JWT refresh logic that rotates every 24h"', c: 't-q', delay: 0 },
-      { t: '\n  reads:    spec/auth.md, package.json',  c: '', delay: 0 },
-      { t: '\n  writes:   src/auth.ts (lines 38-52)',   c: '', delay: 0 },
-      { t: '\n  reasoning:',                             c: '', delay: 0 },
-      { t: '\n    The spec calls for refresh tokens with a 24h expiry.', c: '', delay: 0 },
-      { t: '\n    I extracted the verify() helper to keep the rotation', c: '', delay: 0 },
-      { t: '\n    logic testable in isolation.',         c: '', delay: 0 },
+    // Each step is either a typed command (cmd) or an instant-reveal output.
+    // Outputs are arrays of [class, text] segments so we can color them.
+    const script = [
+      { kind: 'cmd', text: 're init', after: 280 },
+      { kind: 'out', segs: [
+        ['',       'Initialized causari repository in '],
+        ['t-key',  './my-project/.causari'],
+      ], after: 700 },
+
+      { kind: 'cmd', text: 're record -m "Add JWT refresh logic that rotates every 24h"', after: 220 },
+      { kind: 'out', segs: [
+        ['t-pass', 'recorded '],
+        ['t-id',   'e112706ec2'],
+        ['',       '  Add JWT refresh logic that rotates every 24h'],
+      ], after: 900 },
+
+      { kind: 'cmd', text: 're why src/auth.ts:5', after: 420 },
+      { kind: 'out', segs: [
+        ['t-key',  'src/auth.ts:5'],
+        ['',       '\n  '],
+        ['t-mut',  "const REFRESH_TTL = '24h';"],
+        ['',       '\n\nintroduced by '],
+        ['t-id',   'e112706ec2'],
+        ['',       '\n  agent:     '],
+        ['t-val',  'claude-3.5-sonnet'],
+        ['',       '\n  tool:      '],
+        ['t-val',  'edit'],
+        ['',       '\n  message:   Add JWT refresh logic that rotates every 24h'],
+        ['',       '\n\n  prompt:\n    '],
+        ['t-q',    '"Add JWT refresh logic that rotates every 24h"'],
+        ['',       '\n\n  reasoning:\n    The spec calls for refresh tokens with a 24h expiry.\n    I extracted issueTokens() so the rotation logic stays\n    testable in isolation.'],
+      ], after: 0 },
     ];
 
     let cancelled = false;
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-    async function type(node, str, ms) {
+    async function typeChars(node, str, ms) {
       for (let i = 0; i < str.length; i++) {
         if (cancelled) return;
         node.append(str[i]);
         if (ms > 0) await sleep(ms);
       }
     }
-    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+    function appendSpan(cls) {
+      const s = document.createElement('span');
+      if (cls) s.className = cls;
+      typer.appendChild(s);
+      return s;
+    }
 
     async function play() {
       cancelled = false;
       typer.textContent = '';
-      // First two entries: typed character-by-character to feel alive.
-      for (let i = 0; i < lines.length; i++) {
+      for (const step of script) {
         if (cancelled) return;
-        const seg = lines[i];
-        const span = document.createElement('span');
-        if (seg.c) span.className = seg.c;
-        typer.appendChild(span);
-        const speed = i < 2 ? 38 : 0; // type only the prompt+command
-        await type(span, seg.t, speed);
-        if (seg.delay) await sleep(seg.delay);
+        if (step.kind === 'cmd') {
+          // newline before the next prompt (except the first)
+          if (typer.childNodes.length) typer.append('\n');
+          appendSpan('t-prompt').textContent = '$ ';
+          const cmd = appendSpan('');
+          await typeChars(cmd, step.text, 32);
+          typer.append('\n');
+        } else if (step.kind === 'out') {
+          for (const [cls, t] of step.segs) {
+            appendSpan(cls).textContent = t;
+          }
+          typer.append('\n');
+        }
+        if (step.after) await sleep(step.after);
       }
     }
 
