@@ -1,36 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Causari icon">
   <title>Causari</title>
-  <desc>Causari icon: causal chain of three nodes ending in an arrow on a navy tile, sized for favicon and GitHub avatar.</desc>
+  <desc>Causari icon: navy C with causal graph for favicon and avatar.</desc>
 
   <defs>
-    <linearGradient id="cg" gradientUnits="userSpaceOnUse" x1="56" y1="128" x2="218" y2="128">
-      <stop offset="0%"   stop-color="#7C3AED"/>
-      <stop offset="50%"  stop-color="#3B82F6"/>
+    <linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"  stop-color="#7C3AED"/>
+      <stop offset="50%" stop-color="#3B82F6"/>
       <stop offset="100%" stop-color="#22D3EE"/>
     </linearGradient>
   </defs>
 
-  <!-- Rounded navy tile (high contrast across light & dark backgrounds) -->
-  <rect x="0" y="0" width="256" height="256" rx="56" fill="#0B1437"/>
+  <!-- Rounded background tile (so it works as app icon / GitHub avatar) -->
+  <rect x="0" y="0" width="256" height="256" rx="56" fill="#FFFFFF"/>
 
-  <!-- Gradient causal polyline through the three nodes -->
-  <polyline points="56,128 114,128 172,128"
-            stroke="url(#cg)" stroke-width="16" stroke-linecap="round"
-            stroke-linejoin="round" fill="none"/>
+  <!-- C, recentered -->
+  <path d="M 168 128
+           a 64 64 0 1 1 -55 -63
+           L 113 95
+           a 36 36 0 1 0 32 80
+           Z"
+        fill="#0B1437"/>
 
-  <!-- Nodes (white halo + colored core) -->
-  <g>
-    <circle cx="56"  cy="128" r="22" fill="#FFFFFF"/>
-    <circle cx="56"  cy="128" r="13" fill="#7C3AED"/>
-
-    <circle cx="114" cy="128" r="22" fill="#FFFFFF"/>
-    <circle cx="114" cy="128" r="13" fill="#3B82F6"/>
-
-    <circle cx="172" cy="128" r="22" fill="#FFFFFF"/>
-    <circle cx="172" cy="128" r="13" fill="#22D3EE"/>
+  <!-- Graph + arrow -->
+  <g stroke="url(#cg)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <polyline points="60,128 115,128 170,128 215,128"/>
+    <path d="M 200 114 L 218 128 L 200 142"/>
   </g>
 
-  <!-- Arrow head, in cyan, pointing right -->
-  <path d="M 188 128 L 218 128 M 204 110 L 220 128 L 204 146"
-        stroke="#22D3EE" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <g>
+    <circle cx="60"  cy="128" r="13" fill="#FFFFFF"/>
+    <circle cx="60"  cy="128" r="8"  fill="#7C3AED"/>
+
+    <circle cx="115" cy="128" r="13" fill="#FFFFFF"/>
+    <circle cx="115" cy="128" r="8"  fill="#5B5DEE"/>
+
+    <circle cx="170" cy="128" r="13" fill="#FFFFFF"/>
+    <circle cx="170" cy="128" r="8"  fill="#3B82F6"/>
+  </g>
 </svg>

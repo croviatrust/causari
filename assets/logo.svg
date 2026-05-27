@@ -1,48 +1,56 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" role="img" aria-label="Causari — intent-addressable code">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" role="img" aria-label="Causari">
   <title>Causari</title>
-  <desc>Causari logo: a horizontal causal chain — four gradient nodes connected by a line, ending in a cyan arrow, followed by the wordmark "Causari" and the tagline "intent-addressable code".</desc>
+  <desc>Causari logo: a navy C with a purple-to-cyan causal graph passing through it, ending in an arrow.</desc>
 
   <defs>
-    <linearGradient id="cg" gradientUnits="userSpaceOnUse" x1="48" y1="110" x2="310" y2="110">
-      <stop offset="0%"   stop-color="#7C3AED"/>
-      <stop offset="50%"  stop-color="#3B82F6"/>
+    <linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"  stop-color="#7C3AED"/>
+      <stop offset="50%" stop-color="#3B82F6"/>
       <stop offset="100%" stop-color="#22D3EE"/>
     </linearGradient>
   </defs>
 
-  <!-- Causal chain: gradient polyline through four nodes -->
-  <polyline points="48,110 112,110 176,110 240,110"
-            stroke="url(#cg)" stroke-width="11" stroke-linecap="round"
-            stroke-linejoin="round" fill="none"/>
+  <!-- Letter C: thick navy ring with right-side opening -->
+  <path d="M 130 110
+           a 70 70 0 1 1 60 60
+           L 175 152
+           a 50 50 0 1 0 -45 -45
+           Z"
+        fill="#0B1437" transform="translate(-20 0)"/>
 
-  <!-- Nodes (white halo + colored core, increasing in prominence) -->
-  <g>
-    <circle cx="48"  cy="110" r="13" fill="#FFFFFF"/>
-    <circle cx="48"  cy="110" r="8"  fill="#7C3AED"/>
-
-    <circle cx="112" cy="110" r="13" fill="#FFFFFF"/>
-    <circle cx="112" cy="110" r="8"  fill="#5B5DEE"/>
-
-    <circle cx="176" cy="110" r="13" fill="#FFFFFF"/>
-    <circle cx="176" cy="110" r="8"  fill="#3B82F6"/>
-
-    <circle cx="240" cy="110" r="13" fill="#FFFFFF"/>
-    <circle cx="240" cy="110" r="8"  fill="#22D3EE"/>
+  <!-- Causal graph passing through the C -->
+  <g stroke="url(#cg)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <polyline points="80,108 145,108 200,108 255,108 310,108"/>
   </g>
 
-  <!-- Arrow: extends right from last node, in cyan -->
-  <path d="M 253 110 L 308 110 M 294 96 L 310 110 L 294 124"
+  <!-- Nodes (white halo + colored core) -->
+  <g>
+    <circle cx="80"  cy="108" r="11" fill="#FFFFFF"/>
+    <circle cx="80"  cy="108" r="7"  fill="#7C3AED"/>
+
+    <circle cx="145" cy="108" r="11" fill="#FFFFFF"/>
+    <circle cx="145" cy="108" r="7"  fill="#5B5DEE"/>
+
+    <circle cx="210" cy="108" r="11" fill="#FFFFFF"/>
+    <circle cx="210" cy="108" r="7"  fill="#3B82F6"/>
+
+    <circle cx="270" cy="108" r="11" fill="#FFFFFF"/>
+    <circle cx="270" cy="108" r="7"  fill="#22D3EE"/>
+  </g>
+
+  <!-- Arrow head -->
+  <path d="M 295 108 L 330 108 M 318 96 L 332 108 L 318 120"
         stroke="#22D3EE" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 
   <!-- Wordmark -->
-  <text x="334" y="128"
+  <text x="360" y="125"
         font-family="'Inter', 'Segoe UI', system-ui, sans-serif"
-        font-weight="800" font-size="78" letter-spacing="-2.5"
+        font-weight="700" font-size="74" letter-spacing="-2"
         fill="#0B1437">Causari</text>
 
   <!-- Tagline -->
-  <text x="336" y="170"
+  <text x="360" y="170"
         font-family="'JetBrains Mono', 'Fira Code', ui-monospace, monospace"
-        font-size="17" letter-spacing="2"
+        font-size="18" letter-spacing="2"
         fill="#5B5DEE">intent-addressable code</text>
 </svg>
