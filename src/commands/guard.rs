@@ -3,20 +3,19 @@ use colored::Colorize;
 use std::collections::HashSet;
 
 use crate::cli::GuardArgs;
+use crate::config::GuardConfig;
 use crate::repo::Repo;
 use crate::store::Store;
 
 /// `re guard` — causal watchdog.
 ///
-/// Scans the event ledger for risky patterns that no other tool can detect:
-///   • edits to critical files without corresponding test changes
-///   • bulk edits that touch too many files at once
-///   • events that modify source but skip tests entirely
-///
+/// Scans the event ledger for risky patterns that no other tool can detect.
+/// Rules are hard-coded + user-defined in `.causari/guard.toml`.
 /// All analysis is local; no data leaves the machine.
 pub fn run(args: GuardArgs) -> Result<()> {
     let repo = Repo::discover()?;
     let store = Store::new(&repo);
+    let cfg = GuardConfig::load(&repo.root)?;
 
     let head = repo.head_event()?;
     let limit = args.limit.unwrap_or(20);
@@ -42,6 +41,7 @@ pub fn run(args: GuardArgs) -> Result<()> {
     let mut alerts = 0usize;
     let mut warnings = 0usize;
 
+    // Built-in rules
     for id in &chain {
         let ev = store.read_event(id)?;
         let writes: HashSet<&str> = ev.writes.iter().map(|s| s.as_str()).collect();
@@ -49,7 +49,7 @@ pub fn run(args: GuardArgs) -> Result<()> {
             continue;
         }
 
-        // Rule 1: bulk edit (too many files at once)
+        // Rule 1: bulk edit
         if writes.len() > 15 {
             print_alert(id, &ev, "bulk edit", &format!(
                 "touched {} files in a single event — easy to miss side-effects",
@@ -90,6 +90,31 @@ pub fn run(args: GuardArgs) -> Result<()> {
         if has_source && !has_test {
             print_alert(id, &ev, "missing tests", "modified source files but no tests");
             warnings += 1;
+        }
+    }
+
+    // User-defined rules from .causari/guard.toml
+    for rule in &cfg.rules {
+        for id in &chain {
+            let ev = store.read_event(id)?;
+            let writes: HashSet<&str> = ev.writes.iter().map(|s| s.as_str()).collect();
+            if writes.is_empty() {
+                continue;
+            }
+            let low_when = rule.when.to_lowercase();
+            let matched = writes.iter().any(|w| w.to_lowercase().contains(&low_when));
+            if matched {
+                let threshold = rule.threshold.unwrap_or(1);
+                if writes.len() >= threshold {
+                    print_alert(id, &ev, &rule.name, &format!(
+                        "matched '{}' in {} files (threshold: {})",
+                        rule.when,
+                        writes.len(),
+                        threshold
+                    ));
+                    alerts += 1;
+                }
+            }
         }
     }
 

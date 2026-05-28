@@ -1,6 +1,7 @@
 mod banner;
 mod cli;
 mod commands;
+mod config;
 mod object;
 mod repo;
 mod snapshot;
