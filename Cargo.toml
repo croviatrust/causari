@@ -28,7 +28,7 @@ chrono = { version = "0.4", features = ["serde"] }
 hex = "0.4"
 colored = "2.1"
 similar = "3.1"
-notify = "6.1"
+notify = "8.2"
 notify-debouncer-mini = "0.7"
 ctrlc = "3.4"
 toml = "0.8"
