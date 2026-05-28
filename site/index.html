@@ -135,17 +135,77 @@
       <span>No telemetry</span>
     </p>
 
-    <!-- TERMINAL DEMO -->
-    <div class="terminal" aria-label="Demo: re why src/auth.ts:42">
-      <div class="term-header">
-        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-        <span class="term-title">~/your-app — re</span>
-      </div>
-      <pre class="term-body" id="term-body"><code id="typer"></code><span class="cursor"></span></pre>
+    <!-- CAUSAL GRAPH DEMO -->
+    <div class="causal-graph" aria-label="Causal graph: events connected by file reads and writes">
+      <svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg" class="cg-svg">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="rgba(124,58,237,0.5)"/>
+          </marker>
+          <linearGradient id="nodeGrad1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#3B82F6"/>
+          </linearGradient>
+          <linearGradient id="nodeGrad2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#3B82F6"/><stop offset="100%" stop-color="#22D3EE"/>
+          </linearGradient>
+          <linearGradient id="nodeGrad3" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#10B981"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Edges -->
+        <path d="M120,180 Q200,120 280,100" class="cg-edge" marker-end="url(#arrow)"/>
+        <path d="M120,180 Q200,240 280,260" class="cg-edge" marker-end="url(#arrow)"/>
+        <path d="M280,100 Q360,120 440,180" class="cg-edge" marker-end="url(#arrow)"/>
+        <path d="M280,260 Q360,240 440,180" class="cg-edge" marker-end="url(#arrow)"/>
+        <path d="M440,180 Q520,140 600,120" class="cg-edge" marker-end="url(#arrow)"/>
+        <path d="M440,180 Q520,220 600,240" class="cg-edge" marker-end="url(#arrow)"/>
+        <path d="M600,120 Q660,180 680,180" class="cg-edge cg-edge--dashed" stroke-dasharray="4,4"/>
+        <path d="M600,240 Q660,180 680,180" class="cg-edge cg-edge--dashed" stroke-dasharray="4,4"/>
+
+        <!-- Nodes -->
+        <g class="cg-node" transform="translate(120,180)">
+          <circle r="28" fill="url(#nodeGrad1)" class="cg-node-bg"/>
+          <text y="-4" text-anchor="middle" fill="#fff" font-size="10" font-family="JetBrains Mono,monospace" font-weight="600">e112</text>
+          <text y="8" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">init</text>
+        </g>
+        <g class="cg-node" transform="translate(280,100)">
+          <circle r="28" fill="url(#nodeGrad2)" class="cg-node-bg"/>
+          <text y="-4" text-anchor="middle" fill="#fff" font-size="10" font-family="JetBrains Mono,monospace" font-weight="600">a3f7</text>
+          <text y="8" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">auth</text>
+        </g>
+        <g class="cg-node" transform="translate(280,260)">
+          <circle r="28" fill="url(#nodeGrad2)" class="cg-node-bg"/>
+          <text y="-4" text-anchor="middle" fill="#fff" font-size="10" font-family="JetBrains Mono,monospace" font-weight="600">e802</text>
+          <text y="8" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">spec</text>
+        </g>
+        <g class="cg-node" transform="translate(440,180)">
+          <circle r="28" fill="url(#nodeGrad3)" class="cg-node-bg"/>
+          <text y="-4" text-anchor="middle" fill="#fff" font-size="10" font-family="JetBrains Mono,monospace" font-weight="600">b2c9</text>
+          <text y="8" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">test</text>
+        </g>
+        <g class="cg-node" transform="translate(600,120)">
+          <circle r="28" fill="url(#nodeGrad1)" class="cg-node-bg"/>
+          <text y="-4" text-anchor="middle" fill="#fff" font-size="10" font-family="JetBrains Mono,monospace" font-weight="600">c4d1</text>
+          <text y="8" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">deploy</text>
+        </g>
+        <g class="cg-node" transform="translate(600,240)">
+          <circle r="28" fill="url(#nodeGrad2)" class="cg-node-bg"/>
+          <text y="-4" text-anchor="middle" fill="#fff" font-size="10" font-family="JetBrains Mono,monospace" font-weight="600">d5e2</text>
+          <text y="8" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">fix</text>
+        </g>
+
+        <!-- File labels floating -->
+        <text x="200" y="80" class="cg-file" fill="#22D3EE" font-size="9" font-family="JetBrains Mono,monospace">src/auth.ts</text>
+        <text x="360" y="150" class="cg-file" fill="#3B82F6" font-size="9" font-family="JetBrains Mono,monospace">src/test.ts</text>
+        <text x="520" y="100" class="cg-file" fill="#7C3AED" font-size="9" font-family="JetBrains Mono,monospace">ci.yml</text>
+      </svg>
     </div>
 
     <p class="hero-foot">
-      <kbd>R</kbd> to replay  <span class="sep">·</span>  <span class="muted">Real <code>re</code> CLI output</span>
+      <span class="muted">Every node is an agent action. Every edge is a file dependency.</span>
+      <span class="sep">·</span>
+      <kbd>R</kbd> to replay CLI demo
     </p>
 
   </div>
@@ -194,6 +254,52 @@
       <br/>
       Causari does. We call it <span class="grad">intent-addressable code</span>.
     </p>
+  </div>
+</section>
+
+<!-- ========================================================= BEFORE/AFTER -->
+<section class="section ba-section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">The difference</p>
+      <h2>Without Causari vs. With Causari.</h2>
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-card ba-before">
+        <div class="ba-label">Without Causari</div>
+        <div class="ba-term">
+          <div class="ba-prompt">$ git blame src/auth.ts:42</div>
+          <div class="ba-output ba-faint">
+            claude · 48 hours ago · commit a3f7b2c
+          </div>
+          <div class="ba-prompt">$ # now search 4000 lines of chat...</div>
+          <div class="ba-output ba-faint">
+            ctrl+f "auth" ... no match<br/>
+            ctrl+f "JWT" ... 47 matches<br/>
+            → 45 minutes lost
+          </div>
+        </div>
+      </div>
+
+      <div class="ba-arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="var(--brand-2)" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </div>
+
+      <div class="ba-card ba-after">
+        <div class="ba-label ba-label--success">With Causari</div>
+        <div class="ba-term">
+          <div class="ba-prompt">$ re why src/auth.ts:42</div>
+          <div class="ba-output">
+            <span class="ba-key">introduced by</span> <span class="ba-id">a3f7b2c9</span><br/>
+            <span class="ba-key">agent:</span> <span class="ba-val">claude-3.5-sonnet</span><br/>
+            <span class="ba-key">prompt:</span> <span class="ba-q">"Add JWT refresh logic"</span><br/>
+            <span class="ba-key">reasoning:</span> <span class="ba-reason">The spec calls for 24h rotation...</span><br/>
+            <span class="ba-time">→ 3 seconds</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
