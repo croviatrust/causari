@@ -154,6 +154,8 @@ Working end-to-end today:
 - **`re impact <event>`** — downstream causal cone (blast radius)
 - **`re lens <file>`** — file with per-line provenance annotations
 - **`re guard`** — scan recent events for risky patterns (critical edits without tests, bulk edits, etc.)
+- **`re guard --badge`** — generate `.causari/guard-badge.svg` for your README
+- **`re guard --summary`** — emit Markdown table for PR comments
 - **`re find <query>`** — text search across prompts, messages, reasoning
 - **`re bisect --good <id> --bad <id> --test "<cmd>"`** — find the broken action
 - **`re fork <name> [--from <id>]`** — branch into a parallel timeline
