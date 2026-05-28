@@ -1,11 +1,23 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use colored::Colorize;
 use std::collections::HashSet;
+use std::path::PathBuf;
 
 use crate::cli::GuardArgs;
 use crate::config::GuardConfig;
 use crate::repo::Repo;
 use crate::store::Store;
+
+struct AlertItem {
+    id: String,
+    rule: String,
+    detail: String,
+    agent: Option<String>,
+    message: Option<String>,
+    severity: Severity,
+}
+
+enum Severity { Alert, Warning }
 
 /// `re guard` — causal watchdog.
 ///
@@ -20,12 +32,6 @@ pub fn run(args: GuardArgs) -> Result<()> {
     let head = repo.head_event()?;
     let limit = args.limit.unwrap_or(20);
 
-    println!(
-        "{} scanning last {} events for risky patterns…",
-        "causari guard:".green().bold(),
-        limit
-    );
-
     let mut chain: Vec<String> = Vec::new();
     let mut cur = head;
     while let Some(id) = cur {
@@ -38,8 +44,7 @@ pub fn run(args: GuardArgs) -> Result<()> {
     }
     chain.reverse();
 
-    let mut alerts = 0usize;
-    let mut warnings = 0usize;
+    let mut items: Vec<AlertItem> = Vec::new();
 
     // Built-in rules
     for id in &chain {
@@ -51,11 +56,14 @@ pub fn run(args: GuardArgs) -> Result<()> {
 
         // Rule 1: bulk edit
         if writes.len() > 15 {
-            print_alert(id, &ev, "bulk edit", &format!(
-                "touched {} files in a single event — easy to miss side-effects",
-                writes.len()
-            ));
-            alerts += 1;
+            items.push(AlertItem {
+                id: id.clone(),
+                rule: "bulk edit".into(),
+                detail: format!("touched {} files in a single event", writes.len()),
+                agent: ev.agent.clone(),
+                message: ev.message.clone(),
+                severity: Severity::Alert,
+            });
         }
 
         // Rule 2: critical file without test
@@ -75,11 +83,14 @@ pub fn run(args: GuardArgs) -> Result<()> {
                 let low = w.to_lowercase();
                 critical_patterns.iter().any(|pat| low.contains(pat))
             }).cloned().collect();
-            print_alert(id, &ev, "critical without test", &format!(
-                "modified {} but no test file was touched",
-                crits.join(", ")
-            ));
-            alerts += 1;
+            items.push(AlertItem {
+                id: id.clone(),
+                rule: "critical without test".into(),
+                detail: format!("modified {} but no test file touched", crits.join(", ")),
+                agent: ev.agent.clone(),
+                message: ev.message.clone(),
+                severity: Severity::Alert,
+            });
         }
 
         // Rule 3: source edit but zero tests
@@ -88,8 +99,14 @@ pub fn run(args: GuardArgs) -> Result<()> {
                 || w.ends_with(".py") || w.ends_with(".go")
         });
         if has_source && !has_test {
-            print_alert(id, &ev, "missing tests", "modified source files but no tests");
-            warnings += 1;
+            items.push(AlertItem {
+                id: id.clone(),
+                rule: "missing tests".into(),
+                detail: "modified source files but no tests".into(),
+                agent: ev.agent.clone(),
+                message: ev.message.clone(),
+                severity: Severity::Warning,
+            });
         }
     }
 
@@ -106,15 +123,64 @@ pub fn run(args: GuardArgs) -> Result<()> {
             if matched {
                 let threshold = rule.threshold.unwrap_or(1);
                 if writes.len() >= threshold {
-                    print_alert(id, &ev, &rule.name, &format!(
-                        "matched '{}' in {} files (threshold: {})",
-                        rule.when,
-                        writes.len(),
-                        threshold
-                    ));
-                    alerts += 1;
+                    items.push(AlertItem {
+                        id: id.clone(),
+                        rule: rule.name.clone(),
+                        detail: format!(
+                            "matched '{}' in {} files (threshold: {})",
+                            rule.when, writes.len(), threshold
+                        ),
+                        agent: ev.agent.clone(),
+                        message: ev.message.clone(),
+                        severity: Severity::Alert,
+                    });
                 }
             }
+        }
+    }
+
+    let alerts = items.iter().filter(|i| matches!(i.severity, Severity::Alert)).count();
+    let warnings = items.iter().filter(|i| matches!(i.severity, Severity::Warning)).count();
+
+    if args.badge {
+        let badge_path = repo.root.join(".causari").join("guard-badge.svg");
+        let svg = generate_badge(alerts, warnings);
+        std::fs::write(&badge_path, svg).with_context(|| format!("writing {}", badge_path.display()))?;
+        println!("{} badge written to {}", "✓".green().bold(), badge_path.display());
+        return Ok(());
+    }
+
+    if args.summary {
+        print_summary(&items, alerts, warnings);
+        return Ok(());
+    }
+
+    // Default terminal output
+    println!(
+        "{} scanning last {} events for risky patterns…",
+        "causari guard:".green().bold(),
+        limit
+    );
+
+    for item in &items {
+        let short = &item.id[..10];
+        let sev_icon = match item.severity {
+            Severity::Alert => "▲".red().bold().to_string(),
+            Severity::Warning => "△".yellow().bold().to_string(),
+        };
+        println!(
+            "  {} {} {} {}  {}",
+            sev_icon,
+            short.bright_black(),
+            item.rule.yellow().bold(),
+            "—".bright_black(),
+            &item.detail
+        );
+        if let Some(agent) = &item.agent {
+            println!("    agent: {}", agent.cyan());
+        }
+        if let Some(msg) = &item.message {
+            println!("    msg:   {}", msg);
         }
     }
 
@@ -134,20 +200,59 @@ pub fn run(args: GuardArgs) -> Result<()> {
     Ok(())
 }
 
-fn print_alert(id: &str, ev: &crate::object::Event, rule: &str, detail: &str) {
-    let short = &id[..10];
-    println!(
-        "  {} {} {} {}  {}",
-        "▲".red().bold(),
-        short.bright_black(),
-        rule.yellow().bold(),
-        "—".bright_black(),
-        detail
-    );
-    if let Some(agent) = &ev.agent {
-        println!("    agent: {}", agent.cyan());
+fn generate_badge(alerts: usize, warnings: usize) -> String {
+    let (color, text) = if alerts > 0 {
+        ("#EF4444", format!("guard: {} alerts", alerts))
+    } else if warnings > 0 {
+        ("#F59E0B", format!("guard: {} warnings", warnings))
+    } else {
+        ("#22C55E", "guard: passing".into())
+    };
+    let width = 140 + text.len() * 7;
+    format!(
+        r##"<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="28" role="img" aria-label="Causari Guard: {text}">
+  <title>Causari Guard: {text}</title>
+  <g shape-rendering="crispEdges">
+    <rect width="105" height="28" fill="#0B1437"/>
+    <rect x="105" width="{badge_width}" height="28" fill="{color}"/>
+  </g>
+  <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="12">
+    <text x="52.5" y="18">causari</text>
+    <text x="{text_x}" y="18">{text}</text>
+  </g>
+</svg>"##,
+        width = width,
+        badge_width = width - 105,
+        text = text,
+        text_x = 105 + (width - 105) / 2,
+        color = color,
+    )
+}
+
+fn print_summary(items: &[AlertItem], alerts: usize, warnings: usize) {
+    let status = if alerts > 0 {
+        "❌ failing"
+    } else if warnings > 0 {
+        "⚠️ warnings"
+    } else {
+        "✅ passing"
+    };
+    println!("## Causari Guard — {}", status);
+    println!();
+    println!("| Event | Agent | Rule | Detail |");
+    println!("|---|---|---|---|");
+    for item in items {
+        let short = &item.id[..10];
+        let agent = item.agent.as_deref().unwrap_or("—");
+        let sev = match item.severity {
+            Severity::Alert => "🔴",
+            Severity::Warning => "🟡",
+        };
+        println!("| `{}` | {} | {} {} | {} |", short, agent, sev, item.rule, item.detail);
     }
-    if let Some(msg) = &ev.message {
-        println!("    msg:   {}", msg);
+    if items.is_empty() {
+        println!("| — | — | — | No risky patterns found |");
     }
+    println!();
+    println!("<sub>Powered by [Causari](https://causari.dev)</sub>");
 }

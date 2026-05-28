@@ -196,6 +196,14 @@ pub struct GuardArgs {
     /// Number of recent events to scan (default: 20)
     #[arg(short = 'n', long)]
     pub limit: Option<usize>,
+
+    /// Generate an SVG badge at .causari/guard-badge.svg
+    #[arg(long)]
+    pub badge: bool,
+
+    /// Emit Markdown summary to stdout (for CI / PR comments)
+    #[arg(long)]
+    pub summary: bool,
 }
 
 #[derive(Args, Debug)]
