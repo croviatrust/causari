@@ -58,6 +58,16 @@ pub fn run(args: LensArgs) -> Result<()> {
         let pre_content: String =
             read_file_at(&store, &ev, &rel, /*pre=*/ true)?.unwrap_or_default();
 
+        // ROOT EVENT: pre_snapshot == post_snapshot for the first record.
+        // Claim every line in the initial snapshot so they are not left orphaned.
+        if ev.parent.is_none() {
+            if !post_content.is_empty() {
+                owners = vec![Some(id.clone()); post_content.lines().count()];
+                prev_content = post_content;
+            }
+            continue;
+        }
+
         if pre_content == post_content {
             continue;
         }

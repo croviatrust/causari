@@ -1,8 +1,5 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-mono-white.svg">
-    <img src="assets/logo.svg" alt="Causari — intent-addressable code" width="520">
-  </picture>
+  <img src="assets/logo-readme.png" alt="Causari — intent-addressable code" width="520">
 </p>
 
 <h3 align="center">Trace intent. Debug causality.</h3>

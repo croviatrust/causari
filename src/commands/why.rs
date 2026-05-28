@@ -83,6 +83,13 @@ fn event_introduced_line(store: &Store, ev: &Event, rel: &Path, target: &str) ->
         None => String::new(),
     };
 
+    // ROOT EVENT: pre_snapshot == post_snapshot for the first record, so the
+    // normal diff logic would skip it. Treat the root event as the introduction
+    // of every file that exists in its post-snapshot.
+    if ev.parent.is_none() {
+        return Ok(post_text.lines().any(|l| l == target));
+    }
+
     if pre_text == post_text {
         return Ok(false); // event did not touch this file
     }
