@@ -30,7 +30,7 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: install rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -60,7 +60,7 @@ jobs:
         run: cargo test --release --target ${{ matrix.target }}
 
       - name: upload artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: re-${{ matrix.target }}
           path: |
@@ -71,7 +71,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" role="img" aria-label="Causari">
+  <title>Causari</title>
+  <desc>Causari logo: navy C with causal graph, no transform.</desc>
+  <defs>
+    <linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="50%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#22D3EE"/>
+    </linearGradient>
+  </defs>
+  <!-- C flipped physically (opens right) -->
+  <path d="M 150 110 a 70 70 0 1 0 -60 60 L 105 152 a 50 50 0 1 1 45 -45 Z" fill="#0B1437"/>
+  <!-- Causal graph -->
+  <g stroke="url(#cg)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <polyline points="80,108 145,108 200,108 255,108 310,108"/>
+  </g>
+  <!-- Nodes -->
+  <g>
+    <circle cx="80"  cy="108" r="11" fill="#FFFFFF"/><circle cx="80"  cy="108" r="7" fill="#7C3AED"/>
+    <circle cx="145" cy="108" r="11" fill="#FFFFFF"/><circle cx="145" cy="108" r="7" fill="#5B5DEE"/>
+    <circle cx="210" cy="108" r="11" fill="#FFFFFF"/><circle cx="210" cy="108" r="7" fill="#3B82F6"/>
+    <circle cx="270" cy="108" r="11" fill="#FFFFFF"/><circle cx="270" cy="108" r="7" fill="#22D3EE"/>
+  </g>
+  <!-- Arrow -->
+  <path d="M 295 108 L 330 108 M 318 96 L 332 108 L 318 120" stroke="#22D3EE" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Wordmark -->
+  <text x="360" y="125" font-family="'Inter','Segoe UI',system-ui,sans-serif" font-weight="700" font-size="74" letter-spacing="-2" fill="#0B1437">Causari</text>
+  <!-- Tagline -->
+  <text x="360" y="170" font-family="'JetBrains Mono','Fira Code',ui-monospace,monospace" font-size="18" letter-spacing="2" fill="#5B5DEE">intent-addressable code</text>
+</svg>
