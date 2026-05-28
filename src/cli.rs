@@ -60,6 +60,9 @@ pub enum Command {
 
     /// Run Causari as an MCP server (Claude Code, Cursor, Cline, Windsurf, …)
     Mcp(McpArgs),
+
+    /// Scan recent events for risky patterns (watchdog)
+    Guard(GuardArgs),
 }
 
 #[derive(Args, Debug)]
@@ -186,6 +189,13 @@ pub struct ImpactArgs {
 pub struct LensArgs {
     /// Path to the file you want annotated with per-line provenance
     pub file: String,
+}
+
+#[derive(Args, Debug)]
+pub struct GuardArgs {
+    /// Number of recent events to scan (default: 20)
+    #[arg(short = 'n', long)]
+    pub limit: Option<usize>,
 }
 
 #[derive(Args, Debug)]

@@ -2,6 +2,7 @@ pub mod bisect;
 pub mod diff;
 pub mod find;
 pub mod fork;
+pub mod guard;
 pub mod impact;
 pub mod init;
 pub mod lens;

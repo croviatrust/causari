@@ -30,5 +30,6 @@ fn main() -> Result<()> {
         Command::Impact(args) => commands::impact::run(args),
         Command::Lens(args) => commands::lens::run(args),
         Command::Mcp(args) => commands::mcp::run(args),
+        Command::Guard(args) => commands::guard::run(args),
     }
 }
