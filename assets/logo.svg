@@ -10,13 +10,14 @@
     </linearGradient>
   </defs>
 
-  <!-- Letter C: thick navy ring with right-side opening -->
+  <!-- Letter C: thick navy ring with right-side opening
+       (mirrored horizontally around x=160 to fix the orientation) -->
   <path d="M 130 110
            a 70 70 0 1 1 60 60
            L 175 152
            a 50 50 0 1 0 -45 -45
            Z"
-        fill="#0B1437" transform="translate(-20 0)"/>
+        fill="#0B1437" transform="translate(280 0) scale(-1 1)"/>
 
   <!-- Causal graph passing through the C -->
   <g stroke="url(#cg)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none">

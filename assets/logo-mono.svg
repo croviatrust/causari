@@ -7,7 +7,7 @@
            L 175 152
            a 50 50 0 1 0 -45 -45
            Z"
-        fill="#0B1437" transform="translate(-20 0)"/>
+        fill="#0B1437" transform="translate(280 0) scale(-1 1)"/>
 
   <g stroke="#0B1437" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none">
     <polyline points="80,108 145,108 210,108 270,108 310,108"/>

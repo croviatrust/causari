@@ -16,7 +16,10 @@ struct AlertItem {
     severity: Severity,
 }
 
-enum Severity { Alert, Warning }
+enum Severity {
+    Alert,
+    Warning,
+}
 
 /// `re guard` — causal watchdog.
 ///
@@ -66,9 +69,24 @@ pub fn run(args: GuardArgs) -> Result<()> {
         }
 
         // Rule 2: critical file without test
-        let critical_patterns = ["auth", "login", "password", "secret", "token", "credential",
-                                 "payment", "billing", "crypto", "wallet", "db", "database",
-                                 "migrate", "schema", "config", ".env"];
+        let critical_patterns = [
+            "auth",
+            "login",
+            "password",
+            "secret",
+            "token",
+            "credential",
+            "payment",
+            "billing",
+            "crypto",
+            "wallet",
+            "db",
+            "database",
+            "migrate",
+            "schema",
+            "config",
+            ".env",
+        ];
         let has_critical = writes.iter().any(|w| {
             let low = w.to_lowercase();
             critical_patterns.iter().any(|pat| low.contains(pat))
@@ -78,10 +96,14 @@ pub fn run(args: GuardArgs) -> Result<()> {
             low.contains("test") || low.contains("spec") || low.contains("_test.")
         });
         if has_critical && !has_test {
-            let crits: Vec<_> = writes.iter().filter(|w| {
-                let low = w.to_lowercase();
-                critical_patterns.iter().any(|pat| low.contains(pat))
-            }).cloned().collect();
+            let crits: Vec<_> = writes
+                .iter()
+                .filter(|w| {
+                    let low = w.to_lowercase();
+                    critical_patterns.iter().any(|pat| low.contains(pat))
+                })
+                .cloned()
+                .collect();
             items.push(AlertItem {
                 id: id.clone(),
                 rule: "critical without test".into(),
@@ -94,8 +116,11 @@ pub fn run(args: GuardArgs) -> Result<()> {
 
         // Rule 3: source edit but zero tests
         let has_source = writes.iter().any(|w| {
-            w.ends_with(".rs") || w.ends_with(".ts") || w.ends_with(".js")
-                || w.ends_with(".py") || w.ends_with(".go")
+            w.ends_with(".rs")
+                || w.ends_with(".ts")
+                || w.ends_with(".js")
+                || w.ends_with(".py")
+                || w.ends_with(".go")
         });
         if has_source && !has_test {
             items.push(AlertItem {
@@ -127,7 +152,9 @@ pub fn run(args: GuardArgs) -> Result<()> {
                         rule: rule.name.clone(),
                         detail: format!(
                             "matched '{}' in {} files (threshold: {})",
-                            rule.when, writes.len(), threshold
+                            rule.when,
+                            writes.len(),
+                            threshold
                         ),
                         agent: ev.agent.clone(),
                         message: ev.message.clone(),
@@ -138,14 +165,25 @@ pub fn run(args: GuardArgs) -> Result<()> {
         }
     }
 
-    let alerts = items.iter().filter(|i| matches!(i.severity, Severity::Alert)).count();
-    let warnings = items.iter().filter(|i| matches!(i.severity, Severity::Warning)).count();
+    let alerts = items
+        .iter()
+        .filter(|i| matches!(i.severity, Severity::Alert))
+        .count();
+    let warnings = items
+        .iter()
+        .filter(|i| matches!(i.severity, Severity::Warning))
+        .count();
 
     if args.badge {
         let badge_path = repo.root.join(".causari").join("guard-badge.svg");
         let svg = generate_badge(alerts, warnings);
-        std::fs::write(&badge_path, svg).with_context(|| format!("writing {}", badge_path.display()))?;
-        println!("{} badge written to {}", "✓".green().bold(), badge_path.display());
+        std::fs::write(&badge_path, svg)
+            .with_context(|| format!("writing {}", badge_path.display()))?;
+        println!(
+            "{} badge written to {}",
+            "✓".green().bold(),
+            badge_path.display()
+        );
         return Ok(());
     }
 
@@ -247,7 +285,10 @@ fn print_summary(items: &[AlertItem], alerts: usize, warnings: usize) {
             Severity::Alert => "🔴",
             Severity::Warning => "🟡",
         };
-        println!("| `{}` | {} | {} {} | {} |", short, agent, sev, item.rule, item.detail);
+        println!(
+            "| `{}` | {} | {} {} | {} |",
+            short, agent, sev, item.rule, item.detail
+        );
     }
     if items.is_empty() {
         println!("| — | — | — | No risky patterns found |");
