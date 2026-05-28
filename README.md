@@ -140,25 +140,44 @@ Snapshots are incremental (only changed files create new blobs, just like
 git's object store), so the storage cost is bounded by the *delta*, not the
 absolute size of the workspace.
 
-## Status
+## Causari Log
 
-Working end-to-end today:
+```
+[09:23:01]  re init
+              → .causari/ repository initialized
 
-- `re init` — initialize a repository
-- `re record` — record an event manually (CLI flags or `--stdin` JSON)
-- `re watch` — auto-record every filesystem change as an event
-- `re log` / `re show` / `re diff`
-- `re revert <id>` — restore workspace, with causal preview of impacted downstream events
-- **`re why <file>:<line>`** — provenance for any line of code
-- **`re trace <file>:<line>`** — upstream causal cone
-- **`re impact <event>`** — downstream causal cone (blast radius)
-- **`re lens <file>`** — file with per-line provenance annotations
-- **`re guard`** — scan recent events for risky patterns (critical edits without tests, bulk edits, etc.)
-- **`re guard --badge`** — generate `.causari/guard-badge.svg` for your README
-- **`re guard --summary`** — emit Markdown table for PR comments
-- **`re find <query>`** — text search across prompts, messages, reasoning
-- **`re bisect --good <id> --bad <id> --test "<cmd>"`** — find the broken action
-- **`re fork <name> [--from <id>]`** — branch into a parallel timeline
+[09:24:33]  re record -m "Add JWT refresh logic"
+              → 12 lines in src/auth.ts
+              → agent: claude-3.5-sonnet
+              → prompt: "Add JWT refresh logic that rotates every 24h"
+
+[09:25:12]  re guard
+              ⚠ critical without test: src/auth.ts
+              ⚠ 1 alert(s), 0 warning(s)
+
+[09:25:45]  re why src/auth.ts:5
+              → introduced by a3f7b2c9
+              → prompt: "Add JWT refresh logic that rotates every 24h"
+              → reasoning: The spec calls for refresh tokens...
+              → 3 seconds
+
+[09:26:18]  re trace src/auth.ts:5
+              → a3f7b2c9 "Add JWT refresh"
+                └─ e112706e "Update auth spec"
+                  └─ c13aa663 "Initial scaffold"
+
+[09:27:03]  re guard --badge
+              ✓ .causari/guard-badge.svg generated
+
+[09:27:44]  re impact a3f7b2c9
+              → downstream: 2 events depend on this
+              → c4d1e8f2 "Deploy to staging"
+              → d5e2a1b3 "Fix OAuth scope"
+
+[09:28:19]  re revert a3f7b2c9
+              ⚠ preview: 2 downstream events will lose context
+              → confirm with --yes to proceed
+```
 
 Next on the roadmap:
 
