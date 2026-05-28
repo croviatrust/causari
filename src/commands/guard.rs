@@ -1,7 +1,6 @@
 use anyhow::{Context, Result};
 use colored::Colorize;
 use std::collections::HashSet;
-use std::path::PathBuf;
 
 use crate::cli::GuardArgs;
 use crate::config::GuardConfig;
