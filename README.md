@@ -207,6 +207,35 @@ re mcp --install
 Then in any conversation the agent can call those tools by name. Causari
 silently builds a complete, queryable, causally-linked history of the session.
 
+## CI / GitHub Action
+
+Add the Causari Guard action to any repo and every pull request gets a
+risk summary — zero cloud, zero configuration:
+
+```yaml
+# .github/workflows/guard.yml
+name: Causari Guard
+on:
+  pull_request:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: croviatrust/causari-guard-action@v1
+```
+
+It installs `re`, runs `re guard --summary`, and posts a Markdown table
+of alerts directly into the PR thread. Block merges on risky patterns
+(bulk edits, auth without tests, missing tests, etc.).
+
+Keep the badge green on `main`:
+
+```bash
+re guard --badge   # .causari/guard-badge.svg
+```
+
 ## Quickstart
 
 ### Install (one line)
