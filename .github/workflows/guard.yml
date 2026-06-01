@@ -27,8 +27,14 @@ jobs:
           if [ "$ALERTS" -gt 0 ]; then STATUS="❌ failing"
           elif [ "$WARNINGS" -gt 0 ]; then STATUS="⚠️ warnings"
           else STATUS="✅ passing"; fi
-          COMMENT="## Causari Guard — ${STATUS}\n\n${SUMMARY}\n\n<sub>Powered by [Causari Guard](https://github.com/croviatrust/causari-guard-action)</sub>"
-          JSON_BODY=$(python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))' <<< "$COMMENT")
+          cat <<EOF > /tmp/comment.txt
+## Causari Guard — ${STATUS}
+
+${SUMMARY}
+
+<sub>Powered by [Causari Guard](https://github.com/croviatrust/causari-guard-action)</sub>
+EOF
+          JSON_BODY=$(python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))' < /tmp/comment.txt)
           curl -sSL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github+json" -X POST \
             -d "{\"body\":$JSON_BODY}" \
