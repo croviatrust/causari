@@ -303,6 +303,122 @@
   </div>
 </section>
 
+<!-- ============================================================== BADGE -->
+<section class="section badge-section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Continuous assurance</p>
+      <h2>Guard keeps your README honest.</h2>
+      <p class="lede">One command generates a live badge. Paste it into your README and every visitor sees the health of your causal ledger.</p>
+    </div>
+
+    <div class="badge-grid">
+      <div class="badge-card badge-pass">
+        <div class="badge-cmd">$ re guard --badge</div>
+        <svg class="badge-svg" viewBox="0 0 160 28" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="guard: passing">
+          <rect x="0" y="0" width="160" height="28" rx="4" fill="#1a1a2e"/>
+          <rect x="1" y="1" width="158" height="26" rx="3" fill="none" stroke="#22C55E" stroke-width="1" opacity="0.4"/>
+          <text x="12" y="18" font-family="'JetBrains Mono',monospace" font-size="11" fill="#94a3b8">guard</text>
+          <circle cx="95" cy="14" r="3" fill="#22C55E">
+            <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <text x="105" y="18" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600" fill="#22C55E">passing</text>
+        </svg>
+        <p class="badge-desc">Clean ledger. No risky patterns in the last 20 events.</p>
+      </div>
+
+      <div class="badge-card badge-warn">
+        <div class="badge-cmd">$ re guard --badge</div>
+        <svg class="badge-svg" viewBox="0 0 160 28" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="guard: warning">
+          <rect x="0" y="0" width="160" height="28" rx="4" fill="#1a1a2e"/>
+          <rect x="1" y="1" width="158" height="26" rx="3" fill="none" stroke="#F59E0B" stroke-width="1" opacity="0.4"/>
+          <text x="12" y="18" font-family="'JetBrains Mono',monospace" font-size="11" fill="#94a3b8">guard</text>
+          <circle cx="95" cy="14" r="3" fill="#F59E0B">
+            <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <text x="105" y="18" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600" fill="#F59E0B">warning</text>
+        </svg>
+        <p class="badge-desc">Source files edited without tests. Review recommended.</p>
+      </div>
+
+      <div class="badge-card badge-fail">
+        <div class="badge-cmd">$ re guard --badge</div>
+        <svg class="badge-svg" viewBox="0 0 160 28" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="guard: failing">
+          <rect x="0" y="0" width="160" height="28" rx="4" fill="#1a1a2e"/>
+          <rect x="1" y="1" width="158" height="26" rx="3" fill="none" stroke="#EF4444" stroke-width="1" opacity="0.4"/>
+          <text x="12" y="18" font-family="'JetBrains Mono',monospace" font-size="11" fill="#94a3b8">guard</text>
+          <circle cx="95" cy="14" r="3" fill="#EF4444">
+            <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <text x="105" y="18" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600" fill="#EF4444">failing</text>
+        </svg>
+        <p class="badge-desc">Critical file modified without test coverage. Block merge.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================== PLAYGROUND -->
+<section class="section playground-section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Your rules</p>
+      <h2>Define guard rules in plain TOML.</h2>
+      <p class="lede">No cloud console. No YAML. One file, checked into your repo, readable by humans and machines.</p>
+    </div>
+
+    <div class="playground-grid">
+      <div class="playground-panel">
+        <div class="playground-header">
+          <span class="playground-dot"></span>
+          <span class="playground-dot"></span>
+          <span class="playground-dot"></span>
+          <span class="playground-filename">.causari/guard.toml</span>
+        </div>
+        <pre class="playground-code"><code><span class="tk-section">[rules]</span>
+
+<span class="tk-comment"># Catch bulk edits that are easy to miss</span>
+[[rules]]
+<span class="tk-key">name</span> = <span class="tk-str">"bulk-edit"</span>
+<span class="tk-key">when</span> = <span class="tk-str">"*.rs"</span>
+<span class="tk-key">threshold</span> = <span class="tk-num">10</span>
+
+<span class="tk-comment"># Security files must have tests</span>
+[[rules]]
+<span class="tk-key">name</span> = <span class="tk-str">"auth-needs-test"</span>
+<span class="tk-key">when</span> = <span class="tk-str">"auth"</span>
+<span class="tk-key">threshold</span> = <span class="tk-num">1</span>
+
+<span class="tk-comment"># Schema changes are high-risk</span>
+[[rules]]
+<span class="tk-key">name</span> = <span class="tk-str">"schema-change"</span>
+<span class="tk-key">when</span> = <span class="tk-str">"migrate"</span>
+<span class="tk-key">threshold</span> = <span class="tk-num">1</span></code></pre>
+      </div>
+
+      <div class="playground-arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="var(--brand-2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </div>
+
+      <div class="playground-panel playground-output">
+        <div class="playground-header playground-header--out">
+          <span class="playground-filename">$ re guard --summary</span>
+        </div>
+        <pre class="playground-term"><code><span class="term-green">✓</span> scanning last 20 events…
+
+| Event      | Agent  | Status | Rule             | Detail                          |
+|------------|--------|--------|------------------|---------------------------------|
+| <span class="term-id">a3f7b2c9</span> | claude | <span class="term-red">🔴</span>     | auth-needs-test  | modified auth.rs, no test       |
+| <span class="term-id">d5e2a1b3</span> | claude | <span class="term-yellow">🟡</span>     | schema-change    | touched 2 migrate files         |
+| <span class="term-id">e112706e</span> | claude | <span class="term-green">✅</span>     | —                | clean                           |
+
+<span class="term-red">2 alert(s), 1 warning(s)</span> found.
+Review with: re show &lt;id&gt;  re diff &lt;id&gt;  re trace &lt;file&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ============================================================== WHAT -->
 <section id="what" class="section">
   <div class="container">
