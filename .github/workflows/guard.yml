@@ -6,6 +6,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  issues: write
 
 jobs:
   guard:
@@ -16,3 +17,21 @@ jobs:
         run: cargo install --git https://github.com/croviatrust/causari --locked
       - name: Run Guard
         run: re guard --summary -n 20 || true
+      - name: Post summary comment
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          SUMMARY=$(re guard --summary -n 20 2>&1 || true)
+          ALERTS=$(echo "$SUMMARY" | grep -c '🔴' || echo "0")
+          WARNINGS=$(echo "$SUMMARY" | grep -c '🟡' || echo "0")
+          if [ "$ALERTS" -gt 0 ]; then STATUS="❌ failing"
+          elif [ "$WARNINGS" -gt 0 ]; then STATUS="⚠️ warnings"
+          else STATUS="✅ passing"; fi
+          COMMENT="## Causari Guard — ${STATUS}\n\n${SUMMARY}\n\n<sub>Powered by [Causari Guard](https://github.com/croviatrust/causari-guard-action)</sub>"
+          JSON_BODY=$(python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))' <<< "$COMMENT")
+          curl -sSL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" -X POST \
+            -d "{\"body\":$JSON_BODY}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
+          echo "Posted guard summary to PR #${{ github.event.pull_request.number }}"
+        shell: bash
