@@ -12,4 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install Causari
+        run: cargo install --git https://github.com/croviatrust/causari --locked
       - run: echo "Guard workflow test"
