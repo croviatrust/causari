@@ -27,17 +27,20 @@ jobs:
           if [ "$ALERTS" -gt 0 ]; then STATUS="❌ failing"
           elif [ "$WARNINGS" -gt 0 ]; then STATUS="⚠️ warnings"
           else STATUS="✅ passing"; fi
-          cat <<EOF > /tmp/comment.txt
-## Causari Guard — ${STATUS}
+          python3 -c "
+import json, sys
+body = '''## Causari Guard — ${STATUS}
 
 ${SUMMARY}
 
 <sub>Powered by [Causari Guard](https://github.com/croviatrust/causari-guard-action)</sub>
-EOF
-          JSON_BODY=$(python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))' < /tmp/comment.txt)
+'''
+with open('/tmp/payload.json', 'w') as f:
+    json.dump({'body': body}, f)
+"
           curl -sSL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github+json" -X POST \
-            -d "{\"body\":$JSON_BODY}" \
+            -d @/tmp/payload.json \
             "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
           echo "Posted guard summary to PR #${{ github.event.pull_request.number }}"
         shell: bash
