@@ -8,39 +8,68 @@ permissions:
   pull-requests: write
   issues: write
 
+concurrency:
+  group: causari-guard-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   guard:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry
+          key: causari-cli-${{ runner.os }}
+
       - name: Install Causari
-        run: cargo install --git https://github.com/croviatrust/causari --locked
+        run: |
+          if ! command -v re >/dev/null 2>&1; then
+            cargo install --git https://github.com/croviatrust/causari --locked
+          fi
+
       - name: Run Guard
-        run: re guard --summary -n 20 || true
-      - name: Post summary comment
-        if: github.event_name == 'pull_request'
+        id: guard
         run: |
           set -euo pipefail
-          SUMMARY=$(re guard --summary -n 20 2>&1 || true)
-          ALERTS=$(echo "$SUMMARY" | grep -c '🔴' || echo "0")
-          WARNINGS=$(echo "$SUMMARY" | grep -c '🟡' || echo "0")
-          if [ "$ALERTS" -gt 0 ]; then STATUS="❌ failing"
-          elif [ "$WARNINGS" -gt 0 ]; then STATUS="⚠️ warnings"
-          else STATUS="✅ passing"; fi
-          python3 -c "
-import json, sys
-body = '''## Causari Guard — ${STATUS}
+          re guard --summary -n 20 > guard-summary.md
+          cat guard-summary.md
+          if grep -q '🔴' guard-summary.md; then
+            echo "status=alert" >> "$GITHUB_OUTPUT"
+          elif grep -q '🟡' guard-summary.md; then
+            echo "status=warn" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=pass" >> "$GITHUB_OUTPUT"
+          fi
 
-${SUMMARY}
-
-<sub>Powered by [Causari Guard](https://github.com/croviatrust/causari-guard-action)</sub>
-'''
-with open('/tmp/payload.json', 'w') as f:
-    json.dump({'body': body}, f)
-"
-          curl -sSL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" -X POST \
-            -d @/tmp/payload.json \
-            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
-          echo "Posted guard summary to PR #${{ github.event.pull_request.number }}"
-        shell: bash
+      - name: Post / update PR comment
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          MARKER="<!-- causari-guard -->"
+          {
+            echo "$MARKER"
+            cat guard-summary.md
+            echo ""
+            echo "<sub>Powered by [Causari Guard](https://github.com/croviatrust/causari-guard-action)</sub>"
+          } > comment.md
+          # Find an existing guard comment to edit (sticky), else create a new one.
+          ID=$(gh api "repos/${{ github.repository }}/issues/${PR}/comments" \
+                 --jq "map(select(.body | contains(\"$MARKER\"))) | .[0].id // empty")
+          if [ -n "$ID" ]; then
+            gh api -X PATCH "repos/${{ github.repository }}/issues/comments/${ID}" \
+              -F body=@comment.md >/dev/null
+            echo "Updated existing guard comment ($ID)."
+          else
+            gh pr comment "$PR" --body-file comment.md
+            echo "Posted new guard comment."
+          fi
