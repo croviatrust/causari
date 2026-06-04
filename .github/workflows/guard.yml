@@ -59,8 +59,6 @@ jobs:
           {
             echo "$MARKER"
             cat guard-summary.md
-            echo ""
-            echo "<sub>Powered by [Causari Guard](https://github.com/croviatrust/causari-guard-action)</sub>"
           } > comment.md
           # Find an existing guard comment to edit (sticky), else create a new one.
           ID=$(gh api "repos/${{ github.repository }}/issues/${PR}/comments" \
