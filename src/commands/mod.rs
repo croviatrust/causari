@@ -1,4 +1,5 @@
 pub mod bisect;
+pub mod churn;
 pub mod diff;
 pub mod find;
 pub mod fork;

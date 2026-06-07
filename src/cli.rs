@@ -63,6 +63,9 @@ pub enum Command {
 
     /// Scan recent events for risky patterns (watchdog)
     Guard(GuardArgs),
+
+    /// Measure how much AI-written code survived vs was rewritten (waste analysis)
+    Churn(ChurnArgs),
 }
 
 #[derive(Args, Debug)]
@@ -189,6 +192,13 @@ pub struct ImpactArgs {
 pub struct LensArgs {
     /// Path to the file you want annotated with per-line provenance
     pub file: String,
+}
+
+#[derive(Args, Debug)]
+pub struct ChurnArgs {
+    /// Emit a Markdown summary (for CI / PR comments)
+    #[arg(long)]
+    pub summary: bool,
 }
 
 #[derive(Args, Debug)]
