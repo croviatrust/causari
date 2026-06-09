@@ -306,6 +306,7 @@ kbd {
 .t-fail   { color: var(--danger); font-weight: 700; }
 .t-pass   { color: var(--success); font-weight: 700; }
 .t-warn   { color: var(--warn); }
+.t-red    { color: #EF4444; font-weight: 700; }
 
 /* =========================================================== Sections */
 .section { padding: 96px 0; }
@@ -721,57 +722,83 @@ kbd {
 
 .ba-arrow { display: flex; align-items: center; justify-content: center; }
 
-/* ===================================================== Causal Graph */
-.causal-graph {
-  max-width: 880px;
-  margin: 40px auto 0;
-  padding: 24px;
-  background: linear-gradient(180deg, rgba(11,20,55,0.6) 0%, rgba(7,9,26,0.3) 100%);
+/* ===================================================== Hero demo */
+.hero-demo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 20px;
+  max-width: 1020px;
+  margin: 44px auto 0;
+  align-items: stretch;
+  text-align: left;
+}
+.hero-demo .terminal { max-width: none; margin: 0; }
+.hero-demo .term-body { min-height: 372px; font-size: 13px; }
+
+/* Waste dashboard card — what `re report` produces, materializing live */
+.waste-card {
+  position: relative;
+  display: flex; flex-direction: column; gap: 18px;
+  padding: 22px 22px 24px;
+  background: linear-gradient(180deg, rgba(17,28,78,.85), rgba(11,18,46,.75));
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  backdrop-filter: blur(8px);
+  box-shadow: 0 24px 60px -26px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.05);
+  opacity: 0; transform: translateY(16px) scale(.985);
+  transition: opacity .6s ease, transform .6s ease;
 }
-.cg-svg { width: 100%; height: auto; display: block; }
+.waste-card.show { opacity: 1; transform: none; }
 
-.cg-edge {
-  fill: none;
-  stroke: rgba(124,58,237,0.25);
-  stroke-width: 2;
-  stroke-dasharray: 200;
-  stroke-dashoffset: 200;
-  animation: cg-draw 3s ease-out forwards;
+.wc-brand {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-3); font-family: 'JetBrains Mono', monospace;
 }
-.cg-edge--dashed { stroke: rgba(124,58,237,0.15); animation-delay: 1.5s; }
-
-@keyframes cg-draw {
-  to { stroke-dashoffset: 0; }
+.wc-brand-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--brand-2);
+  box-shadow: 0 0 0 4px rgba(124,58,237,.18);
 }
 
-.cg-node {
-  animation: cg-pulse 2.5s ease-in-out infinite;
-  cursor: pointer;
+.wc-gauge { position: relative; width: 156px; height: 156px; margin: 2px auto 0; }
+.wc-gauge svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.wc-track { fill: none; stroke: rgba(255,255,255,.08); stroke-width: 10; }
+.wc-arc {
+  fill: none; stroke: #F59E0B; stroke-width: 10; stroke-linecap: round;
+  stroke-dasharray: 327; stroke-dashoffset: 327;
+  transition: stroke-dashoffset 1.4s cubic-bezier(.22,1,.36,1);
 }
-.cg-node:nth-child(2) { animation-delay: 0.3s; }
-.cg-node:nth-child(3) { animation-delay: 0.6s; }
-.cg-node:nth-child(4) { animation-delay: 0.9s; }
-.cg-node:nth-child(5) { animation-delay: 1.2s; }
-.cg-node:nth-child(6) { animation-delay: 1.5s; }
-
-@keyframes cg-pulse {
-  0%, 100% { transform: translate(var(--tx,0), var(--ty,0)) scale(1); }
-  50% { transform: translate(var(--tx,0), var(--ty,0)) scale(1.06); }
+.wc-gauge-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
+.wc-score { font-size: 38px; font-weight: 800; line-height: 1; color: #F59E0B; font-variant-numeric: tabular-nums; }
+.wc-sub { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); margin-top: 5px; }
 
-.cg-file {
-  animation: cg-fadein 1.5s ease-out forwards;
-  opacity: 0;
+.wc-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.wc-stat {
+  background: rgba(0,0,0,.22); border: 1px solid var(--border); border-radius: 12px;
+  padding: 10px 12px; display: flex; flex-direction: column; gap: 3px;
 }
-.cg-file:nth-of-type(1) { animation-delay: 1s; }
-.cg-file:nth-of-type(2) { animation-delay: 1.3s; }
-.cg-file:nth-of-type(3) { animation-delay: 1.6s; }
+.wc-stat-v { font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.wc-stat-l { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .06em; }
+.wc-good { color: #22C55E; }
+.wc-bad { color: #EF4444; }
 
-@keyframes cg-fadein {
-  to { opacity: 1; }
+.wc-agents { display: flex; flex-direction: column; gap: 9px; }
+.wc-agent {
+  display: grid; grid-template-columns: 74px 1fr 40px; align-items: center; gap: 10px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+}
+.wc-name { color: var(--text-2); white-space: nowrap; }
+.wc-bar { height: 7px; background: rgba(255,255,255,.07); border-radius: 999px; overflow: hidden; }
+.wc-bar span { display: block; height: 100%; width: 0; border-radius: 999px;
+  transition: width 1s cubic-bezier(.22,1,.36,1); }
+.waste-card.show .wc-bar span { width: var(--w); }
+.wc-pct { text-align: right; color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 860px) {
+  .hero-demo { grid-template-columns: 1fr; }
+  .hero-demo .term-body { min-height: 300px; }
 }
 
 /* ===================================================== Badge Section */
@@ -905,6 +932,7 @@ kbd {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   .cursor { animation: none; opacity: 1; }
-  .cg-edge { stroke-dashoffset: 0; }
-  .cg-file { opacity: 1; }
+  .waste-card { opacity: 1; transform: none; }
+  .wc-arc { stroke-dashoffset: 220; }
+  .waste-card .wc-bar span { width: var(--w); }
 }

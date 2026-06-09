@@ -92,34 +92,43 @@
     // Each step is either a typed command (cmd) or an instant-reveal output.
     // Outputs are arrays of [class, text] segments so we can color them.
     const script = [
-      { kind: 'cmd', text: 're init', after: 280 },
+      { kind: 'cmd', text: 're churn', after: 360 },
       { kind: 'out', segs: [
-        ['',       'Initialized causari repository in '],
-        ['t-key',  './my-project/.causari'],
-      ], after: 700 },
-
-      { kind: 'cmd', text: 're record -m "Add JWT refresh logic that rotates every 24h"', after: 220 },
+        ['t-pass', 'causari churn'],
+        ['',       ' — code survival across '],
+        ['t-id',   '1,284'],
+        ['',       ' events\n\n'],
+        ['t-mut',  '  AGENT          INTRO   SURVIVED    WASTE    WASTED $\n'],
+        ['',       '  claude-3.5     8,210      6,012    '],
+        ['t-warn', '26.8%'],
+        ['',       '    '],
+        ['t-warn', '$164.10'],
+        ['',       '\n  gpt-4o         3,400      1,510    '],
+        ['t-red',  '55.6%'],
+        ['',       '    '],
+        ['t-red',  '$116.90'],
+        ['',       '\n  cursor         1,120        980    '],
+        ['t-pass', '12.5%'],
+        ['',       '      '],
+        ['t-pass', '$5.50'],
+        ['',       '\n  ' + '─'.repeat(50) + '\n'],
+      ], after: 520 },
       { kind: 'out', segs: [
-        ['t-pass', 'recorded '],
-        ['t-id',   'e112706ec2'],
-        ['',       '  Add JWT refresh logic that rotates every 24h'],
-      ], after: 900 },
-
-      { kind: 'cmd', text: 're why src/auth.ts:5', after: 420 },
-      { kind: 'out', segs: [
-        ['t-key',  'src/auth.ts:5'],
+        ['',       '  AI survival '],
+        ['t-pass', '66.8%'],
+        ['',       '   ·   AI Waste Score '],
+        ['t-warn', '33.2%'],
         ['',       '\n  '],
-        ['t-mut',  "const REFRESH_TTL = '24h';"],
-        ['',       '\n\nintroduced by '],
-        ['t-id',   'e112706ec2'],
-        ['',       '\n  agent:     '],
-        ['t-val',  'claude-3.5-sonnet'],
-        ['',       '\n  tool:      '],
-        ['t-val',  'edit'],
-        ['',       '\n  message:   Add JWT refresh logic that rotates every 24h'],
-        ['',       '\n\n  prompt:\n    '],
-        ['t-q',    '"Add JWT refresh logic that rotates every 24h"'],
-        ['',       '\n\n  reasoning:\n    The spec calls for refresh tokens with a 24h expiry.\n    I extracted issueTokens() so the rotation logic stays\n    testable in isolation.'],
+        ['t-red',  '$286.50'],
+        ['',       ' of $866.90 spent on code that did not survive'],
+      ], after: 1000 },
+
+      { kind: 'cmd', text: 're report --open', after: 240 },
+      { kind: 'out', reveal: true, segs: [
+        ['t-pass', '✓'],
+        ['',       ' report written to '],
+        ['t-key',  'causari-report.html'],
+        ['',       '  → opening in browser'],
       ], after: 0 },
     ];
 
@@ -141,13 +150,61 @@
       return s;
     }
 
+    // --- Waste card animation helpers
+    const wasteCard   = document.getElementById('waste-card');
+    const wcArc       = document.getElementById('wc-arc');
+    const wcScore     = document.getElementById('wc-score');
+    const wcSurvival  = document.getElementById('wc-survival');
+    const wcWasted    = document.getElementById('wc-wasted');
+
+    function resetCard() {
+      if (!wasteCard) return;
+      wasteCard.classList.remove('show');
+      if (wcArc) wcArc.style.strokeDashoffset = '327';
+      if (wcScore) wcScore.textContent = '0%';
+      if (wcSurvival) wcSurvival.textContent = '0%';
+      if (wcWasted) wcWasted.textContent = '$0';
+    }
+
+    function countUp(el, to, { prefix = '', suffix = '', duration = 1200, decimals = 1 } = {}) {
+      return new Promise((resolve) => {
+        const start = performance.now();
+        const from = 0;
+        function tick(now) {
+          const p = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - p, 3);
+          const val = from + (to - from) * eased;
+          if (decimals > 0) {
+            el.textContent = prefix + val.toFixed(decimals) + suffix;
+          } else {
+            el.textContent = prefix + Math.round(val) + suffix;
+          }
+          if (p < 1) requestAnimationFrame(tick);
+          else resolve();
+        }
+        requestAnimationFrame(tick);
+      });
+    }
+
+    async function animateCard() {
+      if (!wasteCard) return;
+      wasteCard.classList.add('show');
+      await sleep(200);
+      if (wcArc) wcArc.style.strokeDashoffset = '218'; // ~33.2% waste
+      await sleep(200);
+      const t1 = countUp(wcScore, 33.2, { suffix: '%' });
+      const t2 = countUp(wcSurvival, 66.8, { suffix: '%' });
+      const t3 = countUp(wcWasted, 286.50, { prefix: '$', decimals: 2 });
+      await Promise.all([t1, t2, t3]);
+    }
+
     async function play() {
       cancelled = false;
+      resetCard();
       typer.textContent = '';
       for (const step of script) {
         if (cancelled) return;
         if (step.kind === 'cmd') {
-          // newline before the next prompt (except the first)
           if (typer.childNodes.length) typer.append('\n');
           appendSpan('t-prompt').textContent = '$ ';
           const cmd = appendSpan('');
@@ -158,6 +215,7 @@
             appendSpan(cls).textContent = t;
           }
           typer.append('\n');
+          if (step.reveal) await animateCard();
         }
         if (step.after) await sleep(step.after);
       }
@@ -165,6 +223,7 @@
 
     function replay() {
       cancelled = true;
+      resetCard();
       setTimeout(play, 50);
     }
 
