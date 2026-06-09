@@ -32,5 +32,7 @@ fn main() -> Result<()> {
         Command::Lens(args) => commands::lens::run(args),
         Command::Mcp(args) => commands::mcp::run(args),
         Command::Guard(args) => commands::guard::run(args),
+        Command::Churn(args) => commands::churn::run(args),
+        Command::Report(args) => commands::report::run(args),
     }
 }

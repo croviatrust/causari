@@ -45,6 +45,9 @@ re impact <event-id>          # full DOWNSTREAM cone: what flowed from this acti
 re lens   src/auth.ts         # render a file with per-line provenance annotations
 re find   "the JWT refactor"  # search every prompt, reasoning and message
 re bisect --test "npm test"   # find the agent action that broke the build
+re churn                      # measure AI code survival: how much survived vs
+                              #   was rewritten, per agent, with wasted spend
+re report --open              # generate a shareable HTML dashboard of AI waste
 re fork   experiment-claude   # branch into a parallel timeline
 re revert <id>                # undo an action with causal preview of what else
                               #   you are implicitly undoing
@@ -67,6 +70,8 @@ code to the intent that produced it.** Causari does:
 | **`re lens src/auth.ts`** | The file rendered with **per-line provenance annotations**: each line painted with the event id that introduced it. |
 | `re find "the JWT refactor"` | Every event whose prompt, message or reasoning matches your query, ranked by relevance. |
 | `re bisect --test "<cmd>"` | The first agent action whose output fails your tests. |
+| **`re churn`** | **AI Waste Score.** How much AI-written code survived vs was rewritten, per agent. With cost data: dollars spent on code that did not survive. |
+| **`re report --open`** | A **self-contained HTML dashboard** you can paste into Slack, PRs, or board decks — zero external assets, zero cloud calls. |
 | `re fork claude-attempt` | A new timeline you can extend without touching the original. |
 | `re diff a..b` | The exact file delta between two agent actions. |
 | `re revert <id>` | Workspace snapped back to the pre-state of that action, **with a causal preview** of every downstream event you are implicitly undoing. |
@@ -174,7 +179,21 @@ absolute size of the workspace.
               → c4d1e8f2 "Deploy to staging"
               → d5e2a1b3 "Fix OAuth scope"
 
-[09:28:19]  re revert a3f7b2c9
+[09:28:19]  re churn
+              causari churn: code survival across 1,284 events
+                AGENT          INTRO  SURVIVED  WASTE    WASTED $
+                claude-3.5     8,210    6,012   26.8%    $164.10
+                gpt-4o         3,400    1,510   55.6%    $116.90
+                cursor         1,120      980   12.5%      $5.50
+
+              AI survival 66.8% · AI Waste Score 33.2%
+              $286.50 of $866.90 spent on code that did not survive
+
+[09:29:02]  re report --open
+              ✓ report written to causari-report.html
+              → opening in browser
+
+[09:29:33]  re revert a3f7b2c9
               ⚠ preview: 2 downstream events will lose context
               → confirm with --yes to proceed
 ```
