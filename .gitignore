@@ -38,3 +38,9 @@ npm-debug.log*
 
 # === Demo recording scratch dir (created by scripts/demo-record.sh) ===
 /demo-recording
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
