@@ -66,6 +66,9 @@ pub enum Command {
 
     /// Measure how much AI-written code survived vs was rewritten (waste analysis)
     Churn(ChurnArgs),
+
+    /// Generate a shareable HTML dashboard of AI code-survival and waste
+    Report(ReportArgs),
 }
 
 #[derive(Args, Debug)]
@@ -199,6 +202,17 @@ pub struct ChurnArgs {
     /// Emit a Markdown summary (for CI / PR comments)
     #[arg(long)]
     pub summary: bool,
+}
+
+#[derive(Args, Debug)]
+pub struct ReportArgs {
+    /// Output file path (default: causari-report.html)
+    #[arg(short, long)]
+    pub output: Option<String>,
+
+    /// Open the report in the default browser after writing it
+    #[arg(long)]
+    pub open: bool,
 }
 
 #[derive(Args, Debug)]

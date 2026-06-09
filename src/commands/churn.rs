@@ -12,24 +12,24 @@ use crate::store::Store;
 
 /// Per-agent survival accounting.
 #[derive(Default, Clone)]
-struct Stat {
-    introduced: u64,
-    surviving: u64,
-    events: u64,
-    cost: f64,
-    wasted_cost: f64,
-    has_cost: bool,
+pub(crate) struct Stat {
+    pub introduced: u64,
+    pub surviving: u64,
+    pub events: u64,
+    pub cost: f64,
+    pub wasted_cost: f64,
+    pub has_cost: bool,
 }
 
 impl Stat {
-    fn survival_rate(&self) -> f64 {
+    pub(crate) fn survival_rate(&self) -> f64 {
         if self.introduced == 0 {
             0.0
         } else {
             self.surviving as f64 / self.introduced as f64
         }
     }
-    fn waste_rate(&self) -> f64 {
+    pub(crate) fn waste_rate(&self) -> f64 {
         if self.introduced == 0 {
             0.0
         } else {
@@ -38,7 +38,28 @@ impl Stat {
     }
 }
 
-const UNATTRIBUTED: &str = "unattributed";
+/// Result of a full-history survival analysis, ready for any renderer
+/// (terminal, Markdown summary, or HTML report).
+pub(crate) struct Analysis {
+    pub by_agent: BTreeMap<String, Stat>,
+    pub overall: Stat,
+    pub has_cost: bool,
+    pub n_events: usize,
+}
+
+pub(crate) const UNATTRIBUTED: &str = "unattributed";
+
+/// Agents sorted by lines introduced (desc), with the unattributed baseline last.
+pub(crate) fn sorted_agents(by_agent: &BTreeMap<String, Stat>) -> Vec<(&String, &Stat)> {
+    let mut rows: Vec<(&String, &Stat)> = by_agent.iter().collect();
+    rows.sort_by(|a, b| {
+        let a_un = a.0 == UNATTRIBUTED;
+        let b_un = b.0 == UNATTRIBUTED;
+        a_un.cmp(&b_un)
+            .then_with(|| b.1.introduced.cmp(&a.1.introduced))
+    });
+    rows
+}
 
 /// Caches flattened snapshot trees and decoded blobs so a full-history replay
 /// touches each unique snapshot/blob only once.
@@ -96,6 +117,31 @@ pub fn run(args: ChurnArgs) -> Result<()> {
     let repo = Repo::discover()?;
     let store = Store::new(&repo);
 
+    let analysis = match analyze(&repo, &store)? {
+        Some(a) => a,
+        None => {
+            println!("{} no events recorded yet.", "churn:".yellow().bold());
+            return Ok(());
+        }
+    };
+
+    if args.summary {
+        print_summary(&analysis.by_agent, &analysis.overall, analysis.has_cost);
+    } else {
+        print_terminal(
+            &analysis.by_agent,
+            &analysis.overall,
+            analysis.has_cost,
+            analysis.n_events,
+        );
+    }
+
+    Ok(())
+}
+
+/// Run the full-history survival analysis. Returns `None` when the ledger has
+/// no events yet. Shared by `re churn` and `re report`.
+pub(crate) fn analyze(repo: &Repo, store: &Store) -> Result<Option<Analysis>> {
     // Oldest -> newest chain.
     let mut chain: Vec<(String, Event)> = Vec::new();
     let mut cur = repo.head_event()?;
@@ -108,11 +154,10 @@ pub fn run(args: ChurnArgs) -> Result<()> {
     chain.reverse();
 
     if chain.is_empty() {
-        println!("{} no events recorded yet.", "churn:".yellow().bold());
-        return Ok(());
+        return Ok(None);
     }
 
-    let mut recon = Reconstructor::new(&store);
+    let mut recon = Reconstructor::new(store);
 
     // Every file that ever existed across the recorded history.
     let mut files: BTreeSet<PathBuf> = BTreeSet::new();
@@ -169,13 +214,12 @@ pub fn run(args: ChurnArgs) -> Result<()> {
 
     let has_cost = by_agent.values().any(|s| s.has_cost);
 
-    if args.summary {
-        print_summary(&by_agent, &overall, has_cost);
-    } else {
-        print_terminal(&by_agent, &overall, has_cost, chain.len());
-    }
-
-    Ok(())
+    Ok(Some(Analysis {
+        by_agent,
+        overall,
+        has_cost,
+        n_events: chain.len(),
+    }))
 }
 
 /// Replay a single file across the whole chain, returning the final owner of
@@ -319,16 +363,7 @@ fn print_terminal(
         );
     }
 
-    // Sort agents by lines introduced, descending; unattributed last.
-    let mut rows: Vec<(&String, &Stat)> = by_agent.iter().collect();
-    rows.sort_by(|a, b| {
-        let a_un = a.0 == UNATTRIBUTED;
-        let b_un = b.0 == UNATTRIBUTED;
-        a_un.cmp(&b_un)
-            .then_with(|| b.1.introduced.cmp(&a.1.introduced))
-    });
-
-    for (agent, stat) in rows {
+    for (agent, stat) in sorted_agents(by_agent) {
         let survival = format!("{:.1}%", stat.survival_rate() * 100.0);
         if has_cost {
             println!(
@@ -424,15 +459,7 @@ fn print_summary(by_agent: &BTreeMap<String, Stat>, overall: &Stat, has_cost: bo
         println!("|---|---:|---:|---:|---:|");
     }
 
-    let mut rows: Vec<(&String, &Stat)> = by_agent.iter().collect();
-    rows.sort_by(|a, b| {
-        let a_un = a.0 == UNATTRIBUTED;
-        let b_un = b.0 == UNATTRIBUTED;
-        a_un.cmp(&b_un)
-            .then_with(|| b.1.introduced.cmp(&a.1.introduced))
-    });
-
-    for (agent, stat) in rows {
+    for (agent, stat) in sorted_agents(by_agent) {
         if has_cost {
             println!(
                 "| {} | {} | {} | {:.1}% | {:.1}% | {:.2} | {:.2} |",

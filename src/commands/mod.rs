@@ -10,6 +10,7 @@ pub mod lens;
 pub mod log;
 pub mod mcp;
 pub mod record;
+pub mod report;
 pub mod revert;
 pub mod show;
 pub mod trace;

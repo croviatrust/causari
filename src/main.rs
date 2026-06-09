@@ -33,5 +33,6 @@ fn main() -> Result<()> {
         Command::Mcp(args) => commands::mcp::run(args),
         Command::Guard(args) => commands::guard::run(args),
         Command::Churn(args) => commands::churn::run(args),
+        Command::Report(args) => commands::report::run(args),
     }
 }
