@@ -1,4 +1,5 @@
 mod banner;
+mod capture;
 mod cli;
 mod commands;
 mod config;
@@ -34,5 +35,8 @@ fn main() -> Result<()> {
         Command::Guard(args) => commands::guard::run(args),
         Command::Churn(args) => commands::churn::run(args),
         Command::Report(args) => commands::report::run(args),
+        Command::Proxy(args) => commands::proxy::run(args),
+        Command::Hook(args) => commands::hook::run(args),
+        Command::HookEvent(args) => commands::hook::run_event(args),
     }
 }

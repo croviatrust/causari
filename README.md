@@ -34,9 +34,20 @@ Causari records every action an AI agent takes on your codebase — not just
 the bytes that changed, but the **prompt that asked**, the **model that
 answered**, the **files it read**, and the **reasoning behind the change**.
 
+And it does so **without asking the agent's permission**: the built-in
+capture engine (`re proxy` + `re watch` + `re hook`) observes the LLM
+traffic and the filesystem independently, then joins them by *content* —
+the code that appears in your files is found inside the completion that
+produced it seconds earlier. Provenance becomes a fact, not a self-report.
+
 You can then ask questions no version control system has ever answered:
 
 ```bash
+re proxy                      # local LLM proxy: every prompt, token and dollar
+                              #   flows through Causari on its way to the provider
+re watch                      # passive recorder + causal join: file changes get
+                              #   attributed to the real prompt, model and cost
+re hook  claude-code          # native capture via agent lifecycle hooks
 re why    src/auth.ts:42      # who/what produced this exact line?
 re trace  src/auth.ts:42      # full UPSTREAM causal cone: every event that
                               #   contributed transitively, through reads/writes
@@ -56,14 +67,83 @@ re revert <id>                # undo an action with causal preview of what else
 When an agent touches 30 files and something breaks, you don't need to read
 4 000 lines of chat. You ask Causari *why* and *when*.
 
+## The Capture Engine — provenance without cooperation
+
+Every provenance tool before Causari had the same fatal dependency: it only
+worked if the agent volunteered its own history. Agents don't. Harnesses
+don't expose reasoning. Nobody reports costs.
+
+Causari removes the dependency. Two independent observation streams, one
+causal join:
+
+```
+   ┌─────────────────────────┐        ┌─────────────────────────┐
+   │        re proxy         │        │        re watch         │
+   │                         │        │                         │
+   │  sees every prompt,     │        │  sees every byte that   │
+   │  completion, token and  │        │  changes on disk        │
+   │  dollar (OpenAI- and    │        │  (snapshots, diffs)     │
+   │  Anthropic-compatible)  │        │                         │
+   └────────────┬────────────┘        └────────────┬────────────┘
+                │                                  │
+                │         CONTENT-BASED JOIN       │
+                └────────────────►◄────────────────┘
+                 the lines inserted in your files
+                 are searched inside the completions
+                 captured moments before — a match is
+                 a causal fingerprint, with confidence
+```
+
+A real session, end to end:
+
+```
+$ re proxy
+causari: LLM capture proxy listening on http://127.0.0.1:4242
+  • gpt-4o  42→18 tok  $0.0003  "Add JWT refresh logic that rotates every 24h"
+
+$ re watch          # in another terminal
+  • 0d47599550  auth.py
+    ↳ intent: "Add JWT refresh logic that rotates every 24h"  gpt-4o (confidence 100%, 3/3 lines)
+
+$ re why auth.py:2
+auth.py:2
+      token = issue_token(user, scope="session")
+
+introduced by 0d47599550
+  agent:     cursor
+  model:     gpt-4o
+  prompt:    Add JWT refresh logic that rotates every 24h
+```
+
+Point any agent at the proxy and you're done:
+
+```bash
+OPENAI_BASE_URL=http://127.0.0.1:4242/openai/v1
+ANTHROPIC_BASE_URL=http://127.0.0.1:4242/anthropic
+```
+
+Where the agent runtime exposes lifecycle hooks, capture is native and
+exact — no inference needed:
+
+```bash
+re hook claude-code   # wires UserPromptSubmit + PostToolUse into
+                      # .claude/settings.json: every prompt captured,
+                      # every edit recorded as a full Causari event
+```
+
+Everything stays on your machine: `.causari/capture/` is a local,
+append-only ledger. No cloud, no telemetry, no API keys touched.
+
 ## What makes it different
 
 Existing tools either track text (git), track sessions (IDE checkpoints), or
 track conversations (LangSmith, Helicone). **None of them connect a line of
-code to the intent that produced it.** Causari does:
+code to the intent that produced it** — and none of them can do it without
+the agent's cooperation. Causari does both:
 
 | You ask… | Causari answers… |
 |---|---|
+| **`re proxy` + `re watch`** | **Zero-integration capture.** Prompts, models, tokens and dollars joined to file changes by content correlation — no agent cooperation required. |
 | `re why src/auth.ts:42` | The prompt, model, agent, tool, and reasoning that wrote that line. |
 | **`re trace src/auth.ts:42`** | **Upstream causal cone.** Every prior event that contributed, transitively, through the files it read or wrote. The intellectual ancestry of a piece of code. |
 | **`re impact <event>`** | **Downstream causal cone.** Every later event that depended, transitively, on what this one produced. The blast radius of an action. |
@@ -200,10 +280,17 @@ absolute size of the workspace.
 
 Next on the roadmap:
 
+- **Verified skills (experience layer)**: events whose verification passed
+  (tests green, exit code 0) get promoted into signed, reusable skills the
+  agent can recall *before* acting — so the same mistake is never paid twice
+- **Multi-agent DAG timelines**: concurrent agents, true branching history
+- Cryptographic timestamps (RFC 3161) + Ed25519-signed events for
+  audit-grade timelines (EU AI Act, SOC2 for agentic development)
+- **Agent Provenance Protocol**: an open spec for the signed,
+  content-addressed event format, so any tool can produce or verify it
 - TUI à la `lazygit` for visual exploration
 - Cross-event semantic search over prompts and diffs (embeddings)
 - Counterfactual `re replay --with <model>` (re-execute past events under different models)
-- Cryptographic timestamps (RFC 3161) for audit-grade timelines
 
 ## Plugging Causari into your agent (MCP)
 
@@ -285,6 +372,8 @@ cargo build --release
 
 Scripted demos live in `scripts/`:
 
+- **`demo-capture.ps1`** — the capture engine end to end: mock LLM upstream,
+  `re proxy`, `re watch`, content-based causal join (`mock-llm.py` included)
 - **`demo.sh`** / **`demo.ps1`** — full happy-path with `re why` and `re bisect`
 - **`demo-trace.sh`** / **`demo-trace.ps1`** — upstream causal cone (`re trace`)
 - **`demo-bidir.sh`** / **`demo-bidir.ps1`** — bidirectional causality
@@ -322,3 +411,10 @@ HashiCorp and CockroachDB stay genuinely useful and contributable while
 sustaining the people who build them.
 
 Contributing? See `CLA.md`.
+
+---
+
+Causari is built by [Croviatrust](https://croviatrust.com) — the team behind
+**Crovia**, the cryptographically signed, Bitcoin-anchored public ledger of
+AI training-data transparency. Same DNA, different layer: Crovia proves what
+models learned; **Causari proves what agents did.**

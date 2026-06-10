@@ -69,6 +69,17 @@ pub enum Command {
 
     /// Generate a shareable HTML dashboard of AI code-survival and waste
     Report(ReportArgs),
+
+    /// Run a local LLM capture proxy (OpenAI/Anthropic compatible).
+    /// Every prompt, completion, token and dollar flows through Causari.
+    Proxy(ProxyArgs),
+
+    /// Install agent-side capture hooks (e.g. `re hook claude-code`)
+    Hook(HookArgs),
+
+    /// Internal: invoked by agent hooks with a JSON payload on stdin
+    #[command(hide = true)]
+    HookEvent(HookEventArgs),
 }
 
 #[derive(Args, Debug)]
@@ -142,6 +153,11 @@ pub struct WatchArgs {
     /// Debounce window in milliseconds (default: 800)
     #[arg(long)]
     pub debounce: Option<u64>,
+
+    /// Correlation window in seconds: how far back to search captured LLM
+    /// exchanges when attributing a file change (default: 300)
+    #[arg(long)]
+    pub window: Option<u64>,
 }
 
 #[derive(Args, Debug)]
@@ -228,6 +244,33 @@ pub struct GuardArgs {
     /// Emit Markdown summary to stdout (for CI / PR comments)
     #[arg(long)]
     pub summary: bool,
+}
+
+#[derive(Args, Debug)]
+pub struct ProxyArgs {
+    /// Port to listen on (default: 4242)
+    #[arg(short, long)]
+    pub port: Option<u16>,
+
+    /// Upstream base URL for OpenAI-style requests (default: https://api.openai.com)
+    #[arg(long)]
+    pub openai_upstream: Option<String>,
+
+    /// Upstream base URL for Anthropic-style requests (default: https://api.anthropic.com)
+    #[arg(long)]
+    pub anthropic_upstream: Option<String>,
+}
+
+#[derive(Args, Debug)]
+pub struct HookArgs {
+    /// Agent runtime to hook into (supported: claude-code)
+    pub target: String,
+}
+
+#[derive(Args, Debug)]
+pub struct HookEventArgs {
+    /// Hook kind: user-prompt | post-tool
+    pub kind: String,
 }
 
 #[derive(Args, Debug)]

@@ -8,10 +8,11 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, mpsc::channel};
 use std::time::Duration;
 
+use crate::capture::{correlate, load_exchanges_since, now_ms};
 use crate::cli::WatchArgs;
 use crate::object::{Event, Snapshot};
 use crate::repo::Repo;
-use crate::snapshot::snapshot_workspace;
+use crate::snapshot::{added_lines_between, snapshot_workspace};
 use crate::store::Store;
 
 /// `re watch` turns Causari into a passive recorder.
@@ -21,6 +22,11 @@ use crate::store::Store;
 /// is that you launch this in a side terminal, then let *any* agent (Cursor,
 /// Claude Code, Cline, Aider, a script, you) operate on the repo — Causari
 /// records the timeline for free, with no integration required.
+///
+/// When `re proxy` runs alongside, watch performs the **causal join**: the
+/// lines inserted by each change are searched inside the LLM completions the
+/// proxy captured moments before. A match attributes the change to the real
+/// prompt, model, token usage and cost — provenance without cooperation.
 ///
 /// This is the bridge between Causari and the rest of the ecosystem.
 pub fn run(args: WatchArgs) -> Result<()> {
@@ -37,6 +43,17 @@ pub fn run(args: WatchArgs) -> Result<()> {
     if let Some(a) = &args.agent {
         println!("  agent tag: {}", a.cyan());
     }
+
+    // Baseline snapshot at startup. Without it, the first recorded change
+    // would use a pre-state captured AFTER the change already happened
+    // (pre == post, empty diff, nothing to correlate).
+    let baseline_snapshot_id = {
+        let tree_id = snapshot_workspace(&repo)?;
+        store.write_snapshot(&Snapshot {
+            tree: tree_id,
+            created_at: Utc::now().to_rfc3339(),
+        })?
+    };
 
     let stop = Arc::new(AtomicBool::new(false));
     {
@@ -67,7 +84,7 @@ pub fn run(args: WatchArgs) -> Result<()> {
                 if touched.is_empty() {
                     continue;
                 }
-                record_change(&repo, &store, &args, &touched)?;
+                record_change(&repo, &store, &args, &touched, &baseline_snapshot_id)?;
             }
             Ok(Err(errs)) => {
                 eprintln!("{} watcher errors: {:?}", "warn:".yellow(), errs);
@@ -93,18 +110,14 @@ fn record_change(
     store: &Store,
     args: &WatchArgs,
     touched: &HashSet<PathBuf>,
+    baseline_snapshot_id: &str,
 ) -> Result<()> {
-    // Same logic as `re record`, simplified.
+    // Same logic as `re record`, simplified. The first event's pre-state is
+    // the baseline captured at watcher startup.
     let parent_id = repo.head_event()?;
     let pre_snapshot_id = match &parent_id {
         Some(pid) => store.read_event(pid)?.post_snapshot,
-        None => {
-            let tree_id = snapshot_workspace(repo)?;
-            store.write_snapshot(&Snapshot {
-                tree: tree_id,
-                created_at: Utc::now().to_rfc3339(),
-            })?
-        }
+        None => baseline_snapshot_id.to_string(),
     };
     let post_tree = snapshot_workspace(repo)?;
     let post_snapshot_id = store.write_snapshot(&Snapshot {
@@ -114,6 +127,17 @@ fn record_change(
 
     // Note: noop touches (metadata-only changes producing identical content) are
     // already filtered upstream by content hashing in the snapshot path.
+
+    // Causal join with the capture layer (see capture.rs).
+    let window_secs = args.window.unwrap_or(300);
+    let since = now_ms().saturating_sub(window_secs * 1000);
+    let mut correlation = None;
+    if let Ok(exchanges) = load_exchanges_since(repo, since) {
+        if !exchanges.is_empty() {
+            let added = added_lines_between(store, &pre_snapshot_id, &post_snapshot_id, 400)?;
+            correlation = correlate(&added, &exchanges);
+        }
+    }
 
     let mut writes: Vec<String> = touched
         .iter()
@@ -126,20 +150,32 @@ fn record_change(
     writes.sort();
     writes.dedup();
 
+    let (prompt, model, tokens_in, tokens_out, cost_usd, corr_agent) = match &correlation {
+        Some(c) => (
+            c.exchange.prompt.clone(),
+            c.exchange.model.clone(),
+            c.exchange.tokens_in,
+            c.exchange.tokens_out,
+            c.exchange.cost_usd,
+            c.exchange.agent.clone(),
+        ),
+        None => (None, None, None, None, None, None),
+    };
+
     let event = Event {
         schema: "causari.event.v0.2".to_string(),
         parent: parent_id,
-        agent: args.agent.clone(),
-        model: args.model.clone(),
+        agent: args.agent.clone().or(corr_agent),
+        model: args.model.clone().or(model),
         tool: Some("watch".to_string()),
         message: Some(format!("{} file(s) changed", writes.len())),
-        prompt: None,
+        prompt,
         reasoning: None,
         reads: Vec::new(),
         writes: writes.clone(),
-        tokens_in: None,
-        tokens_out: None,
-        cost_usd: None,
+        tokens_in,
+        tokens_out,
+        cost_usd,
         pre_snapshot: pre_snapshot_id,
         post_snapshot: post_snapshot_id,
         exit_code: None,
@@ -166,5 +202,37 @@ fn record_change(
         preview,
         extra.bright_black()
     );
+    if let Some(c) = &correlation {
+        let prompt_preview = c
+            .exchange
+            .prompt
+            .as_deref()
+            .map(|p| {
+                let first = p.lines().next().unwrap_or("");
+                let mut s: String = first.chars().take(70).collect();
+                if first.chars().count() > 70 {
+                    s.push('…');
+                }
+                s
+            })
+            .unwrap_or_else(|| "(no prompt)".to_string());
+        println!(
+            "    {} \"{}\"  {} {}",
+            "↳ intent:".cyan(),
+            prompt_preview.italic(),
+            c.exchange
+                .model
+                .as_deref()
+                .unwrap_or("unknown-model")
+                .bright_black(),
+            format!(
+                "(confidence {:.0}%, {}/{} lines)",
+                c.score * 100.0,
+                c.matched,
+                c.considered
+            )
+            .bright_black()
+        );
+    }
     Ok(())
 }

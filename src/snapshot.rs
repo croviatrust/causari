@@ -235,6 +235,50 @@ pub fn effective_reads(store: &Store, ev: &crate::object::Event) -> Result<Vec<P
     Ok(set.into_iter().collect())
 }
 
+/// Collect the lines INSERTED between two snapshots, across all changed
+/// files, capped at `cap` lines. This is the input to the capture layer's
+/// correlation engine: inserted lines are searched inside recent LLM
+/// completions to attribute the change to the prompt that caused it.
+pub fn added_lines_between(
+    store: &Store,
+    pre_snapshot_id: &str,
+    post_snapshot_id: &str,
+    cap: usize,
+) -> Result<Vec<String>> {
+    use similar::{ChangeTag, TextDiff};
+
+    let pre_snap = store.read_snapshot(pre_snapshot_id)?;
+    let post_snap = store.read_snapshot(post_snapshot_id)?;
+    let pre = flatten_tree(store, &pre_snap.tree)?;
+    let post = flatten_tree(store, &post_snap.tree)?;
+
+    let mut out = Vec::new();
+    for (path, post_id) in &post {
+        if out.len() >= cap {
+            break;
+        }
+        let pre_id = pre.get(path);
+        if pre_id == Some(post_id) {
+            continue;
+        }
+        let post_text = String::from_utf8(store.read_blob(post_id)?).unwrap_or_default();
+        let pre_text = match pre_id {
+            Some(id) => String::from_utf8(store.read_blob(id)?).unwrap_or_default(),
+            None => String::new(),
+        };
+        let diff = TextDiff::from_lines(&pre_text, &post_text);
+        for change in diff.iter_all_changes() {
+            if change.tag() == ChangeTag::Insert {
+                out.push(change.value().trim_end_matches('\n').to_string());
+                if out.len() >= cap {
+                    break;
+                }
+            }
+        }
+    }
+    Ok(out)
+}
+
 /// Compute the set of files that *actually changed* between the pre and post
 /// snapshots of an event (additions, deletions, modifications).
 ///

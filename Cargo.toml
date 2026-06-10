@@ -32,6 +32,8 @@ notify = "6.1"
 notify-debouncer-mini = "0.7"
 ctrlc = "3.4"
 toml = "0.8"
+tiny_http = "0.12"
+ureq = "2.12"
 
 [profile.release]
 lto = true

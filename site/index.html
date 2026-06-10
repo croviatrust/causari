@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Causari — Trace intent. Debug causality.</title>
 
-  <meta name="description" content="The first content-addressable ledger for AI agents. Every prompt, model, read, write and reasoning becomes an immutable causal event. Trace, bisect, revert and explain every line your agents wrote." />
+  <meta name="description" content="The first content-addressable ledger for AI agents. Every prompt, model, read, write and reasoning becomes an immutable causal event — captured at the wire, no agent cooperation required. Trace, bisect, revert and explain every line your agents wrote." />
   <meta name="theme-color" content="#0a0e1f" />
   <meta name="color-scheme" content="dark light" />
 
@@ -69,6 +69,7 @@
     </a>
 
     <nav class="nav-links" aria-label="Primary">
+      <a href="#capture">Capture</a>
       <a href="#what">Features</a>
       <a href="#mcp">MCP</a>
       <a href="#license">License</a>
@@ -110,8 +111,9 @@
     <p class="hero-sub">
       The first content-addressable ledger for AI agents. Every <em>prompt</em>,
       <em>model</em>, <em>read</em>, <em>write</em> and <em>reasoning</em> becomes
-      an immutable causal event — queryable like git, but for the intent
-      behind every line of code.
+      an immutable causal event — captured at the wire and on disk,
+      <strong>without the agent's cooperation</strong>, queryable like git,
+      but for the intent behind every line of code.
     </p>
 
     <div class="hero-cta">
@@ -244,6 +246,62 @@
       <br/>
       Causari does. We call it <span class="grad">intent-addressable code</span>.
     </p>
+  </div>
+</section>
+
+<!-- ========================================================== CAPTURE -->
+<section id="capture" class="section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">The capture engine</p>
+      <h2>Provenance without cooperation.</h2>
+      <p class="lede">Every provenance tool before Causari only worked if the agent volunteered its own history. Agents don't. So Causari observes two independent streams — and joins them by <strong>content</strong>.</p>
+    </div>
+
+    <div class="problems">
+      <article class="problem-card">
+        <div class="problem-num">re proxy</div>
+        <h3>The wire</h3>
+        <p>A local, OpenAI- and Anthropic-compatible LLM proxy. Point your agent's <code>BASE_URL</code> at it and <strong>every prompt, completion, token and dollar</strong> flows through Causari on its way to the provider. Streaming passes through live.</p>
+      </article>
+
+      <article class="problem-card">
+        <div class="problem-num">re watch</div>
+        <h3>The disk</h3>
+        <p>A passive filesystem recorder. Every change becomes a snapshot. Then the causal join: <strong>the lines inserted in your files are searched inside the completions captured moments before.</strong> A match is a causal fingerprint — with a confidence score.</p>
+      </article>
+
+      <article class="problem-card">
+        <div class="problem-num">re hook</div>
+        <h3>The runtime</h3>
+        <p>Where the agent exposes lifecycle hooks (Claude Code today), capture is native and exact: <code>re hook claude-code</code> wires UserPromptSubmit and PostToolUse so every prompt and every edit is recorded at the source. No inference needed.</p>
+      </article>
+    </div>
+
+    <div class="ba-grid" style="margin-top:2.5rem">
+      <div class="ba-card ba-after" style="grid-column:1/-1">
+        <div class="ba-label ba-label--success">A real session — nothing self-reported</div>
+        <div class="ba-term">
+          <div class="ba-prompt">$ re proxy</div>
+          <div class="ba-output">
+            <span class="ba-key">causari:</span> LLM capture proxy listening on <span class="ba-val">http://127.0.0.1:4242</span><br/>
+            <span class="ba-key">•</span> <span class="ba-val">gpt-4o</span>  42→18 tok  $0.0003  <span class="ba-q">"Add JWT refresh logic that rotates every 24h"</span>
+          </div>
+          <div class="ba-prompt">$ re watch &nbsp;<span class="ba-faint"># another terminal</span></div>
+          <div class="ba-output">
+            <span class="ba-key">•</span> <span class="ba-id">0d47599550</span>  auth.py<br/>
+            &nbsp;&nbsp;<span class="ba-key">↳ intent:</span> <span class="ba-q">"Add JWT refresh logic that rotates every 24h"</span>  <span class="ba-val">gpt-4o</span> <span class="ba-faint">(confidence 100%, 3/3 lines)</span>
+          </div>
+          <div class="ba-prompt">$ re why auth.py:2</div>
+          <div class="ba-output">
+            <span class="ba-key">introduced by</span> <span class="ba-id">0d47599550</span><br/>
+            <span class="ba-key">model:</span> <span class="ba-val">gpt-4o</span><br/>
+            <span class="ba-key">prompt:</span> <span class="ba-q">"Add JWT refresh logic that rotates every 24h"</span><br/>
+            <span class="ba-time">→ provenance is now a fact, not a self-report</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -421,6 +479,14 @@ Review with: re show &lt;id&gt;  re diff &lt;id&gt;  re trace &lt;file&gt;</code
     <div class="features">
       <article class="feature">
         <div class="feat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <h3>Zero-cooperation capture</h3>
+        <p><code>re proxy</code> sees every prompt and dollar at the wire. <code>re watch</code> sees every byte on disk. The content-based join attributes each file change to the real prompt, model and cost — <em>no agent integration required</em>.</p>
+      </article>
+
+      <article class="feature">
+        <div class="feat-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6h7M6 8.5v7M18 8.5v7M8.5 18h7"/></svg>
         </div>
         <h3>Bidirectional causal graph</h3>
@@ -501,6 +567,7 @@ Review with: re show &lt;id&gt;  re diff &lt;id&gt;  re trace &lt;file&gt;</code
         <tbody>
           <tr><td>Tracks code</td><td class="y">✓</td><td class="n">✗</td><td class="y">✓</td><td class="us y">✓</td></tr>
           <tr><td>Tracks the prompt</td><td class="n">✗</td><td class="y">✓</td><td class="n">✗</td><td class="us y">✓</td></tr>
+          <tr><td>Works without agent cooperation</td><td class="part">bytes only</td><td class="n">✗</td><td class="part">IDE only</td><td class="us y">✓</td></tr>
           <tr><td>Tracks the model</td><td class="n">✗</td><td class="y">✓</td><td class="n">✗</td><td class="us y">✓</td></tr>
           <tr><td>Tracks reads (context)</td><td class="n">✗</td><td class="part">partial</td><td class="n">✗</td><td class="us y">✓</td></tr>
           <tr><td>Causal graph (upstream)</td><td class="n">✗</td><td class="n">✗</td><td class="n">✗</td><td class="us y">✓</td></tr>
@@ -743,13 +810,14 @@ found: first bad event: <span class="t-id">17cbc28d</span>
       <li class="step">
         <div class="step-num">3</div>
         <div class="step-body">
-          <h3>Wire your agent</h3>
-          <p>Either drop the MCP snippet into Claude / Cursor / Cline / Windsurf, or simply run a passive recorder:</p>
+          <h3>Capture everything</h3>
+          <p>Start the capture engine — the proxy sees the prompts, the watcher sees the disk, the join connects them:</p>
           <div class="code-block">
             <button class="copy-btn" data-copy="qs3">Copy</button>
-<pre id="qs3"><code>re watch --agent claude-3.5</code></pre>
+<pre id="qs3"><code>re proxy          # terminal 1 — point OPENAI_BASE_URL / ANTHROPIC_BASE_URL at it
+re watch          # terminal 2 — file changes get attributed to real prompts</code></pre>
           </div>
-          <p class="muted">Now <strong>any</strong> tool that touches the workspace is recorded. Zero integration.</p>
+          <p class="muted">Now <strong>any</strong> tool that touches the workspace is recorded — with the prompt, model, tokens and cost that caused it. Using Claude Code? <code>re hook claude-code</code> gives you native capture too. MCP fans: <code>re mcp --install</code>.</p>
         </div>
       </li>
 
