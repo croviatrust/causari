@@ -16,6 +16,7 @@ pub mod report;
 pub mod revert;
 pub mod sessions;
 pub mod show;
+pub mod skill;
 pub mod switch;
 pub mod trace;
 pub mod watch;

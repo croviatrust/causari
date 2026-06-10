@@ -64,6 +64,9 @@ pub enum Command {
     /// Render a file with per-line provenance annotations.
     Lens(LensArgs),
 
+    /// Distill, inspect and verify signed skills (the experience layer)
+    Skill(SkillArgs),
+
     /// Run Causari as an MCP server (Claude Code, Cursor, Cline, Windsurf, …)
     Mcp(McpArgs),
 
@@ -301,6 +304,33 @@ pub struct HookArgs {
 pub struct HookEventArgs {
     /// Hook kind: user-prompt | post-tool
     pub kind: String,
+}
+
+#[derive(Args, Debug)]
+pub struct SkillArgs {
+    #[command(subcommand)]
+    pub command: SkillCommand,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum SkillCommand {
+    /// Distill new skills from the event ledger (idempotent)
+    Distill,
+
+    /// List all skills with their trust level
+    List,
+
+    /// Show one skill in full detail
+    Show {
+        /// Skill id (full or prefix, min 4 chars)
+        id: String,
+    },
+
+    /// Verify the Ed25519 signature of one skill, or of all skills
+    Verify {
+        /// Skill id (omit to verify every skill)
+        id: Option<String>,
+    },
 }
 
 #[derive(Args, Debug)]

@@ -59,6 +59,8 @@ re bisect --test "npm test"   # find the agent action that broke the build
 re churn                      # measure AI code survival: how much survived vs
                               #   was rewritten, per agent, with wasted spend
 re report --open              # generate a shareable HTML dashboard of AI waste
+re skill  distill             # turn verified events into signed, reusable skills
+re skill  verify              # Ed25519-check the whole skill library for tampering
 re fork   experiment-claude   # branch into a parallel timeline
 re revert <id>                # undo an action with causal preview of what else
                               #   you are implicitly undoing
@@ -134,6 +136,48 @@ re hook claude-code   # wires UserPromptSubmit + PostToolUse into
 Everything stays on your machine: `.causari/capture/` is a local,
 append-only ledger. No cloud, no telemetry, no API keys touched.
 
+## The Experience Layer — skills with earned trust
+
+Recording the past is half the job. The other half is making sure no agent
+ever pays for the same lesson twice.
+
+`re skill distill` walks the ledger and compresses every completed task —
+the prompt that triggered it, the steps that were taken, the files that
+changed — into a **skill**: a unit of experience an agent can recall
+*before* acting. Each skill is signed with the repository's **Ed25519 key**
+at the moment of distillation; edit one byte afterwards and
+`re skill verify` exposes it.
+
+Trust is earned, never claimed:
+
+```
+●  recorded   distilled from the ledger — no success signal yet
+◆  verified   evidence attached: exit code 0, or the work is still
+              alive at the tip of the timeline (it survived)
+★  proven     verified AND recalled 3+ times by agents doing new work
+```
+
+```
+$ re skill distill
+distill: 128 event(s) scanned, 7 new skill(s), 12 already distilled
+  ◆ verified 2ce0c7bbda  add retry with exponential backoff
+
+$ re skill verify
+  ok 2ce0c7bbda  add retry with exponential backoff
+verify: 7 skill(s), every signature valid
+```
+
+The loop closes through MCP: when an agent calls `causari_recall`, **signed
+skills are returned first, ranked by trust** (proven ×4, verified ×2), and
+every recall bumps the skill's use counter — which is exactly how a
+verified skill earns the ★. Agents get measurably cheaper over time, and
+`re churn` shows you the savings in dollars.
+
+Like everything in Causari, skills are local files (`.causari/skills/`),
+self-contained and portable. The signature means a skill can be shared and
+*verified by anyone* — the foundation for team-wide skill registries (see
+roadmap).
+
 ## What makes it different
 
 Existing tools either track text (git), track sessions (IDE checkpoints), or
@@ -148,10 +192,11 @@ the agent's cooperation. Causari does both:
 | **`re trace src/auth.ts:42`** | **Upstream causal cone.** Every prior event that contributed, transitively, through the files it read or wrote. The intellectual ancestry of a piece of code. |
 | **`re impact <event>`** | **Downstream causal cone.** Every later event that depended, transitively, on what this one produced. The blast radius of an action. |
 | **`re lens src/auth.ts`** | The file rendered with **per-line provenance annotations**: each line painted with the event id that introduced it. |
-| `re find "the JWT refactor"` | Every event whose prompt, message or reasoning matches your query, ranked by relevance. |
+| `re find "the JWT refactor"` | Signed **skills first**, then every event — prompt, message, reasoning — ranked by trust and relevance.
 | `re bisect --test "<cmd>"` | The first agent action whose output fails your tests. |
 | **`re churn`** | **AI Waste Score.** How much AI-written code survived vs was rewritten, per agent. With cost data: dollars spent on code that did not survive. |
 | **`re report --open`** | A **self-contained HTML dashboard** you can paste into Slack, PRs, or board decks — zero external assets, zero cloud calls. |
+| **`re skill distill`** | **Signed experience.** Verified past work compressed into Ed25519-signed skills, recalled by agents (trust-ranked) before they act — the same mistake is never paid twice. |
 | `re fork claude-attempt` | A new timeline you can extend without touching the original. |
 | **`re watch --session bot1`** | **Concurrent multi-agent recording.** One session per agent, lock-serialized commits, shared ancestry — no agent can orphan another's events. |
 | `re sessions` / `re switch <name>` | The fleet overview: every session tip with agent and last activity; jump between timelines. |
@@ -283,11 +328,15 @@ absolute size of the workspace.
 
 Next on the roadmap:
 
-- **Verified skills (experience layer)**: events whose verification passed
-  (tests green, exit code 0) get promoted into signed, reusable skills the
-  agent can recall *before* acting — so the same mistake is never paid twice
+- ~~**Verified skills (experience layer)**: events whose verification passed
+  get promoted into signed, reusable skills the agent can recall *before*
+  acting~~ ✓ shipped: `re skill distill/list/show/verify`, Ed25519
+  signatures, trust ladder (● recorded → ◆ verified → ★ proven),
+  trust-ranked `causari_recall` via MCP
 - ~~**Multi-agent DAG timelines**: concurrent agents, true branching history~~
   ✓ shipped: `--session`, `re sessions`, `re switch`, `re log --all`
+- **Team skill registry**: share signed skills across an organization —
+  one engineer's verified fix becomes every agent's instinct
 - Cryptographic timestamps (RFC 3161) + Ed25519-signed events for
   audit-grade timelines (EU AI Act, SOC2 for agentic development)
 - **Agent Provenance Protocol**: an open spec for the signed,
@@ -407,6 +456,14 @@ Causari is released under the **Business Source License 1.1** (see
 - **Becomes Apache 2.0 automatically** four years after each version is
   published. The change is mechanical: nothing the project maintainers can
   prevent or accelerate.
+
+**The experience layer (skills) is and will remain free** in the `re`
+binary — distillation, Ed25519 signing, verification and recall all run
+locally and cost nothing. What will be commercial is the **Trust Plane**
+built on top of it: organization-wide signed skill registries, RFC 3161
+timestamping, fleet dashboards and audit-grade compliance exports. The
+free tool creates the experience; the paid plane lets a company trust it
+at scale.
 
 Why BSL? Causari is meant to be widely used and modified, but we are not
 interested in subsidizing a future closed-source clone built by a

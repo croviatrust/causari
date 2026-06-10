@@ -15,8 +15,20 @@ pub fn run() -> Result<()> {
     );
     println!();
     println!("Next steps:");
-    println!("  • Record an action:   {}", "re record -m \"...\"".cyan());
-    println!("  • View history:       {}", "re log".cyan());
-    println!("  • Revert to a state:  {}", "re revert <id>".cyan());
+    println!(
+        "  • Zero-cooperation capture:  {} + {}  (proxy + watch)",
+        "re proxy".cyan(),
+        "re watch".cyan()
+    );
+    println!(
+        "  • Agent integration:       {}  (Claude Code, Cursor, …)",
+        "re mcp --install".cyan()
+    );
+    println!(
+        "  • Record an action:        {}",
+        "re record -m \"...\"".cyan()
+    );
+    println!("  • Distill experience:      {}", "re skill distill".cyan());
+    println!("  • View history:            {}", "re log".cyan());
     Ok(())
 }

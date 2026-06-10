@@ -70,6 +70,7 @@
 
     <nav class="nav-links" aria-label="Primary">
       <a href="#capture">Capture</a>
+      <a href="#skills">Skills</a>
       <a href="#what">Features</a>
       <a href="#mcp">MCP</a>
       <a href="#license">License</a>
@@ -298,6 +299,62 @@
             <span class="ba-key">model:</span> <span class="ba-val">gpt-4o</span><br/>
             <span class="ba-key">prompt:</span> <span class="ba-q">"Add JWT refresh logic that rotates every 24h"</span><br/>
             <span class="ba-time">→ provenance is now a fact, not a self-report</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================= SKILLS -->
+<section id="skills" class="section section-alt">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">The experience layer</p>
+      <h2>The same mistake is never paid twice.</h2>
+      <p class="lede">Recording the past is half the job. Causari distills every completed task into a <strong>signed skill</strong> — proven experience your agents recall <em>before</em> they act. Trust is earned, never claimed.</p>
+    </div>
+
+    <div class="problems">
+      <article class="problem-card">
+        <div class="problem-num">re skill distill</div>
+        <h3>Distill</h3>
+        <p>One command walks the ledger and compresses each task — the prompt that triggered it, the steps taken, the files changed — into a portable skill file. Idempotent, local, instant. <strong>Signed with the repo's Ed25519 key</strong> at the moment of creation.</p>
+      </article>
+
+      <article class="problem-card">
+        <div class="problem-num">● → ◆ → ★</div>
+        <h3>Earn trust</h3>
+        <p><strong>● recorded</strong> — distilled, no success signal yet. <strong>◆ verified</strong> — evidence attached: exit&nbsp;code&nbsp;0, or the work survived at the tip of the timeline. <strong>★ proven</strong> — verified <em>and</em> recalled 3+ times by agents doing new work. Edit one byte and <code>re skill verify</code> exposes it.</p>
+      </article>
+
+      <article class="problem-card">
+        <div class="problem-num">causari_recall</div>
+        <h3>Recall</h3>
+        <p>Through MCP, agents query their own past before acting: <strong>signed skills come first, ranked by trust</strong> (proven ×4, verified ×2). Every recall bumps the use counter — the loop that turns a verified skill into a proven one. Agents get measurably cheaper over time.</p>
+      </article>
+    </div>
+
+    <div class="ba-grid" style="margin-top:2.5rem">
+      <div class="ba-card ba-after" style="grid-column:1/-1">
+        <div class="ba-label ba-label--success">Events become experience — signed, verifiable, reusable</div>
+        <div class="ba-term">
+          <div class="ba-prompt">$ re skill distill</div>
+          <div class="ba-output">
+            <span class="ba-key">distill:</span> 128 event(s) scanned, <span class="ba-val">7 new skill(s)</span>, 12 already distilled<br/>
+            &nbsp;&nbsp;<span class="ba-val">◆ verified</span> <span class="ba-id">2ce0c7bbda</span>  add retry with exponential backoff
+          </div>
+          <div class="ba-prompt">$ re skill verify</div>
+          <div class="ba-output">
+            &nbsp;&nbsp;<span class="ba-key">ok</span> <span class="ba-id">2ce0c7bbda</span>  add retry with exponential backoff<br/>
+            <span class="ba-key">verify:</span> 7 skill(s), <span class="ba-val">every signature valid</span> <span class="ba-faint">(Ed25519)</span>
+          </div>
+          <div class="ba-prompt">$ re skill show 2ce0</div>
+          <div class="ba-output">
+            <span class="ba-key">trust:</span> <span class="ba-val">◆ verified</span> &nbsp;<span class="ba-key">signature:</span> <span class="ba-val">valid</span><br/>
+            <span class="ba-key">trigger:</span> <span class="ba-q">"add retry with exponential backoff"</span><br/>
+            <span class="ba-key">evidence:</span> exit_zero=true survived=true<br/>
+            <span class="ba-time">→ next time any agent faces this task, it already knows the answer</span>
           </div>
         </div>
       </div>
@@ -824,10 +881,25 @@ re watch          # terminal 2 — file changes get attributed to real prompts</
       <li class="step">
         <div class="step-num">4</div>
         <div class="step-body">
-          <h3>Ask anything</h3>
+          <h3>Turn experience into skills</h3>
+          <p>Every completed task becomes signed, reusable experience — free, local, Ed25519-verified:</p>
           <div class="code-block">
             <button class="copy-btn" data-copy="qs4">Copy</button>
-<pre id="qs4"><code>re log
+<pre id="qs4"><code>re skill distill          # events → signed skills (idempotent)
+re skill verify           # Ed25519 check the whole library
+re find "jwt refresh"     # skills first, then raw events</code></pre>
+          </div>
+          <p class="muted">Agents recall skills automatically via MCP (<code>causari_recall</code>) — proven experience ranks above raw history. The same mistake is never paid twice.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h3>Ask anything</h3>
+          <div class="code-block">
+            <button class="copy-btn" data-copy="qs5">Copy</button>
+<pre id="qs5"><code>re log
 re why src/auth.ts:42
 re trace src/calc.ts:7
 re impact &lt;event-id&gt;
@@ -857,6 +929,11 @@ re bisect --test "npm test"</code></pre>
       <details class="faq">
         <summary><span>Can I fork it, modify it, contribute back?</span></summary>
         <p>Yes. Fork it, study it, ship internal forks, send PRs. The <a href="https://github.com/croviatrust/causari/blob/main/CONTRIBUTING.md" rel="noopener">CLA</a> keeps Croviatrust able to dual-license in the future, but every line of code you read here will become Apache 2.0 four years from its release date — written into the license itself.</p>
+      </details>
+
+      <details class="faq">
+        <summary><span>Are skills free? What about the experience layer?</span></summary>
+        <p><strong>Yes — completely free in the <code>re</code> binary.</strong> Distillation, Ed25519 signing, verification, and MCP recall all run locally at zero cost. What will be commercial is the <em>Trust Plane</em> on top: organization-wide signed skill registries, RFC&nbsp;3161 timestamping, fleet dashboards and audit-grade compliance exports. The free tool creates the experience; the paid plane lets a company trust it at scale.</p>
       </details>
 
       <details class="faq">

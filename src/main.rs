@@ -8,6 +8,7 @@ mod dag;
 mod index;
 mod object;
 mod repo;
+mod skill;
 mod snapshot;
 mod store;
 
@@ -36,6 +37,7 @@ fn main() -> Result<()> {
         Command::Find(args) => commands::find::run(args),
         Command::Impact(args) => commands::impact::run(args),
         Command::Lens(args) => commands::lens::run(args),
+        Command::Skill(args) => commands::skill::run(args),
         Command::Mcp(args) => commands::mcp::run(args),
         Command::Guard(args) => commands::guard::run(args),
         Command::Churn(args) => commands::churn::run(args),

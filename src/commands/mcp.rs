@@ -137,10 +137,11 @@ fn handle_tools_list() -> Result<Value, String> {
             },
             {
                 "name": "causari_recall",
-                "description": "Search the Causari ledger for past events relevant to a new task. \
-                    Returns up to N events ranked by relevance, each with their prompt, \
-                    agent, files touched and outcome. Use this BEFORE acting on a task that \
-                    looks similar to something you (or another agent) may have done before.",
+                "description": "Recall proven experience before acting. Searches the signed skill \
+                    library first (skills are distilled, Ed25519-signed units of verified past \
+                    work, ranked by trust: proven > verified > recorded), then raw ledger events. \
+                    Use this BEFORE acting on a task that looks similar to something you (or \
+                    another agent) may have done before — it is how you avoid repeating mistakes.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -264,54 +265,107 @@ fn tool_recall(args: &Value) -> Result<String> {
     if query.is_empty() {
         return Ok("recall: empty query".to_string());
     }
-    let terms: Vec<&str> = query.split_whitespace().collect();
+    let terms: Vec<String> = query.split_whitespace().map(String::from).collect();
+    let mut out = String::new();
 
-    let head = repo.head_event()?;
-    let mut cur = head;
-    let mut hits: Vec<(usize, String, Event)> = Vec::new();
-    while let Some(id) = cur {
-        let ev = store.read_event(&id)?;
-        let hay = format!(
-            "{} {} {} {}",
-            ev.message.clone().unwrap_or_default(),
-            ev.prompt.clone().unwrap_or_default(),
-            ev.reasoning.clone().unwrap_or_default(),
-            ev.tool.clone().unwrap_or_default()
-        )
-        .to_lowercase();
-        let score: usize = terms.iter().map(|t| hay.matches(*t).count()).sum();
-        if score > 0 {
-            hits.push((score, id.clone(), ev.clone()));
-        }
-        cur = ev.parent;
-    }
-    hits.sort_by_key(|h| std::cmp::Reverse(h.0));
+    // 1. SKILLS first — distilled, signed experience outranks raw events.
+    //    Every recall bumps the skill's use counter, which is how a verified
+    //    skill earns the ★ proven trust level over time.
+    let skills = crate::skill::load_skills(&repo)?;
+    let mut skill_hits: Vec<(usize, &String, &crate::skill::SkillEnvelope)> = skills
+        .iter()
+        .filter(|(_, env)| crate::skill::verify_envelope(env).is_ok())
+        .map(|(id, env)| (crate::skill::score_skill(env, &terms), id, env))
+        .filter(|(score, _, _)| *score > 0)
+        .collect();
+    skill_hits.sort_by_key(|h| std::cmp::Reverse(h.0));
 
-    if hits.is_empty() {
-        return Ok(format!("no past events match {:?}", query));
-    }
-
-    let mut out = format!("# {} match(es) for {:?}\n", hits.len(), query);
-    for (score, id, ev) in hits.iter().take(limit) {
+    if !skill_hits.is_empty() {
         out.push_str(&format!(
-            "\n## [{score}] event {short}\n",
-            score = score,
-            short = &id[..10]
+            "# {} skill(s) match {:?} (signed, trust-ranked)\n",
+            skill_hits.len(),
+            query
         ));
-        if let Some(a) = &ev.agent {
-            out.push_str(&format!("- agent: {}\n", a));
+        for (score, id, env) in skill_hits.iter().take(limit) {
+            let trust = env.trust();
+            out.push_str(&format!(
+                "\n## [{}] {} {} — {}\n",
+                score,
+                trust.badge(),
+                trust.as_str(),
+                env.skill.title
+            ));
+            out.push_str(&format!("- skill: {}\n", &id[..10]));
+            if let Some(a) = &env.skill.agent {
+                out.push_str(&format!("- agent: {}\n", a));
+            }
+            out.push_str(&format!("- trigger: {}\n", env.skill.trigger));
+            for (i, step) in env.skill.steps.iter().enumerate() {
+                out.push_str(&format!(
+                    "- step {}: [{}] {}{}\n",
+                    i + 1,
+                    step.tool.as_deref().unwrap_or("-"),
+                    step.message.as_deref().unwrap_or(""),
+                    if step.writes.is_empty() {
+                        String::new()
+                    } else {
+                        format!(" -> {}", step.writes.join(", "))
+                    }
+                ));
+            }
+            out.push_str(&format!(
+                "- evidence: exit_zero={} survived={} uses={}\n",
+                env.skill.verification.exit_zero, env.skill.verification.survived, env.stats.uses
+            ));
+            let _ = crate::skill::record_use(&repo, id);
         }
-        if let Some(m) = &ev.message {
-            out.push_str(&format!("- message: {}\n", m));
-        }
-        if let Some(p) = &ev.prompt {
-            out.push_str(&format!("- prompt: {}\n", p));
-        }
-        if let Some(r) = &ev.reasoning {
-            out.push_str(&format!("- reasoning: {}\n", r));
-        }
-        if !ev.writes.is_empty() {
-            out.push_str(&format!("- writes: {}\n", ev.writes.join(", ")));
+        out.push('\n');
+    }
+
+    // 2. Raw events from the metadata index (all sessions, one read).
+    let indexed = crate::index::ensure(&repo, &store)?;
+    let mut hits: Vec<(usize, String, crate::index::IndexEntry)> = indexed
+        .into_iter()
+        .map(|(id, entry)| {
+            let hay = format!(
+                "{} {} {} {}",
+                entry.message.clone().unwrap_or_default(),
+                entry.prompt.clone().unwrap_or_default(),
+                entry.reasoning.clone().unwrap_or_default(),
+                entry.tool.clone().unwrap_or_default()
+            )
+            .to_lowercase();
+            let score: usize = terms.iter().map(|t| hay.matches(t.as_str()).count()).sum();
+            (score, id, entry)
+        })
+        .filter(|(score, _, _)| *score > 0)
+        .collect();
+    hits.sort_by(|a, b| (b.0, &b.2.created_at).cmp(&(a.0, &a.2.created_at)));
+
+    if skill_hits.is_empty() && hits.is_empty() {
+        return Ok(format!("no skills or past events match {:?}", query));
+    }
+
+    if !hits.is_empty() {
+        out.push_str(&format!("# {} event(s) match {:?}\n", hits.len(), query));
+        for (score, id, entry) in hits.iter().take(limit) {
+            out.push_str(&format!(
+                "\n## [{score}] event {short}\n",
+                score = score,
+                short = &id[..10]
+            ));
+            if let Some(a) = &entry.agent {
+                out.push_str(&format!("- agent: {}\n", a));
+            }
+            if let Some(m) = &entry.message {
+                out.push_str(&format!("- message: {}\n", m));
+            }
+            if let Some(p) = &entry.prompt {
+                out.push_str(&format!("- prompt: {}\n", p));
+            }
+            if let Some(r) = &entry.reasoning {
+                out.push_str(&format!("- reasoning: {}\n", r));
+            }
         }
     }
     Ok(out)
