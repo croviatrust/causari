@@ -2,7 +2,10 @@ mod banner;
 mod capture;
 mod cli;
 mod commands;
+mod commit;
 mod config;
+mod dag;
+mod index;
 mod object;
 mod repo;
 mod snapshot;
@@ -27,6 +30,8 @@ fn main() -> Result<()> {
         Command::Watch(args) => commands::watch::run(args),
         Command::Bisect(args) => commands::bisect::run(args),
         Command::Fork(args) => commands::fork::run(args),
+        Command::Sessions => commands::sessions::run(),
+        Command::Switch(args) => commands::switch::run(args),
         Command::Trace(args) => commands::trace::run(args),
         Command::Find(args) => commands::find::run(args),
         Command::Impact(args) => commands::impact::run(args),

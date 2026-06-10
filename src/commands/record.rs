@@ -4,6 +4,7 @@ use colored::Colorize;
 use std::io::Read;
 
 use crate::cli::RecordArgs;
+use crate::commit::{commit_event, resolve_parent, resolve_pre_snapshot};
 use crate::object::{Event, Snapshot};
 use crate::repo::Repo;
 use crate::snapshot::snapshot_workspace;
@@ -21,27 +22,13 @@ pub fn run(args: RecordArgs) -> Result<()> {
     let repo = Repo::discover()?;
     let store = Store::new(&repo);
 
-    // Determine pre-state: the post_snapshot of the current HEAD event,
-    // or, if no HEAD yet, snapshot the workspace as it currently is and
-    // use that as both pre and post (synthetic root event).
-    let parent_id = repo.head_event()?;
-    let pre_snapshot_id = match &parent_id {
-        Some(pid) => {
-            let parent_event = store.read_event(pid)?;
-            parent_event.post_snapshot
-        }
-        None => {
-            // First record: synthesize a baseline snapshot of the current state.
-            // To make the first event meaningful we still take a fresh snapshot
-            // and use it as pre and post.
-            let tree_id = snapshot_workspace(&repo)?;
-            let snap = Snapshot {
-                tree: tree_id,
-                created_at: Utc::now().to_rfc3339(),
-            };
-            store.write_snapshot(&snap)?
-        }
-    };
+    // Serialize the read-parent → snapshot → commit critical section against
+    // other recorders (watchers, hooks, MCP calls).
+    let _lock = repo.lock()?;
+
+    let session = args.session.as_deref();
+    let parent_id = resolve_parent(&repo, session)?;
+    let pre_snapshot_id = resolve_pre_snapshot(&repo, &store, &parent_id)?;
 
     let post_tree_id = snapshot_workspace(&repo)?;
     let post_snapshot = Snapshot {
@@ -126,15 +113,19 @@ pub fn run(args: RecordArgs) -> Result<()> {
         created_at: Utc::now().to_rfc3339(),
     };
 
-    let event_id = store.write_event(&event)?;
-    repo.update_head(&event_id)?;
+    let event_id = commit_event(&repo, &store, &event, session)?;
 
     let short = &event_id[..10];
+    let session_note = match session {
+        Some(name) => format!("  [{}]", name),
+        None => String::new(),
+    };
     println!(
-        "{} {}  {}",
+        "{} {}  {}{}",
         "recorded".green().bold(),
         short.bright_black(),
-        event.message.unwrap_or_else(|| "(no message)".to_string())
+        event.message.unwrap_or_else(|| "(no message)".to_string()),
+        session_note.cyan()
     );
     Ok(())
 }

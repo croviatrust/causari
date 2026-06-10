@@ -153,6 +153,9 @@ the agent's cooperation. Causari does both:
 | **`re churn`** | **AI Waste Score.** How much AI-written code survived vs was rewritten, per agent. With cost data: dollars spent on code that did not survive. |
 | **`re report --open`** | A **self-contained HTML dashboard** you can paste into Slack, PRs, or board decks — zero external assets, zero cloud calls. |
 | `re fork claude-attempt` | A new timeline you can extend without touching the original. |
+| **`re watch --session bot1`** | **Concurrent multi-agent recording.** One session per agent, lock-serialized commits, shared ancestry — no agent can orphan another's events. |
+| `re sessions` / `re switch <name>` | The fleet overview: every session tip with agent and last activity; jump between timelines. |
+| `re log --all` | The full event DAG across every session, with tip and fork-point markers. |
 | `re diff a..b` | The exact file delta between two agent actions. |
 | `re revert <id>` | Workspace snapped back to the pre-state of that action, **with a causal preview** of every downstream event you are implicitly undoing. |
 
@@ -283,7 +286,8 @@ Next on the roadmap:
 - **Verified skills (experience layer)**: events whose verification passed
   (tests green, exit code 0) get promoted into signed, reusable skills the
   agent can recall *before* acting — so the same mistake is never paid twice
-- **Multi-agent DAG timelines**: concurrent agents, true branching history
+- ~~**Multi-agent DAG timelines**: concurrent agents, true branching history~~
+  ✓ shipped: `--session`, `re sessions`, `re switch`, `re log --all`
 - Cryptographic timestamps (RFC 3161) + Ed25519-signed events for
   audit-grade timelines (EU AI Act, SOC2 for agentic development)
 - **Agent Provenance Protocol**: an open spec for the signed,

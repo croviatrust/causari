@@ -310,3 +310,161 @@ pub fn effective_writes(
     }
     Ok(changed.into_iter().collect())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::object::{Event, Snapshot};
+
+    fn test_repo() -> (tempfile::TempDir, Repo) {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        (tmp, repo)
+    }
+
+    fn write(repo: &Repo, rel: &str, content: &str) {
+        let p = repo.root.join(rel);
+        if let Some(parent) = p.parent() {
+            std::fs::create_dir_all(parent).unwrap();
+        }
+        std::fs::write(p, content).unwrap();
+    }
+
+    fn snap(repo: &Repo, store: &Store) -> String {
+        let tree = snapshot_workspace(repo).unwrap();
+        store
+            .write_snapshot(&Snapshot {
+                tree,
+                created_at: "2026-01-01T00:00:00Z".into(),
+            })
+            .unwrap()
+    }
+
+    #[test]
+    fn ignored_paths_never_enter_snapshots() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+
+        write(&repo, "src/main.rs", "fn main() {}");
+        write(&repo, "node_modules/pkg/index.js", "x");
+        write(&repo, "target/debug/bin", "x");
+
+        let tree_id = snapshot_workspace(&repo).unwrap();
+        let flat = flatten_tree(&store, &tree_id).unwrap();
+        let paths: Vec<String> = flat
+            .keys()
+            .map(|p| p.to_string_lossy().replace('\\', "/"))
+            .collect();
+        assert_eq!(paths, vec!["src/main.rs"]);
+    }
+
+    #[test]
+    fn snapshot_restore_roundtrip() {
+        let (_tmp, repo) = test_repo();
+
+        write(&repo, "a.txt", "original A");
+        write(&repo, "dir/b.txt", "original B");
+        let tree_before = snapshot_workspace(&repo).unwrap();
+
+        // Mutate the workspace: edit, delete, add.
+        write(&repo, "a.txt", "EDITED");
+        std::fs::remove_file(repo.root.join("dir/b.txt")).unwrap();
+        write(&repo, "new.txt", "added later");
+
+        let report = restore_workspace(&repo, &tree_before).unwrap();
+        assert_eq!(report.files_written, 2); // a.txt restored, dir/b.txt recreated
+        assert_eq!(report.files_deleted, 1); // new.txt removed
+
+        assert_eq!(
+            std::fs::read_to_string(repo.root.join("a.txt")).unwrap(),
+            "original A"
+        );
+        assert_eq!(
+            std::fs::read_to_string(repo.root.join("dir/b.txt")).unwrap(),
+            "original B"
+        );
+        assert!(!repo.root.join("new.txt").exists());
+
+        // Restored workspace must hash to the exact same tree.
+        assert_eq!(snapshot_workspace(&repo).unwrap(), tree_before);
+    }
+
+    #[test]
+    fn effective_writes_sees_adds_edits_and_deletes() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+
+        write(&repo, "keep.txt", "same");
+        write(&repo, "edit.txt", "v1");
+        write(&repo, "gone.txt", "bye");
+        let pre = snap(&repo, &store);
+
+        write(&repo, "edit.txt", "v2");
+        std::fs::remove_file(repo.root.join("gone.txt")).unwrap();
+        write(&repo, "fresh.txt", "hi");
+        let post = snap(&repo, &store);
+
+        let changed: Vec<String> = effective_writes(&store, &pre, &post)
+            .unwrap()
+            .into_iter()
+            .map(|p| p.to_string_lossy().replace('\\', "/"))
+            .collect();
+        assert_eq!(changed, vec!["edit.txt", "fresh.txt", "gone.txt"]);
+    }
+
+    #[test]
+    fn added_lines_between_returns_only_insertions_and_respects_cap() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+
+        write(&repo, "f.txt", "one\ntwo\n");
+        let pre = snap(&repo, &store);
+        write(&repo, "f.txt", "one\ntwo\nthree\nfour\n");
+        let post = snap(&repo, &store);
+
+        let added = added_lines_between(&store, &pre, &post, 100).unwrap();
+        assert_eq!(added, vec!["three", "four"]);
+
+        let capped = added_lines_between(&store, &pre, &post, 1).unwrap();
+        assert_eq!(capped.len(), 1);
+    }
+
+    #[test]
+    fn effective_reads_include_modified_files() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+
+        write(&repo, "w.txt", "v1");
+        let pre = snap(&repo, &store);
+        write(&repo, "w.txt", "v2");
+        let post = snap(&repo, &store);
+
+        let ev = Event {
+            schema: "causari.event.v0.2".into(),
+            parent: None,
+            agent: None,
+            model: None,
+            tool: None,
+            message: None,
+            prompt: None,
+            reasoning: None,
+            reads: vec!["ctx.txt".into()],
+            writes: vec![],
+            tokens_in: None,
+            tokens_out: None,
+            cost_usd: None,
+            pre_snapshot: pre,
+            post_snapshot: post,
+            exit_code: None,
+            created_at: "2026-01-01T00:00:00Z".into(),
+        };
+        let mut reads: Vec<String> = effective_reads(&store, &ev)
+            .unwrap()
+            .into_iter()
+            .map(|p| p.to_string_lossy().replace('\\', "/"))
+            .collect();
+        reads.sort();
+        // Declared read + the file the event modified (writing implies reading).
+        assert_eq!(reads, vec!["ctx.txt", "w.txt"]);
+    }
+}

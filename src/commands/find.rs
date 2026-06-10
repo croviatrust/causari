@@ -12,30 +12,33 @@ use crate::store::Store;
 /// across the queried fields. This is the bridge between "I remember an agent
 /// did something about X" and the actual event id.
 ///
+/// Runs on the metadata index (one JSONL read) instead of opening every
+/// object file, and searches ALL sessions, not just the current one.
+///
 /// (Embeddings-based semantic search is a later upgrade — this baseline is
 /// already useful and has zero external dependencies.)
 pub fn run(args: FindArgs) -> Result<()> {
     let repo = Repo::discover()?;
     let store = Store::new(&repo);
 
-    let head = repo.head_event()?;
-    let mut cur = head;
     let query_terms: Vec<String> = args
         .query
         .split_whitespace()
         .map(|t| t.to_lowercase())
         .collect();
 
-    let mut hits: Vec<(usize, String, String)> = Vec::new();
+    let indexed = crate::index::ensure(&repo, &store)?;
+    // (score, created_at, id, preview) — created_at breaks score ties so
+    // results are deterministic and newest-first.
+    let mut hits: Vec<(usize, String, String, String)> = Vec::new();
 
-    while let Some(id) = cur {
-        let ev = store.read_event(&id)?;
+    for (id, entry) in &indexed {
         let haystack = format!(
             "{} {} {} {}",
-            ev.message.clone().unwrap_or_default(),
-            ev.prompt.clone().unwrap_or_default(),
-            ev.reasoning.clone().unwrap_or_default(),
-            ev.tool.clone().unwrap_or_default()
+            entry.message.clone().unwrap_or_default(),
+            entry.prompt.clone().unwrap_or_default(),
+            entry.reasoning.clone().unwrap_or_default(),
+            entry.tool.clone().unwrap_or_default()
         )
         .to_lowercase();
 
@@ -44,14 +47,13 @@ pub fn run(args: FindArgs) -> Result<()> {
             .map(|t| haystack.matches(t.as_str()).count())
             .sum();
         if score > 0 {
-            let preview = ev
+            let preview = entry
                 .message
                 .clone()
-                .or(ev.prompt.clone())
+                .or(entry.prompt.clone())
                 .unwrap_or_else(|| "(no message)".to_string());
-            hits.push((score, id.clone(), preview));
+            hits.push((score, entry.created_at.clone(), id.clone(), preview));
         }
-        cur = ev.parent;
     }
 
     if hits.is_empty() {
@@ -63,7 +65,7 @@ pub fn run(args: FindArgs) -> Result<()> {
         return Ok(());
     }
 
-    hits.sort_by_key(|h| std::cmp::Reverse(h.0));
+    hits.sort_by(|a, b| (b.0, &b.1).cmp(&(a.0, &a.1)));
     let limit = args.limit.unwrap_or(10);
     println!(
         "{} {} match(es) for {:?}",
@@ -71,10 +73,11 @@ pub fn run(args: FindArgs) -> Result<()> {
         hits.len(),
         args.query
     );
-    for (score, id, preview) in hits.iter().take(limit) {
+    for (score, _ts, id, preview) in hits.iter().take(limit) {
         let short = &id[..10];
-        let trimmed = if preview.len() > 80 {
-            format!("{}…", &preview[..80])
+        let trimmed = if preview.chars().count() > 80 {
+            let cut: String = preview.chars().take(80).collect();
+            format!("{}…", cut)
         } else {
             preview.clone()
         };

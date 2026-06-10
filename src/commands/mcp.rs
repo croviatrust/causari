@@ -128,6 +128,7 @@ fn handle_tools_list() -> Result<Value, String> {
                         "model":     { "type": "string", "description": "Underlying model id." },
                         "prompt":    { "type": "string", "description": "The user prompt that triggered this action." },
                         "reasoning": { "type": "string", "description": "Your chain-of-thought, if you can expose it." },
+                        "session":   { "type": "string", "description": "Named session to record onto (one per agent enables safe concurrent recording). Created on first use." },
                         "reads":     { "type": "array", "items": { "type": "string" }, "description": "Files you read or considered as context." },
                         "writes":    { "type": "array", "items": { "type": "string" }, "description": "Files you wrote or modified." }
                     },
@@ -206,17 +207,10 @@ fn tool_record(args: &Value) -> Result<String> {
             .unwrap_or_default()
     };
 
-    let parent_id = repo.head_event()?;
-    let pre_snapshot_id = match &parent_id {
-        Some(pid) => store.read_event(pid)?.post_snapshot,
-        None => {
-            let tree_id = snapshot_workspace(&repo)?;
-            store.write_snapshot(&Snapshot {
-                tree: tree_id,
-                created_at: Utc::now().to_rfc3339(),
-            })?
-        }
-    };
+    let _lock = repo.lock()?;
+    let session = s("session");
+    let parent_id = crate::commit::resolve_parent(&repo, session.as_deref())?;
+    let pre_snapshot_id = crate::commit::resolve_pre_snapshot(&repo, &store, &parent_id)?;
     let post_tree = snapshot_workspace(&repo)?;
     let post_snapshot_id = store.write_snapshot(&Snapshot {
         tree: post_tree,
@@ -245,8 +239,7 @@ fn tool_record(args: &Value) -> Result<String> {
             .map(|n| n as i32),
         created_at: Utc::now().to_rfc3339(),
     };
-    let id = store.write_event(&event)?;
-    repo.update_head(&id)?;
+    let id = crate::commit::commit_event(&repo, &store, &event, session.as_deref())?;
     Ok(format!(
         "recorded event {} — {}",
         &id[..10],

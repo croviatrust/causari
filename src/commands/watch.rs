@@ -10,6 +10,7 @@ use std::time::Duration;
 
 use crate::capture::{correlate, load_exchanges_since, now_ms};
 use crate::cli::WatchArgs;
+use crate::commit::{commit_event, resolve_parent};
 use crate::object::{Event, Snapshot};
 use crate::repo::Repo;
 use crate::snapshot::{added_lines_between, snapshot_workspace};
@@ -42,6 +43,9 @@ pub fn run(args: WatchArgs) -> Result<()> {
     );
     if let Some(a) = &args.agent {
         println!("  agent tag: {}", a.cyan());
+    }
+    if let Some(s) = &args.session {
+        println!("  session:   {}", s.cyan());
     }
 
     // Baseline snapshot at startup. Without it, the first recorded change
@@ -113,8 +117,12 @@ fn record_change(
     baseline_snapshot_id: &str,
 ) -> Result<()> {
     // Same logic as `re record`, simplified. The first event's pre-state is
-    // the baseline captured at watcher startup.
-    let parent_id = repo.head_event()?;
+    // the baseline captured at watcher startup. The lock serializes us with
+    // any other recorder (hooks, MCP, a second watcher) for the whole
+    // read-parent → snapshot → commit section.
+    let _lock = repo.lock()?;
+    let session = args.session.as_deref();
+    let parent_id = resolve_parent(repo, session)?;
     let pre_snapshot_id = match &parent_id {
         Some(pid) => store.read_event(pid)?.post_snapshot,
         None => baseline_snapshot_id.to_string(),
@@ -181,8 +189,7 @@ fn record_change(
         exit_code: None,
         created_at: Utc::now().to_rfc3339(),
     };
-    let id = store.write_event(&event)?;
-    repo.update_head(&id)?;
+    let id = commit_event(repo, store, &event, session)?;
 
     let preview = writes
         .iter()

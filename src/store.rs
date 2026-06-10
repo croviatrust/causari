@@ -127,3 +127,120 @@ impl<'a> Store<'a> {
         self.read_structured(id, b'E')
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::object::TreeEntry;
+    use std::collections::BTreeMap;
+
+    fn test_repo() -> (tempfile::TempDir, Repo) {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        (tmp, repo)
+    }
+
+    fn sample_event(parent: Option<String>) -> Event {
+        Event {
+            schema: "causari.event.v0.2".into(),
+            parent,
+            agent: Some("test-agent".into()),
+            model: None,
+            tool: Some("edit".into()),
+            message: Some("hello".into()),
+            prompt: Some("do the thing".into()),
+            reasoning: None,
+            reads: vec![],
+            writes: vec!["a.txt".into()],
+            tokens_in: None,
+            tokens_out: None,
+            cost_usd: None,
+            pre_snapshot: "pre".into(),
+            post_snapshot: "post".into(),
+            exit_code: None,
+            created_at: "2026-01-01T00:00:00Z".into(),
+        }
+    }
+
+    #[test]
+    fn blob_roundtrip_and_dedup() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+
+        let id1 = store.write_blob(b"hello world").unwrap();
+        let id2 = store.write_blob(b"hello world").unwrap();
+        assert_eq!(id1, id2, "identical content must dedup to one object");
+        assert_eq!(store.read_blob(&id1).unwrap(), b"hello world");
+        assert!(store.exists(&id1));
+    }
+
+    #[test]
+    fn structured_roundtrips() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+
+        let mut entries = BTreeMap::new();
+        entries.insert(
+            "main.rs".to_string(),
+            TreeEntry {
+                kind: "blob".into(),
+                id: "ff".repeat(32),
+            },
+        );
+        let tree_id = store.write_tree(&Tree { entries }).unwrap();
+        let tree = store.read_tree(&tree_id).unwrap();
+        assert_eq!(tree.entries["main.rs"].kind, "blob");
+
+        let snap_id = store
+            .write_snapshot(&Snapshot {
+                tree: tree_id.clone(),
+                created_at: "2026-01-01T00:00:00Z".into(),
+            })
+            .unwrap();
+        assert_eq!(store.read_snapshot(&snap_id).unwrap().tree, tree_id);
+
+        let ev_id = store.write_event(&sample_event(None)).unwrap();
+        let ev = store.read_event(&ev_id).unwrap();
+        assert_eq!(ev.message.as_deref(), Some("hello"));
+        assert_eq!(ev.parent, None);
+    }
+
+    #[test]
+    fn kind_markers_prevent_cross_kind_reads() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+
+        let blob_id = store.write_blob(b"{}").unwrap();
+        assert!(store.read_tree(&blob_id).is_err());
+        assert!(store.read_snapshot(&blob_id).is_err());
+        assert!(store.read_event(&blob_id).is_err());
+
+        let ev_id = store.write_event(&sample_event(None)).unwrap();
+        assert!(store.read_blob(&ev_id).is_err());
+        assert!(store.read_tree(&ev_id).is_err());
+    }
+
+    #[test]
+    fn blob_and_structured_with_same_bytes_do_not_collide() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+
+        // A blob whose content happens to be a tree's canonical JSON must
+        // still get a different id (the kind marker is hashed).
+        let tree = Tree {
+            entries: BTreeMap::new(),
+        };
+        let tree_id = store.write_tree(&tree).unwrap();
+        let json = crate::object::canonical_json(&tree).unwrap();
+        let blob_id = store.write_blob(&json).unwrap();
+        assert_ne!(tree_id, blob_id);
+    }
+
+    #[test]
+    fn reading_missing_object_fails_cleanly() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+        assert!(store.read_event(&"a".repeat(64)).is_err());
+        assert!(!store.exists(&"a".repeat(64)));
+    }
+}

@@ -196,3 +196,85 @@ pub fn resolve_id(objects_dir: &std::path::Path, prefix: &str) -> Result<String>
         )),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn canonical_json_sorts_keys_at_every_level() {
+        let v = json!({"z": 1, "a": {"y": 2, "b": [ {"k": 1, "c": 2} ]}});
+        let bytes = canonical_json(&v).unwrap();
+        assert_eq!(
+            String::from_utf8(bytes).unwrap(),
+            r#"{"a":{"b":[{"c":2,"k":1}],"y":2},"z":1}"#
+        );
+    }
+
+    #[test]
+    fn canonical_json_is_deterministic_for_events() {
+        let ev = Event {
+            schema: "causari.event.v0.2".into(),
+            parent: Some("p".into()),
+            agent: Some("a".into()),
+            model: None,
+            tool: Some("edit".into()),
+            message: Some("msg".into()),
+            prompt: None,
+            reasoning: None,
+            reads: vec!["x.rs".into()],
+            writes: vec!["y.rs".into()],
+            tokens_in: Some(1),
+            tokens_out: None,
+            cost_usd: None,
+            pre_snapshot: "s1".into(),
+            post_snapshot: "s2".into(),
+            exit_code: None,
+            created_at: "2026-01-01T00:00:00Z".into(),
+        };
+        let a = canonical_json(&ev).unwrap();
+        let b = canonical_json(&ev.clone()).unwrap();
+        assert_eq!(a, b);
+        assert_eq!(hash_bytes(&a), hash_bytes(&b));
+    }
+
+    #[test]
+    fn hash_bytes_is_stable_blake3() {
+        // Pin the algorithm: changing it would silently break every existing
+        // repository, so this test is the canary.
+        assert_eq!(
+            hash_bytes(b"causari"),
+            blake3::hash(b"causari").to_hex().to_string()
+        );
+        assert_ne!(hash_bytes(b"a"), hash_bytes(b"b"));
+    }
+
+    #[test]
+    fn resolve_id_full_and_prefix() {
+        let tmp = tempfile::tempdir().unwrap();
+        let objects = tmp.path();
+        let full = "ab".to_string() + &"c".repeat(62);
+        std::fs::create_dir_all(objects.join("ab")).unwrap();
+        std::fs::write(objects.join("ab").join(&full[2..]), b"x").unwrap();
+
+        // Full 64-char id passes through untouched.
+        assert_eq!(resolve_id(objects, &full).unwrap(), full);
+        // A short prefix resolves to the full id.
+        assert_eq!(resolve_id(objects, &full[..8]).unwrap(), full);
+    }
+
+    #[test]
+    fn resolve_id_rejects_short_missing_and_ambiguous() {
+        let tmp = tempfile::tempdir().unwrap();
+        let objects = tmp.path();
+        std::fs::create_dir_all(objects.join("ab")).unwrap();
+        std::fs::write(objects.join("ab").join("cd1111"), b"x").unwrap();
+        std::fs::write(objects.join("ab").join("cd2222"), b"x").unwrap();
+
+        assert!(resolve_id(objects, "ab").is_err()); // too short
+        assert!(resolve_id(objects, "ffff").is_err()); // no match
+        assert!(resolve_id(objects, "abcd").is_err()); // ambiguous
+        assert!(resolve_id(objects, "abcd1").is_ok());
+    }
+}

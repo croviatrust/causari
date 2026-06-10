@@ -167,17 +167,9 @@ fn record_tool_event(repo: &Repo, v: &Value, session_id: Option<&str>) -> Result
         .and_then(|f| f.as_str())
         .map(String::from);
 
-    let parent_id = repo.head_event()?;
-    let pre_snapshot_id = match &parent_id {
-        Some(pid) => store.read_event(pid)?.post_snapshot,
-        None => {
-            let tree_id = snapshot_workspace(repo)?;
-            store.write_snapshot(&Snapshot {
-                tree: tree_id,
-                created_at: Utc::now().to_rfc3339(),
-            })?
-        }
-    };
+    let _lock = repo.lock()?;
+    let parent_id = crate::commit::resolve_parent(repo, None)?;
+    let pre_snapshot_id = crate::commit::resolve_pre_snapshot(repo, &store, &parent_id)?;
     let post_tree = snapshot_workspace(repo)?;
 
     // Skip no-op tool calls (nothing actually changed on disk).
@@ -228,7 +220,6 @@ fn record_tool_event(repo: &Repo, v: &Value, session_id: Option<&str>) -> Result
         exit_code: None,
         created_at: Utc::now().to_rfc3339(),
     };
-    let id = store.write_event(&event)?;
-    repo.update_head(&id)?;
+    crate::commit::commit_event(repo, &store, &event, None)?;
     Ok(())
 }

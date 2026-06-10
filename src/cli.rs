@@ -45,6 +45,12 @@ pub enum Command {
     /// Create a new session branch and switch HEAD to it (multiverse fork)
     Fork(ForkArgs),
 
+    /// List all session branches (the tips of the event DAG)
+    Sessions,
+
+    /// Switch HEAD to an existing session and sync the workspace to its tip
+    Switch(SwitchArgs),
+
     /// Show the FULL causal cone of a line: every event that contributed,
     /// transitively, via the files it read or wrote.
     Trace(TraceArgs),
@@ -99,6 +105,11 @@ pub struct RecordArgs {
     /// Read full event JSON from stdin instead of using flags
     #[arg(long)]
     pub stdin: bool,
+
+    /// Record onto a named session instead of HEAD (one session per agent
+    /// enables safe concurrent recording). Created on first use.
+    #[arg(short = 's', long)]
+    pub session: Option<String>,
 }
 
 #[derive(Args, Debug)]
@@ -110,6 +121,10 @@ pub struct LogArgs {
     /// Show one line per event
     #[arg(long)]
     pub oneline: bool,
+
+    /// Show the full DAG: events from ALL sessions, with tip and fork markers
+    #[arg(long)]
+    pub all: bool,
 }
 
 #[derive(Args, Debug)]
@@ -158,6 +173,11 @@ pub struct WatchArgs {
     /// exchanges when attributing a file change (default: 300)
     #[arg(long)]
     pub window: Option<u64>,
+
+    /// Record onto a named session instead of HEAD (one session per agent
+    /// enables safe concurrent recording). Created on first use.
+    #[arg(short = 's', long)]
+    pub session: Option<String>,
 }
 
 #[derive(Args, Debug)]
@@ -183,6 +203,16 @@ pub struct ForkArgs {
     /// Event id to fork from (default: HEAD)
     #[arg(long)]
     pub from: Option<String>,
+}
+
+#[derive(Args, Debug)]
+pub struct SwitchArgs {
+    /// Session name to switch to
+    pub name: String,
+
+    /// Keep the working tree as-is (only move HEAD)
+    #[arg(long)]
+    pub no_sync: bool,
 }
 
 #[derive(Args, Debug)]
