@@ -331,6 +331,53 @@ pub enum SkillCommand {
         /// Skill id (omit to verify every skill)
         id: Option<String>,
     },
+
+    /// Export a signed skill as a portable JSON bundle
+    Export {
+        /// Skill id (full or prefix)
+        id: String,
+        /// Output file (default: stdout)
+        #[arg(short, long)]
+        output: Option<std::path::PathBuf>,
+    },
+
+    /// Import a signed skill bundle (signer must be local or trusted)
+    Import {
+        /// Path to a .json bundle or envelope
+        file: std::path::PathBuf,
+    },
+
+    /// Sync skills from a shared team directory (Dropbox, git, NFS — no server)
+    Pull {
+        /// Directory containing .json skill bundles
+        dir: std::path::PathBuf,
+    },
+
+    /// Manage trusted org signing keys for cross-repo skill mesh
+    Trust {
+        #[command(subcommand)]
+        command: SkillTrustCommand,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+pub enum SkillTrustCommand {
+    /// Show this repo's public key (share with teammates)
+    Pubkey,
+
+    /// Register a teammate's or org's Ed25519 public key
+    Add {
+        /// Short label (e.g. "security-team")
+        label: String,
+        /// 64-char hex pubkey or path to a .pub file
+        key: String,
+    },
+
+    /// List trusted signing keys
+    List,
+
+    /// Remove a trusted key by label
+    Remove { label: String },
 }
 
 #[derive(Args, Debug)]

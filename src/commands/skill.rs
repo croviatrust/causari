@@ -1,23 +1,24 @@
 use anyhow::Result;
 use colored::Colorize;
+use std::io::Write;
+use std::path::Path;
 
-use crate::cli::{SkillArgs, SkillCommand};
+use crate::cli::{SkillArgs, SkillCommand, SkillTrustCommand};
 use crate::repo::Repo;
 use crate::skill::{self, Trust};
 use crate::store::Store;
 
-/// `re skill` — the experience layer at the command line.
-///
-/// - `re skill distill`      events → signed skills (idempotent)
-/// - `re skill list`         every skill with its trust badge
-/// - `re skill show <id>`    trigger, steps, evidence, signature
-/// - `re skill verify [id]`  Ed25519 check: tampered skills are exposed
+/// `re skill` — the experience layer + trust plane at the command line.
 pub fn run(args: SkillArgs) -> Result<()> {
     match args.command {
         SkillCommand::Distill => distill(),
         SkillCommand::List => list(),
         SkillCommand::Show { id } => show(&id),
         SkillCommand::Verify { id } => verify(id.as_deref()),
+        SkillCommand::Export { id, output } => export(&id, output.as_deref()),
+        SkillCommand::Import { file } => import(&file),
+        SkillCommand::Pull { dir } => pull(&dir),
+        SkillCommand::Trust { command } => trust(command),
     }
 }
 
@@ -27,6 +28,13 @@ fn trust_colored(t: Trust) -> colored::ColoredString {
         Trust::Verified => format!("{} verified", t.badge()).green(),
         Trust::Proven => format!("{} proven", t.badge()).yellow().bold(),
     }
+}
+
+fn signer_tag(env: &skill::SkillEnvelope) -> String {
+    env.mesh
+        .as_ref()
+        .map(|m| format!("[{}]", m.signer))
+        .unwrap_or_else(|| "[local]".to_string())
 }
 
 fn distill() -> Result<()> {
@@ -52,8 +60,10 @@ fn distill() -> Result<()> {
     if !report.created.is_empty() {
         println!();
         println!(
-            "  {} skills are signed with this repo's Ed25519 key — `re skill verify` any time.",
-            "note:".bright_black()
+            "  {} share with your team: {} then {}",
+            "tip:".bright_black(),
+            "re skill export <id>".cyan(),
+            "re skill trust pubkey".cyan()
         );
     }
     Ok(())
@@ -73,12 +83,12 @@ fn list() -> Result<()> {
     println!("{} {} skill(s)", "skills:".green().bold(), skills.len());
     for (id, env) in &skills {
         println!(
-            "  {} {}  {}  {} use(s)  {} file(s)",
+            "  {} {} {}  {}  {} use(s)",
             trust_colored(env.trust()),
             (&id[..10]).yellow(),
+            signer_tag(env).bright_black(),
             env.skill.title,
             env.stats.uses,
-            env.skill.files.len()
         );
     }
     Ok(())
@@ -99,12 +109,15 @@ fn show(id: &str) -> Result<()> {
             "INVALID — content was modified after signing".red().bold()
         }
     );
+    if let Some(mesh) = &env.mesh {
+        println!("  signer:     {}", mesh.signer.cyan());
+        if let Some(from) = &mesh.imported_from {
+            println!("  imported:   {}", from.bright_black());
+        }
+    }
     println!("  title:      {}", env.skill.title.bold());
     if let Some(a) = &env.skill.agent {
         println!("  agent:      {}", a.cyan());
-    }
-    if let Some(m) = &env.skill.model {
-        println!("  model:      {}", m.cyan());
     }
     println!("  created:    {}", env.skill.created_at);
     println!(
@@ -125,36 +138,6 @@ fn show(id: &str) -> Result<()> {
     for line in env.skill.trigger.lines() {
         println!("    {}", line);
     }
-    println!();
-    println!("  {}", "steps:".bright_black().italic());
-    for (i, step) in env.skill.steps.iter().enumerate() {
-        println!(
-            "    {}. [{}] {}{}",
-            i + 1,
-            step.tool.as_deref().unwrap_or("-").cyan(),
-            step.message.as_deref().unwrap_or(""),
-            if step.writes.is_empty() {
-                String::new()
-            } else {
-                format!("  → {}", step.writes.join(", "))
-                    .bright_black()
-                    .to_string()
-            }
-        );
-    }
-    if !env.skill.files.is_empty() {
-        println!();
-        println!("  files:      {}", env.skill.files.join(", "));
-    }
-    println!(
-        "  events:     {}",
-        env.skill
-            .source_events
-            .iter()
-            .map(|e| e[..10.min(e.len())].to_string())
-            .collect::<Vec<_>>()
-            .join(", ")
-    );
     Ok(())
 }
 
@@ -208,4 +191,121 @@ fn verify(id: Option<&str>) -> Result<()> {
             targets.len()
         ))
     }
+}
+
+fn export(id: &str, output: Option<&Path>) -> Result<()> {
+    let repo = Repo::discover()?;
+    let bundle = skill::export_bundle(&repo, id)?;
+    let json = serde_json::to_string_pretty(&bundle)?;
+
+    match output {
+        Some(path) => {
+            skill::write_bundle(path, &bundle)?;
+            println!(
+                "{} {} → {}",
+                "exported".green().bold(),
+                (&skill::skill_id(&bundle.envelope.skill)?[..10]).yellow(),
+                path.display()
+            );
+        }
+        None => {
+            print!("{}", json);
+            std::io::stdout().flush()?;
+        }
+    }
+    Ok(())
+}
+
+fn import(file: &Path) -> Result<()> {
+    let repo = Repo::discover()?;
+    let (id, fresh) = skill::import_file(&repo, file)?;
+    if fresh {
+        let (_, env) = skill::find_skill(&repo, &id)?;
+        println!(
+            "{} {} {}  {}",
+            "imported".green().bold(),
+            (&id[..10]).yellow(),
+            signer_tag(&env).bright_black(),
+            env.skill.title
+        );
+    } else {
+        println!(
+            "{} {} already present (signature unchanged)",
+            "skipped:".bright_black(),
+            (&id[..10]).yellow()
+        );
+    }
+    Ok(())
+}
+
+fn pull(dir: &Path) -> Result<()> {
+    let repo = Repo::discover()?;
+    let report = skill::pull_from_dir(&repo, dir)?;
+    println!(
+        "{} {} imported, {} already present, {} rejected",
+        "pull:".green().bold(),
+        report.imported.len(),
+        report.skipped_existing,
+        report.rejected.len()
+    );
+    for (id, env) in &report.imported {
+        println!(
+            "  + {} {}  {}",
+            (&id[..10]).yellow(),
+            signer_tag(env).bright_black(),
+            env.skill.title
+        );
+    }
+    for (name, err) in &report.rejected {
+        println!("  {} {}  {}", "✗".red(), name.bright_black(), err);
+    }
+    Ok(())
+}
+
+fn trust(command: SkillTrustCommand) -> Result<()> {
+    let repo = Repo::discover()?;
+    match command {
+        SkillTrustCommand::Pubkey => match skill::local_public_key_hex(&repo)? {
+            Some(hex) => {
+                println!("{}", "pubkey:".green().bold());
+                println!("  {}", hex.cyan());
+                println!();
+                println!(
+                    "  Teammates run: {}",
+                    format!("re skill trust add you {}", hex).bright_black()
+                );
+            }
+            None => {
+                println!(
+                    "{} no signing key yet — run {} first",
+                    "pubkey:".yellow().bold(),
+                    "re skill distill".cyan()
+                );
+            }
+        },
+        SkillTrustCommand::Add { label, key } => {
+            skill::trust_add(&repo, &label, &key)?;
+            println!("{} trusted key {}", "added".green().bold(), label.cyan());
+        }
+        SkillTrustCommand::List => {
+            let local = skill::local_public_key_hex(&repo)?;
+            let trusted = skill::list_trusted_keys(&repo)?;
+            println!("{}", "trust:".green().bold());
+            if let Some(hex) = local {
+                println!("  {} (this repo)  {}", "local".cyan(), hex.bright_black());
+            }
+            if trusted.is_empty() {
+                println!("  {} no org keys trusted yet", "(none)".bright_black());
+            } else {
+                for (label, hex) in trusted {
+                    println!("  {}  {}", label.cyan(), hex.bright_black());
+                }
+            }
+        }
+        SkillTrustCommand::Remove { label } => {
+            skill::trust_remove(&repo, &label)?;
+            println!("{} {}", "removed".green().bold(), label.cyan());
+        }
+    }
+    Ok(())
 }

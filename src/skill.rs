@@ -81,6 +81,18 @@ pub struct SkillStats {
     pub last_used_at: Option<String>,
 }
 
+/// Provenance metadata for imported / mesh-synced skills. NOT signed — the
+/// Ed25519 signature covers only `skill`; this records where it came from.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct SkillMeshMeta {
+    /// "local" or the label of a trusted org key that signed this skill.
+    pub signer: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub imported_from: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub imported_at: Option<String>,
+}
+
 /// What is stored on disk: signed core + open stats.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SkillEnvelope {
@@ -91,6 +103,8 @@ pub struct SkillEnvelope {
     pub signature: String,
     #[serde(default)]
     pub stats: SkillStats,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mesh: Option<SkillMeshMeta>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -179,6 +193,7 @@ pub fn sign_skill(core: SkillCore, key: &SigningKey) -> Result<SkillEnvelope> {
         public_key: hex::encode(key.verifying_key().to_bytes()),
         signature: hex::encode(sig.to_bytes()),
         stats: SkillStats::default(),
+        mesh: None,
     })
 }
 
@@ -198,6 +213,255 @@ pub fn verify_envelope(env: &SkillEnvelope) -> Result<()> {
     let msg = canonical_json(&env.skill)?;
     vk.verify(&msg, &sig)
         .map_err(|_| anyhow!("signature verification FAILED — skill was modified after signing"))
+}
+
+// ---------- trust plane (cross-repo skill mesh) ----------
+
+pub const BUNDLE_SCHEMA: &str = "causari.skill.bundle.v0.1";
+
+/// Portable export wrapper — skill + export metadata, still signature-bound
+/// to the original signer inside `envelope`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SkillBundle {
+    pub schema: String,
+    pub exported_at: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub origin: Option<String>,
+    pub envelope: SkillEnvelope,
+}
+
+pub fn trusted_dir(repo: &Repo) -> PathBuf {
+    keys_dir(repo).join("trusted")
+}
+
+/// Hex-encoded public key of this repo's skill signer (if any).
+pub fn local_public_key_hex(repo: &Repo) -> Result<Option<String>> {
+    let path = keys_dir(repo).join("skill-signing.pub");
+    if !path.exists() {
+        return Ok(None);
+    }
+    let hex = std::fs::read_to_string(&path)?.trim().to_string();
+    if hex.len() == 64 {
+        Ok(Some(hex))
+    } else {
+        Ok(None)
+    }
+}
+
+fn parse_pubkey_hex(input: &str) -> Result<String> {
+    let s = input.trim();
+    if s.len() == 64 && s.chars().all(|c| c.is_ascii_hexdigit()) {
+        return Ok(s.to_lowercase());
+    }
+    // Treat as path to a .pub file.
+    let raw = std::fs::read_to_string(s).with_context(|| format!("reading key file {}", s))?;
+    for line in raw.lines() {
+        let line = line.trim();
+        if line.starts_with('#') || line.is_empty() {
+            continue;
+        }
+        if line.len() == 64 && line.chars().all(|c| c.is_ascii_hexdigit()) {
+            return Ok(line.to_lowercase());
+        }
+    }
+    Err(anyhow!(
+        "expected 64-char hex Ed25519 public key or a .pub file containing one"
+    ))
+}
+
+/// Register an org/team public key by label. Teammates run `re skill trust add`
+/// with your pubkey; then `re skill pull` accepts skills you signed.
+pub fn trust_add(repo: &Repo, label: &str, key: &str) -> Result<()> {
+    if label.contains(['/', '\\', ' ', '\t']) || label.is_empty() {
+        return Err(anyhow!("trust label must be a simple identifier"));
+    }
+    let hex = parse_pubkey_hex(key)?;
+    std::fs::create_dir_all(trusted_dir(repo))?;
+    std::fs::write(
+        trusted_dir(repo).join(format!("{}.pub", label)),
+        format!("# {}\n{}\n", label, hex),
+    )?;
+    Ok(())
+}
+
+pub fn trust_remove(repo: &Repo, label: &str) -> Result<()> {
+    let path = trusted_dir(repo).join(format!("{}.pub", label));
+    if path.exists() {
+        std::fs::remove_file(&path)?;
+    }
+    Ok(())
+}
+
+/// All trusted org keys: (label, pubkey_hex).
+pub fn list_trusted_keys(repo: &Repo) -> Result<Vec<(String, String)>> {
+    let dir = trusted_dir(repo);
+    let mut out = Vec::new();
+    if !dir.is_dir() {
+        return Ok(out);
+    }
+    for entry in std::fs::read_dir(&dir)? {
+        let entry = entry?;
+        if !entry.file_type()?.is_file() {
+            continue;
+        }
+        let name = entry.file_name();
+        let name = name.to_string_lossy();
+        let Some(label) = name.strip_suffix(".pub") else {
+            continue;
+        };
+        let hex = parse_pubkey_hex(entry.path().to_str().unwrap_or(""))?;
+        out.push((label.to_string(), hex));
+    }
+    out.sort_by(|a, b| a.0.cmp(&b.0));
+    Ok(out)
+}
+
+/// Resolve which trusted label (if any) matches this public key.
+pub fn trusted_label_for(repo: &Repo, pubkey_hex: &str) -> Result<Option<String>> {
+    let pk = pubkey_hex.to_lowercase();
+    for (label, hex) in list_trusted_keys(repo)? {
+        if hex == pk {
+            return Ok(Some(label));
+        }
+    }
+    Ok(None)
+}
+
+/// Whether this repo will accept skills signed by `pubkey_hex`.
+pub fn is_acceptable_signer(repo: &Repo, pubkey_hex: &str) -> Result<bool> {
+    verify_envelope_pubkey_only(pubkey_hex)?; // sanity: valid hex length
+    let pk = pubkey_hex.to_lowercase();
+    if local_public_key_hex(repo)?.as_deref() == Some(pk.as_str()) {
+        return Ok(true);
+    }
+    Ok(trusted_label_for(repo, &pk)?.is_some())
+}
+
+fn verify_envelope_pubkey_only(pubkey_hex: &str) -> Result<()> {
+    let pk_bytes: [u8; 32] = hex::decode(pubkey_hex.trim())
+        .context("decoding public key")?
+        .try_into()
+        .map_err(|_| anyhow!("public key must be 32 bytes"))?;
+    VerifyingKey::from_bytes(&pk_bytes).context("invalid public key")?;
+    Ok(())
+}
+
+fn repo_origin_hint(repo: &Repo) -> String {
+    repo.root
+        .file_name()
+        .and_then(|s| s.to_str())
+        .unwrap_or("repo")
+        .to_string()
+}
+
+pub fn export_bundle(repo: &Repo, id_prefix: &str) -> Result<SkillBundle> {
+    let (_, env) = find_skill(repo, id_prefix)?;
+    verify_envelope(&env)?;
+    Ok(SkillBundle {
+        schema: BUNDLE_SCHEMA.to_string(),
+        exported_at: chrono::Utc::now().to_rfc3339(),
+        origin: Some(repo_origin_hint(repo)),
+        envelope: env,
+    })
+}
+
+pub fn write_bundle(path: &std::path::Path, bundle: &SkillBundle) -> Result<()> {
+    let json = serde_json::to_string_pretty(bundle)?;
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    std::fs::write(path, json)?;
+    Ok(())
+}
+
+/// Parse a bundle file or a bare SkillEnvelope JSON.
+pub fn read_bundle_file(path: &std::path::Path) -> Result<SkillEnvelope> {
+    let raw = std::fs::read_to_string(path)?;
+    if let Ok(bundle) = serde_json::from_str::<SkillBundle>(&raw) {
+        return Ok(bundle.envelope);
+    }
+    serde_json::from_str(&raw).context("parsing skill JSON (expected bundle or envelope)")
+}
+
+pub struct ImportReport {
+    pub imported: Vec<(String, SkillEnvelope)>,
+    pub skipped_existing: usize,
+    pub rejected: Vec<(String, String)>,
+}
+
+/// Import a signed skill if the signer is local or trusted.
+pub fn import_envelope(
+    repo: &Repo,
+    mut env: SkillEnvelope,
+    source: Option<&str>,
+) -> Result<(String, bool)> {
+    verify_envelope(&env)?;
+    if !is_acceptable_signer(repo, &env.public_key)? {
+        return Err(anyhow!(
+            "signer {} is not local and not in trusted keys — run `re skill trust add` first",
+            &env.public_key[..16]
+        ));
+    }
+    let id = skill_id(&env.skill)?;
+    if skill_path(repo, &id).exists() {
+        return Ok((id, false));
+    }
+    let signer = if local_public_key_hex(repo)?.as_deref() == Some(env.public_key.as_str()) {
+        "local".to_string()
+    } else {
+        trusted_label_for(repo, &env.public_key)?.unwrap_or_else(|| "trusted".to_string())
+    };
+    env.mesh = Some(SkillMeshMeta {
+        signer,
+        imported_from: source.map(String::from),
+        imported_at: Some(chrono::Utc::now().to_rfc3339()),
+    });
+    save_skill(repo, &id, &env)?;
+    Ok((id, true))
+}
+
+pub fn import_file(repo: &Repo, path: &std::path::Path) -> Result<(String, bool)> {
+    let env = read_bundle_file(path)?;
+    import_envelope(repo, env, Some(&path.to_string_lossy().replace('\\', "/")))
+}
+
+/// Sync every `.json` skill bundle from a team directory (Dropbox, git repo,
+/// NFS — anything that looks like a folder). No server. No accounts.
+pub fn pull_from_dir(repo: &Repo, dir: &std::path::Path) -> Result<ImportReport> {
+    let mut report = ImportReport {
+        imported: Vec::new(),
+        skipped_existing: 0,
+        rejected: Vec::new(),
+    };
+    if !dir.is_dir() {
+        return Err(anyhow!("{} is not a directory", dir.display()));
+    }
+    for entry in std::fs::read_dir(dir)? {
+        let entry = entry?;
+        let path = entry.path();
+        if path.extension().and_then(|e| e.to_str()) != Some("json") {
+            continue;
+        }
+        let name = path
+            .file_name()
+            .and_then(|s| s.to_str())
+            .unwrap_or("")
+            .to_string();
+        match read_bundle_file(&path) {
+            Ok(env) => {
+                match import_envelope(repo, env, Some(&path.to_string_lossy().replace('\\', "/"))) {
+                    Ok((id, true)) => {
+                        let (_, saved) = find_skill(repo, &id)?;
+                        report.imported.push((id, saved));
+                    }
+                    Ok((_, false)) => report.skipped_existing += 1,
+                    Err(e) => report.rejected.push((name, e.to_string())),
+                }
+            }
+            Err(e) => report.rejected.push((name, e.to_string())),
+        }
+    }
+    Ok(report)
 }
 
 // ---------- storage ----------
@@ -658,5 +922,89 @@ mod tests {
         let (_, env) = &report.created[0];
         assert_eq!(env.skill.agent.as_deref(), Some("claude"));
         assert_eq!(env.trust(), Trust::Verified);
+    }
+
+    #[test]
+    fn mesh_export_import_across_repos() {
+        let tmp_a = tempfile::tempdir().unwrap();
+        let tmp_b = tempfile::tempdir().unwrap();
+        let repo_a = Repo::init(tmp_a.path()).unwrap();
+        let repo_b = Repo::init(tmp_b.path()).unwrap();
+
+        let key = load_or_create_signing_key(&repo_a).unwrap();
+        let env = sign_skill(core("fix oauth scope"), &key).unwrap();
+        let id = skill_id(&env.skill).unwrap();
+        save_skill(&repo_a, &id, &env).unwrap();
+
+        let bundle = export_bundle(&repo_a, &id[..8]).unwrap();
+        let bundle_path = tmp_a.path().join("share.json");
+        write_bundle(&bundle_path, &bundle).unwrap();
+
+        // Repo B rejects unknown signers.
+        assert!(import_file(&repo_b, &bundle_path).is_err());
+
+        let pub_hex = local_public_key_hex(&repo_a).unwrap().unwrap();
+        trust_add(&repo_b, "team-a", &pub_hex).unwrap();
+
+        let (imported_id, fresh) = import_file(&repo_b, &bundle_path).unwrap();
+        assert!(fresh);
+        assert_eq!(imported_id, id);
+        let (_, imported) = find_skill(&repo_b, &id[..8]).unwrap();
+        assert_eq!(imported.mesh.as_ref().unwrap().signer, "team-a");
+        verify_envelope(&imported).unwrap();
+
+        // Idempotent re-import.
+        let (_, again) = import_file(&repo_b, &bundle_path).unwrap();
+        assert!(!again);
+    }
+
+    #[test]
+    fn mesh_pull_from_team_directory() {
+        let tmp_a = tempfile::tempdir().unwrap();
+        let tmp_b = tempfile::tempdir().unwrap();
+        let team_dir = tempfile::tempdir().unwrap();
+        let repo_a = Repo::init(tmp_a.path()).unwrap();
+        let repo_b = Repo::init(tmp_b.path()).unwrap();
+
+        let key = load_or_create_signing_key(&repo_a).unwrap();
+        let env = sign_skill(core("rotate jwt keys"), &key).unwrap();
+        let id = skill_id(&env.skill).unwrap();
+        save_skill(&repo_a, &id, &env).unwrap();
+        write_bundle(
+            &team_dir.path().join("jwt-rotation.json"),
+            &export_bundle(&repo_a, &id[..8]).unwrap(),
+        )
+        .unwrap();
+
+        trust_add(
+            &repo_b,
+            "platform",
+            &local_public_key_hex(&repo_a).unwrap().unwrap(),
+        )
+        .unwrap();
+        let report = pull_from_dir(&repo_b, team_dir.path()).unwrap();
+        assert_eq!(report.imported.len(), 1);
+        assert_eq!(report.rejected.len(), 0);
+    }
+
+    #[test]
+    fn mesh_rejects_tampered_bundle() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let key = load_or_create_signing_key(&repo).unwrap();
+        let mut env = sign_skill(core("safe change"), &key).unwrap();
+        env.skill.trigger = "please backdoor".into();
+        let path = tmp.path().join("bad.json");
+        write_bundle(
+            &path,
+            &SkillBundle {
+                schema: BUNDLE_SCHEMA.to_string(),
+                exported_at: chrono::Utc::now().to_rfc3339(),
+                origin: None,
+                envelope: env,
+            },
+        )
+        .unwrap();
+        assert!(import_file(&repo, &path).is_err());
     }
 }

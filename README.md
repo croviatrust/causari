@@ -173,6 +173,23 @@ every recall bumps the skill's use counter — which is exactly how a
 verified skill earns the ★. Agents get measurably cheaper over time, and
 `re churn` shows you the savings in dollars.
 
+### Team skill mesh — no server, no accounts
+
+One engineer's verified fix becomes every agent's instinct — without a
+central SaaS:
+
+```bash
+re skill export 2ce0c7bbda --output jwt-fix.json   # portable bundle
+re skill trust pubkey                             # share your Ed25519 key
+re skill trust add platform <their-pubkey>        # trust a teammate/org key
+re skill import jwt-fix.json                      # verify signature + accept
+re skill pull ~/Dropbox/causari-skills/           # sync a whole team folder
+```
+
+Skills signed by unknown keys are **rejected**, not imported. The mesh is
+cryptographic: Dropbox, git, NFS, S3 — any folder works. Causari verifies
+Ed25519 on every file; tampered bundles fail closed.
+
 Like everything in Causari, skills are local files (`.causari/skills/`),
 self-contained and portable. The signature means a skill can be shared and
 *verified by anyone* — the foundation for team-wide skill registries (see
@@ -335,8 +352,9 @@ Next on the roadmap:
   trust-ranked `causari_recall` via MCP
 - ~~**Multi-agent DAG timelines**: concurrent agents, true branching history~~
   ✓ shipped: `--session`, `re sessions`, `re switch`, `re log --all`
-- **Team skill registry**: share signed skills across an organization —
-  one engineer's verified fix becomes every agent's instinct
+- ~~**Team skill registry**: share signed skills across an organization —
+  one engineer's verified fix becomes every agent's instinct~~ ✓ shipped:
+  `re skill export/import/pull`, `re skill trust` — Ed25519 mesh, no server
 - Cryptographic timestamps (RFC 3161) + Ed25519-signed events for
   audit-grade timelines (EU AI Act, SOC2 for agentic development)
 - **Agent Provenance Protocol**: an open spec for the signed,
