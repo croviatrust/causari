@@ -60,7 +60,9 @@ re churn                      # measure AI code survival: how much survived vs
                               #   was rewritten, per agent, with wasted spend
 re report --open              # generate a shareable HTML dashboard of AI waste
 re skill  distill             # turn verified events into signed, reusable skills
-re skill  verify              # Ed25519-check the whole skill library for tampering
+re skill  export <id>         # portable Ed25519 bundle for teammates
+re skill  pull <team-dir>     # sync a shared folder (Dropbox, git, NFS — no server)
+re skill  trust add <label>   # trust an org signing key; unknown signers rejected
 re fork   experiment-claude   # branch into a parallel timeline
 re revert <id>                # undo an action with causal preview of what else
                               #   you are implicitly undoing
@@ -192,8 +194,7 @@ Ed25519 on every file; tampered bundles fail closed.
 
 Like everything in Causari, skills are local files (`.causari/skills/`),
 self-contained and portable. The signature means a skill can be shared and
-*verified by anyone* — the foundation for team-wide skill registries (see
-roadmap).
+*verified by anyone* — across repos, teams, and orgs, with no central server.
 
 ## What makes it different
 
@@ -209,11 +210,12 @@ the agent's cooperation. Causari does both:
 | **`re trace src/auth.ts:42`** | **Upstream causal cone.** Every prior event that contributed, transitively, through the files it read or wrote. The intellectual ancestry of a piece of code. |
 | **`re impact <event>`** | **Downstream causal cone.** Every later event that depended, transitively, on what this one produced. The blast radius of an action. |
 | **`re lens src/auth.ts`** | The file rendered with **per-line provenance annotations**: each line painted with the event id that introduced it. |
-| `re find "the JWT refactor"` | Signed **skills first**, then every event — prompt, message, reasoning — ranked by trust and relevance.
+| `re find "the JWT refactor"` | Signed **skills first**, then every event — prompt, message, reasoning — ranked by trust and relevance. |
 | `re bisect --test "<cmd>"` | The first agent action whose output fails your tests. |
 | **`re churn`** | **AI Waste Score.** How much AI-written code survived vs was rewritten, per agent. With cost data: dollars spent on code that did not survive. |
 | **`re report --open`** | A **self-contained HTML dashboard** you can paste into Slack, PRs, or board decks — zero external assets, zero cloud calls. |
 | **`re skill distill`** | **Signed experience.** Verified past work compressed into Ed25519-signed skills, recalled by agents (trust-ranked) before they act — the same mistake is never paid twice. |
+| **`re skill export` / `pull`** | **Team skill mesh.** Portable bundles + trusted org keys; sync any shared folder. Unknown signers and tampered files rejected. |
 | `re fork claude-attempt` | A new timeline you can extend without touching the original. |
 | **`re watch --session bot1`** | **Concurrent multi-agent recording.** One session per agent, lock-serialized commits, shared ancestry — no agent can orphan another's events. |
 | `re sessions` / `re switch <name>` | The fleet overview: every session tip with agent and last activity; jump between timelines. |
