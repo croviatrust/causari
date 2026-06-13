@@ -390,8 +390,13 @@ Next on the roadmap:
 - ~~**Team skill registry**: share signed skills across an organization —
   one engineer's verified fix becomes every agent's instinct~~ ✓ shipped:
   `re skill export/import/pull`, `re skill trust` — Ed25519 mesh, no server
+- ~~**Verifiable provenance certificate**: a signed, content-bound proof of a
+  repo's AI provenance that anyone can verify offline, with an embeddable
+  badge~~ ✓ shipped: `re proof generate/verify`, Ed25519, self-contained SVG,
+  tamper-evident (fails closed)
 - Cryptographic timestamps (RFC 3161) + Ed25519-signed events for
-  audit-grade timelines (EU AI Act, SOC2 for agentic development)
+  audit-grade timelines (EU AI Act, SOC2 for agentic development) — *the paid
+  Trust Plane on top of `re proof`*
 - **Agent Provenance Protocol**: an open spec for the signed,
   content-addressed event format, so any tool can produce or verify it
 - TUI à la `lazygit` for visual exploration

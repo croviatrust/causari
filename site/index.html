@@ -71,6 +71,7 @@
     <nav class="nav-links" aria-label="Primary">
       <a href="#capture">Capture</a>
       <a href="#skills">Skills</a>
+      <a href="#proof">Proof</a>
       <a href="#what">Features</a>
       <a href="#mcp">MCP</a>
       <a href="#license">License</a>
@@ -360,6 +361,64 @@
           <div class="ba-output">
             <span class="ba-key">pull:</span> 7 imported, 2 already present, 0 rejected<br/>
             <span class="ba-faint">→ one engineer's verified fix becomes every agent's instinct. No server. Ed25519 only.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================= PROOF -->
+<section id="proof" class="section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Causari Proof</p>
+      <h2>Provenance anyone can verify. Trusting no one.</h2>
+      <p class="lede">Mint a <strong>signed certificate of your repo's AI provenance</strong> — how many agent actions, which agents and models, how much <em>verified</em> experience — bound to the exact ledger by a content digest. Anyone can verify it <strong>offline</strong>: no server, no account, no trust in us.</p>
+    </div>
+
+    <div class="problems">
+      <article class="problem-card">
+        <div class="problem-num">re proof generate</div>
+        <h3>Mint</h3>
+        <p>One command signs your provenance with the repo's Ed25519 key and emits a <strong>self-contained SVG badge</strong> — zero external assets. It's agent-agnostic by design: the proof aggregates the whole capture ledger, so it covers <strong>every</strong> agent — Claude Code, Cursor, Cline, Windsurf, a raw proxy — not one runtime.</p>
+      </article>
+
+      <article class="problem-card">
+        <div class="problem-num">re proof verify</div>
+        <h3>Trustless</h3>
+        <p>A reviewer, an auditor, a stranger reading your PR runs one command and confirms the proof was <strong>not altered after signing</strong>. No network call. Tamper with a single number and verification <strong>fails closed</strong>. <code>--against-repo</code> also confirms it still matches the live ledger.</p>
+      </article>
+
+      <article class="problem-card">
+        <div class="problem-num">the good virus</div>
+        <h3>Spread</h3>
+        <p>Drop the badge in your README and <strong>every visitor sees it</strong>. Each repo that adopts a verified proof advertises trust — and Causari — to everyone who reads it. Generating and verifying are <strong>free forever</strong>; the hosted public verifier, org registry, RFC&nbsp;3161 anchoring and compliance exports are the commercial Trust Plane.</p>
+      </article>
+    </div>
+
+    <div class="ba-grid" style="margin-top:2.5rem">
+      <div class="ba-card ba-after" style="grid-column:1/-1">
+        <div class="ba-label ba-label--success">A cryptographic certificate of how your code was really made</div>
+        <div class="ba-term">
+          <div class="ba-prompt">$ re proof generate</div>
+          <div class="ba-output">
+            <span class="ba-key">proof:</span> <span class="ba-val">causari-proof.json</span><br/>
+            &nbsp;&nbsp;128 events · 4 session(s) · 36 file(s)<br/>
+            &nbsp;&nbsp;<span class="ba-key">agents:</span> claude-code, cursor, cline<br/>
+            &nbsp;&nbsp;<span class="ba-key">skills:</span> 19 total (12 verified, <span class="ba-val">5 proven</span>)<br/>
+            &nbsp;&nbsp;<span class="ba-key">badge:</span> <span class="ba-val">causari-proof.svg</span> <span class="ba-faint">— paste into your README</span>
+          </div>
+          <div class="ba-prompt">$ re proof verify --against-repo</div>
+          <div class="ba-output">
+            <span class="ba-key">ok</span> signature valid <span class="ba-faint">(Ed25519)</span><br/>
+            &nbsp;&nbsp;attests: 128 events · 3 agents · 5 proven skill(s)<br/>
+            &nbsp;&nbsp;<span class="ba-key">fresh:</span> <span class="ba-val">proof matches the current ledger exactly</span>
+          </div>
+          <div class="ba-prompt">$ # someone edits the proof to fake more provenance…</div>
+          <div class="ba-output">
+            <span class="ba-err">INVALID</span> signature verification FAILED — proof was modified after signing<br/>
+            <span class="ba-time">→ tamper-evident. It fails closed, with no server in the loop.</span>
           </div>
         </div>
       </div>
@@ -900,6 +959,20 @@ re find "jwt refresh"     # skills first, then raw events</code></pre>
 
       <li class="step">
         <div class="step-num">5</div>
+        <div class="step-body">
+          <h3>Prove it — to anyone</h3>
+          <p>Mint a signed certificate of your repo's AI provenance and a badge anyone can verify offline. No server, no account:</p>
+          <div class="code-block">
+            <button class="copy-btn" data-copy="qs5p">Copy</button>
+<pre id="qs5p"><code>re proof generate         # → causari-proof.json + causari-proof.svg badge
+re proof verify           # offline signature check — tamper fails closed</code></pre>
+          </div>
+          <p class="muted">Drop the badge in your README; every visitor sees verified provenance. Generating and verifying are free forever — hosted public verification and audit-grade exports are the commercial Trust Plane.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step-num">6</div>
         <div class="step-body">
           <h3>Ask anything</h3>
           <div class="code-block">

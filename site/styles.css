@@ -719,6 +719,7 @@ kbd {
 .ba-q { color: var(--brand-2); }
 .ba-reason { color: var(--text-2); font-style: italic; }
 .ba-time { color: var(--success); font-weight: 600; }
+.ba-err { color: #EF4444; font-weight: 700; }
 
 .ba-arrow { display: flex; align-items: center; justify-content: center; }
 
