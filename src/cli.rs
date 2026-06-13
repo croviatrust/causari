@@ -67,6 +67,9 @@ pub enum Command {
     /// Distill, inspect and verify signed skills (the experience layer)
     Skill(SkillArgs),
 
+    /// Generate or verify a signed AI-provenance proof (trustless, offline)
+    Proof(ProofArgs),
+
     /// Run Causari as an MCP server (Claude Code, Cursor, Cline, Windsurf, …)
     Mcp(McpArgs),
 
@@ -378,6 +381,40 @@ pub enum SkillTrustCommand {
 
     /// Remove a trusted key by label
     Remove { label: String },
+}
+
+#[derive(Args, Debug)]
+pub struct ProofArgs {
+    #[command(subcommand)]
+    pub command: ProofCommand,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum ProofCommand {
+    /// Generate a signed proof + embeddable badge for this repo
+    Generate {
+        /// Proof JSON output path (default: causari-proof.json)
+        #[arg(short, long)]
+        output: Option<std::path::PathBuf>,
+
+        /// Also write a self-contained SVG badge (default: causari-proof.svg)
+        #[arg(long)]
+        badge: Option<std::path::PathBuf>,
+
+        /// Skip writing the SVG badge
+        #[arg(long)]
+        no_badge: bool,
+    },
+
+    /// Verify a proof's signature offline; optionally check it against this repo
+    Verify {
+        /// Path to a proof JSON (default: causari-proof.json)
+        file: Option<std::path::PathBuf>,
+
+        /// Also confirm the proof still matches the current ledger
+        #[arg(long)]
+        against_repo: bool,
+    },
 }
 
 #[derive(Args, Debug)]

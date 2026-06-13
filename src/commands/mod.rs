@@ -14,6 +14,7 @@ pub mod proxy;
 pub mod record;
 pub mod report;
 pub mod revert;
+pub mod proof;
 pub mod sessions;
 pub mod show;
 pub mod skill;

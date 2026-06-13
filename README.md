@@ -196,6 +196,38 @@ Like everything in Causari, skills are local files (`.causari/skills/`),
 self-contained and portable. The signature means a skill can be shared and
 *verified by anyone* — across repos, teams, and orgs, with no central server.
 
+## Causari Proof — verifiable AI provenance, trustless
+
+Every repo can mint a **signed proof of its AI provenance** — how many agent
+actions, which agents and models, how much *verified* experience — bound to the
+exact ledger by a content digest and signed with the repo's Ed25519 key.
+
+```bash
+re proof generate            # → causari-proof.json + causari-proof.svg badge
+re proof verify              # checks the signature offline — no server, no account
+re proof verify --against-repo   # …and confirms it still matches the live ledger
+```
+
+Anyone — a reviewer, an auditor, a stranger reading your PR — can run
+`re proof verify` and confirm the proof was **not altered after signing**. No
+Causari account, no network call, no trust in us. Tamper with a single number
+and verification fails closed.
+
+Drop the badge in your README and every visitor sees it:
+
+```markdown
+[![AI provenance — verified by Causari](causari-proof.svg)](https://causari.dev/verify)
+```
+
+It is agent-agnostic by construction: the proof aggregates the *ledger*, so it
+covers every agent Causari captured — Claude Code, Cursor, Cline, Windsurf, a
+raw `re proxy` — not just one runtime.
+
+**Free forever:** generating and verifying proofs offline. **Commercial (Trust
+Plane):** the hosted public verification page on `causari.dev`, the org-wide
+proof registry, RFC 3161 timestamp anchoring, and audit-grade compliance
+exports.
+
 ## What makes it different
 
 Existing tools either track text (git), track sessions (IDE checkpoints), or
@@ -216,6 +248,7 @@ the agent's cooperation. Causari does both:
 | **`re report --open`** | A **self-contained HTML dashboard** you can paste into Slack, PRs, or board decks — zero external assets, zero cloud calls. |
 | **`re skill distill`** | **Signed experience.** Verified past work compressed into Ed25519-signed skills, recalled by agents (trust-ranked) before they act — the same mistake is never paid twice. |
 | **`re skill export` / `pull`** | **Team skill mesh.** Portable bundles + trusted org keys; sync any shared folder. Unknown signers and tampered files rejected. |
+| **`re proof generate` / `verify`** | **Trustless AI-provenance certificate.** A signed, content-bound proof + embeddable badge that *anyone* can verify offline — no server, no account. Tampering fails closed. |
 | `re fork claude-attempt` | A new timeline you can extend without touching the original. |
 | **`re watch --session bot1`** | **Concurrent multi-agent recording.** One session per agent, lock-serialized commits, shared ancestry — no agent can orphan another's events. |
 | `re sessions` / `re switch <name>` | The fleet overview: every session tip with agent and last activity; jump between timelines. |

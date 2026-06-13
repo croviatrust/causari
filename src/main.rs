@@ -7,6 +7,7 @@ mod config;
 mod dag;
 mod index;
 mod object;
+mod proof;
 mod repo;
 mod skill;
 mod snapshot;
@@ -38,6 +39,7 @@ fn main() -> Result<()> {
         Command::Impact(args) => commands::impact::run(args),
         Command::Lens(args) => commands::lens::run(args),
         Command::Skill(args) => commands::skill::run(args),
+        Command::Proof(args) => commands::proof::run(args),
         Command::Mcp(args) => commands::mcp::run(args),
         Command::Guard(args) => commands::guard::run(args),
         Command::Churn(args) => commands::churn::run(args),
