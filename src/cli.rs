@@ -86,6 +86,9 @@ pub enum Command {
     /// Every prompt, completion, token and dollar flows through Causari.
     Proxy(ProxyArgs),
 
+    /// Issue, list and verify Crovia Seals (draft-crovia-seal-01 receipts)
+    Seal(SealArgs),
+
     /// Install agent-side capture hooks (e.g. `re hook claude-code`)
     Hook(HookArgs),
 
@@ -295,6 +298,42 @@ pub struct ProxyArgs {
     /// Upstream base URL for Anthropic-style requests (default: https://api.anthropic.com)
     #[arg(long)]
     pub anthropic_upstream: Option<String>,
+
+    /// Emit a Crovia Seal (draft-crovia-seal-01) for every completion:
+    /// an Ed25519-signed, hash-chained, offline-verifiable receipt in
+    /// .causari/seal/seals.jsonl
+    #[arg(long)]
+    pub seal: bool,
+
+    /// Issuer id embedded in emitted seals
+    /// (default: urn:crovia:seal-issuer:causari)
+    #[arg(long)]
+    pub seal_issuer: Option<String>,
+}
+
+#[derive(Args, Debug)]
+pub struct SealArgs {
+    #[command(subcommand)]
+    pub command: SealCommand,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum SealCommand {
+    /// Verify every seal in this repo's chain (signatures + hash links)
+    Verify {
+        /// Verify a single external seal file instead of the repo chain
+        file: Option<std::path::PathBuf>,
+    },
+
+    /// List the seals issued by this repository
+    List {
+        /// Maximum number of seals to display
+        #[arg(short = 'n', long, default_value_t = 20)]
+        limit: usize,
+    },
+
+    /// Show this repo's seal issuer identity (public key + chain state)
+    Issuer,
 }
 
 #[derive(Args, Debug)]

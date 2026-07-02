@@ -1,0 +1,39 @@
+{
+  "seal_version": "crovia.seal.v1",
+  "seal_id": "cs_2026_CCCCCCCCCCCCCCCCCCCCCCCCCC",
+  "issuer": {
+    "id": "urn:crovia:seal-issuer:conformance",
+    "pubkey": {
+      "alg": "ed25519",
+      "key_hex": "ff57575dc7af8bfc4d0837cc1ce2017b686a88145dc5579a958e3462fe9a908e"
+    }
+  },
+  "subject": {
+    "input_hash": "sha256:3167c7fc31eaba10ef80342f8ea24ece9aeb8142ebe31afead74fa89c87c76bd",
+    "output_hash": "sha256:7a605c724104d177d040a19048e9c1bf48c5c30c0ab84a11313e206283e9bfee",
+    "input_len": 30,
+    "output_len": 26,
+    "modality": "text"
+  },
+  "generator": {
+    "id": "openai/gpt-4o",
+    "version": "2024-08-06",
+    "weights_hash": null,
+    "params": {}
+  },
+  "timestamp": {
+    "emitted_at": "2026-04-15T00:00:01.000Z",
+    "nonce": "DDDDDDDDDDDDDDDDDDDDDDDDDD"
+  },
+  "chain": {
+    "prev_seal_hash": "sha256:3f1ac1c3d7f843a354bf91051dadbf3505541069eb73124eea4d55744b824872",
+    "sequence": 1
+  },
+  "signature": {
+    "alg": "ed25519",
+    "canon": "csc-1",
+    "domain": "CROVIA-SEAL-v1",
+    "payload_hash_alg": "sha256",
+    "sig_hex": "0d2a06ff35185ff34129ac30b41f2cd2bcdd9f0476652c53038cc5fb5e4ea6a704c60f6e216eff65b0e97f44f561ecb48ce03a22688fba041d69912e1a4fd60f"
+  }
+}

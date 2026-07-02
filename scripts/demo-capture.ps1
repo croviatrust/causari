@@ -9,9 +9,18 @@
 $ErrorActionPreference = "Stop"
 
 $root = Split-Path -Parent $PSScriptRoot
+$env:CARGO_TARGET_DIR = Join-Path $root "target"
 $re = Join-Path $root "target\release\re.exe"
 if (-not (Test-Path $re)) { $re = Join-Path $root "target\debug\re.exe" }
-if (-not (Test-Path $re)) { Write-Error "build first: cargo build --release"; exit 1 }
+if (-not (Test-Path $re)) {
+    Write-Host "building re (release)..." -ForegroundColor Yellow
+    Push-Location $root
+    cargo build --release
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    Pop-Location
+    $re = Join-Path $root "target\release\re.exe"
+}
+if (-not (Test-Path $re)) { Write-Error "could not find re.exe after build"; exit 1 }
 
 $demo = Join-Path $env:TEMP "causari-capture-demo"
 if (Test-Path $demo) { Remove-Item -Recurse -Force $demo }

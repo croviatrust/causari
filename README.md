@@ -138,6 +138,41 @@ re hook claude-code   # wires UserPromptSubmit + PostToolUse into
 Everything stays on your machine: `.causari/capture/` is a local,
 append-only ledger. No cloud, no telemetry, no API keys touched.
 
+### Crovia Seals — a cryptographic receipt for every completion
+
+Causari is the **first production issuer of
+[Crovia Seals](https://croviatrust.com/registry/seal/)** — the open,
+IETF-drafted receipt format for AI outputs
+([draft-crovia-seal-01](https://datatracker.ietf.org/doc/draft-crovia-seal/)).
+One flag turns the proxy into a sealing gateway:
+
+```
+$ re proxy --seal
+causari: Crovia Seal issuer active — pubkey 3fa9c2…
+  • gpt-4o  42→18 tok  $0.0003  "Add JWT refresh logic"  🔏 cs_2026_Q7RM2KJ3VWXA5YBN4CDEFGH2I6
+```
+
+Every completion gets an Ed25519-signed, hash-chained, offline-verifiable
+receipt in `.causari/seal/seals.jsonl`. The seal commits to SHA-256 hashes
+of the exact request and response bytes — **content never leaves your
+machine**. Anyone holding your public key can verify the whole chain
+without a server, an account, or Causari itself:
+
+```
+$ re seal verify
+✓ 128 seal(s) verified — every signature valid, chain contiguous from genesis
+
+$ re seal issuer     # print the pubkey to share with auditors
+$ re seal list       # browse issued receipts
+```
+
+The implementation is proven against the normative conformance vectors
+from [croviatrust/crovia-seal](https://github.com/croviatrust/crovia-seal)
+(CSC-1 canonicalization, domain-separated payloads, fail-closed
+verification). When a regulator, a customer or a court asks *"which model
+wrote this code, and can you prove it?"* — the answer is one file and one
+public key.
+
 ## The Experience Layer — skills with earned trust
 
 Recording the past is half the job. The other half is making sure no agent

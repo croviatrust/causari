@@ -1,0 +1,41 @@
+{
+  "seal_version": "crovia.seal.v1",
+  "seal_id": "cs_2026_SSSSSSSSSSSSSSSSSSSSSSSSSS",
+  "issuer": {
+    "id": "urn:crovia:seal-issuer:conformance",
+    "pubkey": {
+      "alg": "ed25519",
+      "key_hex": "ff57575dc7af8bfc4d0837cc1ce2017b686a88145dc5579a958e3462fe9a908e"
+    }
+  },
+  "subject": {
+    "input_hash": "sha256:56c219fa15aadd2e3267194100c362860968bb5a02dc147ad66759ee21fa8728",
+    "output_hash": "sha256:f6795fb1a861a8013a035aeb0adc3a8b4994e5bda55b3b7a7d7b26bb85cad763",
+    "input_len": 45,
+    "output_len": 13,
+    "modality": "text"
+  },
+  "generator": {
+    "id": "mistralai/mistral-large",
+    "version": "2411",
+    "weights_hash": null,
+    "params": {
+      "temperature": "0.5"
+    }
+  },
+  "timestamp": {
+    "emitted_at": "2026-04-15T00:00:09.000Z",
+    "nonce": "TTTTTTTTTTTTTTTTTTTTTTTTTT"
+  },
+  "chain": {
+    "prev_seal_hash": "sha256:cf62cb7ef78fe5f1eea66e39682f7201f1aaea79e560a2d2cae0be08c80505bb",
+    "sequence": 8
+  },
+  "signature": {
+    "alg": "ed25519",
+    "canon": "csc-1",
+    "domain": "CROVIA-SEAL-v1",
+    "payload_hash_alg": "sha256",
+    "sig_hex": "f57d272853c4ac77b6269e3decf4767ccbc8e9ceb345a994c4405d6c4c21dae253fd040398fcd666049677eb0173851f3aca9d7f0c62338adb47e37d33f2400c"
+  }
+}

@@ -10,9 +10,15 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+export CARGO_TARGET_DIR="$ROOT/target"
 RE="$ROOT/target/release/re"
 [ -x "$RE" ] || RE="$ROOT/target/debug/re"
-[ -x "$RE" ] || { echo "build first: cargo build --release"; exit 1; }
+if [ ! -x "$RE" ]; then
+  echo "building re (release)..."
+  (cd "$ROOT" && cargo build --release)
+  RE="$ROOT/target/release/re"
+fi
+[ -x "$RE" ] || { echo "could not find re after build"; exit 1; }
 
 DEMO="$(mktemp -d -t causari-capture-demo.XXXXXX)"
 cd "$DEMO"

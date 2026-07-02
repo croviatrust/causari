@@ -11,6 +11,7 @@ use crate::capture::{
 };
 use crate::cli::ProxyArgs;
 use crate::repo::Repo;
+use crate::seal::{SealGenerator, SealIssuer, SealSubject};
 
 /// `re proxy` — the heart of the capture layer.
 ///
@@ -28,6 +29,17 @@ use crate::repo::Repo;
 pub fn run(args: ProxyArgs) -> Result<()> {
     let repo = Arc::new(Repo::discover()?);
     let port = args.port.unwrap_or(4242);
+    let sealer = if args.seal {
+        let issuer = SealIssuer::load_or_create(&repo, args.seal_issuer.clone())?;
+        println!(
+            "{} Crovia Seal issuer active — pubkey {}",
+            "causari:".green().bold(),
+            issuer.pubkey_hex().bright_white()
+        );
+        Some(Mutex::new(issuer))
+    } else {
+        None
+    };
     let cfg = Arc::new(ProxyConfig {
         openai: args
             .openai_upstream
@@ -35,6 +47,7 @@ pub fn run(args: ProxyArgs) -> Result<()> {
         anthropic: args
             .anthropic_upstream
             .unwrap_or_else(|| "https://api.anthropic.com".to_string()),
+        sealer,
     });
 
     let server = Server::http(("127.0.0.1", port))
@@ -81,6 +94,28 @@ pub fn run(args: ProxyArgs) -> Result<()> {
 struct ProxyConfig {
     openai: String,
     anthropic: String,
+    /// When set, every completion also produces a Crovia Seal
+    /// (draft-crovia-seal-01): an Ed25519-signed, hash-chained receipt.
+    /// Mutex because the chain state (sequence, prev hash) is strictly serial.
+    sealer: Option<Mutex<SealIssuer>>,
+}
+
+/// Generation parameters worth committing into the seal, stringified per
+/// CSC-1 (floats are forbidden in signed payloads).
+fn seal_params(body: Option<&serde_json::Value>) -> Vec<(String, String)> {
+    let mut out = Vec::new();
+    if let Some(obj) = body.and_then(|v| v.as_object()) {
+        for key in ["temperature", "top_p", "max_tokens", "max_output_tokens"] {
+            if let Some(v) = obj.get(key) {
+                let s = match v {
+                    serde_json::Value::String(s) => s.clone(),
+                    other => other.to_string(),
+                };
+                out.push((key.to_string(), s));
+            }
+        }
+    }
+    out
 }
 
 /// Map an incoming path to (upstream_base, upstream_path).
@@ -234,6 +269,28 @@ fn handle(mut request: tiny_http::Request, cfg: &ProxyConfig, repo: &Repo) -> Re
     };
     append_jsonl(&exchanges_path(repo), &exchange)?;
 
+    // Optionally emit a Crovia Seal over the exact wire bytes: the request
+    // as sent upstream, the response as returned to the client. The seal
+    // commits to hashes only — content never leaves the machine.
+    let seal_id = if let Some(sealer) = &cfg.sealer {
+        let mut issuer = sealer.lock().map_err(|_| anyhow!("seal issuer poisoned"))?;
+        let seal = issuer.emit(
+            SealSubject {
+                input: &body,
+                output: &bytes,
+                modality: "text",
+            },
+            SealGenerator {
+                id: model.as_deref().unwrap_or("unknown"),
+                version: None,
+                params: seal_params(body_json.as_ref()),
+            },
+        )?;
+        seal["seal_id"].as_str().map(String::from)
+    } else {
+        None
+    };
+
     let prompt_preview = prompt
         .as_deref()
         .map(|p| {
@@ -246,7 +303,7 @@ fn handle(mut request: tiny_http::Request, cfg: &ProxyConfig, repo: &Repo) -> Re
         })
         .unwrap_or_else(|| "(no prompt)".to_string());
     println!(
-        "  {} {}  {}{}  {}",
+        "  {} {}  {}{}  {}{}",
         "•".green(),
         model.as_deref().unwrap_or("unknown-model").cyan(),
         format_tokens(tokens_in, tokens_out).bright_black(),
@@ -254,7 +311,11 @@ fn handle(mut request: tiny_http::Request, cfg: &ProxyConfig, repo: &Repo) -> Re
             .map(|c| format!("  ${:.4}", c))
             .unwrap_or_default()
             .bright_black(),
-        format!("\"{}\"", prompt_preview).italic()
+        format!("\"{}\"", prompt_preview).italic(),
+        seal_id
+            .map(|id| format!("  🔏 {}", id))
+            .unwrap_or_default()
+            .bright_black()
     );
     Ok(())
 }

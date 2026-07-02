@@ -9,6 +9,7 @@ mod index;
 mod object;
 mod proof;
 mod repo;
+mod seal;
 mod skill;
 mod snapshot;
 mod store;
@@ -45,6 +46,7 @@ fn main() -> Result<()> {
         Command::Churn(args) => commands::churn::run(args),
         Command::Report(args) => commands::report::run(args),
         Command::Proxy(args) => commands::proxy::run(args),
+        Command::Seal(args) => commands::seal::run(args),
         Command::Hook(args) => commands::hook::run(args),
         Command::HookEvent(args) => commands::hook::run_event(args),
     }

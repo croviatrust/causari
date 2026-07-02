@@ -1,0 +1,193 @@
+{
+  "version": "v1",
+  "cases": [
+    {
+      "name": "null",
+      "input": null,
+      "expected_hex": "6e756c6c",
+      "expected_utf8": "null"
+    },
+    {
+      "name": "true",
+      "input": true,
+      "expected_hex": "74727565",
+      "expected_utf8": "true"
+    },
+    {
+      "name": "false",
+      "input": false,
+      "expected_hex": "66616c7365",
+      "expected_utf8": "false"
+    },
+    {
+      "name": "empty_string",
+      "input": "",
+      "expected_hex": "2222",
+      "expected_utf8": "\"\""
+    },
+    {
+      "name": "ascii",
+      "input": "hello",
+      "expected_hex": "2268656c6c6f22",
+      "expected_utf8": "\"hello\""
+    },
+    {
+      "name": "escape_quote",
+      "input": "\"",
+      "expected_hex": "225c2222",
+      "expected_utf8": "\"\\\"\""
+    },
+    {
+      "name": "escape_bslash",
+      "input": "\\",
+      "expected_hex": "225c5c22",
+      "expected_utf8": "\"\\\\\""
+    },
+    {
+      "name": "escape_newline",
+      "input": "\n",
+      "expected_hex": "225c6e22",
+      "expected_utf8": "\"\\n\""
+    },
+    {
+      "name": "escape_tab",
+      "input": "\t",
+      "expected_hex": "225c7422",
+      "expected_utf8": "\"\\t\""
+    },
+    {
+      "name": "control_00",
+      "input": "\u0000",
+      "expected_hex": "225c753030303022",
+      "expected_utf8": "\"\\u0000\""
+    },
+    {
+      "name": "control_1f",
+      "input": "\u001f",
+      "expected_hex": "225c753030316622",
+      "expected_utf8": "\"\\u001f\""
+    },
+    {
+      "name": "non_ascii_latin",
+      "input": "café",
+      "expected_hex": "22636166c3a922",
+      "expected_utf8": "\"café\""
+    },
+    {
+      "name": "emoji_supp",
+      "input": "😀",
+      "expected_hex": "22f09f988022",
+      "expected_utf8": "\"😀\""
+    },
+    {
+      "name": "int_zero",
+      "input": 0,
+      "expected_hex": "30",
+      "expected_utf8": "0"
+    },
+    {
+      "name": "int_one",
+      "input": 1,
+      "expected_hex": "31",
+      "expected_utf8": "1"
+    },
+    {
+      "name": "int_neg",
+      "input": -1,
+      "expected_hex": "2d31",
+      "expected_utf8": "-1"
+    },
+    {
+      "name": "int_large",
+      "input": 9007199254740991,
+      "expected_hex": "39303037313939323534373430393931",
+      "expected_utf8": "9007199254740991"
+    },
+    {
+      "name": "int_neg_large",
+      "input": -9007199254740991,
+      "expected_hex": "2d39303037313939323534373430393931",
+      "expected_utf8": "-9007199254740991"
+    },
+    {
+      "name": "empty_array",
+      "input": [],
+      "expected_hex": "5b5d",
+      "expected_utf8": "[]"
+    },
+    {
+      "name": "array_mixed",
+      "input": [
+        1,
+        "a",
+        null,
+        true,
+        false
+      ],
+      "expected_hex": "5b312c2261222c6e756c6c2c747275652c66616c73655d",
+      "expected_utf8": "[1,\"a\",null,true,false]"
+    },
+    {
+      "name": "array_order",
+      "input": [
+        3,
+        1,
+        2
+      ],
+      "expected_hex": "5b332c312c325d",
+      "expected_utf8": "[3,1,2]"
+    },
+    {
+      "name": "empty_object",
+      "input": {},
+      "expected_hex": "7b7d",
+      "expected_utf8": "{}"
+    },
+    {
+      "name": "object_sorted",
+      "input": {
+        "b": 2,
+        "a": 1
+      },
+      "expected_hex": "7b2261223a312c2262223a327d",
+      "expected_utf8": "{\"a\":1,\"b\":2}"
+    },
+    {
+      "name": "object_three",
+      "input": {
+        "z": 1,
+        "a": 2,
+        "m": 3
+      },
+      "expected_hex": "7b2261223a322c226d223a332c227a223a317d",
+      "expected_utf8": "{\"a\":2,\"m\":3,\"z\":1}"
+    },
+    {
+      "name": "nested",
+      "input": {
+        "outer": {
+          "b": 1,
+          "a": 2
+        },
+        "also": [
+          1,
+          {
+            "y": 1,
+            "x": 2
+          }
+        ]
+      },
+      "expected_hex": "7b22616c736f223a5b312c7b2278223a322c2279223a317d5d2c226f75746572223a7b2261223a322c2262223a317d7d",
+      "expected_utf8": "{\"also\":[1,{\"x\":2,\"y\":1}],\"outer\":{\"a\":2,\"b\":1}}"
+    },
+    {
+      "name": "object_utf16",
+      "input": {
+        "😀": 1,
+        "z": 2
+      },
+      "expected_hex": "7b227a223a322c22f09f9880223a317d",
+      "expected_utf8": "{\"z\":2,\"😀\":1}"
+    }
+  ]
+}
