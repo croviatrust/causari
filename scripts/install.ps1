@@ -7,6 +7,11 @@
 # Optional:
 #   $env:CAUSARI_VERSION = "v0.1.0"        # pin version
 #   $env:CAUSARI_BIN_DIR = "C:\bin"        # custom install dir
+#   $env:CAUSARI_SKIP_VERIFY = "1"         # bypass the sha256 check (not recommended)
+#
+# The binary's sha256 is verified against SHA256SUMS.txt published with each
+# GitHub release. To review the code first, build from source instead:
+#   cargo install --git https://github.com/croviatrust/causari
 # =============================================================
 $ErrorActionPreference = 'Stop'
 
@@ -38,18 +43,21 @@ try {
   Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing
 } catch { Die "download failed: $url" }
 
-# ---- verify sha256 (best effort) ----
-try {
+# ---- verify sha256 (required by default) ----
+if ($env:CAUSARI_SKIP_VERIFY -eq '1') {
+  Warn 'CAUSARI_SKIP_VERIFY=1 set — installing WITHOUT checksum verification'
+} else {
   $sumsUrl  = "https://github.com/$Repo/releases/download/$Version/SHA256SUMS.txt"
   $sumsFile = Join-Path $tmp 'SHA256SUMS.txt'
-  Invoke-WebRequest -Uri $sumsUrl -OutFile $sumsFile -UseBasicParsing
-  $expected = (Select-String "re-$Version-$target.zip" $sumsFile | Select-Object -First 1).Line.Split(' ')[0]
+  try { Invoke-WebRequest -Uri $sumsUrl -OutFile $sumsFile -UseBasicParsing }
+  catch { Die "could not download SHA256SUMS.txt for $Version — refusing to install unverified (set `$env:CAUSARI_SKIP_VERIFY='1' to override, or build from source: cargo install --git https://github.com/$Repo)" }
+  $line = Select-String "re-$Version-$target.zip" $sumsFile | Select-Object -First 1
+  if (-not $line) { Die "no checksum for re-$Version-$target.zip in SHA256SUMS.txt — refusing to install unverified" }
+  $expected = $line.Line.Split(' ')[0].ToLower()
   $actual   = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower()
-  if ($expected -and ($expected -ne $actual)) {
-    Die "sha256 mismatch — refusing to install (expected $expected, got $actual)"
-  }
-  if ($expected) { Say 'sha256 verified' }
-} catch { Warn "skipping sha256 verification ($_)" }
+  if ($expected -ne $actual) { Die "sha256 mismatch — refusing to install (expected $expected, got $actual)" }
+  Say "sha256 verified ($actual)"
+}
 
 # ---- extract ----
 Expand-Archive -Path $zip -DestinationPath $tmp -Force

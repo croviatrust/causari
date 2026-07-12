@@ -8,6 +8,21 @@ pub const OBJECTS_DIR: &str = "objects";
 pub const REFS_DIR: &str = "refs";
 pub const CONFIG_FILE: &str = "config.toml";
 pub const LOCK_FILE: &str = "lock";
+pub const GITIGNORE_FILE: &str = ".gitignore";
+pub const GITIGNORE_ENTRY: &str = ".causari/";
+
+/// Result of ensuring `.causari/` is excluded from version control.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GitignoreOutcome {
+    /// A `.gitignore` already excluded `.causari/`.
+    AlreadyIgnored,
+    /// `.causari/` was appended to an existing `.gitignore`.
+    Appended,
+    /// A new `.gitignore` was created with `.causari/`.
+    Created,
+    /// Not a git work tree and no existing `.gitignore`: nothing was written.
+    NotAGitRepo,
+}
 
 /// A discovered Causari repository.
 #[derive(Debug, Clone)]
@@ -64,6 +79,45 @@ impl Repo {
             root: path.to_path_buf(),
             dir,
         })
+    }
+
+    /// Ensure the working tree's `.gitignore` excludes `.causari/`, so that
+    /// captured prompts, completions and reasoning are never committed by
+    /// accident. Acts inside a git work tree, or when a `.gitignore` already
+    /// exists; otherwise writes nothing and returns `NotAGitRepo`.
+    pub fn ensure_gitignored(&self) -> Result<GitignoreOutcome> {
+        let gitignore = self.root.join(GITIGNORE_FILE);
+        let header = format!(
+            "# Causari local ledger \u{2014} captured prompts, completions and reasoning.\n{}\n",
+            GITIGNORE_ENTRY
+        );
+
+        if !gitignore.exists() {
+            if !self.root.join(".git").exists() {
+                return Ok(GitignoreOutcome::NotAGitRepo);
+            }
+            std::fs::write(&gitignore, header)
+                .with_context(|| format!("writing {}", gitignore.display()))?;
+            return Ok(GitignoreOutcome::Created);
+        }
+
+        let contents = std::fs::read_to_string(&gitignore)
+            .with_context(|| format!("reading {}", gitignore.display()))?;
+        let already = contents
+            .lines()
+            .any(|l| matches!(l.trim(), ".causari" | ".causari/" | "/.causari" | "/.causari/"));
+        if already {
+            return Ok(GitignoreOutcome::AlreadyIgnored);
+        }
+
+        let mut updated = contents;
+        if !updated.is_empty() && !updated.ends_with('\n') {
+            updated.push('\n');
+        }
+        updated.push_str(&header);
+        std::fs::write(&gitignore, updated)
+            .with_context(|| format!("writing {}", gitignore.display()))?;
+        Ok(GitignoreOutcome::Appended)
     }
 
     pub fn objects_dir(&self) -> PathBuf {
@@ -237,6 +291,43 @@ mod tests {
         assert_eq!(repo.head_event().unwrap(), None);
 
         assert!(Repo::init(tmp.path()).is_err());
+    }
+
+    #[test]
+    fn ensure_gitignored_creates_appends_and_is_idempotent() {
+        let tmp = tempfile::tempdir().unwrap();
+        // Simulate a git work tree so the helper is willing to create .gitignore.
+        std::fs::create_dir_all(tmp.path().join(".git")).unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let gi = tmp.path().join(GITIGNORE_FILE);
+
+        // First call creates .gitignore carrying the entry.
+        assert_eq!(repo.ensure_gitignored().unwrap(), GitignoreOutcome::Created);
+        assert!(std::fs::read_to_string(&gi).unwrap().contains(".causari/"));
+
+        // Second call is idempotent.
+        assert_eq!(
+            repo.ensure_gitignored().unwrap(),
+            GitignoreOutcome::AlreadyIgnored
+        );
+
+        // Appends to a pre-existing, unrelated .gitignore without clobbering it.
+        std::fs::write(&gi, "target/\n").unwrap();
+        assert_eq!(repo.ensure_gitignored().unwrap(), GitignoreOutcome::Appended);
+        let body = std::fs::read_to_string(&gi).unwrap();
+        assert!(body.contains("target/"));
+        assert!(body.lines().any(|l| l.trim() == ".causari/"));
+    }
+
+    #[test]
+    fn ensure_gitignored_is_noop_outside_a_git_repo() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        assert_eq!(
+            repo.ensure_gitignored().unwrap(),
+            GitignoreOutcome::NotAGitRepo
+        );
+        assert!(!tmp.path().join(GITIGNORE_FILE).exists());
     }
 
     #[test]

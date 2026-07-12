@@ -23,9 +23,16 @@ const DEFAULT_IGNORES: &[&str] = &[
     ".vscode",
 ];
 
+/// Dotenv files usually hold secrets (API keys, DB URLs). Keep `.env` and its
+/// variants (`.env.local`, `.env.production`, …) out of snapshots by default,
+/// so credentials are never copied into the `.causari/` ledger.
+fn is_secret_env_file(name: &str) -> bool {
+    name == ".env" || name.starts_with(".env.")
+}
+
 fn is_ignored(rel_path: &Path) -> bool {
     rel_path.components().any(|c| match c.as_os_str().to_str() {
-        Some(s) => DEFAULT_IGNORES.contains(&s),
+        Some(s) => DEFAULT_IGNORES.contains(&s) || is_secret_env_file(s),
         None => false,
     })
 }
@@ -355,6 +362,26 @@ mod tests {
             .keys()
             .map(|p| p.to_string_lossy().replace('\\', "/"))
             .collect();
+        assert_eq!(paths, vec!["src/main.rs"]);
+    }
+
+    #[test]
+    fn dotenv_secrets_never_enter_snapshots() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+
+        write(&repo, "src/main.rs", "fn main() {}");
+        write(&repo, ".env", "OPENAI_API_KEY=sk-secret");
+        write(&repo, ".env.production", "DB_URL=postgres://secret");
+        write(&repo, "config/.env.local", "TOKEN=nope");
+
+        let tree_id = snapshot_workspace(&repo).unwrap();
+        let flat = flatten_tree(&store, &tree_id).unwrap();
+        let paths: Vec<String> = flat
+            .keys()
+            .map(|p| p.to_string_lossy().replace('\\', "/"))
+            .collect();
+        // Only the source file is captured; every dotenv variant is excluded.
         assert_eq!(paths, vec!["src/main.rs"]);
     }
 
