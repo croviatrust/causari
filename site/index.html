@@ -619,7 +619,7 @@ Review with: re show &lt;id&gt;  re diff &lt;id&gt;  re trace &lt;file&gt;</code
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l3-3 3 3 3-6 3 9 3-3 3 3"/><path d="M3 20h18"/></svg>
         </div>
         <h3>Built-in MCP server</h3>
-        <p>One flag — <code>re mcp</code> — and Claude Desktop, Cursor, Cline and Windsurf can read and write the ledger. Tools: <code>causari_record</code>, <code>causari_recall</code>, <code>causari_why</code>.</p>
+        <p>One flag — <code>re mcp</code> — and Claude Desktop, Cursor, Cline and Windsurf get three tools: <code>causari_record</code> (appends an event to <code>.causari/</code>, never edits your source), <code>causari_recall</code> and <code>causari_why</code> (read-only). Local stdio, no network.</p>
       </article>
 
       <article class="feature">
@@ -659,7 +659,7 @@ Review with: re show &lt;id&gt;  re diff &lt;id&gt;  re trace &lt;file&gt;</code
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h6M7 16h10"/></svg>
         </div>
         <h3>Local-first, no cloud</h3>
-        <p>Everything lives in <code>.causari/</code> next to your code. BLAKE3 content-addressed. Your prompts, models and reasoning never leave your machine. No telemetry. No accounts. Ever.</p>
+        <p>Everything lives in <code>.causari/</code> next to your code. BLAKE3 content-addressed. Your prompts, models and reasoning never leave your machine. <code>re init</code> git-ignores <code>.causari/</code>, and <code>.env</code> files are excluded from snapshots by default. No telemetry. No accounts. Ever.</p>
       </article>
     </div>
   </div>
@@ -912,7 +912,7 @@ found: first bad event: <span class="t-id">17cbc28d</span>
             <button class="copy-btn" data-copy="qs1ps">Copy</button>
 <pre id="qs1ps"><code>iwr -useb https://causari.dev/install.ps1 | iex</code></pre>
           </div>
-          <p class="muted">SHA256-verified, ~800 KB download, installs to <code>~/.local/bin</code> (or <code>%LOCALAPPDATA%\Programs\causari</code> on Windows). Prefer source? <code>cargo install --git https://github.com/croviatrust/causari</code>.</p>
+          <p class="muted">~800 KB download to <code>~/.local/bin</code> (or <code>%LOCALAPPDATA%\Programs\causari</code> on Windows). The binary's SHA-256 is checked against the <a href="https://github.com/croviatrust/causari/releases">release <code>SHA256SUMS.txt</code></a> and the install aborts on any mismatch. Prefer to verify by hand, or build from source? <code>cargo install --git https://github.com/croviatrust/causari</code>.</p>
         </div>
       </li>
 

@@ -138,6 +138,58 @@ re hook claude-code   # wires UserPromptSubmit + PostToolUse into
 Everything stays on your machine: `.causari/capture/` is a local,
 append-only ledger. No cloud, no telemetry, no API keys touched.
 
+### What Causari captures — and keeping secrets out
+
+Two streams feed the ledger, so it helps to know exactly what each one sees:
+
+- **`re proxy`** records the *prompts, completions, token counts and costs* that
+  pass through it, verbatim. If a secret is pasted into a prompt or echoed in a
+  completion it is captured as-is — Causari does not yet redact prompt or
+  completion text.
+- **`re watch` / `re record`** snapshot your working tree. Excluded by default
+  and never entering a snapshot: `.causari`, `.git`, `node_modules`, `target`,
+  `dist`, `build`, `.next`, `.venv`, `__pycache__`, `.idea`, `.vscode`, and
+  **`.env` / `.env.*` files** (they usually hold credentials). Everything else
+  in the tree is fair game.
+
+Practical guidance:
+
+- Keep real secrets in `.env` / `.env.*` (excluded by default) or outside the
+  repo — not hard-coded in tracked source files, which *are* snapshotted.
+- The whole ledger stays local in `.causari/`, which `re init` now adds to your
+  `.gitignore`, so captured prompts and reasoning are never pushed. If
+  `.causari/` was committed before you upgraded, untrack it with
+  `git rm -r --cached .causari && git commit -m "stop tracking .causari"`.
+- Don't paste API keys, tokens or passwords into prompts while `re proxy` is
+  running, and treat `.causari/capture/` as sensitive.
+
+Configurable ignore patterns and prompt redaction are on the roadmap; today the
+exclusion list above is the built-in default.
+
+### Reading the confidence score
+
+The causal join is a *heuristic*: it attributes a file change to a prompt by
+searching the lines you inserted inside the completions captured moments before.
+The **confidence score** is the fraction of inserted lines it could match back
+to a captured completion (e.g. `confidence 100%, 3/3 lines`).
+
+A **high** score means the code on disk is, line for line, what the model
+returned. Confidence drops when:
+
+- **manual edits** — you hand-wrote or tweaked the code, so it never appeared in
+  a completion;
+- **near-simultaneous changes** — two prompts (or a prompt and a manual edit)
+  touched the same file within one snapshot window, so the lines interleave;
+- **post-processing** — a formatter, linter or codemod rewrote the model's
+  output before it reached disk;
+- **coincidental matches** — trivial lines (`}`, blank lines, common imports)
+  can match unrelated completions, so they are down-weighted.
+
+Treat a low score as *"attribution is uncertain here"*, not *"the tool is
+wrong"*: run `re why <file>:<line>` or `re trace` to see the candidate events
+and decide for yourself. Attribution never blocks capture — every change is
+still recorded; only the *link* to a prompt is scored.
+
 ### Crovia Seals — a cryptographic receipt for every completion
 
 Causari is the **first production issuer of
@@ -450,6 +502,17 @@ Causari and get three new tools for free:
 | `causari_recall` | Find past similar events *before* acting, to avoid repeating mistakes. |
 | `causari_why`    | Inspect the provenance of a line before modifying code it didn't write. |
 
+**Trust model — what each tool can touch.** The server runs locally over stdio
+(newline-delimited JSON-RPC 2.0), makes **no network calls**, and only ever
+reads or writes inside your project and its `.causari/` ledger. Nothing is sent
+to Causari or any third party.
+
+| Tool | Reads | Writes |
+|---|---|---|
+| `causari_record` | your working tree (to snapshot it) + the metadata you pass in | appends one immutable event + snapshot to `.causari/` — **never edits your source files** |
+| `causari_recall` | `.causari/` ledger and signed skills | only bumps a skill's use-counter in `.causari/` (how trust is earned) — never your source |
+| `causari_why`    | `.causari/` ledger + the single file/line you name | nothing |
+
 Get the JSON snippet to paste into your agent's config:
 
 ```bash
@@ -504,10 +567,26 @@ Windows (PowerShell):
 iwr -useb https://causari.dev/install.ps1 | iex
 ```
 
-Installs a SHA256-verified, ~800 KB pre-built binary into `~/.local/bin`
-(or `%LOCALAPPDATA%\Programs\causari` on Windows).
+Installs a ~800 KB pre-built binary into `~/.local/bin` (or
+`%LOCALAPPDATA%\Programs\causari` on Windows). **The installer verifies the
+binary's SHA-256 against the `SHA256SUMS.txt` published with each
+[release](https://github.com/croviatrust/causari/releases) and refuses to
+install on a mismatch** (set `CAUSARI_SKIP_VERIFY=1` to bypass — not
+recommended).
 
-Prefer building from source?
+Prefer to verify by hand before running anything?
+
+```bash
+VERSION=v0.1.0                        # the release you want
+TARGET=x86_64-unknown-linux-gnu       # your platform triple
+base="https://github.com/croviatrust/causari/releases/download/$VERSION"
+curl -sSfLO "$base/re-$VERSION-$TARGET.tar.gz"
+curl -sSfLO "$base/SHA256SUMS.txt"
+sha256sum --ignore-missing -c SHA256SUMS.txt   # expect: OK
+tar -xzf "re-$VERSION-$TARGET.tar.gz" && install -m755 re ~/.local/bin/re
+```
+
+Or build from source and skip pre-built binaries entirely:
 
 ```bash
 cargo install --git https://github.com/croviatrust/causari
@@ -515,6 +594,10 @@ cargo install --git https://github.com/croviatrust/causari
 cargo build --release
 ./target/release/re --help
 ```
+
+On first run, `re init` creates the `.causari/` ledger and adds it to your
+`.gitignore` automatically, so the prompts and reasoning it captures are never
+committed.
 
 Scripted demos live in `scripts/`:
 

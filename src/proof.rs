@@ -245,8 +245,8 @@ mod tests {
     }
 
     fn record(repo: &Repo, store: &Store, agent: &str, model: &str, file: &str) {
-        let pre = crate::commit::resolve_pre_snapshot(repo, store, &repo.head_event().unwrap())
-            .unwrap();
+        let pre =
+            crate::commit::resolve_pre_snapshot(repo, store, &repo.head_event().unwrap()).unwrap();
         let ev = Event {
             schema: "causari.event.v0.2".into(),
             parent: repo.head_event().unwrap(),

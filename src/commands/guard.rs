@@ -119,7 +119,7 @@ pub fn run(args: GuardArgs) -> Result<()> {
             short.bright_black(),
             item.rule.yellow().bold(),
             "—".bright_black(),
-            &item.detail
+            item.detail
         );
         if let Some(agent) = &item.agent {
             println!("    agent: {}", agent.cyan());

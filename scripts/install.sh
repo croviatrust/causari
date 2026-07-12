@@ -6,8 +6,13 @@
 #   curl -sSf https://causari.dev/install.sh | sh
 #
 # Optional environment variables:
-#   CAUSARI_VERSION   pin a specific version (default: latest)
-#   CAUSARI_BIN_DIR   install location (default: $HOME/.local/bin)
+#   CAUSARI_VERSION      pin a specific version (default: latest)
+#   CAUSARI_BIN_DIR      install location (default: $HOME/.local/bin)
+#   CAUSARI_SKIP_VERIFY  set to 1 to bypass the sha256 check (not recommended)
+#
+# The binary's sha256 is verified against the signed SHA256SUMS.txt published
+# with each GitHub release. Prefer building from source if you want to review
+# the code first:  cargo install --git https://github.com/croviatrust/causari
 # =============================================================
 set -eu
 
@@ -48,23 +53,24 @@ tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 curl -sSfL "$url" -o "$tmp/re.tar.gz" || die "download failed: $url"
 
-# ---- (optional) verify sha256 ----
-sums_url="https://github.com/$REPO/releases/download/$VERSION/SHA256SUMS.txt"
-if curl -sSfL "$sums_url" -o "$tmp/SHA256SUMS.txt" 2>/dev/null; then
+# ---- verify sha256 (required by default) ----
+if [ "${CAUSARI_SKIP_VERIFY:-0}" = "1" ]; then
+  warn "CAUSARI_SKIP_VERIFY=1 set — installing WITHOUT checksum verification"
+else
+  sums_url="https://github.com/$REPO/releases/download/$VERSION/SHA256SUMS.txt"
+  curl -sSfL "$sums_url" -o "$tmp/SHA256SUMS.txt" \
+    || die "could not download SHA256SUMS.txt for $VERSION — refusing to install unverified (set CAUSARI_SKIP_VERIFY=1 to override, or build from source: cargo install --git https://github.com/$REPO)"
   expected="$(grep "re-${VERSION}-${target}.tar.gz" "$tmp/SHA256SUMS.txt" | awk '{print $1}')"
-  if [ -n "$expected" ]; then
-    if command -v sha256sum >/dev/null 2>&1; then
-      actual="$(sha256sum "$tmp/re.tar.gz" | awk '{print $1}')"
-    elif command -v shasum >/dev/null 2>&1; then
-      actual="$(shasum -a 256 "$tmp/re.tar.gz" | awk '{print $1}')"
-    else
-      actual=""
-    fi
-    if [ -n "$actual" ] && [ "$actual" != "$expected" ]; then
-      die "sha256 mismatch — refusing to install (expected $expected, got $actual)"
-    fi
-    [ -n "$actual" ] && say "sha256 verified"
+  [ -n "$expected" ] || die "no checksum for re-${VERSION}-${target}.tar.gz in SHA256SUMS.txt — refusing to install unverified"
+  if command -v sha256sum >/dev/null 2>&1; then
+    actual="$(sha256sum "$tmp/re.tar.gz" | awk '{print $1}')"
+  elif command -v shasum >/dev/null 2>&1; then
+    actual="$(shasum -a 256 "$tmp/re.tar.gz" | awk '{print $1}')"
+  else
+    die "neither sha256sum nor shasum is available to verify the download — install one, or set CAUSARI_SKIP_VERIFY=1 to override"
   fi
+  [ "$actual" = "$expected" ] || die "sha256 mismatch — refusing to install (expected $expected, got $actual)"
+  say "sha256 verified ($actual)"
 fi
 
 # ---- extract & install ----
