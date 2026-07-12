@@ -164,7 +164,7 @@ fn base32_nopad(bytes: &[u8]) -> String {
 
 fn random_base32_26() -> Result<String> {
     let mut raw = [0u8; 16];
-    getrandom::getrandom(&mut raw).map_err(|e| anyhow!("secure randomness unavailable: {}", e))?;
+    getrandom::fill(&mut raw).map_err(|e| anyhow!("secure randomness unavailable: {}", e))?;
     Ok(base32_nopad(&raw))
 }
 
@@ -236,8 +236,7 @@ impl SealIssuer {
             SigningKey::from_bytes(&arr)
         } else {
             let mut secret = [0u8; 32];
-            getrandom::getrandom(&mut secret)
-                .map_err(|e| anyhow!("generating issuer key: {}", e))?;
+            getrandom::fill(&mut secret).map_err(|e| anyhow!("generating issuer key: {}", e))?;
             let key = SigningKey::from_bytes(&secret);
             std::fs::create_dir_all(key_path.parent().unwrap())?;
             std::fs::write(&key_path, hex::encode(secret))?;

@@ -173,7 +173,7 @@ pub fn load_or_create_signing_key(repo: &Repo) -> Result<SigningKey> {
         return Ok(SigningKey::from_bytes(&arr));
     }
     let mut secret = [0u8; 32];
-    getrandom::getrandom(&mut secret).map_err(|e| anyhow!("generating key: {}", e))?;
+    getrandom::fill(&mut secret).map_err(|e| anyhow!("generating key: {}", e))?;
     let key = SigningKey::from_bytes(&secret);
     std::fs::create_dir_all(keys_dir(repo))?;
     std::fs::write(&path, hex::encode(secret))?;
