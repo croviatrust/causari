@@ -103,9 +103,12 @@ impl Repo {
 
         let contents = std::fs::read_to_string(&gitignore)
             .with_context(|| format!("reading {}", gitignore.display()))?;
-        let already = contents
-            .lines()
-            .any(|l| matches!(l.trim(), ".causari" | ".causari/" | "/.causari" | "/.causari/"));
+        let already = contents.lines().any(|l| {
+            matches!(
+                l.trim(),
+                ".causari" | ".causari/" | "/.causari" | "/.causari/"
+            )
+        });
         if already {
             return Ok(GitignoreOutcome::AlreadyIgnored);
         }
@@ -313,7 +316,10 @@ mod tests {
 
         // Appends to a pre-existing, unrelated .gitignore without clobbering it.
         std::fs::write(&gi, "target/\n").unwrap();
-        assert_eq!(repo.ensure_gitignored().unwrap(), GitignoreOutcome::Appended);
+        assert_eq!(
+            repo.ensure_gitignored().unwrap(),
+            GitignoreOutcome::Appended
+        );
         let body = std::fs::read_to_string(&gi).unwrap();
         assert!(body.contains("target/"));
         assert!(body.lines().any(|l| l.trim() == ".causari/"));

@@ -51,7 +51,10 @@ fn write_canonical(value: &Value, out: &mut Vec<u8>) -> Result<()> {
             } else if let Some(u) = n.as_u64() {
                 i64::try_from(u).map_err(|_| anyhow!("NonCanonicalNumber: {} exceeds 2^53-1", u))?
             } else {
-                bail!("NonCanonicalNumber: floats are forbidden in signed payloads ({})", n);
+                bail!(
+                    "NonCanonicalNumber: floats are forbidden in signed payloads ({})",
+                    n
+                );
             };
             if !(-MAX_SAFE_INT..=MAX_SAFE_INT).contains(&i) {
                 bail!("NonCanonicalNumber: {} outside ±(2^53-1)", i);
@@ -166,7 +169,9 @@ fn random_base32_26() -> Result<String> {
 }
 
 fn rfc3339_now_ms() -> String {
-    chrono::Utc::now().format("%Y-%m-%dT%H:%M:%S%.3fZ").to_string()
+    chrono::Utc::now()
+        .format("%Y-%m-%dT%H:%M:%S%.3fZ")
+        .to_string()
 }
 
 // ---------------------------------------------------------------------------
@@ -379,7 +384,16 @@ pub fn verify_seal(seal: &Value) -> Result<()> {
             bail!("unknown top-level field '{}' (fail-closed)", key);
         }
     }
-    for required in ["seal_version", "seal_id", "issuer", "subject", "generator", "timestamp", "chain", "signature"] {
+    for required in [
+        "seal_version",
+        "seal_id",
+        "issuer",
+        "subject",
+        "generator",
+        "timestamp",
+        "chain",
+        "signature",
+    ] {
         if !obj.contains_key(required) {
             bail!("missing required field '{}'", required);
         }
@@ -502,7 +516,10 @@ pub fn verify_chain(repo: &Repo) -> Result<usize> {
         }
         let prev = seal["chain"]["prev_seal_hash"].as_str().map(String::from);
         if prev != expected_prev {
-            bail!("chain link broken at line {} (prev_seal_hash mismatch)", lineno + 1);
+            bail!(
+                "chain link broken at line {} (prev_seal_hash mismatch)",
+                lineno + 1
+            );
         }
 
         let payload = signing_payload(&seal)?;

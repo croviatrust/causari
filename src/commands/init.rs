@@ -19,24 +19,20 @@ pub fn run() -> Result<()> {
     // we tell the user to add the entry themselves.
     match repo.ensure_gitignored() {
         Ok(GitignoreOutcome::Created) | Ok(GitignoreOutcome::Appended) => println!(
-            "{} added {} to .gitignore \u{2014} captured prompts & reasoning stay out of git",
-            "Protected".green().bold(),
-            ".causari/"
+            "{} added .causari/ to .gitignore \u{2014} captured prompts & reasoning stay out of git",
+            "Protected".green().bold()
         ),
         Ok(GitignoreOutcome::AlreadyIgnored) => println!(
-            "{} {} is already in .gitignore",
-            "Protected".green().bold(),
-            ".causari/"
+            "{} .causari/ is already in .gitignore",
+            "Protected".green().bold()
         ),
         Ok(GitignoreOutcome::NotAGitRepo) => println!(
-            "{} not a git repo yet \u{2014} keep {} out of version control (it stores captured prompts & reasoning)",
-            "Note".yellow().bold(),
-            ".causari/"
+            "{} not a git repo yet \u{2014} keep .causari/ out of version control (it stores captured prompts & reasoning)",
+            "Note".yellow().bold()
         ),
         Err(e) => eprintln!(
-            "{} could not update .gitignore ({e}) \u{2014} please add {} yourself",
-            "Warning".yellow().bold(),
-            ".causari/"
+            "{} could not update .gitignore ({e}) \u{2014} please add .causari/ yourself",
+            "Warning".yellow().bold()
         ),
     }
 

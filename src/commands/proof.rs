@@ -80,18 +80,10 @@ fn verify(file: Option<PathBuf>, against_repo: bool) -> Result<()> {
     let path = file.unwrap_or_else(|| PathBuf::from(DEFAULT_PROOF));
     let env = proof::read_proof_file(&path)?;
 
-    proof::verify_signature(&env).map_err(|e| {
-        anyhow::anyhow!(
-            "{} {}",
-            "INVALID".red().bold(),
-            e
-        )
-    })?;
+    proof::verify_signature(&env)
+        .map_err(|e| anyhow::anyhow!("{} {}", "INVALID".red().bold(), e))?;
 
-    println!(
-        "{} signature valid (Ed25519)",
-        "ok".green().bold(),
-    );
+    println!("{} signature valid (Ed25519)", "ok".green().bold(),);
     let m = &env.manifest;
     println!("  repo:    {}", m.repo);
     println!("  created: {}", m.generated_at);
