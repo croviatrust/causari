@@ -34,20 +34,26 @@ Causari records every action an AI agent takes on your codebase — not just
 the bytes that changed, but the **prompt that asked**, the **model that
 answered**, the **files it read**, and the **reasoning behind the change**.
 
-And it does so **without asking the agent's permission**: the built-in
-capture engine (`re proxy` + `re watch` + `re hook`) observes the LLM
-traffic and the filesystem independently, then joins them by *content* —
-the code that appears in your files is found inside the completion that
-produced it seconds earlier. Provenance becomes a fact, not a self-report.
+**Two capture paths, one ledger.** Where the agent runtime exposes lifecycle
+hooks (Claude Code), Causari plugs in natively: `re hook claude-code` wires
+`UserPromptSubmit` and `PostToolUse` into `.claude/settings.json`, and every
+prompt and edit is recorded **exactly** — deterministic, no heuristic, no
+confidence score needed. Where hooks don't exist (Cursor, Windsurf, Cline,
+Aider, custom scripts), the universal fallback (`re proxy` + `re watch`)
+observes LLM traffic and the filesystem independently, then joins them by
+*content* — the code that appears in your files is found inside the
+completion that produced it seconds earlier. Either way, provenance becomes
+a fact, not a self-report.
 
 You can then ask questions no version control system has ever answered:
 
 ```bash
-re proxy                      # local LLM proxy: every prompt, token and dollar
-                              #   flows through Causari on its way to the provider
+re hook  claude-code          # native capture via agent lifecycle hooks —
+                              #   exact, deterministic, no heuristic needed
+re proxy                      # universal fallback: local LLM proxy captures
+                              #   every prompt, token and dollar
 re watch                      # passive recorder + causal join: file changes get
                               #   attributed to the real prompt, model and cost
-re hook  claude-code          # native capture via agent lifecycle hooks
 re why    src/auth.ts:42      # who/what produced this exact line?
 re trace  src/auth.ts:42      # full UPSTREAM causal cone: every event that
                               #   contributed transitively, through reads/writes
@@ -71,14 +77,48 @@ re revert <id>                # undo an action with causal preview of what else
 When an agent touches 30 files and something breaks, you don't need to read
 4 000 lines of chat. You ask Causari *why* and *when*.
 
-## The Capture Engine — provenance without cooperation
+## The Capture Engine — two paths, one ledger
 
 Every provenance tool before Causari had the same fatal dependency: it only
 worked if the agent volunteered its own history. Agents don't. Harnesses
 don't expose reasoning. Nobody reports costs.
 
-Causari removes the dependency. Two independent observation streams, one
-causal join:
+Causari removes the dependency with **two capture paths** that feed the same
+append-only ledger:
+
+### Primary: native hooks (`re hook claude-code`) — exact, deterministic
+
+Where the agent runtime exposes lifecycle hooks, Causari plugs in directly.
+No inference, no heuristic, no confidence score — the agent *declares* what
+it did, and Causari records it:
+
+```bash
+$ re hook claude-code
+causari: Claude Code hooks installed in .claude/settings.json
+  UserPromptSubmit → captures every prompt
+  PostToolUse (Edit|Write|MultiEdit|NotebookEdit) → records every edit
+
+# The agent works normally. Every prompt and edit is recorded.
+$ re why service.py:2
+service.py:2
+      return {"sha": BUILD_SHA, "uptime": uptime_seconds()}
+
+introduced by 2d070eb8cf
+  agent:     claude-code
+  tool:      Write
+  prompt:    Add a health-check endpoint returning build sha and uptime
+```
+
+The hook path is **deterministic by construction**: the prompt text comes
+from `UserPromptSubmit`, the file path from `PostToolUse`. There is no
+guesswork. Human edits that happen without a hook firing are correctly
+reported as *"no recorded event introduced this line"* — zero false
+attribution.
+
+### Universal fallback: proxy + watch (`re proxy` + `re watch`) — heuristic join
+
+For agents without hook support (Cursor, Windsurf, Cline, Aider, custom
+scripts), Causari observes two independent streams and joins them by content:
 
 ```
    ┌─────────────────────────┐        ┌─────────────────────────┐
@@ -107,33 +147,29 @@ causari: LLM capture proxy listening on http://127.0.0.1:4242
 
 $ re watch          # in another terminal
   • 0d47599550  auth.py
-    ↳ intent: "Add JWT refresh logic that rotates every 24h"  gpt-4o (confidence 100%, 3/3 lines)
+    ↳ intent: "Add JWT refresh logic that rotates every 24h"  gpt-4o (confidence 100%, 5/5 lines)
 
-$ re why auth.py:2
-auth.py:2
-      token = issue_token(user, scope="session")
+$ re why auth.py:3
+auth.py:3
+      rotated = rotate_every(session.token, hours=24)
 
 introduced by 0d47599550
-  agent:     cursor
+  agent:     proxy-watch
   model:     gpt-4o
   prompt:    Add JWT refresh logic that rotates every 24h
 ```
 
-Point any agent at the proxy and you're done:
+Point any agent at the proxy:
 
 ```bash
 OPENAI_BASE_URL=http://127.0.0.1:4242/openai/v1
 ANTHROPIC_BASE_URL=http://127.0.0.1:4242/anthropic
 ```
 
-Where the agent runtime exposes lifecycle hooks, capture is native and
-exact — no inference needed:
-
-```bash
-re hook claude-code   # wires UserPromptSubmit + PostToolUse into
-                      # .claude/settings.json: every prompt captured,
-                      # every edit recorded as a full Causari event
-```
+The causal join is a **heuristic** — it works well on clean cases but
+degrades honestly on dirty ones. See [Reading the confidence
+score](#reading-the-confidence-score) for real measured numbers and known
+failure modes.
 
 Everything stays on your machine: `.causari/capture/` is a local,
 append-only ledger. No cloud, no telemetry, no API keys touched.
@@ -171,7 +207,18 @@ exclusion list above is the built-in default.
 The causal join is a *heuristic*: it attributes a file change to a prompt by
 searching the lines you inserted inside the completions captured moments before.
 The **confidence score** is the fraction of inserted lines it could match back
-to a captured completion (e.g. `confidence 100%, 3/3 lines`).
+to a captured completion (e.g. `confidence 100%, 5/5 lines`).
+
+These numbers are **measured, not theoretical**. A reproducible test harness
+(`examples/real-session/`) exercises four adversarial scenarios against a real
+`re proxy` + `re watch` + mock LLM pipeline:
+
+| Scenario | Confidence | What it means |
+|---|---|---|
+| **Clean** (file == completion verbatim) | **100% (5/5)** | The happy path: every line matches. |
+| **Human manual edit** | no correlation | Correct silence: the edited line never appeared in any completion. No false attribution. |
+| **Formatter reflow** | **50% (3/6)** | A formatter rewrote the model output before it hit disk. Confidence correctly signals degraded correspondence. |
+| **Near-simultaneous prompts** | **75% (3/4)** | Two completions in the window, one file mixes lines from both. The join picks the best-overlap winner — **per-line attribution can be wrong** (the redis line was attributed to the `connect_db` prompt). |
 
 A **high** score means the code on disk is, line for line, what the model
 returned. Confidence drops when:
@@ -189,6 +236,12 @@ Treat a low score as *"attribution is uncertain here"*, not *"the tool is
 wrong"*: run `re why <file>:<line>` or `re trace` to see the candidate events
 and decide for yourself. Attribution never blocks capture — every change is
 still recorded; only the *link* to a prompt is scored.
+
+**Known failure mode (near-simultaneous prompts):** the current `correlate()`
+picks the single best-matching exchange for the *whole file change*. When one
+file mixes contributions from multiple prompts, individual lines can be
+mis-attributed. A per-line or per-hunk join is on the roadmap. Until then,
+use `re hook claude-code` (deterministic, no heuristic) where available.
 
 ### Crovia Seals — a cryptographic receipt for every completion
 
@@ -324,7 +377,8 @@ the agent's cooperation. Causari does both:
 
 | You ask… | Causari answers… |
 |---|---|
-| **`re proxy` + `re watch`** | **Zero-integration capture.** Prompts, models, tokens and dollars joined to file changes by content correlation — no agent cooperation required. |
+| **`re hook claude-code`** | **Native, deterministic capture.** Wires into agent lifecycle hooks — exact prompt and tool attribution, no heuristic, zero false positives on human edits. The recommended primary path. |
+| **`re proxy` + `re watch`** | **Universal fallback.** Prompts, models, tokens and dollars joined to file changes by content correlation — works with any agent, no cooperation required. Heuristic-based; see [confidence score](#reading-the-confidence-score) for measured limits. |
 | `re why src/auth.ts:42` | The prompt, model, agent, tool, and reasoning that wrote that line. |
 | **`re trace src/auth.ts:42`** | **Upstream causal cone.** Every prior event that contributed, transitively, through the files it read or wrote. The intellectual ancestry of a piece of code. |
 | **`re impact <event>`** | **Downstream causal cone.** Every later event that depended, transitively, on what this one produced. The blast radius of an action. |
@@ -599,8 +653,12 @@ On first run, `re init` creates the `.causari/` ledger and adds it to your
 `.gitignore` automatically, so the prompts and reasoning it captures are never
 committed.
 
-Scripted demos live in `scripts/`:
+Scripted demos live in `scripts/` and `examples/`:
 
+- **`examples/real-session/`** — **adversarial test harness with real measured
+  numbers.** Exercises the causal join on clean, human-edited, formatter-reflowed,
+  and near-simultaneous scenarios; compares hook vs proxy paths. See
+  [`RESULTS.md`](examples/real-session/RESULTS.md) for the findings.
 - **`demo-capture.ps1`** — the capture engine end to end: mock LLM upstream,
   `re proxy`, `re watch`, content-based causal join (`mock-llm.py` included)
 - **`demo.sh`** / **`demo.ps1`** — full happy-path with `re why` and `re bisect`
