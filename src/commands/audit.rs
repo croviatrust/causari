@@ -8,7 +8,7 @@ use colored::Colorize;
 use std::io::Write;
 use std::path::Path;
 
-use crate::audit::{audit_repo, SurvivalReport, SurvivalStat};
+use crate::audit::{SurvivalReport, SurvivalStat, audit_repo};
 use crate::cli::AuditArgs;
 
 pub fn run(args: AuditArgs) -> Result<()> {
@@ -16,22 +16,25 @@ pub fn run(args: AuditArgs) -> Result<()> {
     let report = audit_repo(&cwd).context("audit failed")?;
 
     if args.json {
-        serde_json::to_writer_pretty(std::io::stdout(), &serde_json::json!({
-            "total_commits": report.total_commits,
-            "verified": {
-                "commits": report.verified.commits,
-                "introduced": report.verified.introduced,
-                "surviving": report.verified.surviving,
-                "survival_rate": report.verified.survival_rate(),
-            },
-            "probable": {
-                "commits": report.probable.commits,
-                "introduced": report.probable.introduced,
-                "surviving": report.probable.surviving,
-                "survival_rate": report.probable.survival_rate(),
-            },
-            "by_agent": report.by_agent,
-        }))?;
+        serde_json::to_writer_pretty(
+            std::io::stdout(),
+            &serde_json::json!({
+                "total_commits": report.total_commits,
+                "verified": {
+                    "commits": report.verified.commits,
+                    "introduced": report.verified.introduced,
+                    "surviving": report.verified.surviving,
+                    "survival_rate": report.verified.survival_rate(),
+                },
+                "probable": {
+                    "commits": report.probable.commits,
+                    "introduced": report.probable.introduced,
+                    "surviving": report.probable.surviving,
+                    "survival_rate": report.probable.survival_rate(),
+                },
+                "by_agent": report.by_agent,
+            }),
+        )?;
         println!();
         return Ok(());
     }
@@ -41,9 +44,12 @@ pub fn run(args: AuditArgs) -> Result<()> {
     if args.card {
         let svg = generate_svg_card(&report);
         let path = Path::new("causari-survival.svg");
-        std::fs::write(path, svg)
-            .with_context(|| format!("writing {}", path.display()))?;
-        println!("{} survival card written to {}", "✓".green().bold(), path.display());
+        std::fs::write(path, svg).with_context(|| format!("writing {}", path.display()))?;
+        println!(
+            "{} survival card written to {}",
+            "✓".green().bold(),
+            path.display()
+        );
     }
 
     if args.save {
@@ -75,7 +81,11 @@ pub fn run(args: AuditArgs) -> Result<()> {
             .with_context(|| format!("opening {}", path.display()))?;
         writeln!(file, "{}", serde_json::to_string(&snapshot)?)
             .with_context(|| format!("writing {}", path.display()))?;
-        println!("{} snapshot saved to {}", "✓".green().bold(), path.display());
+        println!(
+            "{} snapshot saved to {}",
+            "✓".green().bold(),
+            path.display()
+        );
     }
 
     Ok(())
@@ -83,7 +93,10 @@ pub fn run(args: AuditArgs) -> Result<()> {
 
 fn print_terminal(report: &SurvivalReport) {
     println!("{}", "Causari Survival Audit".bold());
-    println!("{}", "═══════════════════════════════════════════════════".bright_black());
+    println!(
+        "{}",
+        "═══════════════════════════════════════════════════".bright_black()
+    );
     println!(
         "  {} commits analyzed (git-only, no Causari setup required)",
         report.total_commits
@@ -142,7 +155,10 @@ fn generate_svg_card(report: &SurvivalReport) -> String {
     let verified = if v.commits == 0 {
         "No verified AI commits detected".to_string()
     } else {
-        format!("{:.1}% survival\n{} / {} lines", pct, v.surviving, v.introduced)
+        format!(
+            "{:.1}% survival\n{} / {} lines",
+            pct, v.surviving, v.introduced
+        )
     };
 
     format!(
@@ -155,7 +171,6 @@ fn generate_svg_card(report: &SurvivalReport) -> String {
   <text x="40" y="175" fill="#94a3b8" font-family="monospace" font-size="12">Probable AI commits: {}</text>
   <text x="40" y="205" fill="#64748b" font-family="monospace" font-size="10">Verified with Causari · causari.dev</text>
 </svg>"##,
-        v.commits,
-        report.probable.commits
+        v.commits, report.probable.commits
     )
 }

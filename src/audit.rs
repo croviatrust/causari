@@ -97,21 +97,30 @@ pub fn detect_ai(commit: &CommitMeta) -> Option<Detection> {
         return Some(Detection {
             agent: "aider".into(),
             confidence: 0.95,
-            evidence: vec![format!("author: {} <{}>", commit.author_name, commit.author_email)],
+            evidence: vec![format!(
+                "author: {} <{}>",
+                commit.author_name, commit.author_email
+            )],
         });
     }
     if email_lower == "noreply@anthropic.com" || author_lower == "claude" {
         return Some(Detection {
             agent: "claude-code".into(),
             confidence: 0.95,
-            evidence: vec![format!("author: {} <{}>", commit.author_name, commit.author_email)],
+            evidence: vec![format!(
+                "author: {} <{}>",
+                commit.author_name, commit.author_email
+            )],
         });
     }
     if author_lower.contains("devin-ai") || email_lower.contains("devin-ai-integration") {
         return Some(Detection {
             agent: "devin".into(),
             confidence: 0.95,
-            evidence: vec![format!("author: {} <{}>", commit.author_name, commit.author_email)],
+            evidence: vec![format!(
+                "author: {} <{}>",
+                commit.author_name, commit.author_email
+            )],
         });
     }
 
