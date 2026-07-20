@@ -79,6 +79,9 @@ pub enum Command {
     /// Measure how much AI-written code survived vs was rewritten (waste analysis)
     Churn(ChurnArgs),
 
+    /// Retroactive Group-0 audit: how much AI code survived in this git repo?
+    Audit(AuditArgs),
+
     /// Generate a shareable HTML dashboard of AI code-survival and waste
     Report(ReportArgs),
 
@@ -268,6 +271,21 @@ pub struct ReportArgs {
     /// Open the report in the default browser after writing it
     #[arg(long)]
     pub open: bool,
+}
+
+#[derive(Args, Debug)]
+pub struct AuditArgs {
+    /// Write a self-contained SVG survival card (causari-survival.svg)
+    #[arg(long)]
+    pub card: bool,
+
+    /// Emit machine-readable JSON to stdout instead of terminal tables
+    #[arg(long)]
+    pub json: bool,
+
+    /// Save this audit snapshot for trend comparison next time
+    #[arg(long)]
+    pub save: bool,
 }
 
 #[derive(Args, Debug)]

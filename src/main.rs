@@ -1,3 +1,4 @@
+mod audit;
 mod banner;
 mod capture;
 mod cli;
@@ -44,6 +45,7 @@ fn main() -> Result<()> {
         Command::Mcp(args) => commands::mcp::run(args),
         Command::Guard(args) => commands::guard::run(args),
         Command::Churn(args) => commands::churn::run(args),
+        Command::Audit(args) => commands::audit::run(args),
         Command::Report(args) => commands::report::run(args),
         Command::Proxy(args) => commands::proxy::run(args),
         Command::Seal(args) => commands::seal::run(args),

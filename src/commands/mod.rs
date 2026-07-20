@@ -1,3 +1,4 @@
+pub mod audit;
 pub mod bisect;
 pub mod churn;
 pub mod diff;
