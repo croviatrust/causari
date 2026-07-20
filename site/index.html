@@ -262,27 +262,47 @@
 
     <div class="problems">
       <article class="problem-card">
+        <div class="problem-num">re hook</div>
+        <h3>The runtime <span class="ba-label ba-label--success" style="font-size:0.7rem;vertical-align:middle;margin-left:0.4rem">primary</span></h3>
+        <p>Where the agent exposes lifecycle hooks (Claude Code today), capture is native and <strong>exact</strong>: <code>re hook claude-code</code> wires UserPromptSubmit and PostToolUse so every prompt and every edit is recorded at the source. <strong>Deterministic — no heuristic, no confidence score needed.</strong></p>
+      </article>
+
+      <article class="problem-card">
         <div class="problem-num">re proxy</div>
-        <h3>The wire</h3>
-        <p>A local, OpenAI- and Anthropic-compatible LLM proxy. Point your agent's <code>BASE_URL</code> at it and <strong>every prompt, completion, token and dollar</strong> flows through Causari on its way to the provider. Streaming passes through live.</p>
+        <h3>The wire <span class="ba-faint" style="font-size:0.7rem;vertical-align:middle;margin-left:0.4rem">universal fallback</span></h3>
+        <p>A local, OpenAI- and Anthropic-compatible LLM proxy. Point any agent's <code>BASE_URL</code> at it and <strong>every prompt, completion, token and dollar</strong> flows through Causari on its way to the provider. Streaming passes through live.</p>
       </article>
 
       <article class="problem-card">
         <div class="problem-num">re watch</div>
-        <h3>The disk</h3>
-        <p>A passive filesystem recorder. Every change becomes a snapshot. Then the causal join: <strong>the lines inserted in your files are searched inside the completions captured moments before.</strong> A match is a causal fingerprint — with a confidence score.</p>
-      </article>
-
-      <article class="problem-card">
-        <div class="problem-num">re hook</div>
-        <h3>The runtime</h3>
-        <p>Where the agent exposes lifecycle hooks (Claude Code today), capture is native and exact: <code>re hook claude-code</code> wires UserPromptSubmit and PostToolUse so every prompt and every edit is recorded at the source. No inference needed.</p>
+        <h3>The disk <span class="ba-faint" style="font-size:0.7rem;vertical-align:middle;margin-left:0.4rem">universal fallback</span></h3>
+        <p>A passive filesystem recorder. Every change becomes a snapshot. Then the causal join: <strong>the lines inserted in your files are searched inside the completions captured moments before.</strong> A match is a causal fingerprint — with a confidence score. <a href="#confidence">See real measured numbers.</a></p>
       </article>
     </div>
 
     <div class="ba-grid" style="margin-top:2.5rem">
       <div class="ba-card ba-after" style="grid-column:1/-1">
-        <div class="ba-label ba-label--success">A real session — nothing self-reported</div>
+        <div class="ba-label ba-label--success">Hook path — deterministic, exact</div>
+        <div class="ba-term">
+          <div class="ba-prompt">$ re hook claude-code</div>
+          <div class="ba-output">
+            <span class="ba-key">causari:</span> Claude Code hooks installed in <span class="ba-val">.claude/settings.json</span><br/>
+            <span class="ba-key">UserPromptSubmit</span> → captures every prompt<br/>
+            <span class="ba-key">PostToolUse</span> → records every edit
+          </div>
+          <div class="ba-prompt">$ re why service.py:2</div>
+          <div class="ba-output">
+            <span class="ba-key">introduced by</span> <span class="ba-id">2d070eb8cf</span><br/>
+            <span class="ba-key">agent:</span> <span class="ba-val">claude-code</span><br/>
+            <span class="ba-key">tool:</span> <span class="ba-val">Write</span><br/>
+            <span class="ba-key">prompt:</span> <span class="ba-q">"Add a health-check endpoint returning build sha and uptime"</span><br/>
+            <span class="ba-time">→ exact attribution — no heuristic, no confidence score</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ba-card ba-after" style="grid-column:1/-1">
+        <div class="ba-label ba-label--success">Proxy + watch — universal fallback</div>
         <div class="ba-term">
           <div class="ba-prompt">$ re proxy</div>
           <div class="ba-output">
@@ -602,8 +622,8 @@ Review with: re show &lt;id&gt;  re diff &lt;id&gt;  re trace &lt;file&gt;</code
         <div class="feat-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         </div>
-        <h3>Zero-cooperation capture</h3>
-        <p><code>re proxy</code> sees every prompt and dollar at the wire. <code>re watch</code> sees every byte on disk. The content-based join attributes each file change to the real prompt, model and cost — <em>no agent integration required</em>.</p>
+        <h3>Two paths, one ledger</h3>
+        <p><strong>Primary:</strong> <code>re hook claude-code</code> gives exact, deterministic capture via agent lifecycle hooks — no heuristic needed. <strong>Universal fallback:</strong> <code>re proxy</code> sees every prompt and dollar at the wire, <code>re watch</code> sees every byte on disk. The content-based join attributes each file change to the real prompt, model and cost — <em>no agent integration required</em>.</p>
       </article>
 
       <article class="feature">
@@ -932,13 +952,18 @@ found: first bad event: <span class="t-id">17cbc28d</span>
         <div class="step-num">3</div>
         <div class="step-body">
           <h3>Capture everything</h3>
-          <p>Start the capture engine — the proxy sees the prompts, the watcher sees the disk, the join connects them:</p>
+          <p><strong>Primary:</strong> if you use Claude Code, native hooks give you exact, deterministic capture:</p>
           <div class="code-block">
             <button class="copy-btn" data-copy="qs3">Copy</button>
-<pre id="qs3"><code>re proxy          # terminal 1 — point OPENAI_BASE_URL / ANTHROPIC_BASE_URL at it
+<pre id="qs3"><code>re hook claude-code   # one command — wires UserPromptSubmit + PostToolUse</code></pre>
+          </div>
+          <p><strong>Universal fallback:</strong> for any other agent, the proxy + watch observe independently and join by content:</p>
+          <div class="code-block">
+            <button class="copy-btn" data-copy="qs3b">Copy</button>
+<pre id="qs3b"><code>re proxy          # terminal 1 — point OPENAI_BASE_URL / ANTHROPIC_BASE_URL at it
 re watch          # terminal 2 — file changes get attributed to real prompts</code></pre>
           </div>
-          <p class="muted">Now <strong>any</strong> tool that touches the workspace is recorded — with the prompt, model, tokens and cost that caused it. Using Claude Code? <code>re hook claude-code</code> gives you native capture too. MCP fans: <code>re mcp --install</code>.</p>
+          <p class="muted">Now <strong>any</strong> tool that touches the workspace is recorded — with the prompt, model, tokens and cost that caused it. MCP fans: <code>re mcp --install</code>.</p>
         </div>
       </li>
 
