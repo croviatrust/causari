@@ -48,6 +48,8 @@ a fact, not a self-report.
 You can then ask questions no version control system has ever answered:
 
 ```bash
+re audit                      # zero-setup: how much AI code SURVIVED in any
+                              #   git repo — retroactive, works instantly
 re hook  claude-code          # native capture via agent lifecycle hooks —
                               #   exact, deterministic, no heuristic needed
 re proxy                      # universal fallback: local LLM proxy captures
@@ -76,6 +78,40 @@ re revert <id>                # undo an action with causal preview of what else
 
 When an agent touches 30 files and something breaks, you don't need to read
 4 000 lines of chat. You ask Causari *why* and *when*.
+
+## `re audit` — try it on any repo, right now
+
+No setup, no ledger, no integration. `re audit` reads your existing **git
+history**, detects AI-authored commits from machine-readable metadata
+(`Co-Authored-By: Claude` trailers, bot author emails, aider markers), and
+measures how many of those lines are **still alive at HEAD** via `git blame`:
+
+```console
+$ re audit
+Causari Survival Audit
+═══════════════════════════════════════════════════
+  312 commits analyzed (git-only, no Causari setup required)
+
+Verified AI-authored: 41 commits, 6 210 introduced, 4 105 survived (66.1%)
+Probable AI-assisted: 12 commits, 890 introduced, 512 survived (57.5%)
+
+By agent (verified only)
+  claude-code            5 830 lines,  3 921 survived ( 67.3%)
+  github-copilot           380 lines,    184 survived ( 48.4%)
+```
+
+- `re audit --card` writes a shareable SVG survival card.
+- `re audit --json` emits machine-readable output.
+- `re audit --summary` emits Markdown — drop
+  [`.github/workflows/audit.yml`](.github/workflows/audit.yml) into any repo
+  and every PR gets a survival comment automatically.
+- `re audit --save` appends a snapshot so you can track the trend over time.
+
+Every number carries its evidence class: **VERIFIED** (explicit metadata)
+is never mixed with **PROBABLE** (heuristic), and unknown commits never
+enter the headline figures. This is the same "group 0" design rule as the
+rest of Causari: git + filesystem are enough; integrations only add
+precision.
 
 ## The Capture Engine — two paths, one ledger
 

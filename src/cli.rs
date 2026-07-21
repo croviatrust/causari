@@ -275,6 +275,10 @@ pub struct ReportArgs {
 
 #[derive(Args, Debug)]
 pub struct AuditArgs {
+    /// Emit a Markdown summary to stdout (for CI / PR comments)
+    #[arg(long)]
+    pub summary: bool,
+
     /// Write a self-contained SVG survival card (causari-survival.svg)
     #[arg(long)]
     pub card: bool,

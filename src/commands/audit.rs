@@ -39,7 +39,11 @@ pub fn run(args: AuditArgs) -> Result<()> {
         return Ok(());
     }
 
-    print_terminal(&report);
+    if args.summary {
+        print_summary(&report);
+    } else {
+        print_terminal(&report);
+    }
 
     if args.card {
         let svg = generate_svg_card(&report);
@@ -124,6 +128,69 @@ fn print_terminal(report: &SurvivalReport) {
     println!("  · VERIFIED = explicit metadata (trailers, bot author, etc.)");
     println!("  · PROBABLE = weak heuristic; may include human-assisted commits");
     println!("  · UNKNOWN commits are excluded from headline numbers");
+}
+
+fn print_summary(report: &SurvivalReport) {
+    let v = &report.verified;
+    let rate = v.survival_rate();
+    let status = if v.commits == 0 {
+        "ℹ️ no verified AI commits"
+    } else if rate.unwrap_or(0.0) >= 0.70 {
+        "🟢 healthy"
+    } else if rate.unwrap_or(0.0) >= 0.40 {
+        "🟡 moderate churn"
+    } else {
+        "🔴 high churn"
+    };
+
+    println!("## Causari Survival Audit — {}", status);
+    println!();
+    println!(
+        "{} commits analyzed (git-only, retroactive — no setup required).",
+        report.total_commits
+    );
+    println!();
+
+    if v.commits > 0 {
+        println!(
+            "**Verified AI survival: {:.1}%** ({} of {} lines still at HEAD, {} commits)",
+            rate.unwrap_or(0.0) * 100.0,
+            v.surviving,
+            v.introduced,
+            v.commits
+        );
+        println!();
+    }
+    if report.probable.commits > 0 {
+        println!(
+            "Probable AI-assisted: {} commits, {} introduced, {} survived ({:.1}%).",
+            report.probable.commits,
+            report.probable.introduced,
+            report.probable.surviving,
+            report.probable.survival_rate().unwrap_or(0.0) * 100.0
+        );
+        println!();
+    }
+
+    if !report.by_agent.is_empty() {
+        println!("| Agent | Introduced | Survived | Survival |");
+        println!("|---|---:|---:|---:|");
+        for (agent, stat) in &report.by_agent {
+            println!(
+                "| {} | {} | {} | {:.1}% |",
+                agent,
+                stat.introduced,
+                stat.surviving,
+                stat.survival_rate().unwrap_or(0.0) * 100.0
+            );
+        }
+        println!();
+    }
+
+    println!(
+        "<sub>VERIFIED = explicit commit metadata; PROBABLE = heuristic. \
+         Powered by [Causari](https://causari.dev) `re audit`</sub>"
+    );
 }
 
 fn print_class(label: &str, stat: &SurvivalStat) {
