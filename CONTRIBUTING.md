@@ -18,11 +18,19 @@ and we want to keep it that way — please read this first.
 ```bash
 git clone https://github.com/croviatrust/causari.git
 cd causari
+git config core.hooksPath .githooks   # enable the pre-push CI gate
 cargo build
 cargo test
 cargo clippy --all-targets -- -D warnings
 cargo fmt --all -- --check
 ```
+
+The `git config core.hooksPath .githooks` line wires up
+[`.githooks/pre-push`](.githooks/pre-push), which runs the **exact** commands
+CI's `lint` job runs (`cargo fmt --all -- --check`,
+`cargo clippy --all-targets -- -D warnings`, `cargo test`) and blocks the push
+if any fail. This catches lint failures locally instead of in CI. Emergency
+bypass: `git push --no-verify`.
 
 End-to-end demos:
 

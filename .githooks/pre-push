@@ -1,0 +1,16 @@
+#!/bin/sh
+# Causari pre-push gate — mirrors .github/workflows/ci.yml `lint` job exactly.
+# Blocks the push if formatting, clippy (all targets, warnings-as-errors),
+# or the test suite would fail in CI. Bypass in emergencies with `--no-verify`.
+set -e
+
+echo "[pre-push] cargo fmt --all -- --check"
+cargo fmt --all -- --check
+
+echo "[pre-push] cargo clippy --all-targets -- -D warnings"
+cargo clippy --all-targets -- -D warnings
+
+echo "[pre-push] cargo test"
+cargo test
+
+echo "[pre-push] all checks passed."
