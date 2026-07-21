@@ -1,0 +1,56 @@
+name: "Causari Survival Audit"
+description: >-
+  Zero-setup audit of AI code survival in any git repository. Detects
+  AI-authored commits from git metadata alone and measures how many of
+  their lines are still alive at HEAD. Posts a sticky comment on pull
+  requests and writes the result to the job summary.
+author: "Croviatrust"
+branding:
+  icon: "activity"
+  color: "green"
+
+inputs:
+  comment:
+    description: "Post the summary as a sticky PR comment (pull_request events only)"
+    required: false
+    default: "true"
+  version:
+    description: "Causari release tag to install (default: latest)"
+    required: false
+    default: "latest"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install re
+      shell: bash
+      run: |
+        set -e
+        VERSION="${{ inputs.version }}"
+        TARGET="x86_64-unknown-linux-gnu"
+        if [ "$VERSION" = "latest" ]; then
+          VERSION="$(curl -fsSL https://api.github.com/repos/croviatrust/causari/releases/latest \
+            | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -n1)"
+        fi
+        URL="https://github.com/croviatrust/causari/releases/download/$VERSION/re-$VERSION-$TARGET.tar.gz"
+        echo "Downloading $URL"
+        if [ -n "$VERSION" ] && curl -fsSL "$URL" -o /tmp/re.tar.gz; then
+          sudo tar -C /usr/local/bin -xzf /tmp/re.tar.gz
+        else
+          echo "Prebuilt binary unavailable; falling back to cargo install (slow)."
+          cargo install --git https://github.com/croviatrust/causari --locked
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+        fi
+
+    - name: Run survival audit
+      shell: bash
+      run: |
+        re audit --summary | tee causari-audit.md
+        cat causari-audit.md >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Comment on PR
+      if: inputs.comment == 'true' && github.event_name == 'pull_request'
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        header: causari-audit
+        path: causari-audit.md

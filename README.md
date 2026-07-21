@@ -614,26 +614,35 @@ silently builds a complete, queryable, causally-linked history of the session.
 
 ## CI / GitHub Action
 
-Add the Causari Guard action to any repo and every pull request gets a
-risk summary — zero cloud, zero configuration:
+One step in any repo and every pull request gets an AI code-survival
+comment — zero cloud, zero configuration, no Causari setup required:
 
 ```yaml
-# .github/workflows/guard.yml
-name: Causari Guard
+# .github/workflows/causari.yml
+name: Causari Audit
 on:
   pull_request:
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
-  guard:
+  audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: croviatrust/causari-guard-action@v1
+        with:
+          fetch-depth: 0        # full history: audit reads every commit
+      - uses: croviatrust/causari@main
 ```
 
-It installs `re`, runs `re guard --summary`, and posts a Markdown table
-of alerts directly into the PR thread. Block merges on risky patterns
-(bulk edits, auth without tests, missing tests, etc.).
+It downloads the prebuilt `re` binary (seconds, no Rust toolchain), runs
+`re audit --summary`, writes the result to the job summary, and posts a
+sticky Markdown comment on the PR with verified survival numbers per agent.
+
+For risky-pattern alerts, add `re guard --summary` as an extra step —
+see [`.github/workflows/guard.yml`](.github/workflows/guard.yml).
 
 Keep the badge green on `main`:
 
