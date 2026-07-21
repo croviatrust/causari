@@ -537,9 +537,8 @@ mod tests {
 
         // AI introduced 5 lines, 3 survive; human lines never counted.
         let commits = vec![(ai.clone(), 5u64), (human.clone(), 100u64)];
-        let head_owners: Vec<String> = std::iter::repeat(ai.hash.clone())
-            .take(3)
-            .chain(std::iter::repeat(human.hash.clone()).take(50))
+        let head_owners: Vec<String> = std::iter::repeat_n(ai.hash.clone(), 3)
+            .chain(std::iter::repeat_n(human.hash.clone(), 50))
             .collect();
 
         let report = compute_survival(&commits, &detections, &head_owners);
@@ -563,9 +562,8 @@ mod tests {
         detections.insert(p.hash.clone(), detection("aider", 0.7));
 
         let commits = vec![(v.clone(), 10u64), (p.clone(), 10u64)];
-        let owners: Vec<String> = std::iter::repeat(v.hash.clone())
-            .take(4)
-            .chain(std::iter::repeat(p.hash.clone()).take(9))
+        let owners: Vec<String> = std::iter::repeat_n(v.hash.clone(), 4)
+            .chain(std::iter::repeat_n(p.hash.clone(), 9))
             .collect();
 
         let report = compute_survival(&commits, &detections, &owners);
@@ -582,7 +580,7 @@ mod tests {
         let mut detections = HashMap::new();
         detections.insert(c.hash.clone(), detection("claude-code", 1.0));
         let commits = vec![(c.clone(), 2u64)];
-        let owners: Vec<String> = std::iter::repeat(c.hash.clone()).take(7).collect();
+        let owners: Vec<String> = std::iter::repeat_n(c.hash.clone(), 7).collect();
 
         let report = compute_survival(&commits, &detections, &owners);
         assert_eq!(report.verified.surviving, 2);
