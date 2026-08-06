@@ -3,17 +3,83 @@
 /// Works on any git repository without a Causari ledger. Reads git history,
 /// classifies AI-authored commits by metadata, then counts how many of those
 /// lines survived to HEAD.
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, bail};
 use colored::Colorize;
 use std::io::Write;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use std::process::Command;
 
 use crate::audit::{SurvivalReport, SurvivalStat, audit_repo};
 use crate::cli::AuditArgs;
 
+/// Best-effort temp-clone guard: removes the checkout when the audit is done.
+struct TempClone(PathBuf);
+
+impl Drop for TempClone {
+    fn drop(&mut self) {
+        // Git object files are read-only on Windows; clear attributes first.
+        let _ = clear_readonly(&self.0);
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+
+fn clear_readonly(dir: &Path) -> std::io::Result<()> {
+    for entry in std::fs::read_dir(dir)? {
+        let entry = entry?;
+        let path = entry.path();
+        let mut perms = entry.metadata()?.permissions();
+        if perms.readonly() {
+            #[allow(clippy::permissions_set_readonly_false)]
+            perms.set_readonly(false);
+            std::fs::set_permissions(&path, perms)?;
+        }
+        if path.is_dir() {
+            clear_readonly(&path)?;
+        }
+    }
+    Ok(())
+}
+
+/// Resolve the audit target: local path (default `.`), git URL, or GitHub
+/// `owner/repo` shorthand. Remote targets are cloned into a temp directory
+/// that is removed when the audit finishes.
+fn resolve_target(target: Option<&str>) -> Result<(PathBuf, Option<TempClone>)> {
+    let Some(raw) = target else {
+        let cwd = std::env::current_dir().context("cannot determine current directory")?;
+        return Ok((cwd, None));
+    };
+
+    let as_path = Path::new(raw);
+    if as_path.exists() {
+        return Ok((as_path.to_path_buf(), None));
+    }
+
+    let url =
+        if raw.starts_with("http://") || raw.starts_with("https://") || raw.starts_with("git@") {
+            raw.to_string()
+        } else if raw.split('/').count() == 2 && !raw.contains(char::is_whitespace) {
+            // GitHub shorthand: owner/repo
+            format!("https://github.com/{raw}")
+        } else {
+            bail!("'{raw}' is neither an existing path, a git URL, nor an owner/repo shorthand");
+        };
+
+    let dest = std::env::temp_dir().join(format!("causari-audit-{}", std::process::id()));
+    eprintln!("cloning {url} ...");
+    let status = Command::new("git")
+        .args(["clone", "--quiet", "--single-branch", &url])
+        .arg(&dest)
+        .status()
+        .context("failed to run git clone")?;
+    if !status.success() {
+        bail!("git clone failed for {url}");
+    }
+    Ok((dest.clone(), Some(TempClone(dest))))
+}
+
 pub fn run(args: AuditArgs) -> Result<()> {
-    let cwd = std::env::current_dir().context("cannot determine current directory")?;
-    let report = audit_repo(&cwd).context("audit failed")?;
+    let (dir, _tmp) = resolve_target(args.target.as_deref())?;
+    let report = audit_repo(&dir).context("audit failed")?;
 
     if args.json {
         serde_json::to_writer_pretty(
@@ -43,6 +109,18 @@ pub fn run(args: AuditArgs) -> Result<()> {
         print_summary(&report);
     } else {
         print_terminal(&report);
+    }
+
+    if args.badge {
+        let svg = generate_badge(&report);
+        let path = Path::new("causari-badge.svg");
+        std::fs::write(path, svg).with_context(|| format!("writing {}", path.display()))?;
+        println!(
+            "{} badge written to {} — embed it in your README:",
+            "✓".green().bold(),
+            path.display()
+        );
+        println!("    ![AI survival](./causari-badge.svg)");
     }
 
     if args.card {
@@ -207,6 +285,38 @@ fn print_class(label: &str, stat: &SurvivalStat) {
         stat.surviving,
         pct
     );
+}
+
+/// Shields-style flat badge: `AI survival | NN.N%`.
+fn generate_badge(report: &SurvivalReport) -> String {
+    let v = &report.verified;
+    let (value, color) = match v.survival_rate() {
+        None => ("n/a".to_string(), "#9f9f9f"),
+        Some(r) if r >= 0.70 => (format!("{:.1}%", r * 100.0), "#4c1"),
+        Some(r) if r >= 0.40 => (format!("{:.1}%", r * 100.0), "#dfb317"),
+        Some(r) => (format!("{:.1}%", r * 100.0), "#e05d44"),
+    };
+    let label = "AI survival";
+    let label_w: u32 = 76;
+    let value_w: u32 = 12 + value.len() as u32 * 8;
+    let total_w = label_w + value_w;
+    format!(
+        r##"<svg xmlns="http://www.w3.org/2000/svg" width="{total_w}" height="20" role="img" aria-label="{label}: {value}">
+  <linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>
+  <clipPath id="r"><rect width="{total_w}" height="20" rx="3" fill="#fff"/></clipPath>
+  <g clip-path="url(#r)">
+    <rect width="{label_w}" height="20" fill="#555"/>
+    <rect x="{label_w}" width="{value_w}" height="20" fill="{color}"/>
+    <rect width="{total_w}" height="20" fill="url(#s)"/>
+  </g>
+  <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11">
+    <text x="{lx}" y="14">{label}</text>
+    <text x="{vx}" y="14">{value}</text>
+  </g>
+</svg>"##,
+        lx = label_w / 2 + 1,
+        vx = label_w + value_w / 2,
+    )
 }
 
 fn generate_svg_card(report: &SurvivalReport) -> String {

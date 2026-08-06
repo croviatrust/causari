@@ -100,6 +100,11 @@ By agent (verified only)
   github-copilot           380 lines,    184 survived ( 48.4%)
 ```
 
+- `re audit vercel/next.js` audits **any public repo** without touching it —
+  GitHub `owner/repo` shorthand or any git URL, cloned to a temp dir and
+  cleaned up afterwards. Audit the repos everyone argues about.
+- `re audit --badge` writes a shields-style `causari-badge.svg`
+  (`AI survival: 67.3%`) to embed in your README.
 - `re audit --card` writes a shareable SVG survival card.
 - `re audit --json` emits machine-readable output.
 - `re audit --summary` emits Markdown — drop

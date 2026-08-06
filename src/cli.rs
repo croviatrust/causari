@@ -275,9 +275,17 @@ pub struct ReportArgs {
 
 #[derive(Args, Debug)]
 pub struct AuditArgs {
+    /// What to audit: a local path, a git URL, or a GitHub `owner/repo`
+    /// shorthand (cloned to a temp dir). Defaults to the current directory.
+    pub target: Option<String>,
+
     /// Emit a Markdown summary to stdout (for CI / PR comments)
     #[arg(long)]
     pub summary: bool,
+
+    /// Write a shields-style SVG badge (causari-badge.svg) for your README
+    #[arg(long)]
+    pub badge: bool,
 
     /// Write a self-contained SVG survival card (causari-survival.svg)
     #[arg(long)]
