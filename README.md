@@ -71,6 +71,9 @@ re skill  distill             # turn verified events into signed, reusable skill
 re skill  export <id>         # portable Ed25519 bundle for teammates
 re skill  pull <team-dir>     # sync a shared folder (Dropbox, git, NFS — no server)
 re skill  trust add <label>   # trust an org signing key; unknown signers rejected
+re brief  "auth migration"    # portable Markdown briefing of verified experience —
+                              #   inject into ANY model's context (CLAUDE.md,
+                              #   AGENTS.md, .cursorrules); lessons survive models
 re fork   experiment-claude   # branch into a parallel timeline
 re revert <id>                # undo an action with causal preview of what else
                               #   you are implicitly undoing

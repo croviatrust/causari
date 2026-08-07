@@ -67,6 +67,10 @@ pub enum Command {
     /// Distill, inspect and verify signed skills (the experience layer)
     Skill(SkillArgs),
 
+    /// Emit a portable Markdown briefing of verified experience for a task —
+    /// paste it into any model's context (CLAUDE.md, AGENTS.md, .cursorrules)
+    Brief(BriefArgs),
+
     /// Generate or verify a signed AI-provenance proof (trustless, offline)
     Proof(ProofArgs),
 
@@ -271,6 +275,17 @@ pub struct ReportArgs {
     /// Open the report in the default browser after writing it
     #[arg(long)]
     pub open: bool,
+}
+
+#[derive(Args, Debug)]
+pub struct BriefArgs {
+    /// Free-text task description matched against recorded experience.
+    /// Empty = brief the most trusted experience in this repository.
+    pub query: Vec<String>,
+
+    /// Maximum entries per section
+    #[arg(short = 'n', long, default_value_t = 5)]
+    pub limit: usize,
 }
 
 #[derive(Args, Debug)]
