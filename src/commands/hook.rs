@@ -35,7 +35,10 @@ pub fn run(args: HookArgs) -> Result<()> {
 
 const PROMPT_HOOK_CMD: &str = "re hook-event user-prompt";
 const TOOL_HOOK_CMD: &str = "re hook-event post-tool";
+const SESSION_HOOK_CMD: &str = "re hook-event session-start";
 const TOOL_MATCHER: &str = "Edit|Write|MultiEdit|NotebookEdit";
+/// Max entries per section injected at session start — keep the context lean.
+const SESSION_BRIEF_LIMIT: usize = 3;
 
 fn install_claude_code() -> Result<()> {
     let repo = Repo::discover()?;
@@ -58,6 +61,7 @@ fn install_claude_code() -> Result<()> {
 
     ensure_hook(hooks, "UserPromptSubmit", None, PROMPT_HOOK_CMD)?;
     ensure_hook(hooks, "PostToolUse", Some(TOOL_MATCHER), TOOL_HOOK_CMD)?;
+    ensure_hook(hooks, "SessionStart", None, SESSION_HOOK_CMD)?;
 
     std::fs::write(&path, serde_json::to_string_pretty(&root)?)?;
 
@@ -71,6 +75,7 @@ fn install_claude_code() -> Result<()> {
         "  PostToolUse ({}) → records every edit as a Causari event",
         TOOL_MATCHER
     );
+    println!("  SessionStart → injects verified experience into every new session");
     println!();
     println!(
         "  {} restart Claude Code (or run /hooks) to load them.",
@@ -149,6 +154,20 @@ fn run_event_inner(kind: &str) -> Result<()> {
             )
         }
         "post-tool" => record_tool_event(&repo, &v, session_id.as_deref()),
+        // SessionStart: whatever we print on stdout is added to the agent's
+        // context. Inject the trust-ranked experience briefing so every new
+        // session — regardless of which model is behind it — starts with the
+        // lessons this repository has already paid for. Silent when there is
+        // no experience yet: zero noise on fresh repos. Never bumps recall
+        // counters (trust is earned by explicit use, not by injection).
+        "session-start" => {
+            if let Some(md) =
+                crate::commands::brief::render(&repo, &[], SESSION_BRIEF_LIMIT, false)?
+            {
+                print!("{md}");
+            }
+            Ok(())
+        }
         other => Err(anyhow!("unknown hook-event kind '{}'", other)),
     }
 }

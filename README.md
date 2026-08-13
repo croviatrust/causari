@@ -36,9 +36,10 @@ answered**, the **files it read**, and the **reasoning behind the change**.
 
 **Two capture paths, one ledger.** Where the agent runtime exposes lifecycle
 hooks (Claude Code), Causari plugs in natively: `re hook claude-code` wires
-`UserPromptSubmit` and `PostToolUse` into `.claude/settings.json`, and every
-prompt and edit is recorded **exactly** — deterministic, no heuristic, no
-confidence score needed. Where hooks don't exist (Cursor, Windsurf, Cline,
+`UserPromptSubmit`, `PostToolUse` and `SessionStart` into
+`.claude/settings.json`: every prompt and edit is recorded **exactly** —
+deterministic, no heuristic, no confidence score needed — and every new
+session starts pre-briefed with the verified experience of previous ones. Where hooks don't exist (Cursor, Windsurf, Cline,
 Aider, custom scripts), the universal fallback (`re proxy` + `re watch`)
 observes LLM traffic and the filesystem independently, then joins them by
 *content* — the code that appears in your files is found inside the
@@ -141,8 +142,10 @@ $ re hook claude-code
 causari: Claude Code hooks installed in .claude/settings.json
   UserPromptSubmit → captures every prompt
   PostToolUse (Edit|Write|MultiEdit|NotebookEdit) → records every edit
+  SessionStart → injects verified experience into every new session
 
-# The agent works normally. Every prompt and edit is recorded.
+# The agent works normally. Every prompt and edit is recorded, and each
+# new session opens already knowing what earlier sessions proved to work.
 $ re why service.py:2
 service.py:2
       return {"sha": BUILD_SHA, "uptime": uptime_seconds()}

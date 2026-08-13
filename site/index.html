@@ -50,7 +50,7 @@
     "description": "Intent-addressable code for AI agents. Causari records every action an agent takes on your codebase as an immutable, queryable causal event.",
     "url": "https://causari.dev",
     "downloadUrl": "https://github.com/croviatrust/causari",
-    "softwareVersion": "0.1.0",
+    "softwareVersion": "0.1.1",
     "license": "https://github.com/croviatrust/causari/blob/main/LICENSE",
     "publisher": { "@type": "Organization", "name": "Croviatrust" }
   }
@@ -69,6 +69,7 @@
     </a>
 
     <nav class="nav-links" aria-label="Primary">
+      <a href="#audit">Audit</a>
       <a href="#capture">Capture</a>
       <a href="#skills">Skills</a>
       <a href="#proof">Proof</a>
@@ -102,7 +103,7 @@
 
     <div class="hero-tag">
       <span class="dot"></span>
-      <span>v0.1.0 — initial public release</span>
+      <span>v0.1.1 — prebuilt binaries for Linux · macOS · Windows</span>
     </div>
 
     <h1 class="hero-title">
@@ -202,6 +203,63 @@
       <kbd>R</kbd> to replay
     </p>
 
+  </div>
+</section>
+
+<!-- ============================================================== AUDIT -->
+<section id="audit" class="section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Zero setup — try it right now</p>
+      <h2>Audit any repository in 10 seconds.</h2>
+      <p class="lede">No ledger, no integration, no account. <code>re audit</code> reads plain
+      git history, detects AI-authored commits from verifiable metadata
+      (<code>Co-Authored-By</code> trailers, bot authors, aider markers) and measures how many
+      of those lines are <strong>still alive at HEAD</strong>.</p>
+    </div>
+
+    <ol class="steps">
+      <li class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Your repo</h3>
+          <div class="code-block">
+            <button class="copy-btn" data-copy="aud1">Copy</button>
+<pre id="aud1"><code>re audit                  # survival numbers, per agent
+re audit --badge          # shields-style SVG for your README
+re audit --card           # shareable survival card</code></pre>
+          </div>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Anyone's repo</h3>
+          <p>Audit the repos everyone argues about — cloned to a temp dir, cleaned up after:</p>
+          <div class="code-block">
+            <button class="copy-btn" data-copy="aud2">Copy</button>
+<pre id="aud2"><code>re audit vercel/next.js   # GitHub shorthand — or any git URL</code></pre>
+          </div>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Every PR, automatically</h3>
+          <p>One step in any workflow — prebuilt binary, sticky survival comment on every pull request:</p>
+          <div class="code-block">
+            <button class="copy-btn" data-copy="aud3">Copy</button>
+<pre id="aud3"><code>- uses: actions/checkout@v4
+  with: { fetch-depth: 0 }
+- uses: croviatrust/causari@main</code></pre>
+          </div>
+          <p class="muted">Every number carries its evidence class: <strong>VERIFIED</strong>
+          (explicit metadata) is never mixed with <strong>PROBABLE</strong> (heuristic).</p>
+        </div>
+      </li>
+    </ol>
   </div>
 </section>
 
@@ -676,6 +734,17 @@ Review with: re show &lt;id&gt;  re diff &lt;id&gt;  re trace &lt;file&gt;</code
 
       <article class="feature">
         <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 1 5 5v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1V7a5 5 0 0 1 5-5z" transform="scale(0.9) translate(1.3 1.3)"/><path d="M12 14v3"/></svg>
+        </div>
+        <h3>Experience survives the model</h3>
+        <p><code>re brief</code> emits a trust-ranked Markdown briefing of Ed25519-verified
+        experience — inject it into <em>any</em> model's context. With hooks installed, every
+        new Claude Code session starts pre-briefed automatically. A lesson learned with one
+        model is never re-paid with the next: <strong>models change, your agent remembers</strong>.</p>
+      </article>
+
+      <article class="feature">
+        <div class="feat-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h6M7 16h10"/></svg>
         </div>
         <h3>Local-first, no cloud</h3>
@@ -716,6 +785,8 @@ Review with: re show &lt;id&gt;  re diff &lt;id&gt;  re trace &lt;file&gt;</code
           <tr><td>Per-line provenance lens</td><td class="part">blame</td><td class="n">✗</td><td class="n">✗</td><td class="us y">✓</td></tr>
           <tr><td>Bisect on any predicate</td><td class="y">✓</td><td class="n">✗</td><td class="n">✗</td><td class="us y">✓</td></tr>
           <tr><td>MCP server (universal agents)</td><td class="n">✗</td><td class="n">✗</td><td class="n">✗</td><td class="us y">✓</td></tr>
+          <tr><td>Experience survives model switches</td><td class="n">✗</td><td class="n">✗</td><td class="n">✗</td><td class="us y">✓</td></tr>
+          <tr><td>Retroactive audit of any git repo</td><td class="n">✗</td><td class="n">✗</td><td class="n">✗</td><td class="us y">✓</td></tr>
           <tr><td>Local-first, no cloud</td><td class="y">✓</td><td class="n">✗</td><td class="part">depends</td><td class="us y">✓</td></tr>
           <tr><td>Open source</td><td class="y">✓</td><td class="part">SDK only</td><td class="part">depends</td><td class="us y">BSL 1.1</td></tr>
         </tbody>
@@ -955,7 +1026,7 @@ found: first bad event: <span class="t-id">17cbc28d</span>
           <p><strong>Primary:</strong> if you use Claude Code, native hooks give you exact, deterministic capture:</p>
           <div class="code-block">
             <button class="copy-btn" data-copy="qs3">Copy</button>
-<pre id="qs3"><code>re hook claude-code   # one command — wires UserPromptSubmit + PostToolUse</code></pre>
+<pre id="qs3"><code>re hook claude-code   # wires UserPromptSubmit + PostToolUse + SessionStart</code></pre>
           </div>
           <p><strong>Universal fallback:</strong> for any other agent, the proxy + watch observe independently and join by content:</p>
           <div class="code-block">
@@ -976,9 +1047,10 @@ re watch          # terminal 2 — file changes get attributed to real prompts</
             <button class="copy-btn" data-copy="qs4">Copy</button>
 <pre id="qs4"><code>re skill distill          # events → signed skills (idempotent)
 re skill verify           # Ed25519 check the whole library
+re brief "auth migration" # portable briefing — paste into ANY model's context
 re find "jwt refresh"     # skills first, then raw events</code></pre>
           </div>
-          <p class="muted">Agents recall skills automatically via MCP (<code>causari_recall</code>) — proven experience ranks above raw history. The same mistake is never paid twice.</p>
+          <p class="muted">Agents recall skills automatically via MCP (<code>causari_recall</code>), and with hooks installed every new Claude Code session starts <em>pre-briefed</em> with verified experience — proven experience ranks above raw history. The same mistake is never paid twice, not even by a different model.</p>
         </div>
       </li>
 

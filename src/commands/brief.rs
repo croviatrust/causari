@@ -13,14 +13,42 @@ use crate::skill::{self, SkillEnvelope, Trust};
 
 pub fn run(args: BriefArgs) -> Result<()> {
     let repo = Repo::discover()?;
-    let skills = skill::load_skills(&repo)?;
-
     let terms: Vec<String> = args
         .query
         .iter()
         .map(|t| t.to_lowercase())
         .filter(|t| !t.is_empty())
         .collect();
+
+    match render(&repo, &terms, args.limit, true)? {
+        Some(md) => print!("{md}"),
+        None => {
+            println!("# Causari briefing");
+            println!();
+            if terms.is_empty() {
+                println!("No signed experience recorded in this repository yet.");
+                println!("Run `re skill distill` after working with an agent.");
+            } else {
+                println!(
+                    "No recorded experience matches {:?}. Proceed without priors.",
+                    args.query.join(" ")
+                );
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Render the trust-ranked experience briefing as Markdown.
+///
+/// Returns `Ok(None)` when nothing matches — callers that inject context
+/// automatically (e.g. the SessionStart hook) must stay silent in that case.
+/// `bump` controls whether briefed skills earn a recall (★ proven ladder);
+/// automatic injection passes `false` so trust is only earned by explicit use.
+pub fn render(repo: &Repo, terms: &[String], limit: usize, bump: bool) -> Result<Option<String>> {
+    use std::fmt::Write as _;
+
+    let skills = skill::load_skills(repo)?;
 
     // Signature-verified envelopes only: a briefing must never carry
     // experience that could have been edited after signing.
@@ -32,7 +60,7 @@ pub fn run(args: BriefArgs) -> Result<()> {
                 // No query: rank purely by trust and proven usage.
                 1
             } else {
-                skill::score_skill(&env, &terms)
+                skill::score_skill(&env, terms)
             };
             (score, id, env)
         })
@@ -44,59 +72,46 @@ pub fn run(args: BriefArgs) -> Result<()> {
     });
 
     if hits.is_empty() {
-        println!("# Causari briefing");
-        println!();
-        if terms.is_empty() {
-            println!("No signed experience recorded in this repository yet.");
-            println!("Run `re skill distill` after working with an agent.");
-        } else {
-            println!(
-                "No recorded experience matches {:?}. Proceed without priors.",
-                args.query.join(" ")
-            );
-        }
-        return Ok(());
+        return Ok(None);
     }
 
     let (trusted, unverified): (Vec<_>, Vec<_>) = hits
         .into_iter()
         .partition(|(_, _, env)| env.trust() != Trust::Recorded);
 
-    println!("# Causari briefing — experience from this repository");
-    println!();
+    let mut out = String::new();
+    out.push_str("# Causari briefing — experience from this repository\n\n");
     if !terms.is_empty() {
-        println!("Task: {}", args.query.join(" "));
-        println!();
+        let _ = writeln!(out, "Task: {}\n", terms.join(" "));
     }
-    println!(
+    out.push_str(
         "_Signed and verified by Causari. This experience was accumulated \
          across previous sessions and models; treat VERIFIED entries as \
-         reliable priors and UNVERIFIED entries as risk signals._"
+         reliable priors and UNVERIFIED entries as risk signals._\n",
     );
 
     if !trusted.is_empty() {
-        println!();
-        println!("## Verified experience (worked before)");
-        for (_, id, env) in trusted.iter().take(args.limit) {
-            print_entry(id, env);
-            let _ = skill::record_use(&repo, id);
+        out.push_str("\n## Verified experience (worked before)\n");
+        for (_, id, env) in trusted.iter().take(limit) {
+            push_entry(&mut out, id, env);
+            if bump {
+                let _ = skill::record_use(repo, id);
+            }
         }
     }
 
     if !unverified.is_empty() {
-        println!();
-        println!("## Unverified attempts (no success signal — treat as risk)");
-        for (_, id, env) in unverified.iter().take(args.limit) {
-            print_entry(id, env);
+        out.push_str("\n## Unverified attempts (no success signal — treat as risk)\n");
+        for (_, id, env) in unverified.iter().take(limit) {
+            push_entry(&mut out, id, env);
         }
     }
 
-    println!();
-    println!(
-        "_Before repeating an unverified approach, check why it left no \
-         success signal: `re why <file>` or `re skill show <id>`._"
+    out.push_str(
+        "\n_Before repeating an unverified approach, check why it left no \
+         success signal: `re why <file>` or `re skill show <id>`._\n",
     );
-    Ok(())
+    Ok(Some(out))
 }
 
 /// Higher = more trusted, for descending sort.
@@ -108,16 +123,18 @@ fn trust_rank(t: Trust) -> u8 {
     }
 }
 
-fn print_entry(id: &str, env: &SkillEnvelope) {
+fn push_entry(out: &mut String, id: &str, env: &SkillEnvelope) {
+    use std::fmt::Write as _;
+
     let trust = env.trust();
-    println!();
-    println!(
-        "### {} {} — {}",
+    let _ = writeln!(
+        out,
+        "\n### {} {} — {}",
         trust.badge(),
         trust.as_str(),
         env.skill.title
     );
-    println!("- skill: `{}`", &id[..10.min(id.len())]);
+    let _ = writeln!(out, "- skill: `{}`", &id[..10.min(id.len())]);
     if let Some(agent) = &env.skill.agent {
         let model = env
             .skill
@@ -125,18 +142,19 @@ fn print_entry(id: &str, env: &SkillEnvelope) {
             .as_deref()
             .map(|m| format!(" ({m})"))
             .unwrap_or_default();
-        println!("- learned with: {agent}{model}");
+        let _ = writeln!(out, "- learned with: {agent}{model}");
     }
     if !env.skill.files.is_empty() {
-        println!("- files: {}", env.skill.files.join(", "));
+        let _ = writeln!(out, "- files: {}", env.skill.files.join(", "));
     }
-    println!(
+    let _ = writeln!(
+        out,
         "- evidence: exit_zero={} survived={} uses={}",
         env.skill.verification.exit_zero, env.skill.verification.survived, env.stats.uses
     );
     let trigger = env.skill.trigger.trim();
     if !trigger.is_empty() {
-        println!("- task it solved: {}", first_lines(trigger, 2));
+        let _ = writeln!(out, "- task it solved: {}", first_lines(trigger, 2));
     }
 }
 
