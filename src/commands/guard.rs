@@ -6,6 +6,7 @@ use std::process::Command;
 use crate::cli::GuardArgs;
 use crate::config::GuardConfig;
 use crate::repo::Repo;
+use crate::skill;
 use crate::store::Store;
 
 struct AlertItem {
@@ -28,8 +29,25 @@ struct ChangeSet {
     id: String,
     agent: Option<String>,
     message: Option<String>,
+    prompt: Option<String>,
     writes: Vec<String>,
 }
+
+/// A negative constraint distilled from experience: an approach that already
+/// failed in this repository (skill with `verification.failed`). The guard
+/// flags recent changes that look like a repeat — same files, or a prompt
+/// that substantially overlaps the one that failed.
+struct FailureConstraint {
+    skill_id: String,
+    title: String,
+    files: HashSet<String>,
+    terms: HashSet<String>,
+    source_events: HashSet<String>,
+}
+
+/// Minimum significant prompt terms a change must share with a failed
+/// skill's trigger before it counts as "repeating the approach".
+const FAILURE_TERM_OVERLAP: usize = 3;
 
 /// Source of the change history that was scanned.
 enum Source {
@@ -47,21 +65,22 @@ pub fn run(args: GuardArgs) -> Result<()> {
 
     // Prefer the Causari event ledger; fall back to git history so the
     // watchdog works on any repository (e.g. inside CI on a fresh checkout).
-    let (changes, cfg, source) = match Repo::discover() {
+    let (changes, cfg, failures, source) = match Repo::discover() {
         Ok(repo) => {
             let store = Store::new(&repo);
             let cfg = GuardConfig::load(&repo.root)?;
             let changes = collect_from_causari(&repo, &store, limit)?;
-            (changes, cfg, Source::Causari)
+            let failures = collect_failures(&repo);
+            (changes, cfg, failures, Source::Causari)
         }
         Err(_) => {
             let changes = collect_from_git(limit)
                 .context("no Causari ledger found and unable to read git history")?;
-            (changes, GuardConfig::default(), Source::Git)
+            (changes, GuardConfig::default(), Vec::new(), Source::Git)
         }
     };
 
-    let items = apply_rules(&changes, &cfg);
+    let items = apply_rules(&changes, &cfg, &failures);
 
     let alerts = items
         .iter()
@@ -168,6 +187,7 @@ fn collect_from_causari(repo: &Repo, store: &Store, limit: usize) -> Result<Vec<
             id: id.clone(),
             agent: ev.agent.clone(),
             message: ev.message.clone(),
+            prompt: ev.prompt.clone(),
             writes: ev.writes.clone(),
         });
         if chain.len() >= limit {
@@ -238,6 +258,7 @@ fn collect_from_git(limit: usize) -> Result<Vec<ChangeSet>> {
             } else {
                 Some(subject)
             },
+            prompt: None,
             writes,
         });
     }
@@ -247,8 +268,51 @@ fn collect_from_git(limit: usize) -> Result<Vec<ChangeSet>> {
     Ok(sets)
 }
 
+/// Load signature-valid failed skills as negative constraints.
+/// Errors are swallowed: a broken skill library must never break the guard.
+fn collect_failures(repo: &Repo) -> Vec<FailureConstraint> {
+    let Ok(skills) = skill::load_skills(repo) else {
+        return Vec::new();
+    };
+    skills
+        .into_iter()
+        .filter(|(_, env)| env.skill.verification.failed)
+        .filter(|(_, env)| skill::verify_envelope(env).is_ok())
+        .map(|(id, env)| FailureConstraint {
+            skill_id: id,
+            title: env.skill.title.clone(),
+            files: env
+                .skill
+                .files
+                .iter()
+                .map(|f| f.replace('\\', "/").to_lowercase())
+                .collect(),
+            terms: significant_terms(&env.skill.trigger),
+            source_events: env.skill.source_events.iter().cloned().collect(),
+        })
+        .collect()
+}
+
+/// Lowercased words of 4+ characters, minus common filler — the signal
+/// that survives paraphrasing when two prompts describe the same approach.
+fn significant_terms(text: &str) -> HashSet<String> {
+    const STOP: [&str; 12] = [
+        "with", "that", "this", "from", "into", "file", "files", "make", "please", "should",
+        "then", "when",
+    ];
+    text.to_lowercase()
+        .split(|c: char| !c.is_alphanumeric())
+        .filter(|w| w.len() >= 4 && !STOP.contains(w))
+        .map(String::from)
+        .collect()
+}
+
 /// Apply built-in and user-defined rules to a set of changes.
-fn apply_rules(changes: &[ChangeSet], cfg: &GuardConfig) -> Vec<AlertItem> {
+fn apply_rules(
+    changes: &[ChangeSet],
+    cfg: &GuardConfig,
+    failures: &[FailureConstraint],
+) -> Vec<AlertItem> {
     const CRITICAL_PATTERNS: [&str; 16] = [
         "auth",
         "login",
@@ -333,6 +397,50 @@ fn apply_rules(changes: &[ChangeSet], cfg: &GuardConfig) -> Vec<AlertItem> {
                 message: ch.message.clone(),
                 severity: Severity::Warning,
             });
+        }
+
+        // Rule 4: repeats a known failure — the change touches the same
+        // files, or its prompt substantially overlaps the prompt of an
+        // approach that already failed in this repository. The original
+        // failing events themselves are never re-flagged.
+        for fc in failures {
+            if fc.source_events.contains(&ch.id) {
+                continue;
+            }
+            let shared_files: Vec<&str> = writes
+                .iter()
+                .filter(|w| fc.files.contains(&w.replace('\\', "/").to_lowercase()))
+                .copied()
+                .collect();
+            let change_text = format!(
+                "{} {}",
+                ch.prompt.as_deref().unwrap_or(""),
+                ch.message.as_deref().unwrap_or("")
+            );
+            let overlap = significant_terms(&change_text)
+                .intersection(&fc.terms)
+                .count();
+            if !shared_files.is_empty() || overlap >= FAILURE_TERM_OVERLAP {
+                let why = if !shared_files.is_empty() {
+                    format!("same files: {}", shared_files.join(", "))
+                } else {
+                    format!("{} shared prompt terms", overlap)
+                };
+                items.push(AlertItem {
+                    id: ch.id.clone(),
+                    rule: "repeats known failure".into(),
+                    detail: format!(
+                        "resembles failed skill {} \"{}\" ({}) — see `re skill show {}`",
+                        short_id(&fc.skill_id),
+                        fc.title,
+                        why,
+                        short_id(&fc.skill_id)
+                    ),
+                    agent: ch.agent.clone(),
+                    message: ch.message.clone(),
+                    severity: Severity::Alert,
+                });
+            }
         }
 
         // User-defined rules from .causari/guard.toml
@@ -432,4 +540,97 @@ fn print_summary(items: &[AlertItem], alerts: usize, warnings: usize, source: &S
         "<sub>Scanned {} · Powered by [Causari](https://causari.dev)</sub>",
         scanned
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn change(id: &str, prompt: Option<&str>, writes: &[&str]) -> ChangeSet {
+        ChangeSet {
+            id: id.into(),
+            agent: Some("bot".into()),
+            message: None,
+            prompt: prompt.map(String::from),
+            writes: writes.iter().map(|s| s.to_string()).collect(),
+        }
+    }
+
+    fn failure(
+        skill_id: &str,
+        trigger: &str,
+        files: &[&str],
+        sources: &[&str],
+    ) -> FailureConstraint {
+        FailureConstraint {
+            skill_id: skill_id.into(),
+            title: trigger.into(),
+            files: files.iter().map(|s| s.to_lowercase()).collect(),
+            terms: significant_terms(trigger),
+            source_events: sources.iter().map(|s| s.to_string()).collect(),
+        }
+    }
+
+    fn failure_hits(changes: &[ChangeSet], failures: &[FailureConstraint]) -> Vec<String> {
+        apply_rules(changes, &GuardConfig::default(), failures)
+            .into_iter()
+            .filter(|i| i.rule == "repeats known failure")
+            .map(|i| i.id)
+            .collect()
+    }
+
+    #[test]
+    fn flags_same_files_as_failed_skill() {
+        let fc = failure(
+            "skf",
+            "upgrade webpack config",
+            &["webpack.config.js"],
+            &["e0"],
+        );
+        let ch = change(
+            "e1",
+            Some("tweak the build"),
+            &["webpack.config.js", "test.js"],
+        );
+        assert_eq!(failure_hits(&[ch], &[fc]), vec!["e1"]);
+    }
+
+    #[test]
+    fn flags_prompt_overlap_without_shared_files() {
+        let fc = failure(
+            "skf",
+            "upgrade to webpack 5 in one shot across the monorepo",
+            &[],
+            &["e0"],
+        );
+        let ch = change(
+            "e1",
+            Some("try the webpack 5 upgrade for the whole monorepo again"),
+            &["other.js"],
+        );
+        assert_eq!(failure_hits(&[ch], &[fc]), vec!["e1"]);
+    }
+
+    #[test]
+    fn never_reflags_the_original_failing_event() {
+        let fc = failure("skf", "upgrade webpack", &["webpack.config.js"], &["e0"]);
+        let ch = change("e0", Some("upgrade webpack"), &["webpack.config.js"]);
+        assert!(failure_hits(&[ch], &[fc]).is_empty());
+    }
+
+    #[test]
+    fn unrelated_change_is_clean() {
+        let fc = failure(
+            "skf",
+            "upgrade to webpack 5 in one shot",
+            &["webpack.config.js"],
+            &["e0"],
+        );
+        let ch = change(
+            "e1",
+            Some("add pagination to the users list"),
+            &["users.rs"],
+        );
+        assert!(failure_hits(&[ch], &[fc]).is_empty());
+    }
 }
