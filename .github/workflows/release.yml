@@ -73,7 +73,7 @@ jobs:
           path: dist/*
 
       - name: upload to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/*
 
@@ -95,6 +95,6 @@ jobs:
           cat SHA256SUMS.txt
 
       - name: upload to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/SHA256SUMS.txt
