@@ -645,7 +645,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0        # full history: audit reads every commit
-      - uses: croviatrust/causari@main
+      - uses: croviatrust/causari@v1
 ```
 
 It downloads the prebuilt `re` binary (seconds, no Rust toolchain), runs

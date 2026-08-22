@@ -50,6 +50,12 @@ pub struct Verification {
     /// Every file the skill touched still exists at the timeline tip —
     /// the work was not reverted or deleted.
     pub survived: bool,
+    /// Some source event finished with a non-zero exit code and none
+    /// succeeded — a recorded failure. Failures are experience too: they
+    /// become negative constraints ("do not repeat this approach").
+    /// Omitted when false so pre-existing skill ids stay stable.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub failed: bool,
 }
 
 /// The immutable, signed core of a skill.
@@ -609,6 +615,10 @@ pub fn distill(repo: &Repo, store: &Store) -> Result<DistillReport> {
         }
         let exit_zero = group.iter().any(|(_, ev)| ev.exit_code == Some(0));
         let survived = !files.is_empty() && files.iter().all(|f| tip_files.contains(f));
+        let failed = !exit_zero
+            && group
+                .iter()
+                .any(|(_, ev)| matches!(ev.exit_code, Some(c) if c != 0));
 
         let title: String = {
             let first = prompt.lines().next().unwrap_or("").trim();
@@ -631,6 +641,7 @@ pub fn distill(repo: &Repo, store: &Store) -> Result<DistillReport> {
             verification: Verification {
                 exit_zero,
                 survived,
+                failed,
             },
             created_at: group
                 .first()
@@ -716,6 +727,7 @@ mod tests {
             verification: Verification {
                 exit_zero: true,
                 survived: false,
+                failed: false,
             },
             created_at: "2026-01-01T00:00:00Z".into(),
         }
@@ -780,6 +792,7 @@ mod tests {
         unverified.verification = Verification {
             exit_zero: false,
             survived: false,
+            failed: false,
         };
         let env = sign_skill(unverified, &key).unwrap();
         assert_eq!(env.trust(), Trust::Recorded);
@@ -867,6 +880,72 @@ mod tests {
     }
 
     #[test]
+    fn distill_marks_pure_failures_as_failed() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+
+        let mk = |parent: Option<String>, prompt: &str, exit: Option<i32>, ts: &str| Event {
+            schema: "causari.event.v0.2".into(),
+            parent,
+            agent: Some("bot".into()),
+            model: None,
+            tool: Some("shell".into()),
+            message: Some("attempt".into()),
+            prompt: Some(prompt.into()),
+            reasoning: None,
+            reads: vec![],
+            writes: vec![],
+            tokens_in: None,
+            tokens_out: None,
+            cost_usd: None,
+            pre_snapshot: "pre".into(),
+            post_snapshot: "post".into(),
+            exit_code: exit,
+            created_at: ts.into(),
+        };
+
+        // Task F: only a non-zero exit — a recorded failure.
+        let e1 = store
+            .write_event(&mk(None, "task F", Some(1), "2026-01-01T00:00:01Z"))
+            .unwrap();
+        // Task M: failed once, then succeeded — NOT a failure.
+        let e2 = store
+            .write_event(&mk(
+                Some(e1.clone()),
+                "task M",
+                Some(1),
+                "2026-01-01T00:00:02Z",
+            ))
+            .unwrap();
+        let e3 = store
+            .write_event(&mk(
+                Some(e2.clone()),
+                "task M",
+                Some(0),
+                "2026-01-01T00:00:03Z",
+            ))
+            .unwrap();
+        repo.update_session("main", &e3).unwrap();
+
+        let report = distill(&repo, &store).unwrap();
+        let f = report
+            .created
+            .iter()
+            .find(|(_, e)| e.skill.trigger == "task F")
+            .unwrap();
+        assert!(f.1.skill.verification.failed);
+        assert_eq!(f.1.trust(), Trust::Recorded);
+
+        let m = report
+            .created
+            .iter()
+            .find(|(_, e)| e.skill.trigger == "task M")
+            .unwrap();
+        assert!(!m.1.skill.verification.failed, "eventual success wins");
+        assert!(m.1.skill.verification.exit_zero);
+    }
+
+    #[test]
     fn score_prefers_trusted_skills() {
         let (_tmp, repo) = test_repo();
         let key = load_or_create_signing_key(&repo).unwrap();
@@ -876,6 +955,7 @@ mod tests {
         recorded_core.verification = Verification {
             exit_zero: false,
             survived: false,
+            failed: false,
         };
         let recorded = sign_skill(recorded_core, &key).unwrap();
         let verified = sign_skill(core("add jwt refresh"), &key).unwrap();

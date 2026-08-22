@@ -75,7 +75,10 @@ pub fn render(repo: &Repo, terms: &[String], limit: usize, bump: bool) -> Result
         return Ok(None);
     }
 
-    let (trusted, unverified): (Vec<_>, Vec<_>) = hits
+    let (failures, rest): (Vec<_>, Vec<_>) = hits
+        .into_iter()
+        .partition(|(_, _, env)| env.skill.verification.failed);
+    let (trusted, unverified): (Vec<_>, Vec<_>) = rest
         .into_iter()
         .partition(|(_, _, env)| env.trust() != Trust::Recorded);
 
@@ -103,6 +106,15 @@ pub fn render(repo: &Repo, terms: &[String], limit: usize, bump: bool) -> Result
     if !unverified.is_empty() {
         out.push_str("\n## Unverified attempts (no success signal — treat as risk)\n");
         for (_, id, env) in unverified.iter().take(limit) {
+            push_entry(&mut out, id, env);
+        }
+    }
+
+    if !failures.is_empty() {
+        out.push_str(
+            "\n## Known failures (recorded non-zero exit — do NOT repeat this approach)\n",
+        );
+        for (_, id, env) in failures.iter().take(limit) {
             push_entry(&mut out, id, env);
         }
     }
@@ -149,8 +161,15 @@ fn push_entry(out: &mut String, id: &str, env: &SkillEnvelope) {
     }
     let _ = writeln!(
         out,
-        "- evidence: exit_zero={} survived={} uses={}",
-        env.skill.verification.exit_zero, env.skill.verification.survived, env.stats.uses
+        "- evidence: exit_zero={} survived={}{} uses={}",
+        env.skill.verification.exit_zero,
+        env.skill.verification.survived,
+        if env.skill.verification.failed {
+            " FAILED"
+        } else {
+            ""
+        },
+        env.stats.uses
     );
     let trigger = env.skill.trigger.trim();
     if !trigger.is_empty() {
