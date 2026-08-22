@@ -1,9 +1,7 @@
 name: "Causari Survival Audit"
 description: >-
-  Zero-setup audit of AI code survival in any git repository. Detects
-  AI-authored commits from git metadata alone and measures how many of
-  their lines are still alive at HEAD. Posts a sticky comment on pull
-  requests and writes the result to the job summary.
+  Zero-setup audit of AI code survival: how much AI-written code is
+  still alive at HEAD. Sticky PR comment + job summary.
 author: "Croviatrust"
 branding:
   icon: "activity"
