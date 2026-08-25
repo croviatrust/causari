@@ -1,0 +1,83 @@
+name: survival-leaderboard
+
+# Weekly public leaderboard of AI code survival across notable open-source
+# repositories. Every number is reproducible by anyone:
+#   re audit <owner/repo> --json
+on:
+  schedule:
+    - cron: "17 5 * * 1" # every Monday, 05:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install latest re binary
+        run: |
+          set -euo pipefail
+          gh release download --repo croviatrust/causari \
+            --pattern '*x86_64-unknown-linux-gnu.tar.gz' --dir /tmp/causari
+          tar -xzf /tmp/causari/*.tar.gz -C /tmp/causari
+          BIN="$(find /tmp/causari -name re -type f | head -n1)"
+          sudo install -m 0755 "$BIN" /usr/local/bin/re
+          re --version
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: audit repositories
+        run: |
+          set -uo pipefail
+          REPOS=(
+            "Aider-AI/aider"
+            "cline/cline"
+            "continuedev/continue"
+            "All-Hands-AI/OpenHands"
+            "openai/codex"
+            "anthropics/anthropic-sdk-python"
+            "anthropics/anthropic-sdk-typescript"
+            "sst/opencode"
+            "microsoft/vscode-copilot-chat"
+            "crewAIInc/crewAI"
+            "browser-use/browser-use"
+            "zed-industries/zed"
+            "ghostty-org/ghostty"
+            "vercel/next.js"
+            "croviatrust/causari"
+          )
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo '[]' > /tmp/rows.json
+          for repo in "${REPOS[@]}"; do
+            echo "::group::auditing $repo"
+            if timeout 900 re audit "$repo" --json > /tmp/audit.json 2>/tmp/audit.err; then
+              jq --arg repo "$repo" --arg at "$NOW" \
+                '. + [{repo: $repo, audited_at: $at} + input]' \
+                /tmp/rows.json /tmp/audit.json > /tmp/rows.next.json \
+                && mv /tmp/rows.next.json /tmp/rows.json
+            else
+              echo "audit failed for $repo (skipped):"
+              tail -n 3 /tmp/audit.err || true
+            fi
+            echo "::endgroup::"
+          done
+          jq '{generated_at: (.[0].audited_at // ""), tool: "causari", command: "re audit <owner/repo> --json", rows: (sort_by(-(.verified.introduced + .probable.introduced)))}' \
+            /tmp/rows.json > site/survival-data.json
+          jq -r '.rows[] | "\(.repo)\tverified:\(.verified.introduced) surv:\(.verified.surviving)\tprobable:\(.probable.introduced) surv:\(.probable.surviving)"' \
+            site/survival-data.json
+
+      - name: commit refreshed data
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- site/survival-data.json; then
+            echo "no changes"; exit 0
+          fi
+          git config user.name "causari-leaderboard[bot]"
+          git config user.email "bot@causari.dev"
+          git add site/survival-data.json
+          git commit -m "chore(leaderboard): weekly survival data refresh"
+          git push

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>AI Code Survival Leaderboard — Causari</title>
+
+  <meta name="description" content="How much AI-written code actually survives in the world's most-watched open-source repositories? Weekly audit, every number reproducible with one command: re audit <owner/repo>." />
+  <meta name="theme-color" content="#0a0e1f" />
+  <meta name="color-scheme" content="dark light" />
+
+  <meta property="og:title" content="AI Code Survival Leaderboard" />
+  <meta property="og:description" content="How much AI-written code is still alive at HEAD in famous open-source repos? Audited weekly. Reproduce any row: re audit <owner/repo>." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://causari.dev/survival" />
+  <meta property="og:image" content="https://causari.dev/assets/og-card.png" />
+  <meta property="og:site_name" content="Causari" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AI Code Survival Leaderboard" />
+  <meta name="twitter:description" content="How much AI-written code is still alive at HEAD in famous open-source repos? Audited weekly, reproducible with one command." />
+  <meta name="twitter:image" content="https://causari.dev/assets/og-card.png" />
+
+  <link rel="icon" type="image/svg+xml" href="/assets/icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .lb-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    .lb-table th, .lb-table td { padding: 0.65rem 0.9rem; text-align: right; white-space: nowrap; }
+    .lb-table th:first-child, .lb-table td:first-child,
+    .lb-table th:nth-child(2), .lb-table td:nth-child(2) { text-align: left; }
+    .lb-table tbody tr { border-top: 1px solid rgba(148,163,184,0.12); }
+    .lb-table code { font-family: "JetBrains Mono", monospace; font-size: 0.85em; }
+    .lb-rate { font-weight: 700; font-family: "JetBrains Mono", monospace; }
+    .lb-rate.hi { color: #22c55e; }
+    .lb-rate.mid { color: #f59e0b; }
+    .lb-rate.lo { color: #ef4444; }
+    .lb-rate.none { color: #64748b; font-weight: 400; }
+    .lb-bar { display: inline-block; height: 6px; border-radius: 3px; background: linear-gradient(90deg,#22c55e,#4ade80); vertical-align: middle; margin-left: 0.5rem; }
+    .lb-meta { color: #94a3b8; font-size: 0.85rem; margin-top: 1rem; }
+    .lb-repro { cursor: pointer; }
+    .lb-repro:hover { text-decoration: underline; }
+    .lb-scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="nav" role="banner">
+  <div class="container nav-inner">
+    <a href="/" class="brand" aria-label="Causari home">
+      <img src="/assets/icon.svg" alt="" width="32" height="32" />
+      <span class="brand-name">Causari</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="/#audit">Audit</a>
+      <a href="/#capture">Capture</a>
+      <a href="/#skills">Skills</a>
+      <a href="/#what">Features</a>
+      <a href="https://github.com/croviatrust/causari" rel="noopener">Docs</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Audited weekly · zero self-reporting</p>
+      <h2>The AI Code Survival Leaderboard</h2>
+      <p class="lede">Everyone argues about how much code AI really writes. Nobody measures how much
+      of it <strong>survives</strong>. We audit the most-watched open-source repositories every week:
+      AI-authored commits detected from verifiable git metadata only
+      (<code>Co-Authored-By</code> trailers, bot authors, aider markers), and every AI-introduced
+      line checked against HEAD. <strong>No estimates. No surveys. Just git.</strong></p>
+    </div>
+
+    <div class="lb-scroll">
+      <table class="lb-table" id="lb">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Repository</th>
+            <th>Commits</th>
+            <th>AI commits</th>
+            <th>AI lines introduced</th>
+            <th>Still alive at HEAD</th>
+            <th>Survival</th>
+            <th>Reproduce</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="8" style="text-align:center;color:#64748b;">Loading data…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="lb-meta" id="lb-meta"></p>
+    <p class="lb-meta">Methodology: only <strong>VERIFIED</strong> evidence (explicit git metadata) is
+    ranked; PROBABLE (heuristic) counts are shown for context but never mixed in. Repositories with no
+    verifiable AI metadata show "no signal" — absence of evidence, not evidence of absence.
+    Want your repo listed? <a href="https://github.com/croviatrust/causari/discussions" rel="noopener">Open a discussion</a>
+    or audit it yourself in 10 seconds: <code>re audit owner/repo</code>.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="container foot-bottom">
+    <p>© <span id="year">2026</span> <a href="https://croviatrust.com" rel="noopener">Croviatrust</a>. <em>Causari</em> is a trademark of Croviatrust.</p>
+    <p class="muted">Every row reproducible: <code>re audit &lt;owner/repo&gt;</code> · <a href="/">causari.dev</a></p>
+  </div>
+</footer>
+
+<script>
+(async function () {
+  const tbody = document.querySelector("#lb tbody");
+  const meta = document.getElementById("lb-meta");
+  try {
+    const res = await fetch("/survival-data.json", { cache: "no-cache" });
+    const data = await res.json();
+    const rows = (data.rows || []).filter(r => r.total_commits > 0);
+    if (!rows.length) throw new Error("empty");
+
+    // Rank: repos with verified AI lines first (by survival rate desc), then no-signal.
+    const signal = rows.filter(r => r.verified.introduced > 0)
+      .sort((a, b) => (b.verified.survival_rate ?? 0) - (a.verified.survival_rate ?? 0));
+    const silent = rows.filter(r => r.verified.introduced === 0);
+
+    const fmt = n => n.toLocaleString("en-US");
+    const rateCell = r => {
+      if (r.verified.introduced === 0) return '<span class="lb-rate none">no signal</span>';
+      const pct = Math.round((r.verified.survival_rate ?? 0) * 1000) / 10;
+      const cls = pct >= 70 ? "hi" : pct >= 40 ? "mid" : "lo";
+      return `<span class="lb-rate ${cls}">${pct}%</span><span class="lb-bar" style="width:${Math.max(4, pct * 0.6)}px"></span>`;
+    };
+
+    tbody.innerHTML = [...signal, ...silent].map((r, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td><a href="https://github.com/${r.repo}" rel="noopener">${r.repo}</a></td>
+        <td>${fmt(r.total_commits)}</td>
+        <td>${fmt(r.verified.commits)}${r.probable.commits ? ` <span class="muted">(+${fmt(r.probable.commits)} probable)</span>` : ""}</td>
+        <td>${fmt(r.verified.introduced)}</td>
+        <td>${fmt(r.verified.surviving)}</td>
+        <td>${rateCell(r)}</td>
+        <td><code class="lb-repro" title="Click to copy" onclick="navigator.clipboard.writeText('re audit ${r.repo}')">re audit ${r.repo}</code></td>
+      </tr>`).join("");
+
+    if (data.generated_at) {
+      meta.textContent = `Last audited ${new Date(data.generated_at).toUTCString()} · ${rows.length} repositories · powered by the open-source Causari CLI`;
+    }
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#64748b;">First audit run is in progress — check back soon, or run <code>re audit owner/repo</code> yourself.</td></tr>';
+  }
+})();
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

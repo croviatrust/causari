@@ -1,0 +1,25 @@
+{
+  "generated_at": "2026-08-25T17:25:49Z",
+  "tool": "causari",
+  "command": "re audit <owner/repo> --json",
+  "rows": [
+    {
+      "repo": "croviatrust/causari",
+      "audited_at": "2026-08-25T17:25:49Z",
+      "total_commits": 19,
+      "verified": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "by_agent": {}
+    }
+  ]
+}
