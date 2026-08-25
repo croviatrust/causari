@@ -122,8 +122,18 @@
   const tbody = document.querySelector("#lb tbody");
   const meta = document.getElementById("lb-meta");
   try {
-    const res = await fetch("/survival-data.json", { cache: "no-cache" });
-    const data = await res.json();
+    const sources = [
+      "https://raw.githubusercontent.com/croviatrust/causari/leaderboard-data/site/survival-data.json",
+      "/survival-data.json",
+    ];
+    let data = null;
+    for (const src of sources) {
+      try {
+        const res = await fetch(src, { cache: "no-cache" });
+        if (res.ok) { data = await res.json(); break; }
+      } catch (_) { /* try next source */ }
+    }
+    if (!data) throw new Error("no data source");
     const rows = (data.rows || []).filter(r => r.total_commits > 0);
     if (!rows.length) throw new Error("empty");
 

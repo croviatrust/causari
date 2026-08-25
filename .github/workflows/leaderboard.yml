@@ -73,14 +73,17 @@ jobs:
           jq -r '.rows[] | "\(.repo)\tverified:\(.verified.introduced) surv:\(.verified.surviving)\tprobable:\(.probable.introduced) surv:\(.probable.surviving)"' \
             site/survival-data.json
 
-      - name: commit refreshed data
+      # main is a protected branch (strict CI required), so the refreshed data is
+      # published to a dedicated data branch. The site fetches it from raw GitHub.
+      - name: publish refreshed data
         run: |
           set -euo pipefail
-          if git diff --quiet -- site/survival-data.json; then
-            echo "no changes"; exit 0
-          fi
           git config user.name "causari-leaderboard[bot]"
           git config user.email "bot@causari.dev"
+          git checkout -B leaderboard-data
           git add site/survival-data.json
+          if git diff --cached --quiet; then
+            echo "no changes"; exit 0
+          fi
           git commit -m "chore(leaderboard): weekly survival data refresh"
-          git push
+          git push --force origin leaderboard-data
