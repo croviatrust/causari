@@ -21,7 +21,10 @@ jobs:
       - name: install latest re binary
         run: |
           set -euo pipefail
-          gh release download --repo croviatrust/causari \
+          TAG="$(gh release list --repo croviatrust/causari --limit 20 \
+            --json tagName --jq '[.[].tagName | select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"))][0]')"
+          echo "installing re from release $TAG"
+          gh release download "$TAG" --repo croviatrust/causari \
             --pattern '*x86_64-unknown-linux-gnu.tar.gz' --dir /tmp/causari
           tar -xzf /tmp/causari/*.tar.gz -C /tmp/causari
           BIN="$(find /tmp/causari -name re -type f | head -n1)"
