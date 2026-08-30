@@ -152,14 +152,78 @@ pub fn classify(detection: Option<&Detection>) -> EvidenceClass {
     }
 }
 
+/// True for paths whose content is machine-generated rather than authored:
+/// lockfiles, minified bundles, source maps, vendored trees, build output.
+/// These would massively inflate "lines introduced" without measuring any
+/// real authorship, so the audit excludes them everywhere.
+pub fn is_generated_path(path: &str) -> bool {
+    let path = path.replace('\\', "/");
+    let lower = path.to_lowercase();
+
+    // Vendored / build-output directories anywhere in the path.
+    const DIRS: [&str; 7] = [
+        "node_modules/",
+        "vendor/",
+        "vendored/",
+        "third_party/",
+        "dist/",
+        "build/",
+        "__snapshots__/",
+    ];
+    for d in DIRS {
+        if lower.starts_with(d) || lower.contains(&format!("/{d}")) {
+            return true;
+        }
+    }
+
+    // Well-known lockfiles (basename match).
+    let base = lower.rsplit('/').next().unwrap_or(&lower);
+    const LOCKFILES: [&str; 15] = [
+        "package-lock.json",
+        "yarn.lock",
+        "pnpm-lock.yaml",
+        "cargo.lock",
+        "poetry.lock",
+        "uv.lock",
+        "pipfile.lock",
+        "gemfile.lock",
+        "composer.lock",
+        "go.sum",
+        "flake.lock",
+        "bun.lock",
+        "bun.lockb",
+        "deno.lock",
+        "packages.lock.json",
+    ];
+    if LOCKFILES.contains(&base) || base.ends_with(".lockfile") {
+        return true;
+    }
+
+    // Minified/generated file suffixes.
+    const SUFFIXES: [&str; 8] = [
+        ".min.js",
+        ".min.css",
+        ".map",
+        ".pb.go",
+        "_pb2.py",
+        "_pb2_grpc.py",
+        ".generated.ts",
+        ".generated.go",
+    ];
+    SUFFIXES.iter().any(|s| base.ends_with(s))
+}
+
 /// Parse `git log --numstat` style added-line counts:
 /// each entry line is `added<TAB>deleted<TAB>path`; binary files use `-`.
-/// Returns total added lines (text files only).
+/// Returns total added lines (text files only, generated paths excluded).
 pub fn parse_numstat_added(numstat: &str) -> u64 {
     let mut added = 0u64;
     for line in numstat.lines() {
         let mut cols = line.split('\t');
-        if let (Some(a), Some(_d), Some(_p)) = (cols.next(), cols.next(), cols.next()) {
+        if let (Some(a), Some(_d), Some(p)) = (cols.next(), cols.next(), cols.next()) {
+            if is_generated_path(p.trim()) {
+                continue;
+            }
             if let Ok(n) = a.trim().parse::<u64>() {
                 added += n;
             }
@@ -336,7 +400,11 @@ pub fn lines_added(dir: &Path, hash: &str) -> Result<u64> {
 pub fn blame_head(dir: &Path) -> Result<Vec<String>> {
     let files = git(dir, &["ls-files"])?;
     let mut owners = Vec::new();
-    for file in files.lines().filter(|l| !l.trim().is_empty()) {
+    for file in files
+        .lines()
+        .filter(|l| !l.trim().is_empty())
+        .filter(|l| !is_generated_path(l.trim()))
+    {
         // Skip files git cannot blame (e.g. binary): tolerate per-file errors.
         if let Ok(porcelain) = git(dir, &["blame", "--line-porcelain", "HEAD", "--", file]) {
             owners.extend(parse_blame_owners(&porcelain));
@@ -492,6 +560,55 @@ mod tests {
     #[test]
     fn numstat_empty_input_is_zero() {
         assert_eq!(parse_numstat_added(""), 0);
+    }
+
+    // -- generated-path exclusion ----------------------------------------------
+
+    #[test]
+    fn generated_paths_are_detected() {
+        for p in [
+            "package-lock.json",
+            "web/package-lock.json",
+            "yarn.lock",
+            "Cargo.lock",
+            "uv.lock",
+            "go.sum",
+            "gradle/deps.lockfile",
+            "node_modules/react/index.js",
+            "src/vendor/lib.c",
+            "third_party/proto/x.py",
+            "dist/bundle.js",
+            "build/out.o",
+            "app/__snapshots__/ui.snap",
+            "assets/app.min.js",
+            "styles/app.min.css",
+            "js/app.js.map",
+            "api/service.pb.go",
+            "gen/thing_pb2.py",
+        ] {
+            assert!(is_generated_path(p), "{p} should be generated");
+        }
+    }
+
+    #[test]
+    fn authored_paths_are_not_generated() {
+        for p in [
+            "src/main.rs",
+            "auth.py",
+            "docs/lock-design.md",
+            "src/locker.rs",
+            "distributed/map.rs",
+            "builder/build_config.rs",
+            "app.js",
+        ] {
+            assert!(!is_generated_path(p), "{p} should NOT be generated");
+        }
+    }
+
+    #[test]
+    fn numstat_excludes_generated_files() {
+        let numstat = "10\t2\tsrc/auth.rs\n5000\t0\tpackage-lock.json\n300\t0\tdist/bundle.js\n3\t0\tsrc/lib.rs\n";
+        assert_eq!(parse_numstat_added(numstat), 13);
     }
 
     // -- blame parsing --------------------------------------------------------
