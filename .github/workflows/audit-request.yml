@@ -1,0 +1,89 @@
+name: audit-request
+
+# Zero-install self-serve audits: anyone opens an issue titled
+# "Audit: owner/repo" and a bot posts the survival numbers as a comment.
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: audit-request-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    if: startsWith(github.event.issue.title, 'Audit:')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Validate target
+        id: target
+        env:
+          TITLE: ${{ github.event.issue.title }}
+        run: |
+          t="${TITLE#Audit:}"
+          t="$(echo "$t" | xargs)"
+          if [[ "$t" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+            echo "valid=true"  >> "$GITHUB_OUTPUT"
+            echo "repo=$t"     >> "$GITHUB_OUTPUT"
+          else
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Reject malformed request
+        if: steps.target.outputs.valid != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" \
+            --repo "${{ github.repository }}" \
+            --body "Could not parse a repository from the title. Please retitle the issue exactly as \`Audit: owner/repo\` (e.g. \`Audit: vercel/next.js\`) and reopen."
+          gh issue close "${{ github.event.issue.number }}" \
+            --repo "${{ github.repository }}" --reason "not planned"
+
+      - name: Install re
+        if: steps.target.outputs.valid == 'true'
+        run: |
+          set -e
+          VERSION="$(curl -fsSL https://api.github.com/repos/croviatrust/causari/releases/latest \
+            | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -n1)"
+          URL="https://github.com/croviatrust/causari/releases/download/$VERSION/re-$VERSION-x86_64-unknown-linux-gnu.tar.gz"
+          curl -fsSL "$URL" -o /tmp/re.tar.gz
+          sudo tar -C /usr/local/bin -xzf /tmp/re.tar.gz
+
+      - name: Run audit
+        if: steps.target.outputs.valid == 'true'
+        id: run
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          re audit "${{ steps.target.outputs.repo }}" --summary | tee audit.md
+
+      - name: Post results
+        if: steps.target.outputs.valid == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          repo="${{ steps.target.outputs.repo }}"
+          if [ "${{ steps.run.outcome }}" = "success" ]; then
+            {
+              cat audit.md
+              echo ""
+              echo "---"
+              echo "Reproduce locally: \`re audit $repo\` · [Profile page](https://causari.dev/repo?r=$repo) · Requested by @${{ github.event.issue.user.login }}"
+            } > comment.md
+          else
+            {
+              echo "The audit of \`$repo\` failed — the repository may be private, empty, or too large for the 45-minute CI budget."
+              echo ""
+              echo "You can always run it locally: \`re audit $repo\`"
+            } > comment.md
+          fi
+          gh issue comment "${{ github.event.issue.number }}" \
+            --repo "${{ github.repository }}" --body-file comment.md
+          gh issue close "${{ github.event.issue.number }}" \
+            --repo "${{ github.repository }}" --reason "completed"

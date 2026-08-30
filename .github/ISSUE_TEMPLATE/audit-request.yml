@@ -1,0 +1,22 @@
+name: Request a free AI survival audit
+description: >-
+  Get the AI code survival numbers for any public repository — no install,
+  no setup. We run `re audit` and post the results here within minutes.
+title: "Audit: owner/repo"
+labels: ["audit-request"]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        **Replace `owner/repo` in the title above** with the public GitHub
+        repository you want audited (e.g. `Audit: vercel/next.js`).
+        A bot will clone it, measure how much AI-authored code is still
+        alive at HEAD, and post the results as a comment. Everything is
+        reproducible locally with `re audit owner/repo`.
+  - type: input
+    id: reason
+    attributes:
+      label: Anything we should know? (optional)
+      placeholder: e.g. monorepo, main development on a non-default branch…
+    validations:
+      required: false

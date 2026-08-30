@@ -1,0 +1,39 @@
+# Causari
+
+> Causari measures how much AI-written code actually survives in any git
+> repository, and records the causal provenance (prompt, model, reads,
+> writes, reasoning) behind every change an AI agent makes. Apache-2.0,
+> local-first, no telemetry.
+
+Ways to use Causari WITHOUT installing anything:
+- Request a free audit of any public repo: open a GitHub issue titled
+  "Audit: owner/repo" at https://github.com/croviatrust/causari/issues/new/choose
+  — a bot posts the survival numbers within minutes.
+- Browse audited profiles: https://causari.dev/repo?r=owner/repo
+- Weekly AI Code Survival Leaderboard: https://causari.dev/survival
+- Add one CI step to any repo: `uses: croviatrust/causari@v1` posts AI
+  survival numbers on every pull request.
+
+Local install (single ~3 MB binary, Linux/macOS/Windows):
+- Linux/macOS: curl -fsSL https://causari.dev/install.sh | sh
+- Windows: irm https://causari.dev/install.ps1 | iex
+
+Key commands for agents working in a repo with Causari:
+- `re audit [owner/repo]` — retroactive AI code survival from git history alone
+- `re why <file>:<line>` — which prompt/model/event produced this line
+- `re trace <file>:<line>` — full upstream causal cone of a line
+- `re impact <event-id>` — downstream blast radius of an agent action
+- `re brief [task terms]` — trust-ranked, signed experience briefing to
+  inject into any model's context (lessons survive model switches)
+- `re guard` — flags changes that repeat an approach that already failed
+- `re skill distill` — compress verified work into signed, reusable skills
+- MCP server: `re mcp serve` (stdio) exposes why/trace/impact/find/skills
+  to any MCP-capable agent runtime.
+
+## Docs
+- [README](https://github.com/croviatrust/causari#readme): full command reference
+- [Survival methodology](https://causari.dev/survival): how the metric works
+- [GitHub Action](https://github.com/marketplace/actions/causari-survival-audit)
+
+## Source
+- [Repository](https://github.com/croviatrust/causari) (Apache-2.0)
