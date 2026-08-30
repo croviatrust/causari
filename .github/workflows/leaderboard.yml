@@ -14,7 +14,7 @@ permissions:
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
 
@@ -36,28 +36,12 @@ jobs:
       - name: audit repositories
         run: |
           set -uo pipefail
-          REPOS=(
-            "Aider-AI/aider"
-            "cline/cline"
-            "continuedev/continue"
-            "All-Hands-AI/OpenHands"
-            "openai/codex"
-            "anthropics/anthropic-sdk-python"
-            "anthropics/anthropic-sdk-typescript"
-            "sst/opencode"
-            "microsoft/vscode-copilot-chat"
-            "crewAIInc/crewAI"
-            "browser-use/browser-use"
-            "zed-industries/zed"
-            "ghostty-org/ghostty"
-            "vercel/next.js"
-            "croviatrust/causari"
-          )
+          mapfile -t REPOS < <(grep -Ev '^\s*(#|$)' .github/leaderboard-repos.txt)
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           echo '[]' > /tmp/rows.json
           for repo in "${REPOS[@]}"; do
             echo "::group::auditing $repo"
-            if timeout 900 re audit "$repo" --json > /tmp/audit.json 2>/tmp/audit.err; then
+            if timeout 3600 re audit "$repo" --json > /tmp/audit.json 2>/tmp/audit.err; then
               jq --arg repo "$repo" --arg at "$NOW" \
                 '. + [{repo: $repo, audited_at: $at} + input]' \
                 /tmp/rows.json /tmp/audit.json > /tmp/rows.next.json \
@@ -73,6 +57,29 @@ jobs:
           jq -r '.rows[] | "\(.repo)\tverified:\(.verified.introduced) surv:\(.verified.surviving)\tprobable:\(.probable.introduced) surv:\(.probable.surviving)"' \
             site/survival-data.json
 
+      - name: append weekly history
+        run: |
+          set -euo pipefail
+          HIST_URL="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/leaderboard-data/site/survival-history.json"
+          if ! curl -fsSL "$HIST_URL" -o /tmp/history.json; then
+            echo '[]' > /tmp/history.json
+          fi
+          jq --slurpfile cur site/survival-data.json '
+            . + [{
+              date: $cur[0].generated_at,
+              rows: [$cur[0].rows[] | {
+                repo,
+                total_commits,
+                verified: {
+                  commits: .verified.commits,
+                  introduced: .verified.introduced,
+                  surviving: .verified.surviving,
+                  survival_rate: .verified.survival_rate
+                }
+              }]
+            }] | .[-104:]' /tmp/history.json > site/survival-history.json
+          jq 'length' site/survival-history.json
+
       # main is a protected branch (strict CI required), so the refreshed data is
       # published to a dedicated data branch. The site fetches it from raw GitHub.
       - name: publish refreshed data
@@ -81,7 +88,7 @@ jobs:
           git config user.name "causari-leaderboard[bot]"
           git config user.email "bot@causari.dev"
           git checkout -B leaderboard-data
-          git add site/survival-data.json
+          git add site/survival-data.json site/survival-history.json
           if git diff --cached --quiet; then
             echo "no changes"; exit 0
           fi

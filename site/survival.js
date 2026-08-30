@@ -14,6 +14,21 @@
       } catch (_) { /* try next source */ }
     }
     if (!data) throw new Error("no data source");
+
+    // Weekly history (optional): used to show trend vs previous audit.
+    let prevRates = {};
+    try {
+      const hres = await fetch("https://raw.githubusercontent.com/croviatrust/causari/leaderboard-data/site/survival-history.json", { cache: "no-cache" });
+      if (hres.ok) {
+        const hist = await hres.json();
+        if (Array.isArray(hist) && hist.length >= 2) {
+          for (const r of hist[hist.length - 2].rows || []) {
+            if (r.verified && r.verified.introduced > 0) prevRates[r.repo] = r.verified.survival_rate ?? 0;
+          }
+        }
+      }
+    } catch (_) { /* trend is optional */ }
+
     const rows = (data.rows || []).filter(r => r.total_commits > 0);
     if (!rows.length) throw new Error("empty");
 
@@ -27,7 +42,14 @@
       if (r.verified.introduced === 0) return '<span class="lb-rate none">no signal</span>';
       const pct = Math.round((r.verified.survival_rate ?? 0) * 1000) / 10;
       const cls = pct >= 70 ? "hi" : pct >= 40 ? "mid" : "lo";
-      return `<span class="lb-rate ${cls}">${pct}%</span><span class="lb-bar" style="width:${Math.max(4, pct * 0.6)}px"></span>`;
+      let trend = "";
+      const prev = prevRates[r.repo];
+      if (prev !== undefined) {
+        const delta = Math.round(((r.verified.survival_rate ?? 0) - prev) * 1000) / 10;
+        if (delta >= 0.1) trend = ` <span class="lb-trend up" title="+${delta} pts vs last week">\u25B2</span>`;
+        else if (delta <= -0.1) trend = ` <span class="lb-trend down" title="${delta} pts vs last week">\u25BC</span>`;
+      }
+      return `<span class="lb-rate ${cls}">${pct}%</span>${trend}<span class="lb-bar" style="width:${Math.max(4, pct * 0.6)}px"></span>`;
     };
 
     tbody.innerHTML = [...signal, ...silent].map((r, i) => `

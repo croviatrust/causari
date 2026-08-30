@@ -1,0 +1,19 @@
+# AI Code Survival Leaderboard — audited repositories
+# One repository per line (owner/repo). Lines starting with # are ignored.
+# Want your repository listed? Open a pull request adding it here.
+# Every row is reproducible by anyone: re audit <owner/repo>
+Aider-AI/aider
+cline/cline
+continuedev/continue
+All-Hands-AI/OpenHands
+openai/codex
+anthropics/anthropic-sdk-python
+anthropics/anthropic-sdk-typescript
+sst/opencode
+microsoft/vscode-copilot-chat
+crewAIInc/crewAI
+browser-use/browser-use
+zed-industries/zed
+ghostty-org/ghostty
+vercel/next.js
+croviatrust/causari
