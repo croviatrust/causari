@@ -65,6 +65,12 @@ fn resolve_target(target: Option<&str>) -> Result<(PathBuf, Option<TempClone>)> 
         };
 
     let dest = std::env::temp_dir().join(format!("causari-audit-{}", std::process::id()));
+    if dest.exists() {
+        // A crashed previous run can leave a stale checkout behind.
+        let _ = clear_readonly(&dest);
+        std::fs::remove_dir_all(&dest)
+            .with_context(|| format!("cannot clear stale clone dir {}", dest.display()))?;
+    }
     eprintln!("cloning {url} ...");
     let status = Command::new("git")
         .args(["clone", "--quiet", "--single-branch", &url])

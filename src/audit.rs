@@ -89,6 +89,41 @@ pub fn detect_ai(commit: &CommitMeta) -> Option<Detection> {
                     evidence: vec![format!("trailer: {}", trimmed)],
                 });
             }
+            if rest.contains("codex") || rest.contains("chatgpt") {
+                return Some(Detection {
+                    agent: "openai-codex".into(),
+                    confidence: 1.0,
+                    evidence: vec![format!("trailer: {}", trimmed)],
+                });
+            }
+            if rest.contains("gemini") {
+                return Some(Detection {
+                    agent: "gemini".into(),
+                    confidence: 1.0,
+                    evidence: vec![format!("trailer: {}", trimmed)],
+                });
+            }
+            if rest.contains("openhands") {
+                return Some(Detection {
+                    agent: "openhands".into(),
+                    confidence: 1.0,
+                    evidence: vec![format!("trailer: {}", trimmed)],
+                });
+            }
+            if rest.contains("devin") {
+                return Some(Detection {
+                    agent: "devin".into(),
+                    confidence: 1.0,
+                    evidence: vec![format!("trailer: {}", trimmed)],
+                });
+            }
+            if rest.starts_with("jules") || rest.contains("jules@google") {
+                return Some(Detection {
+                    agent: "jules".into(),
+                    confidence: 1.0,
+                    evidence: vec![format!("trailer: {}", trimmed)],
+                });
+            }
         }
     }
 
@@ -123,6 +158,36 @@ pub fn detect_ai(commit: &CommitMeta) -> Option<Detection> {
             )],
         });
     }
+    if author_lower.contains("openhands") || email_lower.contains("openhands") {
+        return Some(Detection {
+            agent: "openhands".into(),
+            confidence: 0.95,
+            evidence: vec![format!(
+                "author: {} <{}>",
+                commit.author_name, commit.author_email
+            )],
+        });
+    }
+    if author_lower.contains("cursor agent") || email_lower.contains("cursoragent") {
+        return Some(Detection {
+            agent: "cursor".into(),
+            confidence: 0.95,
+            evidence: vec![format!(
+                "author: {} <{}>",
+                commit.author_name, commit.author_email
+            )],
+        });
+    }
+    if author_lower.contains("google-labs-jules") || email_lower.contains("labs-jules") {
+        return Some(Detection {
+            agent: "jules".into(),
+            confidence: 0.95,
+            evidence: vec![format!(
+                "author: {} <{}>",
+                commit.author_name, commit.author_email
+            )],
+        });
+    }
 
     // Weak message heuristics: probable, never verified.
     if msg_lower.contains("(aider)") {
@@ -130,6 +195,15 @@ pub fn detect_ai(commit: &CommitMeta) -> Option<Detection> {
             agent: "aider".into(),
             confidence: 0.7,
             evidence: vec!["message marker: (aider)".into()],
+        });
+    }
+    if msg_lower.contains("generated with claude code")
+        || msg_lower.contains("generated with [claude code]")
+    {
+        return Some(Detection {
+            agent: "claude-code".into(),
+            confidence: 0.8,
+            evidence: vec!["message marker: Generated with Claude Code".into()],
         });
     }
 
@@ -399,12 +473,18 @@ pub fn lines_added(dir: &Path, hash: &str) -> Result<u64> {
 /// surviving line.
 pub fn blame_head(dir: &Path) -> Result<Vec<String>> {
     let files = git(dir, &["ls-files"])?;
-    let mut owners = Vec::new();
-    for file in files
+    let list: Vec<&str> = files
         .lines()
-        .filter(|l| !l.trim().is_empty())
-        .filter(|l| !is_generated_path(l.trim()))
-    {
+        .map(str::trim)
+        .filter(|l| !l.is_empty())
+        .filter(|l| !is_generated_path(l))
+        .collect();
+    let total = list.len();
+    let mut owners = Vec::new();
+    for (i, file) in list.iter().enumerate() {
+        if total > 200 && i % 200 == 0 {
+            eprintln!("  blaming files at HEAD: {i}/{total}");
+        }
         // Skip files git cannot blame (e.g. binary): tolerate per-file errors.
         if let Ok(porcelain) = git(dir, &["blame", "--line-porcelain", "HEAD", "--", file]) {
             owners.extend(parse_blame_owners(&porcelain));
@@ -535,6 +615,68 @@ mod tests {
         );
         assert!(detect_ai(&c).is_none());
         assert_eq!(classify(None), EvidenceClass::Unknown);
+    }
+
+    #[test]
+    fn detects_new_agent_trailers_as_verified() {
+        for (trailer, agent) in [
+            ("Co-Authored-By: Codex <codex@openai.com>", "openai-codex"),
+            (
+                "Co-Authored-By: ChatGPT <chatgpt@openai.com>",
+                "openai-codex",
+            ),
+            ("Co-Authored-By: Gemini <gemini@google.com>", "gemini"),
+            (
+                "Co-Authored-By: openhands <openhands@all-hands.dev>",
+                "openhands",
+            ),
+            (
+                "Co-Authored-By: Devin AI <devin-ai-integration[bot]@users.noreply.github.com>",
+                "devin",
+            ),
+            ("Co-Authored-By: Jules <jules@google.com>", "jules"),
+        ] {
+            let c = meta(
+                "9".repeat(40).as_str(),
+                "Dev",
+                "dev@example.com",
+                &format!("change\n\n{trailer}"),
+            );
+            let d = detect_ai(&c).unwrap_or_else(|| panic!("should detect {trailer}"));
+            assert_eq!(d.agent, agent, "trailer: {trailer}");
+            assert_eq!(classify(Some(&d)), EvidenceClass::Verified);
+        }
+    }
+
+    #[test]
+    fn detects_new_bot_authors_as_verified() {
+        for (author, email, agent) in [
+            ("openhands", "openhands@all-hands.dev", "openhands"),
+            ("Cursor Agent", "cursoragent@cursor.com", "cursor"),
+            (
+                "google-labs-jules[bot]",
+                "12345+google-labs-jules[bot]@users.noreply.github.com",
+                "jules",
+            ),
+        ] {
+            let c = meta("8".repeat(40).as_str(), author, email, "routine change");
+            let d = detect_ai(&c).unwrap_or_else(|| panic!("should detect {author}"));
+            assert_eq!(d.agent, agent, "author: {author}");
+            assert_eq!(classify(Some(&d)), EvidenceClass::Verified);
+        }
+    }
+
+    #[test]
+    fn claude_code_message_marker_is_probable_only() {
+        let c = meta(
+            "7".repeat(40).as_str(),
+            "Tarik",
+            "tarik@example.com",
+            "fix parser\n\n\u{1f916} Generated with [Claude Code](https://claude.ai/code)",
+        );
+        let d = detect_ai(&c).expect("should detect");
+        assert_eq!(d.agent, "claude-code");
+        assert_eq!(classify(Some(&d)), EvidenceClass::Probable);
     }
 
     #[test]
