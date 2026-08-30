@@ -1,6 +1,6 @@
 [package]
 name = "causari"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2024"
 description = "Causari — intent-addressable code: bidirectional causal version control for AI-agent actions"
 license = "BUSL-1.1"
