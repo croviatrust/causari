@@ -2,8 +2,8 @@
   <img src="assets/logo-readme.png" alt="Causari — intent-addressable code" width="520">
 </p>
 
-<h3 align="center">Trace intent. Debug causality.</h3>
-<p align="center"><em>Intent-addressable code for AI agents.</em></p>
+<h3 align="center">How much of your AI-written code actually survives?</h3>
+<p align="center"><em>Find out in 10 seconds — one command, any git repo, zero setup.</em></p>
 
 <p align="center">
   <a href="https://causari.dev"><strong>causari.dev</strong></a>
@@ -26,13 +26,34 @@
 
 ---
 
+```bash
+# Linux / macOS
+curl -fsSL https://causari.dev/install.sh | sh
+
+# any repo — yours, or the ones everyone argues about:
+re audit                    # the repo you are in
+re audit vercel/next.js     # any public repo, cloned to a temp dir
+```
+
+Everyone debates how much code AI writes. Nobody measures how much of it
+**survives**. `re audit` reads plain git history — `Co-Authored-By` trailers,
+bot authors, agent markers — and checks every AI-introduced line against
+HEAD. No estimates, no surveys, just git. See the
+[**AI Code Survival Leaderboard**](https://causari.dev/survival) for weekly
+audited numbers on aider, cline, zed and more, or a
+[live PR comment](https://github.com/croviatrust/causari-audit-demo/pull/1)
+posted by the [GitHub Action](https://github.com/marketplace/actions/causari-survival-audit).
+
+---
+
 > *Causari* (Latin, deponent verb): *to plead a cause, to argue why.* Because
 > every line of AI-generated code deserves to be defended, traced, and
 > understood.
 
-Causari records every action an AI agent takes on your codebase — not just
-the bytes that changed, but the **prompt that asked**, the **model that
-answered**, the **files it read**, and the **reasoning behind the change**.
+The audit is only the entry point. Causari records every action an AI agent
+takes on your codebase — not just the bytes that changed, but the **prompt
+that asked**, the **model that answered**, the **files it read**, and the
+**reasoning behind the change**.
 
 **Two capture paths, one ledger.** Where the agent runtime exposes lifecycle
 hooks (Claude Code), Causari plugs in natively: `re hook claude-code` wires
