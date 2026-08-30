@@ -55,7 +55,7 @@
     tbody.innerHTML = [...signal, ...silent].map((r, i) => `
       <tr>
         <td>${i + 1}</td>
-        <td><a href="https://github.com/${r.repo}" rel="noopener">${r.repo}</a></td>
+        <td><a href="/repo?r=${r.repo}">${r.repo}</a> <a href="https://github.com/${r.repo}" rel="noopener" title="View on GitHub" style="opacity:.45">↗</a></td>
         <td>${fmt(r.total_commits)}</td>
         <td>${fmt(r.verified.commits)}${r.probable.commits ? ` <span class="muted">(+${fmt(r.probable.commits)} probable)</span>` : ""}</td>
         <td>${fmt(r.verified.introduced)}</td>

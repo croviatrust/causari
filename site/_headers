@@ -18,6 +18,9 @@
 /survival.js
   Cache-Control: public, max-age=3600
 
+/repo.js
+  Cache-Control: public, max-age=3600
+
 /survival-data.json
   Cache-Control: public, max-age=3600
 

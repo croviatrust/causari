@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Code Survival Profile — Causari</title>
+  <meta name="description" content="How much AI-written code survives in this repository? Verified from git metadata alone by the Causari survival audit. Reproducible by anyone.">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <meta property="og:title" content="AI Code Survival Profile — Causari">
+  <meta property="og:description" content="Verified AI code survival, measured from git metadata alone. Reproducible: re audit owner/repo">
+  <meta property="og:image" content="https://causari.dev/assets/og-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    .rp-wrap { max-width: 760px; margin: 0 auto; padding: 4rem 1.5rem; }
+    .rp-name { font-family: "JetBrains Mono", monospace; font-size: 1.6rem; word-break: break-all; }
+    .rp-score { font-family: "JetBrains Mono", monospace; font-size: 4rem; font-weight: 800; margin: 0.5rem 0; }
+    .rp-score.hi { color: #22c55e; } .rp-score.mid { color: #f59e0b; }
+    .rp-score.lo { color: #ef4444; } .rp-score.none { color: #64748b; font-size: 2.2rem; }
+    .rp-sub { color: #94a3b8; }
+    .rp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 2rem 0; }
+    .rp-stat { background: rgba(148,163,184,0.06); border: 1px solid rgba(148,163,184,0.15); border-radius: 10px; padding: 1rem; }
+    .rp-stat b { display: block; font-size: 1.4rem; font-family: "JetBrains Mono", monospace; }
+    .rp-stat span { color: #94a3b8; font-size: 0.8rem; }
+    .rp-claim { background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.25); border-radius: 12px; padding: 1.5rem; margin-top: 2.5rem; }
+    .rp-claim h3 { margin-top: 0; }
+    .rp-claim pre { background: #0f172a; border-radius: 8px; padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.85rem; }
+    .rp-meta { color: #64748b; font-size: 0.85rem; margin-top: 2rem; }
+    .rp-agents table { width: 100%; border-collapse: collapse; }
+    .rp-agents td, .rp-agents th { padding: 0.5rem 0.8rem; text-align: right; border-top: 1px solid rgba(148,163,184,0.12); }
+    .rp-agents td:first-child, .rp-agents th:first-child { text-align: left; }
+  </style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main id="main" class="rp-wrap">
+  <p><a href="/survival">&larr; AI Code Survival Leaderboard</a></p>
+  <p class="rp-sub">AI Code Survival Profile</p>
+  <h1 class="rp-name" id="rp-name">loading…</h1>
+  <div class="rp-score none" id="rp-score">…</div>
+  <p class="rp-sub" id="rp-verdict"></p>
+
+  <div class="rp-grid" id="rp-grid" hidden>
+    <div class="rp-stat"><b id="s-commits">–</b><span>commits analyzed</span></div>
+    <div class="rp-stat"><b id="s-ai">–</b><span>verified AI commits</span></div>
+    <div class="rp-stat"><b id="s-intro">–</b><span>AI lines introduced</span></div>
+    <div class="rp-stat"><b id="s-surv">–</b><span>still alive at HEAD</span></div>
+  </div>
+
+  <div class="rp-claim">
+    <h3>Own this repository?</h3>
+    <p>This profile was generated from your public git history alone — anyone can
+    reproduce it with <code id="rp-cmd">re audit owner/repo</code>. Claim it:</p>
+    <p><strong>1. Show your score</strong> — add the badge to your README:</p>
+    <pre id="rp-badge">re audit --badge</pre>
+    <p><strong>2. Get precise numbers on every PR</strong> — one step in any workflow:</p>
+    <pre>- uses: croviatrust/causari@v1</pre>
+    <p>Think the numbers are wrong? The methodology is
+    <a href="https://github.com/croviatrust/causari" rel="noopener">open source</a> —
+    open an issue and we will fix it in public.</p>
+  </div>
+
+  <p class="rp-meta" id="rp-meta"></p>
+</main>
+
+<footer class="footer">
+  <div class="container foot-bottom">
+    <p>© <span id="year">2026</span> <a href="https://croviatrust.com" rel="noopener">Croviatrust</a>. <em>Causari</em> is a trademark of Croviatrust.</p>
+    <p class="muted">Reproducible: <code>re audit &lt;owner/repo&gt;</code> · <a href="/">causari.dev</a></p>
+  </div>
+</footer>
+
+<script src="/repo.js" defer></script>
+</body>
+</html>
