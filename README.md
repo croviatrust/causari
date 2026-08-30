@@ -769,6 +769,6 @@ Contributing? See `CONTRIBUTING.md`.
 ---
 
 Causari is built by [Croviatrust](https://croviatrust.com) — the team behind
-**Crovia**, the cryptographically signed, Bitcoin-anchored public ledger of
-AI training-data transparency. Same DNA, different layer: Crovia proves what
-models learned; **Causari proves what agents did.**
+**Crovia**, the public transparency ledger for AI training data. Same DNA,
+different layer: Crovia proves what models learned; **Causari proves what
+agents did.**
