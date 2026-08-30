@@ -5,9 +5,9 @@ and we want to keep it that way — please read this first.
 
 ## Ground rules
 
-- **Causari is licensed under BSL 1.1** (see [`LICENSE`](LICENSE) and
-  [`NOTICE`](NOTICE)). Production use is permitted; reselling Causari as a
-  hosted "causality-as-a-service" is not, until the four-year change date.
+- **Causari is licensed under Apache-2.0** (see [`LICENSE`](LICENSE) and
+  [`NOTICE`](NOTICE)) — free for any use, personal or commercial, at any
+  scale. "Causari" is a trademark of Croviatrust.
 - **All contributions require a signed CLA** ([`CLA.md`](CLA.md)). The first
   PR you open will be commented automatically with the CLA bot — confirm and
   you only sign once.

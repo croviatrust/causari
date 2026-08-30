@@ -3,10 +3,9 @@
 Thank you for your interest in contributing to **Causari** (the "Project").
 
 To keep the Project legally clean and to preserve our ability to relicense
-the code in the future (for example, to convert all releases to Apache 2.0
-at the Change Date, or to provide commercial licenses to enterprise users),
-**every contributor must agree to this CLA before their first contribution
-is merged**.
+the code in the future (for example, to provide commercial licenses to
+enterprise users of products built on the Project), **every contributor
+must agree to this CLA before their first contribution is merged**.
 
 By submitting a pull request, issue patch, or any other contribution
 ("Contribution") to the Project, you ("Contributor") accept and agree to
@@ -32,10 +31,9 @@ works of, publicly display, publicly perform, sublicense, and distribute
 Your Contributions and such derivative works under any license, including
 **commercial, proprietary, or differently-open-source licenses**.
 
-This is what allows the Project Maintainers to (a) keep the Project on the
-Business Source License 1.1, (b) execute the automatic conversion to
-Apache 2.0 at the Change Date, and (c) offer commercial licenses to users
-whose use does not fall under the Additional Use Grant.
+This is what allows the Project Maintainers to (a) distribute the Project
+under the Apache License 2.0, and (b) offer commercial licenses and
+commercial products built on the Project.
 
 ## 3. Patent license
 

@@ -14,12 +14,12 @@
   &nbsp;·&nbsp;
   <a href="#mcp-server">MCP</a>
   &nbsp;·&nbsp;
-  <a href="LICENSE">License (BSL 1.1)</a>
+  <a href="LICENSE">License (Apache-2.0)</a>
 </p>
 
 <p align="center">
   <img alt="CI" src="https://github.com/croviatrust/causari/actions/workflows/ci.yml/badge.svg?branch=main">
-  <img alt="License" src="https://img.shields.io/badge/license-BSL%201.1-7c3aed">
+  <img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-4c1">
   <img alt="Rust" src="https://img.shields.io/badge/rust-stable-orange">
   <img alt="Platform" src="https://img.shields.io/badge/platform-linux%20%7C%20macOS%20%7C%20windows-blue">
 </p>
@@ -749,24 +749,9 @@ single ~2 MB executable with no runtime dependencies.
 
 ## License
 
-Causari is released under the **Business Source License 1.1** (see
-`LICENSE`). In plain English:
-
-- **Free for you, forever**, in all of these cases:
-  - personal use, including paid client work;
-  - any organization's own internal development, in production and CI/CD,
-    at any scale;
-  - use by AI agents acting on infrastructure you control (laptop, server,
-    CI runner) — this is the default way Causari is meant to be used;
-  - academic research, teaching, non-commercial open-source projects;
-  - redistribution of unmodified binaries via cargo / brew / apt / choco /
-    nix / winget.
-- **Not free** if you want to resell Causari itself to third parties as a
-  hosted or managed service whose primary value is version control,
-  causality or provenance tracking for AI agents. For that, talk to us.
-- **Becomes Apache 2.0 automatically** four years after each version is
-  published. The change is mechanical: nothing the project maintainers can
-  prevent or accelerate.
+Causari is released under the **Apache License 2.0** (see `LICENSE`) —
+free and open source, forever, for any use: personal, commercial, at any
+scale. Fork it, embed it, ship it.
 
 **The experience layer (skills) is and will remain free** in the `re`
 binary — distillation, Ed25519 signing, verification and recall all run
@@ -776,13 +761,10 @@ timestamping, fleet dashboards and audit-grade compliance exports. The
 free tool creates the experience; the paid plane lets a company trust it
 at scale.
 
-Why BSL? Causari is meant to be widely used and modified, but we are not
-interested in subsidizing a future closed-source clone built by a
-better-distributed competitor. This is the same model that lets Sentry,
-HashiCorp and CockroachDB stay genuinely useful and contributable while
-sustaining the people who build them.
+"Causari" is a trademark of Croviatrust; the Apache License does not grant
+trademark rights (see `NOTICE`).
 
-Contributing? See `CLA.md`.
+Contributing? See `CONTRIBUTING.md`.
 
 ---
 
