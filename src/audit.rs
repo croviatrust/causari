@@ -18,6 +18,7 @@ use anyhow::{Context, Result};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::Path;
 use std::process::Command;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 /// How sure we are that a commit is AI-authored, and why.
 #[derive(Debug, Clone, PartialEq)]
@@ -463,10 +464,28 @@ pub fn read_commits(dir: &Path) -> Result<Vec<CommitMeta>> {
     Ok(commits)
 }
 
-/// Lines added by one commit (text files only).
-pub fn lines_added(dir: &Path, hash: &str) -> Result<u64> {
-    let raw = git(dir, &["show", "--numstat", "--format=", hash])?;
-    Ok(parse_numstat_added(&raw))
+/// Parse the output of `git log --numstat --format=%x00%H` into per-commit
+/// added-line counts. One git traversal replaces one `git show` per commit.
+pub fn parse_log_numstat(raw: &str) -> HashMap<String, u64> {
+    let mut map = HashMap::new();
+    for record in raw.split('\u{0}') {
+        let record = record.trim_start_matches('\n');
+        if record.trim().is_empty() {
+            continue;
+        }
+        let (hash, rest) = record.split_once('\n').unwrap_or((record, ""));
+        let hash = hash.trim();
+        if hash.len() == 40 && hash.chars().all(|c| c.is_ascii_hexdigit()) {
+            map.insert(hash.to_string(), parse_numstat_added(rest));
+        }
+    }
+    map
+}
+
+/// Added-line counts for every non-merge commit, in a single git call.
+pub fn lines_added_all(dir: &Path) -> Result<HashMap<String, u64>> {
+    let raw = git(dir, &["log", "--no-merges", "--numstat", "--format=%x00%H"])?;
+    Ok(parse_log_numstat(&raw))
 }
 
 /// Blame every tracked text file at HEAD, returning the owning commit of each
@@ -480,16 +499,45 @@ pub fn blame_head(dir: &Path) -> Result<Vec<String>> {
         .filter(|l| !is_generated_path(l))
         .collect();
     let total = list.len();
-    let mut owners = Vec::new();
-    for (i, file) in list.iter().enumerate() {
-        if total > 200 && i % 200 == 0 {
-            eprintln!("  blaming files at HEAD: {i}/{total}");
+    // Blame is embarrassingly parallel across files: each worker pulls the
+    // next index from a shared atomic cursor and runs its own git subprocess.
+    // Line order is irrelevant — owners are aggregated into per-commit counts.
+    let threads = std::thread::available_parallelism()
+        .map(|n| n.get())
+        .unwrap_or(4)
+        .clamp(2, 16);
+    let cursor = AtomicUsize::new(0);
+    let done = AtomicUsize::new(0);
+    let owners: Vec<String> = std::thread::scope(|s| {
+        let mut handles = Vec::new();
+        for _ in 0..threads {
+            handles.push(s.spawn(|| {
+                let mut local: Vec<String> = Vec::new();
+                loop {
+                    let i = cursor.fetch_add(1, Ordering::Relaxed);
+                    if i >= total {
+                        break;
+                    }
+                    // Skip files git cannot blame (e.g. binary): tolerate
+                    // per-file errors.
+                    if let Ok(porcelain) =
+                        git(dir, &["blame", "--line-porcelain", "HEAD", "--", list[i]])
+                    {
+                        local.extend(parse_blame_owners(&porcelain));
+                    }
+                    let d = done.fetch_add(1, Ordering::Relaxed) + 1;
+                    if total > 200 && d % 200 == 0 {
+                        eprintln!("  blaming files at HEAD: {d}/{total}");
+                    }
+                }
+                local
+            }));
         }
-        // Skip files git cannot blame (e.g. binary): tolerate per-file errors.
-        if let Ok(porcelain) = git(dir, &["blame", "--line-porcelain", "HEAD", "--", file]) {
-            owners.extend(parse_blame_owners(&porcelain));
-        }
-    }
+        handles
+            .into_iter()
+            .flat_map(|h| h.join().unwrap_or_default())
+            .collect()
+    });
     Ok(owners)
 }
 
@@ -509,9 +557,15 @@ pub fn audit_repo(dir: &Path) -> Result<SurvivalReport> {
         })
         .collect();
 
+    // One git traversal for all counts instead of one `git show` per commit.
+    let added_by_hash = if attributed.is_empty() {
+        HashMap::new()
+    } else {
+        lines_added_all(dir)?
+    };
     for c in commits {
         let introduced = if attributed.contains(&c.hash) {
-            lines_added(dir, &c.hash)?
+            added_by_hash.get(&c.hash).copied().unwrap_or(0)
         } else {
             0
         };
@@ -615,6 +669,19 @@ mod tests {
         );
         assert!(detect_ai(&c).is_none());
         assert_eq!(classify(None), EvidenceClass::Unknown);
+    }
+
+    #[test]
+    fn parse_log_numstat_splits_per_commit() {
+        let a = "a".repeat(40);
+        let b = "b".repeat(40);
+        let raw = format!(
+            "\u{0}{a}\n10\t2\tsrc/main.rs\n5\t0\tREADME.md\n\u{0}{b}\n7\t1\tsrc/lib.rs\n3\t0\tpackage-lock.json\n"
+        );
+        let map = parse_log_numstat(&raw);
+        assert_eq!(map.get(a.as_str()), Some(&15));
+        // Lockfile excluded: only src/lib.rs counts.
+        assert_eq!(map.get(b.as_str()), Some(&7));
     }
 
     #[test]
