@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, bail};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
@@ -93,12 +93,107 @@ pub fn snapshot_workspace(repo: &Repo) -> Result<String> {
 /// This is the killer feature: it deletes / restores files until the
 /// workspace is byte-identical to the snapshot. Ignored paths are left alone.
 pub fn restore_workspace(repo: &Repo, tree_id: &str) -> Result<RestoreReport> {
+    // Validate the complete object graph and destination before the first write.
+    // This is preflight, not a transaction against concurrent filesystem writers.
+    plan_restore(repo, tree_id)?;
     let store = Store::new(repo);
     let mut report = RestoreReport::default();
     restore_tree(&store, &repo.root, tree_id, &mut report)?;
     // After writing, walk the actual filesystem to delete files not in target.
     cleanup_extras(&store, repo, tree_id, &mut report)?;
     Ok(report)
+}
+
+/// Read-only validation and exact file counts for a quiescent workspace.
+/// Reject unsupported path/type changes rather than partially applying them.
+pub fn plan_restore(repo: &Repo, tree_id: &str) -> Result<RestoreReport> {
+    let store = Store::new(repo);
+    let mut report = RestoreReport::default();
+    let mut targets = std::collections::HashSet::new();
+    validate_restore_tree(&store, &repo.root, tree_id, 0, &mut targets, &mut report)?;
+    for entry in WalkDir::new(&repo.root).into_iter().filter_entry(|e| {
+        let rel = e.path().strip_prefix(&repo.root).unwrap_or(e.path());
+        !is_ignored(rel)
+    }) {
+        let entry = entry?;
+        if entry.file_type().is_file() && !targets.contains(entry.path()) {
+            report.files_deleted += 1;
+        }
+    }
+    Ok(report)
+}
+
+fn validate_restore_tree(
+    store: &Store,
+    dir: &Path,
+    tree_id: &str,
+    depth: usize,
+    targets: &mut std::collections::HashSet<PathBuf>,
+    report: &mut RestoreReport,
+) -> Result<()> {
+    if depth > 256 {
+        bail!("snapshot exceeds supported tree depth (256)");
+    }
+    validate_destination(dir, true)?;
+    let tree = store.read_tree(tree_id)?;
+    for (name, entry) in tree.entries {
+        // Validate portable single components, including Windows separators/ADS.
+        if name.is_empty()
+            || name == "."
+            || name == ".."
+            || name.ends_with(['.', ' '])
+            || name.chars().any(char::is_control)
+            || name.contains(['/', '\\', ':', '\0'])
+            || Path::new(&name).is_absolute()
+            || is_ignored(Path::new(&name))
+        {
+            bail!("unsafe or protected snapshot entry: {:?}", name);
+        }
+        let path = dir.join(&name);
+        match entry.kind.as_str() {
+            "tree" => validate_restore_tree(store, &path, &entry.id, depth + 1, targets, report)?,
+            "blob" => {
+                validate_destination(&path, false)?;
+                let target = store.read_blob(&entry.id)?;
+                targets.insert(path.clone());
+                match std::fs::read(&path) {
+                    Ok(current) if current == target => report.files_unchanged += 1,
+                    Ok(_) => report.files_written += 1,
+                    Err(e) if e.kind() == std::io::ErrorKind::NotFound => report.files_written += 1,
+                    Err(e) => return Err(e).with_context(|| format!("reading {}", path.display())),
+                }
+            }
+            kind => bail!(
+                "unsupported snapshot entry kind {:?} at {}",
+                kind,
+                path.display()
+            ),
+        }
+    }
+    Ok(())
+}
+
+fn validate_destination(path: &Path, directory: bool) -> Result<()> {
+    match std::fs::symlink_metadata(path) {
+        Ok(meta) => {
+            if meta.file_type().is_symlink() {
+                bail!("refusing to restore through symlink: {}", path.display());
+            }
+            if (directory && !meta.is_dir()) || (!directory && !meta.is_file()) {
+                bail!("restore path type conflict: {}", path.display());
+            }
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::MetadataExt;
+                if !directory && meta.nlink() > 1 {
+                    bail!("refusing to overwrite hard-linked file: {}", path.display());
+                }
+            }
+            Ok(())
+        }
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(e) => Err(e).with_context(|| format!("inspecting {}", path.display())),
+    }
 }
 
 #[derive(Debug, Default)]
@@ -345,6 +440,151 @@ mod tests {
                 created_at: "2026-01-01T00:00:00Z".into(),
             })
             .unwrap()
+    }
+
+    #[test]
+    fn stress_restore_matches_24_distinct_snapshots_with_binary_files() {
+        let (_tmp, repo) = test_repo();
+        for round in 0u32..24 {
+            for file in 0u32..48 {
+                let data: Vec<u8> = (0u32..257)
+                    .map(|n| ((n * 37 + file * 13 + round * 7) % 256) as u8)
+                    .collect();
+                let path = repo.root.join(format!("group{}/file{file}", file % 4));
+                std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+                std::fs::write(path, data).unwrap();
+            }
+            let target = snapshot_workspace(&repo).unwrap();
+            write(&repo, "group0/file0", "modified");
+            std::fs::remove_file(repo.root.join("group1/file1")).unwrap();
+            write(&repo, "extra", "delete this");
+            write(&repo, ".env", "must survive");
+            let before = snapshot_workspace(&repo).unwrap();
+            let plan = plan_restore(&repo, &target).unwrap();
+            assert_eq!(snapshot_workspace(&repo).unwrap(), before);
+            assert_eq!(
+                (plan.files_written, plan.files_deleted, plan.files_unchanged),
+                (2, 1, 46)
+            );
+            restore_workspace(&repo, &target).unwrap();
+            assert_eq!(snapshot_workspace(&repo).unwrap(), target);
+            assert_eq!(
+                std::fs::read_to_string(repo.root.join(".env")).unwrap(),
+                "must survive"
+            );
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn hard_link_destination_is_rejected() {
+        let (_tmp, repo) = test_repo();
+        write(&repo, "file", "original");
+        let tree = snapshot_workspace(&repo).unwrap();
+        let outside = tempfile::tempdir().unwrap();
+        std::fs::hard_link(repo.root.join("file"), outside.path().join("alias")).unwrap();
+        write(&repo, "file", "external state");
+        assert!(restore_workspace(&repo, &tree).is_err());
+        assert_eq!(
+            std::fs::read_to_string(outside.path().join("alias")).unwrap(),
+            "external state"
+        );
+    }
+
+    #[test]
+    fn path_type_conflict_does_not_partially_restore() {
+        let (_tmp, repo) = test_repo();
+        write(&repo, "a", "original");
+        write(&repo, "z", "file");
+        let tree = snapshot_workspace(&repo).unwrap();
+        write(&repo, "a", "new work");
+        std::fs::remove_file(repo.root.join("z")).unwrap();
+        write(&repo, "z/child", "preserve");
+        assert!(restore_workspace(&repo, &tree).is_err());
+        assert_eq!(
+            std::fs::read_to_string(repo.root.join("a")).unwrap(),
+            "new work"
+        );
+    }
+
+    #[test]
+    fn missing_late_blob_does_not_partially_restore() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+        write(&repo, "a.txt", "before");
+        write(&repo, "z.txt", "late");
+        let tree = snapshot_workspace(&repo).unwrap();
+        let flat = flatten_tree(&store, &tree).unwrap();
+        let id = &flat[Path::new("z.txt")];
+        std::fs::remove_file(repo.objects_dir().join(&id[..2]).join(&id[2..])).unwrap();
+        write(&repo, "a.txt", "valuable new work");
+        assert!(restore_workspace(&repo, &tree).is_err());
+        assert_eq!(
+            std::fs::read_to_string(repo.root.join("a.txt")).unwrap(),
+            "valuable new work"
+        );
+    }
+
+    #[test]
+    fn unsafe_tree_names_and_unknown_kinds_are_rejected() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+        let blob = store.write_blob(b"bad").unwrap();
+        for name in [
+            "../escape",
+            "/absolute",
+            "a/b",
+            "a\\b",
+            ".causari",
+            ".env",
+            "..",
+            "",
+        ] {
+            let tree = store
+                .write_tree(&Tree {
+                    entries: BTreeMap::from([(
+                        name.into(),
+                        TreeEntry {
+                            kind: "blob".into(),
+                            id: blob.clone(),
+                        },
+                    )]),
+                })
+                .unwrap();
+            assert!(
+                restore_workspace(&repo, &tree).is_err(),
+                "accepted {name:?}"
+            );
+        }
+        let tree = store
+            .write_tree(&Tree {
+                entries: BTreeMap::from([(
+                    "safe".into(),
+                    TreeEntry {
+                        kind: "unknown".into(),
+                        id: blob,
+                    },
+                )]),
+            })
+            .unwrap();
+        assert!(restore_workspace(&repo, &tree).is_err());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn restore_refuses_symlink_escape_without_touching_external_file() {
+        let (_tmp, repo) = test_repo();
+        let outside = tempfile::tempdir().unwrap();
+        write(&repo, "dir/file", "snapshot");
+        let tree = snapshot_workspace(&repo).unwrap();
+        std::fs::remove_dir_all(repo.root.join("dir")).unwrap();
+        std::fs::write(outside.path().join("file"), "external").unwrap();
+        std::os::unix::fs::symlink(outside.path(), repo.root.join("dir")).unwrap();
+        assert!(restore_workspace(&repo, &tree).is_err());
+        assert_eq!(
+            std::fs::read_to_string(outside.path().join("file")).unwrap(),
+            "external"
+        );
     }
 
     #[test]

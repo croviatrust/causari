@@ -157,6 +157,10 @@ pub struct RevertArgs {
     /// Skip confirmation prompt
     #[arg(long)]
     pub yes: bool,
+
+    /// Validate the full restore and show file counts without changing files
+    #[arg(long)]
+    pub dry_run: bool,
 }
 
 #[derive(Args, Debug)]

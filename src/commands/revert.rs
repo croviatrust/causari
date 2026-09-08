@@ -6,7 +6,7 @@ use crate::cli::RevertArgs;
 use crate::commands::impact::compute_impact;
 use crate::object::resolve_id;
 use crate::repo::Repo;
-use crate::snapshot::restore_workspace;
+use crate::snapshot::{plan_restore, restore_workspace};
 use crate::store::Store;
 
 pub fn run(args: RevertArgs) -> Result<()> {
@@ -43,6 +43,16 @@ pub fn run(args: RevertArgs) -> Result<()> {
             "note:".bright_black()
         );
         println!();
+    }
+
+    let plan = plan_restore(&repo, &target_snapshot.tree)?;
+    println!(
+        "restore plan: {} written, {} deleted, {} unchanged",
+        plan.files_written, plan.files_deleted, plan.files_unchanged
+    );
+    if args.dry_run {
+        println!("dry run: snapshot verified; no workspace files changed.");
+        return Ok(());
     }
 
     if !args.yes {

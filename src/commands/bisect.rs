@@ -5,7 +5,7 @@ use std::process::Command;
 use crate::cli::BisectArgs;
 use crate::object::resolve_id;
 use crate::repo::Repo;
-use crate::snapshot::restore_workspace;
+use crate::snapshot::{plan_restore, restore_workspace, snapshot_workspace};
 use crate::store::Store;
 
 /// `re bisect --good <id> --bad <id> --test "<cmd>"`
@@ -19,12 +19,33 @@ use crate::store::Store;
 pub fn run(args: BisectArgs) -> Result<()> {
     let repo = Repo::discover()?;
     let store = Store::new(&repo);
+    let original_tree = snapshot_workspace(&repo)?;
+    plan_restore(&repo, &original_tree)?;
+    let result = search(&repo, &store, &args);
+    // Restore the actual starting workspace, including unrecorded edits, on
+    // both success and ordinary errors. Shell commands are not sandboxed.
+    let recovery = restore_workspace(&repo, &original_tree);
+    match (result, recovery) {
+        (Ok(()), Ok(_)) => {
+            println!("workspace restored to its pre-bisect state (including unrecorded files).");
+            Ok(())
+        }
+        (Err(error), Ok(_)) => Err(error),
+        (Ok(()), Err(error)) => Err(error).context(format!(
+            "bisect finished but workspace recovery failed; recovery tree: {original_tree}"
+        )),
+        (Err(error), Err(recovery)) => Err(anyhow!(
+            "bisect failed: {error:#}; workspace recovery also failed: {recovery:#}; recovery tree: {original_tree}"
+        )),
+    }
+}
 
+fn search(repo: &Repo, store: &Store, args: &BisectArgs) -> Result<()> {
     let good_id = resolve_id(&repo.objects_dir(), &args.good)?;
     let bad_id = resolve_id(&repo.objects_dir(), &args.bad)?;
 
     // Build the chain from `bad` walking back to `good`. We need linear ancestry.
-    let chain = ancestry_between(&store, &good_id, &bad_id)?;
+    let chain = ancestry_between(store, &good_id, &bad_id)?;
     if chain.is_empty() {
         return Err(anyhow!(
             "good event {} is not an ancestor of bad event {}",
@@ -42,6 +63,17 @@ pub fn run(args: BisectArgs) -> Result<()> {
     );
     println!("  test command: {}", args.test.cyan());
     println!();
+
+    if !test_passes(repo, store, &good_id, &args.test)? {
+        return Err(anyhow!(
+            "known-good event fails the test; refusing an invalid bisect range"
+        ));
+    }
+    if test_passes(repo, store, &bad_id, &args.test)? {
+        return Err(anyhow!(
+            "known-bad event passes the test; refusing an invalid bisect range"
+        ));
+    }
 
     // chain[0] = first event after good, chain[last] = bad.
     // Invariant: passes(chain[-1]) might be false, passes(good) is true.
@@ -62,7 +94,7 @@ pub fn run(args: BisectArgs) -> Result<()> {
             step,
             (&candidate[..10]).yellow()
         );
-        if test_passes(&repo, &store, candidate, &args.test)? {
+        if test_passes(repo, store, candidate, &args.test)? {
             println!("    {} passes", "✓".green());
             lo = mid + 1;
         } else {
@@ -112,16 +144,6 @@ pub fn run(args: BisectArgs) -> Result<()> {
         }
     }
 
-    // Restore workspace to the bad state so the user is not left in a half-baked place.
-    let bad_event = store.read_event(&bad_id)?;
-    let bad_snap = store.read_snapshot(&bad_event.post_snapshot)?;
-    restore_workspace(&repo, &bad_snap.tree)?;
-    println!();
-    println!(
-        "  {} workspace restored to bad state ({})",
-        "info:".cyan(),
-        (&bad_id[..10]).red()
-    );
     Ok(())
 }
 
@@ -164,5 +186,14 @@ fn test_passes(repo: &Repo, store: &Store, event_id: &str, test_cmd: &str) -> Re
         .current_dir(&repo.root)
         .status()
         .with_context(|| format!("running test command: {}", test_cmd))?;
-    Ok(status.success())
+    match status.code() {
+        Some(0) => Ok(true),
+        Some(1..=124) => Ok(false),
+        Some(code) => Err(anyhow!(
+            "test command aborted with exit code {code}; not classifying it as a regression (125/126/127 are skip or execution errors)"
+        )),
+        None => Err(anyhow!(
+            "test command terminated by signal; not classifying it as a regression"
+        )),
+    }
 }

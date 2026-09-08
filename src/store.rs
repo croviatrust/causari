@@ -4,6 +4,13 @@ use std::path::PathBuf;
 use crate::object::{Event, ObjectKind, Snapshot, Tree, canonical_json, hash_bytes};
 use crate::repo::Repo;
 
+fn valid_id(id: &str) -> bool {
+    id.len() == 64
+        && id
+            .bytes()
+            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+}
+
 /// Read-write access to the content-addressable object store.
 pub struct Store<'a> {
     pub repo: &'a Repo,
@@ -20,7 +27,7 @@ impl<'a> Store<'a> {
 
     #[allow(dead_code)] // public helper, used by tests and tooling
     pub fn exists(&self, id: &str) -> bool {
-        id.len() >= 4 && self.path_for(id).exists()
+        valid_id(id) && self.path_for(id).exists()
     }
 
     /// Write raw bytes; returns the BLAKE3 hex id.
@@ -81,8 +88,30 @@ impl<'a> Store<'a> {
     }
 
     fn read_raw(&self, id: &str) -> Result<Vec<u8>> {
+        if !valid_id(id) {
+            return Err(anyhow!(
+                "invalid object id: expected 64 lowercase hexadecimal characters"
+            ));
+        }
         let path = self.path_for(id);
-        std::fs::read(&path).with_context(|| format!("reading object {}", id))
+        let raw = std::fs::read(&path).with_context(|| format!("reading object {}", id))?;
+        let payload = match raw.first() {
+            Some(b'B') => &raw[1..],
+            Some(b'T' | b'S' | b'E') => raw.as_slice(),
+            _ => {
+                return Err(anyhow!(
+                    "object {} has an invalid or missing kind marker",
+                    id
+                ));
+            }
+        };
+        if hash_bytes(payload) != id {
+            return Err(anyhow!(
+                "object {} failed integrity verification (BLAKE3 mismatch)",
+                id
+            ));
+        }
+        Ok(raw)
     }
 
     fn read_structured<T: serde::de::DeserializeOwned>(
@@ -160,6 +189,32 @@ mod tests {
             exit_code: None,
             created_at: "2026-01-01T00:00:00Z".into(),
         }
+    }
+
+    #[test]
+    fn malformed_ids_return_errors_without_panicking() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+        for id in ["", "a", "é", "../outside", &"z".repeat(64)] {
+            assert!(store.read_blob(id).is_err(), "accepted {id:?}");
+            assert!(!store.exists(id));
+        }
+    }
+
+    #[test]
+    fn tampered_objects_are_rejected() {
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+        let id = store.write_blob(b"original").unwrap();
+        std::fs::write(store.path_for(&id), b"Btampered").unwrap();
+        assert!(store.read_blob(&id).is_err());
+        let tree = store
+            .write_tree(&Tree {
+                entries: BTreeMap::new(),
+            })
+            .unwrap();
+        std::fs::write(store.path_for(&tree), b"T{\"entries\":{},\"extra\":true}").unwrap();
+        assert!(store.read_tree(&tree).is_err());
     }
 
     #[test]

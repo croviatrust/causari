@@ -772,3 +772,37 @@ Causari is built by [Croviatrust](https://croviatrust.com) — the team behind
 **Crovia**, the public transparency ledger for AI training data. Same DNA,
 different layer: Crovia proves what models learned; **Causari proves what
 agents did.**
+
+
+### Verified recovery and a reproducible stress lab
+
+`re revert <event-id> --dry-run` validates the complete target snapshot and reports
+files to write, delete and leave unchanged without changing workspace files.
+Object reads verify BLAKE3 integrity. Restore preflight rejects invalid object IDs,
+unsafe or protected tree names, symlink destinations, Unix hard-linked destinations,
+unsupported entry kinds, missing/corrupted objects and file/directory conflicts
+before the first workspace write.
+
+`re bisect --good <id> --bad <id> --test "<command>"` validates both endpoints and
+restores the actual starting snapshot, including unrecorded captured files, after
+success or ordinary errors. Exit codes 125 and above, and signal termination,
+abort instead of being labeled a code regression. Tests must be deterministic
+with a single good-to-bad transition; this is still a binary search.
+
+Run the synthetic recovery lab against a locally built binary:
+
+```sh
+cargo build --locked
+python scripts/recovery_lab.py --events 64 --files 128
+```
+
+The lab creates a disposable project, records a known regression, adds unrecorded
+work, checks the dry run, locates the regression and compares every workspace
+file by SHA-256. It does not call or benchmark an AI model.
+
+**Scope:** preflight is not a transactional filesystem or a security sandbox.
+Stop agents/watchers and other writers during recovery. Concurrent changes,
+power loss, disk exhaustion, forced termination and shell commands that damage
+the ledger can still prevent recovery. Snapshot exclusions (including `.env`,
+build outputs, symlinks and file permissions) retain their existing semantics.
+Do not run untrusted test commands: bisect executes them in the workspace.
