@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use colored::Colorize;
 use std::path::{Path, PathBuf};
 
@@ -106,16 +106,24 @@ fn check_against_repo(_path: &Path, env: &proof::ProofEnvelope) -> Result<()> {
     let store = Store::new(&repo);
     if proof::matches_repo(&repo, &store, env)? {
         println!(
-            "  {} proof matches the current ledger exactly",
+            "  {} the set of reachable event ids in this repository matches the proof's ledger digest",
             "fresh:".green().bold()
+        );
+        println!(
+            "  {} this check covers reachable event ids only — not blob contents, the working tree or skills",
+            "scope:".bright_black()
         );
         Ok(())
     } else {
         println!(
             "  {} ledger has changed since this proof was generated — re-run {}",
-            "stale:".yellow().bold(),
+            "stale:".red().bold(),
             "re proof generate".cyan()
         );
-        Ok(())
+        // Signature already verified above; freshness is a separate,
+        // FAILING check. A CI gate keyed on the exit status must go red.
+        Err(anyhow!(
+            "proof is stale: signature valid, but the repository ledger no longer matches"
+        ))
     }
 }

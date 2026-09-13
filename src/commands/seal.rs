@@ -17,12 +17,24 @@ fn verify(file: Option<std::path::PathBuf>) -> Result<()> {
     if let Some(path) = file {
         let raw = std::fs::read_to_string(&path)
             .with_context(|| format!("reading {}", path.display()))?;
-        let value: serde_json::Value = serde_json::from_str(&raw).context("parsing seal JSON")?;
+        let value = seal::parse_json_strict(&raw).context("parsing seal JSON")?;
         seal::verify_seal(&value)?;
         println!(
-            "{} {} — signature valid, structure conformant (crovia.seal.v1)",
+            "{} {} (crovia.seal.v1)",
             "✓".green().bold(),
             value["seal_id"].as_str().unwrap_or("(seal)").cyan()
+        );
+        println!("  structure: conformant (typed fields, no duplicate keys, CSC-1 canonical)");
+        println!(
+            "  signature: valid Ed25519 by issuer key {}…",
+            value["issuer"]["pubkey"]["key_hex"]
+                .as_str()
+                .map(|k| &k[..k.len().min(16)])
+                .unwrap_or("?")
+        );
+        println!(
+            "  {} a valid signature proves who issued the receipt and that it was not altered; it does not by itself prove the trust of that key or the completeness of the chain.",
+            "note:".bright_black()
         );
         return Ok(());
     }
@@ -58,7 +70,7 @@ fn list(limit: usize) -> Result<()> {
     let seals: Vec<serde_json::Value> = raw
         .lines()
         .filter(|l| !l.trim().is_empty())
-        .filter_map(|l| serde_json::from_str(l).ok())
+        .filter_map(|l| seal::parse_json_strict(l).ok())
         .collect();
 
     let total = seals.len();

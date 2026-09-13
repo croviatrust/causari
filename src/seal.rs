@@ -198,12 +198,33 @@ pub struct SealGenerator<'a> {
 /// A stateful Seal issuer bound to a repository: owns the Ed25519 issuer
 /// key, the chain state and the append-only seal log.
 pub struct SealIssuer {
+    repo: Repo,
     key: SigningKey,
     issuer_id: String,
     sequence: u64,
     prev_seal_hash: Option<String>,
     state_path: PathBuf,
     log_path: PathBuf,
+}
+
+/// Chain position implied by the last seal in `log_path`: `(next_sequence,
+/// prev_seal_hash)`. The append-only log is the source of truth; `state.json`
+/// is only a cache of this value.
+fn chain_tail(log_path: &std::path::Path) -> Result<(u64, Option<String>)> {
+    if !log_path.exists() {
+        return Ok((0, None));
+    }
+    let raw = std::fs::read_to_string(log_path)
+        .with_context(|| format!("reading {}", log_path.display()))?;
+    let Some(last) = raw.lines().rev().find(|l| !l.trim().is_empty()) else {
+        return Ok((0, None));
+    };
+    let seal = parse_json_strict(last).context("last line of seals.jsonl is not valid JSON")?;
+    let seq = seal["chain"]["sequence"]
+        .as_u64()
+        .ok_or_else(|| anyhow!("last seal has no chain.sequence"))?;
+    let payload = signing_payload(&seal)?;
+    Ok((seq + 1, Some(format!("sha256:{}", sha256_hex(&payload)))))
 }
 
 pub fn seal_dir(repo: &Repo) -> PathBuf {
@@ -248,23 +269,14 @@ impl SealIssuer {
         };
 
         let sp = state_path(repo);
-        let (sequence, prev_seal_hash) = if sp.exists() {
-            let raw = std::fs::read_to_string(&sp)?;
-            let v: Value = serde_json::from_str(&raw).context("parsing seal chain state")?;
-            let seq = v
-                .get("sequence")
-                .and_then(Value::as_u64)
-                .ok_or_else(|| anyhow!("corrupt seal state: missing sequence"))?;
-            let prev = v
-                .get("prev_seal_hash")
-                .and_then(Value::as_str)
-                .map(String::from);
-            (seq, prev)
-        } else {
-            (0, None)
-        };
+        // The log decides. state.json may be ahead (append failed after the
+        // state was written by an older version) or behind (crash between
+        // append and state write); either way the log tail is what the next
+        // seal must chain to.
+        let (sequence, prev_seal_hash) = chain_tail(&seals_log_path(repo))?;
 
         Ok(Self {
+            repo: repo.clone(),
             key,
             issuer_id: issuer_id.unwrap_or_else(|| "urn:crovia:seal-issuer:causari".to_string()),
             sequence,
@@ -283,7 +295,19 @@ impl SealIssuer {
     }
 
     /// Emit, sign, chain and persist one Seal. Returns the complete Seal.
+    ///
+    /// Holds the repository lock for the whole read-tail → sign → append
+    /// section, so several issuers on the same repository (two `re proxy`
+    /// processes) produce one contiguous chain instead of two forks. The
+    /// seal is appended to the log BEFORE the state cache is written: a
+    /// crash in between leaves a valid log and a stale cache, never a
+    /// gap in the chain.
     pub fn emit(&mut self, subject: SealSubject, generator: SealGenerator) -> Result<Value> {
+        let _lock = self.repo.lock()?;
+        let (sequence, prev) = chain_tail(&self.log_path)?;
+        self.sequence = sequence;
+        self.prev_seal_hash = prev;
+
         let year = chrono::Utc::now().format("%Y").to_string();
         let seal_id = format!("cs_{}_{}", year, random_base32_26()?);
 
@@ -335,21 +359,104 @@ impl SealIssuer {
             }),
         );
 
-        // Advance the chain: next seal links to SHA256(P(this)).
+        // Log first: this is the durable record.
+        std::fs::create_dir_all(self.state_path.parent().unwrap())?;
+        crate::capture::append_jsonl(&self.log_path, &seal)
+            .context("appending seal to seals.jsonl (seal NOT issued)")?;
+
+        // Advance the in-memory chain and refresh the cache (best-effort:
+        // the log already holds the truth).
         self.prev_seal_hash = Some(format!("sha256:{}", sha256_hex(&payload)));
         self.sequence += 1;
-
-        std::fs::create_dir_all(self.state_path.parent().unwrap())?;
-        std::fs::write(
+        let _ = std::fs::write(
             &self.state_path,
             serde_json::to_string_pretty(&serde_json::json!({
                 "sequence": self.sequence,
                 "prev_seal_hash": self.prev_seal_hash
             }))?,
-        )?;
-        crate::capture::append_jsonl(&self.log_path, &seal)?;
+        );
 
         Ok(seal)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Strict JSON parsing (CSC-1 forbids duplicate keys; serde_json keeps the last)
+// ---------------------------------------------------------------------------
+
+/// Parse JSON into a `Value`, rejecting duplicate object keys at any depth.
+/// `serde_json::from_str` silently keeps the last duplicate, which would let
+/// a receipt carry two discordant `subject` objects and still verify.
+pub fn parse_json_strict(text: &str) -> Result<Value> {
+    let mut de = serde_json::Deserializer::from_str(text);
+    let v = serde::Deserialize::deserialize(&mut de).map(|StrictValue(v)| v)?;
+    de.end().context("trailing data after JSON document")?;
+    Ok(v)
+}
+
+struct StrictValue(Value);
+
+impl<'de> serde::Deserialize<'de> for StrictValue {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
+        use serde::de::{Error, MapAccess, SeqAccess, Visitor};
+        struct V;
+        impl<'de> Visitor<'de> for V {
+            type Value = StrictValue;
+            fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                f.write_str("a JSON value without duplicate keys")
+            }
+            fn visit_bool<E>(self, v: bool) -> std::result::Result<StrictValue, E> {
+                Ok(StrictValue(Value::Bool(v)))
+            }
+            fn visit_i64<E>(self, v: i64) -> std::result::Result<StrictValue, E> {
+                Ok(StrictValue(Value::from(v)))
+            }
+            fn visit_u64<E>(self, v: u64) -> std::result::Result<StrictValue, E> {
+                Ok(StrictValue(Value::from(v)))
+            }
+            fn visit_f64<E>(self, v: f64) -> std::result::Result<StrictValue, E> {
+                Ok(StrictValue(Value::from(v)))
+            }
+            fn visit_str<E>(self, v: &str) -> std::result::Result<StrictValue, E> {
+                Ok(StrictValue(Value::String(v.to_string())))
+            }
+            fn visit_string<E>(self, v: String) -> std::result::Result<StrictValue, E> {
+                Ok(StrictValue(Value::String(v)))
+            }
+            fn visit_none<E>(self) -> std::result::Result<StrictValue, E> {
+                Ok(StrictValue(Value::Null))
+            }
+            fn visit_unit<E>(self) -> std::result::Result<StrictValue, E> {
+                Ok(StrictValue(Value::Null))
+            }
+            fn visit_seq<A: SeqAccess<'de>>(
+                self,
+                mut seq: A,
+            ) -> std::result::Result<StrictValue, A::Error> {
+                let mut out = Vec::new();
+                while let Some(StrictValue(v)) = seq.next_element()? {
+                    out.push(v);
+                }
+                Ok(StrictValue(Value::Array(out)))
+            }
+            fn visit_map<A: MapAccess<'de>>(
+                self,
+                mut map: A,
+            ) -> std::result::Result<StrictValue, A::Error> {
+                let mut out = Map::new();
+                while let Some(k) = map.next_key::<String>()? {
+                    let StrictValue(v) = map.next_value()?;
+                    if out.insert(k.clone(), v).is_some() {
+                        return Err(A::Error::custom(format!(
+                            "duplicate key '{}' (forbidden by CSC-1)",
+                            k
+                        )));
+                    }
+                }
+                Ok(StrictValue(Value::Object(out)))
+            }
+        }
+        d.deserialize_any(V)
     }
 }
 
@@ -405,6 +512,7 @@ pub fn verify_seal(seal: &Value) -> Result<()> {
         .as_str()
         .ok_or_else(|| anyhow!("seal_id must be a string"))?;
     validate_seal_id(id)?;
+    validate_committed_fields(obj)?;
 
     let sig_obj = obj["signature"]
         .as_object()
@@ -449,6 +557,140 @@ pub fn verify_seal(seal: &Value) -> Result<()> {
             verify_sig(wkey, wsig, &payload)
                 .with_context(|| format!("witness {} signature invalid (fail-closed)", i))?;
         }
+    }
+    Ok(())
+}
+
+fn is_sha256_ref(s: &str) -> bool {
+    s.len() == 7 + 64
+        && s.starts_with("sha256:")
+        && s.as_bytes()[7..]
+            .iter()
+            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(b))
+}
+
+fn non_empty_str<'a>(v: &'a Value, what: &str) -> Result<&'a str> {
+    match v.as_str() {
+        Some(s) if !s.is_empty() => Ok(s),
+        Some(_) => bail!("{} must not be empty", what),
+        None => bail!("{} must be a string", what),
+    }
+}
+
+/// Typed validation of every field the Seal commits to (Section 3.x). A
+/// valid signature over garbage is still garbage: without these checks a
+/// receipt with empty subject/generator/timestamp/chain verified as
+/// "structure conformant".
+fn validate_committed_fields(obj: &Map<String, Value>) -> Result<()> {
+    // issuer
+    let issuer = obj["issuer"]
+        .as_object()
+        .ok_or_else(|| anyhow!("issuer must be an object"))?;
+    non_empty_str(issuer.get("id").unwrap_or(&Value::Null), "issuer.id")?;
+    let pk = issuer
+        .get("pubkey")
+        .and_then(Value::as_object)
+        .ok_or_else(|| anyhow!("issuer.pubkey must be an object"))?;
+    if pk.get("alg").and_then(Value::as_str) != Some("ed25519") {
+        bail!("unsupported issuer.pubkey.alg");
+    }
+    let key_hex = non_empty_str(
+        pk.get("key_hex").unwrap_or(&Value::Null),
+        "issuer.pubkey.key_hex",
+    )?;
+    if key_hex.len() != 64 || !key_hex.chars().all(|c| c.is_ascii_hexdigit()) {
+        bail!("issuer.pubkey.key_hex must be 64 hex chars");
+    }
+
+    // subject
+    let subject = obj["subject"]
+        .as_object()
+        .ok_or_else(|| anyhow!("subject must be an object"))?;
+    for k in ["input_hash", "output_hash"] {
+        let h = non_empty_str(
+            subject.get(k).unwrap_or(&Value::Null),
+            &format!("subject.{}", k),
+        )?;
+        if !is_sha256_ref(h) {
+            bail!("subject.{} must be 'sha256:' + 64 lowercase hex", k);
+        }
+    }
+    for k in ["input_len", "output_len"] {
+        if subject.get(k).and_then(Value::as_u64).is_none() {
+            bail!("subject.{} must be a non-negative integer", k);
+        }
+    }
+    let modality = non_empty_str(
+        subject.get("modality").unwrap_or(&Value::Null),
+        "subject.modality",
+    )?;
+    if !["text", "code", "image", "audio", "multimodal"].contains(&modality) {
+        bail!("subject.modality '{}' is not a known modality", modality);
+    }
+
+    // generator
+    let generator = obj["generator"]
+        .as_object()
+        .ok_or_else(|| anyhow!("generator must be an object"))?;
+    non_empty_str(generator.get("id").unwrap_or(&Value::Null), "generator.id")?;
+    if let Some(v) = generator.get("version") {
+        if !v.is_null() && !v.is_string() {
+            bail!("generator.version must be a string or null");
+        }
+    }
+    if let Some(w) = generator.get("weights_hash") {
+        if !w.is_null() && !w.as_str().map(is_sha256_ref).unwrap_or(false) {
+            bail!("generator.weights_hash must be null or 'sha256:' + 64 hex");
+        }
+    }
+    if let Some(p) = generator.get("params") {
+        let params = p
+            .as_object()
+            .ok_or_else(|| anyhow!("generator.params must be an object"))?;
+        if let Some((k, _)) = params.iter().find(|(_, v)| !v.is_string()) {
+            bail!(
+                "generator.params.{} must be a string (CSC-1 forbids floats)",
+                k
+            );
+        }
+    }
+
+    // timestamp
+    let ts = obj["timestamp"]
+        .as_object()
+        .ok_or_else(|| anyhow!("timestamp must be an object"))?;
+    let emitted = non_empty_str(
+        ts.get("emitted_at").unwrap_or(&Value::Null),
+        "timestamp.emitted_at",
+    )?;
+    if !emitted.ends_with('Z') || chrono::DateTime::parse_from_rfc3339(emitted).is_err() {
+        bail!("timestamp.emitted_at must be RFC 3339 UTC ('...Z')");
+    }
+    let nonce = non_empty_str(ts.get("nonce").unwrap_or(&Value::Null), "timestamp.nonce")?;
+    if nonce.len() < 16
+        || !nonce
+            .bytes()
+            .all(|b| b.is_ascii_uppercase() || (b'2'..=b'7').contains(&b))
+    {
+        bail!("timestamp.nonce must be >= 16 chars of base32 (A-Z2-7)");
+    }
+
+    // chain
+    let chain = obj["chain"]
+        .as_object()
+        .ok_or_else(|| anyhow!("chain must be an object"))?;
+    let seq = chain
+        .get("sequence")
+        .and_then(Value::as_u64)
+        .ok_or_else(|| anyhow!("chain.sequence must be a non-negative integer"))?;
+    match chain.get("prev_seal_hash") {
+        Some(Value::Null) | None if seq == 0 => {}
+        Some(Value::Null) | None => bail!("chain.prev_seal_hash must be set when sequence > 0"),
+        Some(Value::String(h)) if seq == 0 && !h.is_empty() => {
+            bail!("genesis seal (sequence 0) must have null prev_seal_hash")
+        }
+        Some(Value::String(h)) if is_sha256_ref(h) => {}
+        Some(_) => bail!("chain.prev_seal_hash must be null or 'sha256:' + 64 hex"),
     }
     Ok(())
 }
@@ -498,7 +740,7 @@ pub fn verify_chain(repo: &Repo) -> Result<usize> {
         if line.trim().is_empty() {
             continue;
         }
-        let seal: Value = serde_json::from_str(line)
+        let seal: Value = parse_json_strict(line)
             .with_context(|| format!("seals.jsonl line {}: invalid JSON", lineno + 1))?;
         verify_seal(&seal).with_context(|| format!("seals.jsonl line {}", lineno + 1))?;
 
@@ -655,6 +897,151 @@ mod tests {
             .unwrap();
         assert_eq!(seal["chain"]["sequence"].as_u64().unwrap(), 3);
         assert_eq!(verify_chain(&repo).unwrap(), 4);
+    }
+
+    fn emit_one(issuer: &mut SealIssuer, tag: &str) -> Value {
+        issuer
+            .emit(
+                SealSubject {
+                    input: tag.as_bytes(),
+                    output: tag.as_bytes(),
+                    modality: "text",
+                },
+                SealGenerator {
+                    id: "test/model",
+                    version: None,
+                    params: vec![],
+                },
+            )
+            .unwrap()
+    }
+
+    #[test]
+    fn two_issuers_on_one_repo_share_a_single_contiguous_chain() {
+        // Regression (F05): two proxies started before the first emission
+        // produced sequences [0, 0]. The log is now the source of truth and
+        // emit() re-reads the tail under the repo lock.
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let mut a = SealIssuer::load_or_create(&repo, None).unwrap();
+        let mut b = SealIssuer::load_or_create(&repo, None).unwrap();
+
+        let s0 = emit_one(&mut a, "a0");
+        let s1 = emit_one(&mut b, "b1");
+        let s2 = emit_one(&mut a, "a2");
+        assert_eq!(s0["chain"]["sequence"], 0);
+        assert_eq!(s1["chain"]["sequence"], 1);
+        assert_eq!(s2["chain"]["sequence"], 2);
+        assert_eq!(verify_chain(&repo).unwrap(), 3);
+    }
+
+    #[test]
+    fn stale_state_cache_never_forks_the_chain() {
+        // A state.json claiming sequence 5 with no matching log must be
+        // ignored: the next seal chains to the log tail, not to the cache.
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        std::fs::create_dir_all(seal_dir(&repo)).unwrap();
+        std::fs::write(
+            state_path(&repo),
+            r#"{"sequence":5,"prev_seal_hash":"sha256:0000000000000000000000000000000000000000000000000000000000000000"}"#,
+        )
+        .unwrap();
+        let mut issuer = SealIssuer::load_or_create(&repo, None).unwrap();
+        assert_eq!(issuer.sequence(), 0);
+        let s = emit_one(&mut issuer, "x");
+        assert_eq!(s["chain"]["sequence"], 0);
+        assert!(s["chain"]["prev_seal_hash"].is_null());
+        assert_eq!(verify_chain(&repo).unwrap(), 1);
+    }
+
+    #[test]
+    fn validly_signed_seal_with_empty_committed_fields_is_rejected() {
+        // Regression (F06): signature over garbage used to pass as
+        // "structure conformant".
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let mut issuer = SealIssuer::load_or_create(&repo, None).unwrap();
+        let good = emit_one(&mut issuer, "ok");
+        verify_seal(&good).unwrap();
+
+        let resign = |mut seal: Value| {
+            seal.as_object_mut().unwrap().remove("signature");
+            let payload = signing_payload(&seal).unwrap();
+            let sig = issuer.key.sign(&payload);
+            seal["signature"] = serde_json::json!({
+                "alg": "ed25519", "canon": "csc-1", "domain": "CROVIA-SEAL-v1",
+                "payload_hash_alg": "sha256", "sig_hex": hex::encode(sig.to_bytes())
+            });
+            seal
+        };
+
+        let mut cases: Vec<(&str, Value)> = Vec::new();
+        let mut s = good.clone();
+        s["subject"] = serde_json::json!({});
+        cases.push(("empty subject", s));
+        let mut s = good.clone();
+        s["subject"]["input_hash"] = Value::String("sha256:zz".into());
+        cases.push(("bad input_hash", s));
+        let mut s = good.clone();
+        s["generator"]["id"] = Value::String(String::new());
+        cases.push(("empty generator.id", s));
+        let mut s = good.clone();
+        s["timestamp"]["emitted_at"] = Value::String("yesterday".into());
+        cases.push(("bad emitted_at", s));
+        let mut s = good.clone();
+        s["chain"]["sequence"] = Value::from(3);
+        cases.push(("sequence>0 without prev", s));
+        let mut s = good.clone();
+        s["chain"] = serde_json::json!({});
+        cases.push(("empty chain", s));
+        let mut s = good.clone();
+        s["subject"]["modality"] = Value::String("vibes".into());
+        cases.push(("unknown modality", s));
+        let mut s = good.clone();
+        s["generator"]["params"] = serde_json::json!({"temperature": 7});
+        cases.push(("non-string param", s));
+
+        for (name, seal) in cases {
+            let signed = resign(seal);
+            let err = verify_seal(&signed).unwrap_err();
+            assert!(
+                !err.to_string().contains("signature invalid"),
+                "{}: rejected for the wrong reason: {}",
+                name,
+                err
+            );
+        }
+    }
+
+    #[test]
+    fn duplicate_keys_are_rejected_at_parse_time() {
+        // Regression (F07): serde_json keeps the last duplicate, so a
+        // receipt with two discordant `subject` objects verified.
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let mut issuer = SealIssuer::load_or_create(&repo, None).unwrap();
+        let good = emit_one(&mut issuer, "ok");
+        let text = serde_json::to_string(&good).unwrap();
+        assert!(parse_json_strict(&text).is_ok());
+
+        // Inject a second top-level "subject" before the real one.
+        let injected = text.replacen(
+            "\"subject\":",
+            "\"subject\":{\"input_hash\":\"sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\"},\"subject\":",
+            1,
+        );
+        assert!(
+            serde_json::from_str::<Value>(&injected).is_ok(),
+            "serde is lenient"
+        );
+        let err = parse_json_strict(&injected).unwrap_err();
+        assert!(err.to_string().contains("duplicate key"), "{}", err);
+
+        // Nested duplicates too.
+        assert!(parse_json_strict(r#"{"a":{"b":1,"b":2}}"#).is_err());
+        assert!(parse_json_strict(r#"[{"k":1},{"k":2}]"#).is_ok());
+        assert!(parse_json_strict(r#"{"a":1} trailing"#).is_err());
     }
 
     #[test]
