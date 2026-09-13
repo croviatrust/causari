@@ -171,6 +171,25 @@ const FORWARDED_HEADERS: &[&str] = &[
     "user-agent",
 ];
 
+/// Headers that must not be relayed verbatim through a proxy (RFC 9110
+/// §7.6.1) plus framing headers the tee stream re-computes.
+fn is_hop_by_hop(name: &str) -> bool {
+    matches!(
+        name.to_ascii_lowercase().as_str(),
+        "connection"
+            | "keep-alive"
+            | "proxy-authenticate"
+            | "proxy-authorization"
+            | "proxy-connection"
+            | "te"
+            | "trailer"
+            | "transfer-encoding"
+            | "upgrade"
+            | "content-length"
+            | "content-encoding"
+    )
+}
+
 fn handle(mut request: tiny_http::Request, cfg: &ProxyConfig, repo: &Repo) -> Result<()> {
     let url = request.url().to_string();
     let method = request.method().clone();
@@ -227,16 +246,34 @@ fn handle(mut request: tiny_http::Request, cfg: &ProxyConfig, repo: &Repo) -> Re
         .unwrap_or("application/octet-stream")
         .to_string();
 
+    // Forward every end-to-end response header (Retry-After, request ids,
+    // x-ratelimit-*, openai-*/anthropic-* metadata). Hop-by-hop and framing
+    // headers are dropped: the tee re-frames the body, and ureq may already
+    // have decoded the content encoding.
+    let mut headers = Vec::new();
+    for name in upstream.headers_names() {
+        if is_hop_by_hop(&name) {
+            continue;
+        }
+        for value in upstream.all(&name) {
+            if let Ok(h) = Header::from_bytes(name.as_bytes(), value.as_bytes()) {
+                headers.push(h);
+            }
+        }
+    }
+    if !headers.iter().any(|h| h.field.equiv("content-type")) {
+        headers.push(
+            Header::from_bytes(&b"Content-Type"[..], content_type.as_bytes())
+                .map_err(|_| anyhow!("invalid content-type header"))?,
+        );
+    }
+
     // Tee-stream the response: client gets bytes live, we keep a copy.
     let captured = Arc::new(Mutex::new(Vec::new()));
     let tee = Tee {
         inner: upstream.into_reader(),
         buf: Arc::clone(&captured),
     };
-    let headers = vec![
-        Header::from_bytes(&b"Content-Type"[..], content_type.as_bytes())
-            .map_err(|_| anyhow!("invalid content-type header"))?,
-    ];
     let response = Response::new(StatusCode(status), headers, tee, None, None);
     request.respond(response)?;
 
