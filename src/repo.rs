@@ -409,6 +409,17 @@ fn process_alive(pid: u32) -> Option<bool> {
     {
         return Some(Path::new("/proc").join(pid.to_string()).exists());
     }
+    #[cfg(all(unix, not(target_os = "linux")))]
+    {
+        // `kill -0` sends no signal; it only checks the pid exists (and that
+        // we may signal it — for our own uid's processes that is always true).
+        let status = std::process::Command::new("kill")
+            .args(["-0", &pid.to_string()])
+            .stderr(std::process::Stdio::null())
+            .status()
+            .ok()?;
+        return Some(status.success());
+    }
     #[cfg(windows)]
     {
         // tasklist is always present; a missing pid yields an INFO line, not a match.
