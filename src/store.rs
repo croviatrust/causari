@@ -23,24 +23,48 @@ impl<'a> Store<'a> {
         id.len() >= 4 && self.path_for(id).exists()
     }
 
-    /// Write raw bytes; returns the BLAKE3 hex id.
-    /// The first byte stored is a kind marker (1 byte) followed by content.
-    /// We keep blob storage simple: just the raw content (no kind marker for blobs)
-    /// but for structured objects we prefix with the kind to disambiguate during read.
+    /// Write raw bytes; returns the BLAKE3 hex id of `'B' || content`.
+    /// Every object kind (blob, tree, snapshot, event) is hashed and stored
+    /// with its 1-byte kind marker, so ids of different kinds are disjoint.
     pub fn write_blob(&self, content: &[u8]) -> Result<String> {
-        let id = hash_bytes(content);
+        // Blob format: first byte 'B' marker, then raw bytes. The marker is
+        // part of the hashed bytes (store format v2): a blob whose content is
+        // literally `T{...}` must never share an id with the tree `{...}`.
+        let mut buf = Vec::with_capacity(content.len() + 1);
+        buf.push(b'B');
+        buf.extend_from_slice(content);
+        self.write_object(b'B', &buf)
+    }
+
+    /// Content-address `stored` (marker already prepended) and persist it.
+    /// If an object with that id already exists it must carry the same
+    /// marker; a mismatch means a legacy (v1) store had an unmarked blob
+    /// hash collide with a structured object, and we refuse to alias it.
+    fn write_object(&self, marker: u8, stored: &[u8]) -> Result<String> {
+        let id = hash_bytes(stored);
         let path = self.path_for(&id);
         if path.exists() {
+            let mut first = [0u8; 1];
+            let ok = std::fs::File::open(&path)
+                .and_then(|mut f| {
+                    use std::io::Read;
+                    f.read_exact(&mut first)
+                })
+                .is_ok();
+            if !ok || first[0] != marker {
+                return Err(anyhow!(
+                    "object {} already exists with a different kind (expected {:?}, found {:?}); store integrity violation",
+                    id,
+                    marker as char,
+                    if ok { first[0] as char } else { '?' }
+                ));
+            }
             return Ok(id);
         }
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
-        // Blob format: first byte 'B' marker, then raw bytes.
-        let mut buf = Vec::with_capacity(content.len() + 1);
-        buf.push(b'B');
-        buf.extend_from_slice(content);
-        std::fs::write(&path, &buf)?;
+        std::fs::write(&path, stored)?;
         Ok(id)
     }
 
@@ -53,19 +77,10 @@ impl<'a> Store<'a> {
             ObjectKind::Event => b'E',
             ObjectKind::Blob => return Err(anyhow!("use write_blob for blobs")),
         };
-        // Hash includes the marker so a tree and an identical-bytes blob never collide.
         let mut to_hash = Vec::with_capacity(json.len() + 1);
         to_hash.push(marker);
         to_hash.extend_from_slice(&json);
-        let id = hash_bytes(&to_hash);
-        let path = self.path_for(&id);
-        if !path.exists() {
-            if let Some(parent) = path.parent() {
-                std::fs::create_dir_all(parent)?;
-            }
-            std::fs::write(&path, &to_hash)?;
-        }
-        Ok(id)
+        self.write_object(marker, &to_hash)
     }
 
     pub fn write_tree(&self, tree: &Tree) -> Result<String> {
@@ -234,6 +249,36 @@ mod tests {
         let json = crate::object::canonical_json(&tree).unwrap();
         let blob_id = store.write_blob(&json).unwrap();
         assert_ne!(tree_id, blob_id);
+    }
+
+    #[test]
+    fn blob_whose_bytes_are_a_marked_tree_does_not_alias_the_tree() {
+        // Regression (F02): a file containing exactly `T{"entries":{}}` used
+        // to hash to the same id as the empty tree object, so recording
+        // succeeded and the next restore failed with "is not a blob".
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+
+        let tree = Tree {
+            entries: BTreeMap::new(),
+        };
+        let tree_id = store.write_tree(&tree).unwrap();
+        let mut evil = vec![b'T'];
+        evil.extend_from_slice(&crate::object::canonical_json(&tree).unwrap());
+
+        let blob_id = store.write_blob(&evil).unwrap();
+        assert_ne!(tree_id, blob_id);
+        assert_eq!(store.read_blob(&blob_id).unwrap(), evil);
+        assert!(store.read_tree(&tree_id).is_ok());
+
+        // And the other way round: writing the blob first must not poison
+        // the tree id either.
+        let (_tmp2, repo2) = test_repo();
+        let store2 = Store::new(&repo2);
+        let blob_first = store2.write_blob(&evil).unwrap();
+        let tree_after = store2.write_tree(&tree).unwrap();
+        assert_ne!(blob_first, tree_after);
+        assert!(store2.read_tree(&tree_after).is_ok());
     }
 
     #[test]

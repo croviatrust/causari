@@ -163,9 +163,23 @@ pub fn hash_bytes(data: &[u8]) -> String {
 
 /// Resolve a possibly-short id into a full id by scanning objects dir.
 pub fn resolve_id(objects_dir: &std::path::Path, prefix: &str) -> Result<String> {
+    // Ids are lowercase hex. Anything else is rejected up front so the byte
+    // slicing below can never split a multi-byte character (`re show €abc`
+    // used to panic here).
+    if !prefix.is_ascii() || !prefix.chars().all(|c| c.is_ascii_hexdigit()) {
+        return Err(anyhow!(
+            "invalid id '{}': ids are hexadecimal (0-9 a-f)",
+            prefix
+        ));
+    }
     if prefix.len() < 4 {
         return Err(anyhow!("id prefix too short, need at least 4 chars"));
     }
+    if prefix.len() > 64 {
+        return Err(anyhow!("id prefix too long ({} > 64 chars)", prefix.len()));
+    }
+    let prefix = prefix.to_ascii_lowercase();
+    let prefix = prefix.as_str();
     if prefix.len() == 64 {
         return Ok(prefix.to_string());
     }
@@ -201,6 +215,18 @@ pub fn resolve_id(objects_dir: &std::path::Path, prefix: &str) -> Result<String>
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn resolve_id_rejects_non_hex_and_non_ascii_without_panicking() {
+        let tmp = tempfile::tempdir().unwrap();
+        for bad in ["€abc", "zzzz", "ab", "éééé", "12 4", &"a".repeat(65)] {
+            let err = resolve_id(tmp.path(), bad).unwrap_err();
+            assert!(!err.to_string().is_empty(), "{}", bad);
+        }
+        // A full 64-hex id passes through untouched (case-folded).
+        let full = "AB".repeat(32);
+        assert_eq!(resolve_id(tmp.path(), &full).unwrap(), full.to_lowercase());
+    }
 
     #[test]
     fn canonical_json_sorts_keys_at_every_level() {

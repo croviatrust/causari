@@ -22,22 +22,8 @@ pub fn run(args: RecordArgs) -> Result<()> {
     let repo = Repo::discover()?;
     let store = Store::new(&repo);
 
-    // Serialize the read-parent → snapshot → commit critical section against
-    // other recorders (watchers, hooks, MCP calls).
-    let _lock = repo.lock()?;
-
-    let session = args.session.as_deref();
-    let parent_id = resolve_parent(&repo, session)?;
-    let pre_snapshot_id = resolve_pre_snapshot(&repo, &store, &parent_id)?;
-
-    let post_tree_id = snapshot_workspace(&repo)?;
-    let post_snapshot = Snapshot {
-        tree: post_tree_id,
-        created_at: Utc::now().to_rfc3339(),
-    };
-    let post_snapshot_id = store.write_snapshot(&post_snapshot)?;
-
-    // Optionally read full JSON payload from stdin.
+    // Read the whole stdin payload BEFORE taking the lock: a slow producer
+    // must never hold the repository hostage.
     let stdin_payload = if args.stdin {
         let mut buf = String::new();
         std::io::stdin()
@@ -47,6 +33,24 @@ pub fn run(args: RecordArgs) -> Result<()> {
     } else {
         None
     };
+
+    // Serialize the read-parent → snapshot → commit critical section against
+    // other recorders (watchers, hooks, MCP calls).
+    let _lock = repo.lock()?;
+
+    let session = args.session.as_deref();
+    if let Some(name) = session {
+        crate::repo::validate_session_name(name)?;
+    }
+    let parent_id = resolve_parent(&repo, session)?;
+    let pre_snapshot_id = resolve_pre_snapshot(&repo, &store, &parent_id)?;
+
+    let post_tree_id = snapshot_workspace(&repo)?;
+    let post_snapshot = Snapshot {
+        tree: post_tree_id,
+        created_at: Utc::now().to_rfc3339(),
+    };
+    let post_snapshot_id = store.write_snapshot(&post_snapshot)?;
 
     // Extract metadata. CLI flags win over stdin for the same field, so
     // an agent integration can `record --stdin` and humans can `record -m "..."`.
