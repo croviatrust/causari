@@ -106,16 +106,27 @@ pub fn ensure(repo: &Repo, store: &Store) -> Result<HashMap<String, IndexEntry>>
     let mut indexed = load(repo)?;
     let sessions = dag::list_sessions(repo)?;
 
+    // A present tip is NOT proof that every ancestor is indexed (a partially
+    // written or hand-edited index can have holes). Walk the full ancestry
+    // of every session; `seen` stops us from re-reading shared history, and
+    // only events that are genuinely absent get appended.
     let mut missing: Vec<IndexEntry> = Vec::new();
+    let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
     for s in &sessions {
         let mut cur = s.head.clone();
         while let Some(id) = cur {
-            if indexed.contains_key(&id) {
-                break; // everything below this point is already indexed
+            if !seen.insert(id.clone()) {
+                break; // already walked through this ancestry in this pass
             }
-            let ev = store.read_event(&id)?;
-            cur = ev.parent.clone();
-            missing.push(IndexEntry::from_event(&id, &ev));
+            let parent = match indexed.get(&id) {
+                Some(entry) => entry.parent.clone(),
+                None => {
+                    let ev = store.read_event(&id)?;
+                    missing.push(IndexEntry::from_event(&id, &ev));
+                    ev.parent
+                }
+            };
+            cur = parent;
         }
     }
 
@@ -246,5 +257,33 @@ mod tests {
         assert_eq!(indexed.len(), 2);
         let lines = std::fs::read_to_string(index_path(&repo)).unwrap();
         assert_eq!(lines.lines().count(), 2, "e1 must not be re-appended");
+    }
+
+    #[test]
+    fn ensure_heals_a_hole_below_an_indexed_tip() {
+        // Regression (F20): tip indexed, ancestor missing → find() could not
+        // see the ancestor and ensure() stopped at the tip.
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+
+        let e1 = store
+            .write_event(&event(None, "2026-01-01T00:00:01Z", "root"))
+            .unwrap();
+        let e2 = store
+            .write_event(&event(Some(&e1), "2026-01-01T00:00:02Z", "next"))
+            .unwrap();
+        repo.update_session("main", &e2).unwrap();
+
+        // Index only the tip.
+        append(
+            &repo,
+            &IndexEntry::from_event(&e2, &store.read_event(&e2).unwrap()),
+        )
+        .unwrap();
+        assert_eq!(load(&repo).unwrap().len(), 1);
+
+        let indexed = ensure(&repo, &store).unwrap();
+        assert!(indexed.contains_key(&e1), "ancestor must be healed");
+        assert_eq!(indexed.len(), 2);
     }
 }

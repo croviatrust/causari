@@ -55,9 +55,22 @@ pub fn commit_event(
     session: Option<&str>,
 ) -> Result<String> {
     let id = store.write_event(event)?;
+    // Compare-and-swap: the ref must still point at the parent this event
+    // was built on. If another recorder slipped in (lock broken, lock
+    // bypassed), we fail instead of silently orphaning their event.
+    let expected = event.parent.as_deref();
     match session {
-        Some(name) => repo.update_session(name, &id)?,
-        None => repo.update_head(&id)?,
+        Some(name) => {
+            // A new session forks implicitly from HEAD: its parent is HEAD's
+            // tip while its own ref does not exist yet.
+            let expected = if repo.session_head(name)?.is_none() {
+                None
+            } else {
+                expected
+            };
+            repo.update_session_if(name, expected, &id)?
+        }
+        None => repo.update_head_if(expected, &id)?,
     }
     // The index is a cache: failing to append must not fail the record.
     let _ = index::append(repo, &IndexEntry::from_event(&id, event));
@@ -138,6 +151,29 @@ mod tests {
             resolve_parent(&repo, Some("bot")).unwrap().as_deref(),
             Some(bot_id.as_str())
         );
+    }
+
+    #[test]
+    fn commit_refuses_to_overwrite_a_tip_it_did_not_build_on() {
+        // Regression (F04): recorder A reads parent P, recorder B records
+        // event X on top of P, then A finishes and used to overwrite the
+        // tip with its own event, leaving X unreachable.
+        let (_tmp, repo) = test_repo();
+        let store = Store::new(&repo);
+
+        let p = commit_event(&repo, &store, &event(None, "P"), None).unwrap();
+
+        // Both recorders resolve the same parent.
+        let parent_a = resolve_parent(&repo, None).unwrap();
+        let parent_b = parent_a.clone();
+        assert_eq!(parent_a.as_deref(), Some(p.as_str()));
+
+        let x = commit_event(&repo, &store, &event(parent_b, "B first"), None).unwrap();
+        let err = commit_event(&repo, &store, &event(parent_a, "A late"), None).unwrap_err();
+        assert!(err.to_string().contains("moved concurrently"), "{}", err);
+
+        // B's event is still the reachable tip.
+        assert_eq!(repo.head_event().unwrap().as_deref(), Some(x.as_str()));
     }
 
     #[test]

@@ -11,6 +11,47 @@ pub const LOCK_FILE: &str = "lock";
 pub const GITIGNORE_FILE: &str = ".gitignore";
 pub const GITIGNORE_ENTRY: &str = ".causari/";
 
+/// Maximum length of a session name.
+pub const MAX_SESSION_NAME_LEN: usize = 128;
+
+/// Validate a session name. One grammar for CLI, MCP, hooks and watchers:
+/// `[A-Za-z0-9._-]+`, not starting with `.` or `-`, never `HEAD`, never
+/// containing path separators or control characters. Session names are used
+/// as file names under `refs/sessions/`, so anything looser lets a caller
+/// escape the repository (`../../x`, `/etc/passwd`, `C:\\...`).
+pub fn validate_session_name(name: &str) -> Result<()> {
+    if name.is_empty() {
+        return Err(anyhow!("session name must not be empty"));
+    }
+    if name.len() > MAX_SESSION_NAME_LEN {
+        return Err(anyhow!(
+            "session name too long ({} > {} bytes)",
+            name.len(),
+            MAX_SESSION_NAME_LEN
+        ));
+    }
+    if name == "HEAD" || name == "." || name == ".." {
+        return Err(anyhow!("'{}' is a reserved session name", name));
+    }
+    if name.starts_with('.') || name.starts_with('-') {
+        return Err(anyhow!(
+            "session name '{}' must not start with '.' or '-'",
+            name
+        ));
+    }
+    if let Some(bad) = name
+        .chars()
+        .find(|c| !(c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-')))
+    {
+        return Err(anyhow!(
+            "session name '{}' contains invalid character {:?} (allowed: A-Z a-z 0-9 . _ -)",
+            name,
+            bad
+        ));
+    }
+    Ok(())
+}
+
 /// Result of ensuring `.causari/` is excluded from version control.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GitignoreOutcome {
@@ -181,8 +222,21 @@ impl Repo {
         self.dir.join(REFS_DIR).join("sessions")
     }
 
-    pub fn session_ref_path(&self, name: &str) -> PathBuf {
-        self.sessions_dir().join(name)
+    /// Path of a session ref. Fails on names that do not satisfy
+    /// [`validate_session_name`], so no caller can build a path outside
+    /// `refs/sessions/`. Also refuses to follow a symlinked ref.
+    pub fn session_ref_path(&self, name: &str) -> Result<PathBuf> {
+        validate_session_name(name)?;
+        let p = self.sessions_dir().join(name);
+        if let Ok(meta) = std::fs::symlink_metadata(&p) {
+            if meta.file_type().is_symlink() {
+                return Err(anyhow!(
+                    "session ref {} is a symlink; refusing to follow it",
+                    p.display()
+                ));
+            }
+        }
+        Ok(p)
     }
 
     /// Name of the session HEAD currently points to (None when detached).
@@ -197,7 +251,7 @@ impl Repo {
 
     /// Tip event of a named session, or None if the session has no events yet.
     pub fn session_head(&self, name: &str) -> Result<Option<String>> {
-        let p = self.session_ref_path(name);
+        let p = self.session_ref_path(name)?;
         if !p.exists() {
             return Ok(None);
         }
@@ -211,12 +265,56 @@ impl Repo {
 
     /// Point a named session at an event id (creates the ref if missing).
     pub fn update_session(&self, name: &str, event_id: &str) -> Result<()> {
-        let p = self.session_ref_path(name);
+        let p = self.session_ref_path(name)?;
         if let Some(parent) = p.parent() {
             std::fs::create_dir_all(parent)?;
         }
         std::fs::write(p, format!("{}\n", event_id))?;
         Ok(())
+    }
+
+    /// Compare-and-swap on a session tip: advance `name` to `event_id` only
+    /// if its current tip is still `expected`. This is the last line of
+    /// defence against a lost update when two recorders read the same parent
+    /// (e.g. after a lock was wrongly broken): the second writer fails
+    /// loudly instead of silently orphaning the first one's event.
+    pub fn update_session_if(
+        &self,
+        name: &str,
+        expected: Option<&str>,
+        event_id: &str,
+    ) -> Result<()> {
+        let current = self.session_head(name)?;
+        if current.as_deref() != expected {
+            return Err(anyhow!(
+                "session '{}' moved concurrently (expected tip {}, found {}); event {} written but not linked — re-run the record",
+                name,
+                expected.map(|s| &s[..s.len().min(10)]).unwrap_or("<none>"),
+                current
+                    .as_deref()
+                    .map(|s| &s[..s.len().min(10)])
+                    .unwrap_or("<none>"),
+                &event_id[..event_id.len().min(10)]
+            ));
+        }
+        self.update_session(name, event_id)
+    }
+
+    /// Compare-and-swap on the current HEAD ref. See [`Self::update_session_if`].
+    pub fn update_head_if(&self, expected: Option<&str>, event_id: &str) -> Result<()> {
+        let current = self.head_event()?;
+        if current.as_deref() != expected {
+            return Err(anyhow!(
+                "HEAD moved concurrently (expected tip {}, found {}); event {} written but not linked — re-run the record",
+                expected.map(|s| &s[..s.len().min(10)]).unwrap_or("<none>"),
+                current
+                    .as_deref()
+                    .map(|s| &s[..s.len().min(10)])
+                    .unwrap_or("<none>"),
+                &event_id[..event_id.len().min(10)]
+            ));
+        }
+        self.update_head(event_id)
     }
 
     /// Acquire the repository write lock.
@@ -225,8 +323,12 @@ impl Repo {
     /// section. With multiple concurrent recorders (several `re watch`
     /// processes, agent hooks firing mid-watch, MCP calls) two writers could
     /// read the same parent and orphan one of the two events. The lock
-    /// serializes the whole section. It is advisory and held via a lock file;
-    /// stale locks (e.g. a killed process) expire after 30 seconds.
+    /// serializes the section. It is advisory and held via a lock file that records the
+    /// owner's pid. A lock is only broken when its owner is provably dead
+    /// (where the platform lets us check) or when it is older than
+    /// [`LOCK_HARD_EXPIRY`]; a mere 30-second age is NOT proof the owner
+    /// died. Ref updates additionally use compare-and-swap, so even a wrongly
+    /// broken lock cannot silently orphan an event.
     pub fn lock(&self) -> Result<RepoLock> {
         let path = self.dir.join(LOCK_FILE);
         let start = Instant::now();
@@ -242,12 +344,7 @@ impl Repo {
                     return Ok(RepoLock { path });
                 }
                 Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
-                    // Break stale locks left behind by crashed processes.
-                    let stale = std::fs::metadata(&path)
-                        .and_then(|m| m.modified())
-                        .map(|t| t.elapsed().unwrap_or_default() > Duration::from_secs(30))
-                        .unwrap_or(false);
-                    if stale {
+                    if lock_is_stale(&path) {
                         let _ = std::fs::remove_file(&path);
                         continue;
                     }
@@ -265,6 +362,65 @@ impl Repo {
             }
         }
     }
+}
+
+/// Locks older than this are broken regardless of owner liveness (a hung
+/// recorder must not wedge the repository forever).
+pub const LOCK_HARD_EXPIRY: Duration = Duration::from_secs(10 * 60);
+
+/// Below this age a lock is never questioned.
+pub const LOCK_SOFT_THRESHOLD: Duration = Duration::from_secs(30);
+
+/// Is the lock at `path` safe to break?
+///
+/// * owner pid readable and provably dead → stale
+/// * owner pid readable and provably alive → NOT stale (any age below hard expiry)
+/// * liveness unknown (other OS, unreadable file) → stale only after hard expiry
+fn lock_is_stale(path: &Path) -> bool {
+    let age = std::fs::metadata(path)
+        .and_then(|m| m.modified())
+        .map(|t| t.elapsed().unwrap_or_default())
+        .unwrap_or_default();
+    if age > LOCK_HARD_EXPIRY {
+        return true;
+    }
+    if age < LOCK_SOFT_THRESHOLD {
+        // Fresh lock: the owner is almost certainly mid-record. Do not even
+        // probe; probing costs a process spawn on some platforms.
+        return false;
+    }
+    let owner = std::fs::read_to_string(path)
+        .ok()
+        .and_then(|s| s.trim().parse::<u32>().ok());
+    match owner.map(process_alive) {
+        Some(Some(false)) => true,
+        Some(Some(true)) => false,
+        // Unknown liveness: be conservative, only the hard expiry breaks it.
+        _ => false,
+    }
+}
+
+/// Best-effort liveness probe. `None` when the platform gives no cheap answer.
+fn process_alive(pid: u32) -> Option<bool> {
+    if pid == std::process::id() {
+        return Some(true);
+    }
+    #[cfg(target_os = "linux")]
+    {
+        return Some(Path::new("/proc").join(pid.to_string()).exists());
+    }
+    #[cfg(windows)]
+    {
+        // tasklist is always present; a missing pid yields an INFO line, not a match.
+        let out = std::process::Command::new("tasklist")
+            .args(["/FI", &format!("PID eq {}", pid), "/NH", "/FO", "CSV"])
+            .output()
+            .ok()?;
+        let text = String::from_utf8_lossy(&out.stdout);
+        return Some(text.contains(&format!("\"{}\"", pid)));
+    }
+    #[allow(unreachable_code)]
+    None
 }
 
 /// Guard for the repository write lock; releases the lock file on drop.
@@ -294,6 +450,74 @@ mod tests {
         assert_eq!(repo.head_event().unwrap(), None);
 
         assert!(Repo::init(tmp.path()).is_err());
+    }
+
+    #[test]
+    fn session_names_cannot_escape_refs_dir() {
+        // Regression (F01): an absolute or traversing session name used to
+        // be joined verbatim and create a file outside the repository.
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let outside = tmp.path().join("outside.txt");
+        let abs = outside.to_string_lossy().to_string();
+
+        for bad in [
+            abs.as_str(),
+            "../../escape",
+            "a/b",
+            "a\\b",
+            "",
+            ".hidden",
+            "-flag",
+            "HEAD",
+            "..",
+            "with space",
+            "nul\0byte",
+            "\u{e9}t\u{e9}",
+        ] {
+            assert!(validate_session_name(bad).is_err(), "accepted {:?}", bad);
+            assert!(
+                repo.session_ref_path(bad).is_err(),
+                "path built for {:?}",
+                bad
+            );
+            assert!(repo.update_session(bad, "deadbeef").is_err());
+            assert!(repo.session_head(bad).is_err());
+        }
+        assert!(!outside.exists(), "file created outside the repo");
+
+        for good in ["main", "bot-2", "claude.code_v1", "A", &"x".repeat(128)] {
+            assert!(validate_session_name(good).is_ok(), "rejected {:?}", good);
+        }
+        assert!(validate_session_name(&"x".repeat(129)).is_err());
+    }
+
+    #[test]
+    fn fresh_lock_held_by_live_process_is_not_broken() {
+        // Regression (F04): a lock a few seconds old used to be breakable
+        // after 30s of age even with its owner alive. A fresh lock is never
+        // questioned; our own pid is always considered alive.
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let path = repo.dir.join(LOCK_FILE);
+        std::fs::write(&path, format!("{}\n", std::process::id())).unwrap();
+        assert!(!lock_is_stale(&path));
+        assert_eq!(process_alive(std::process::id()), Some(true));
+    }
+
+    #[test]
+    fn compare_and_swap_refuses_a_moved_tip() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        repo.update_session("bot", "aaaa").unwrap();
+        assert!(repo.update_session_if("bot", Some("zzzz"), "bbbb").is_err());
+        assert_eq!(repo.session_head("bot").unwrap().as_deref(), Some("aaaa"));
+        repo.update_session_if("bot", Some("aaaa"), "bbbb").unwrap();
+        assert_eq!(repo.session_head("bot").unwrap().as_deref(), Some("bbbb"));
+
+        assert!(repo.update_head_if(Some("nope"), "cccc").is_err());
+        repo.update_head_if(None, "cccc").unwrap();
+        assert_eq!(repo.head_event().unwrap().as_deref(), Some("cccc"));
     }
 
     #[test]

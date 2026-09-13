@@ -1,4 +1,4 @@
-use anyhow::{Result, anyhow};
+use anyhow::{Context, Result, anyhow};
 use colored::Colorize;
 
 use crate::cli::SwitchArgs;
@@ -16,7 +16,7 @@ pub fn run(args: SwitchArgs) -> Result<()> {
     let repo = Repo::discover()?;
     let store = Store::new(&repo);
 
-    if !repo.session_ref_path(&args.name).exists() {
+    if !repo.session_ref_path(&args.name)?.exists() {
         let available: Vec<String> = crate::dag::list_sessions(&repo)?
             .into_iter()
             .map(|s| s.name)
@@ -38,12 +38,47 @@ pub fn run(args: SwitchArgs) -> Result<()> {
     }
 
     let _lock = repo.lock()?;
+    let tip = repo.session_head(&args.name)?;
+
+    // Order matters: validate the target objects and restore the workspace
+    // FIRST, move HEAD LAST. If any object is missing or the restore fails,
+    // HEAD still names the previous session and the files still belong to
+    // it — never a HEAD that disagrees with the working tree.
+    let sync_report = if args.no_sync {
+        None
+    } else {
+        match &tip {
+            Some(id) => {
+                let ev = store.read_event(id).with_context(|| {
+                    format!(
+                        "session '{}' tip {} is unreadable; HEAD not moved",
+                        args.name,
+                        &id[..id.len().min(10)]
+                    )
+                })?;
+                let snap = store.read_snapshot(&ev.post_snapshot).with_context(|| {
+                    format!(
+                        "snapshot of session '{}' tip is unreadable; HEAD not moved",
+                        args.name
+                    )
+                })?;
+                // Fail before touching disk if the tree itself is missing.
+                store.read_tree(&snap.tree).with_context(|| {
+                    format!(
+                        "tree of session '{}' tip is unreadable; HEAD not moved",
+                        args.name
+                    )
+                })?;
+                Some((id.clone(), restore_workspace(&repo, &snap.tree)?))
+            }
+            None => None,
+        }
+    };
+
     std::fs::write(
         repo.head_path(),
         format!("ref: refs/sessions/{}\n", args.name),
     )?;
-
-    let tip = repo.session_head(&args.name)?;
     println!(
         "{} session {}",
         "switched to".green().bold(),
@@ -55,11 +90,8 @@ pub fn run(args: SwitchArgs) -> Result<()> {
         return Ok(());
     }
 
-    match tip {
-        Some(id) => {
-            let ev = store.read_event(&id)?;
-            let snap = store.read_snapshot(&ev.post_snapshot)?;
-            let report = restore_workspace(&repo, &snap.tree)?;
+    match sync_report {
+        Some((id, report)) => {
             println!(
                 "  workspace synced to {}: {} written, {} deleted, {} unchanged",
                 (&id[..10]).yellow(),
