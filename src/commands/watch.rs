@@ -8,7 +8,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, mpsc::channel};
 use std::time::Duration;
 
-use crate::capture::{correlate, load_exchanges_since, now_ms};
+use crate::capture::{claim_exchange, correlate, load_unclaimed_exchanges_since, now_ms};
 use crate::cli::WatchArgs;
 use crate::commit::{commit_event, resolve_parent};
 use crate::object::{Event, Snapshot};
@@ -140,7 +140,7 @@ fn record_change(
     let window_secs = args.window.unwrap_or(300);
     let since = now_ms().saturating_sub(window_secs * 1000);
     let mut correlation = None;
-    if let Ok(exchanges) = load_exchanges_since(repo, since) {
+    if let Ok(exchanges) = load_unclaimed_exchanges_since(repo, since) {
         if !exchanges.is_empty() {
             let added = added_lines_between(store, &pre_snapshot_id, &post_snapshot_id, 400)?;
             correlation = correlate(&added, &exchanges);
@@ -190,6 +190,11 @@ fn record_change(
         created_at: Utc::now().to_rfc3339(),
     };
     let id = commit_event(repo, store, &event, session)?;
+    if let Some(c) = &correlation {
+        // Tokens and cost of this exchange now belong to `id`; later windows
+        // must not re-attribute them.
+        claim_exchange(repo, &c.exchange, &id)?;
+    }
 
     let preview = writes
         .iter()

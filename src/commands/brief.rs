@@ -48,13 +48,12 @@ pub fn run(args: BriefArgs) -> Result<()> {
 pub fn render(repo: &Repo, terms: &[String], limit: usize, bump: bool) -> Result<Option<String>> {
     use std::fmt::Write as _;
 
-    let skills = skill::load_skills(repo)?;
-
-    // Signature-verified envelopes only: a briefing must never carry
-    // experience that could have been edited after signing.
+    // Signature-verified AND currently-trusted signers only: a briefing must
+    // never carry experience that could have been edited after signing, nor
+    // experience from a key that has since been revoked.
+    let skills = skill::load_admissible_skills(repo)?;
     let mut hits: Vec<(usize, String, SkillEnvelope)> = skills
         .into_iter()
-        .filter(|(_, env)| skill::verify_envelope(env).is_ok())
         .map(|(id, env)| {
             let score = if terms.is_empty() {
                 // No query: rank purely by trust and proven usage.

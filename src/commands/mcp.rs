@@ -271,10 +271,9 @@ fn tool_recall(args: &Value) -> Result<String> {
     // 1. SKILLS first — distilled, signed experience outranks raw events.
     //    Every recall bumps the skill's use counter, which is how a verified
     //    skill earns the ★ proven trust level over time.
-    let skills = crate::skill::load_skills(&repo)?;
+    let skills = crate::skill::load_admissible_skills(&repo)?;
     let mut skill_hits: Vec<(usize, &String, &crate::skill::SkillEnvelope)> = skills
         .iter()
-        .filter(|(_, env)| crate::skill::verify_envelope(env).is_ok())
         .map(|(id, env)| (crate::skill::score_skill(env, &terms), id, env))
         .filter(|(score, _, _)| *score > 0)
         .collect();
@@ -288,12 +287,14 @@ fn tool_recall(args: &Value) -> Result<String> {
         ));
         for (score, id, env) in skill_hits.iter().take(limit) {
             let trust = env.trust();
+            let (badge, label) = if env.is_failed() {
+                ("✗", "FAILED — do not repeat this approach")
+            } else {
+                (trust.badge(), trust.as_str())
+            };
             out.push_str(&format!(
                 "\n## [{}] {} {} — {}\n",
-                score,
-                trust.badge(),
-                trust.as_str(),
-                env.skill.title
+                score, badge, label, env.skill.title
             ));
             out.push_str(&format!("- skill: {}\n", &id[..10]));
             if let Some(a) = &env.skill.agent {
@@ -314,8 +315,11 @@ fn tool_recall(args: &Value) -> Result<String> {
                 ));
             }
             out.push_str(&format!(
-                "- evidence: exit_zero={} survived={} uses={}\n",
-                env.skill.verification.exit_zero, env.skill.verification.survived, env.stats.uses
+                "- evidence: exit_zero={} survived={} failed={} uses={}\n",
+                env.skill.verification.exit_zero,
+                env.skill.verification.survived,
+                env.skill.verification.failed,
+                env.stats.uses
             ));
             let _ = crate::skill::record_use(&repo, id);
         }

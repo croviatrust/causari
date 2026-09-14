@@ -139,8 +139,20 @@ impl Trust {
 }
 
 impl SkillEnvelope {
+    /// Did the distilled work end in a recorded failure? A failure is
+    /// experience (a negative constraint), never a recommendation: it can be
+    /// recalled, but it must never be shown as verified or proven.
+    pub fn is_failed(&self) -> bool {
+        self.skill.verification.failed
+    }
+
     pub fn trust(&self) -> Trust {
-        let verified = self.skill.verification.exit_zero || self.skill.verification.survived;
+        // Success, survival and popularity are different signals. A file
+        // still existing at the tip says nothing about whether the command
+        // that produced it succeeded, and recall counts measure interest,
+        // not correctness. An explicit failure vetoes both.
+        let verified = !self.skill.verification.failed
+            && (self.skill.verification.exit_zero || self.skill.verification.survived);
         if verified && self.stats.uses >= PROVEN_USES {
             Trust::Proven
         } else if verified {
@@ -487,6 +499,25 @@ pub fn save_skill(repo: &Repo, id: &str, env: &SkillEnvelope) -> Result<()> {
     Ok(())
 }
 
+/// Skills that may be *used* right now: signature intact AND signer still
+/// local or in the trusted key list. Trust is re-checked at consumption,
+/// not only at import: `re skill trust rm <label>` immediately removes that
+/// signer's skills from recall, brief and find, while the files stay on
+/// disk as history (`re skill list` still shows them).
+pub fn load_admissible_skills(repo: &Repo) -> Result<Vec<(String, SkillEnvelope)>> {
+    let mut out = Vec::new();
+    for (id, env) in load_skills(repo)? {
+        if verify_envelope(&env).is_err() {
+            continue;
+        }
+        if !is_acceptable_signer(repo, &env.public_key)? {
+            continue;
+        }
+        out.push((id, env));
+    }
+    Ok(out)
+}
+
 pub fn load_skills(repo: &Repo) -> Result<Vec<(String, SkillEnvelope)>> {
     let dir = skills_dir(repo);
     let mut out = Vec::new();
@@ -807,6 +838,67 @@ mod tests {
         let mut still_recorded = env.clone();
         still_recorded.stats.uses = 100;
         assert_eq!(still_recorded.trust(), Trust::Recorded);
+    }
+
+    #[test]
+    fn failed_skill_is_never_verified_or_proven() {
+        // Regression (F13): exit code 1 + files still on disk used to yield
+        // survived=true -> verified, and after 3 recalls -> proven.
+        let (_tmp, repo) = test_repo();
+        let key = load_or_create_signing_key(&repo).unwrap();
+        let mut failed = core("broke the build");
+        failed.verification = Verification {
+            exit_zero: false,
+            survived: true,
+            failed: true,
+        };
+        let mut env = sign_skill(failed, &key).unwrap();
+        assert!(env.is_failed());
+        assert_eq!(env.trust(), Trust::Recorded);
+        env.stats.uses = 100;
+        assert_eq!(
+            env.trust(),
+            Trust::Recorded,
+            "popularity is not correctness"
+        );
+    }
+
+    #[test]
+    fn revoking_a_trusted_key_removes_its_skills_from_consumption() {
+        // Regression (F14): trust was checked at import only; after
+        // `re skill trust rm`, the imported skill still entered briefings.
+        let tmp_a = tempfile::tempdir().unwrap();
+        let tmp_b = tempfile::tempdir().unwrap();
+        let repo_a = Repo::init(tmp_a.path()).unwrap();
+        let repo_b = Repo::init(tmp_b.path()).unwrap();
+
+        let key = load_or_create_signing_key(&repo_a).unwrap();
+        let env = sign_skill(core("rotate api keys"), &key).unwrap();
+        let id = skill_id(&env.skill).unwrap();
+        save_skill(&repo_a, &id, &env).unwrap();
+        let bundle_path = tmp_a.path().join("share.json");
+        write_bundle(&bundle_path, &export_bundle(&repo_a, &id[..8]).unwrap()).unwrap();
+
+        let pub_hex = local_public_key_hex(&repo_a).unwrap().unwrap();
+        trust_add(&repo_b, "team-a", &pub_hex).unwrap();
+        import_file(&repo_b, &bundle_path).unwrap();
+        assert!(
+            load_admissible_skills(&repo_b)
+                .unwrap()
+                .iter()
+                .any(|(i, _)| i == &id)
+        );
+
+        trust_remove(&repo_b, "team-a").unwrap();
+        assert!(
+            !load_admissible_skills(&repo_b)
+                .unwrap()
+                .iter()
+                .any(|(i, _)| i == &id),
+            "revoked signer must not be consumable"
+        );
+        // History is preserved: the file is still there for audit.
+        assert!(load_skills(&repo_b).unwrap().iter().any(|(i, _)| i == &id));
     }
 
     #[test]
