@@ -1,0 +1,1347 @@
+[
+  {
+    "date": "2026-08-30T06:22:46Z",
+    "rows": [
+      {
+        "repo": "crewAIInc/crewAI",
+        "total_commits": 2704,
+        "verified": {
+          "commits": 161,
+          "introduced": 3330335,
+          "surviving": 156477,
+          "survival_rate": 0.04698536333431922
+        }
+      },
+      {
+        "repo": "microsoft/vscode-copilot-chat",
+        "total_commits": 3713,
+        "verified": {
+          "commits": 337,
+          "introduced": 996100,
+          "surviving": 923904,
+          "survival_rate": 0.9275213331994779
+        }
+      },
+      {
+        "repo": "Aider-AI/aider",
+        "total_commits": 12461,
+        "verified": {
+          "commits": 11156,
+          "introduced": 374687,
+          "surviving": 239567,
+          "survival_rate": 0.6393790016733967
+        }
+      },
+      {
+        "repo": "All-Hands-AI/OpenHands",
+        "total_commits": 8113,
+        "verified": {
+          "commits": 136,
+          "introduced": 93651,
+          "surviving": 54986,
+          "survival_rate": 0.5871373503753297
+        }
+      },
+      {
+        "repo": "cline/cline",
+        "total_commits": 7073,
+        "verified": {
+          "commits": 132,
+          "introduced": 88191,
+          "surviving": 58143,
+          "survival_rate": 0.6592849610504473
+        }
+      },
+      {
+        "repo": "zed-industries/zed",
+        "total_commits": 36588,
+        "verified": {
+          "commits": 113,
+          "introduced": 47902,
+          "surviving": 29993,
+          "survival_rate": 0.6261325205628158
+        }
+      },
+      {
+        "repo": "continuedev/continue",
+        "total_commits": 16266,
+        "verified": {
+          "commits": 227,
+          "introduced": 27611,
+          "surviving": 18313,
+          "survival_rate": 0.6632501539241606
+        }
+      },
+      {
+        "repo": "sst/opencode",
+        "total_commits": 15524,
+        "verified": {
+          "commits": 49,
+          "introduced": 25994,
+          "surviving": 9159,
+          "survival_rate": 0.3523505424328691
+        }
+      },
+      {
+        "repo": "browser-use/browser-use",
+        "total_commits": 6916,
+        "verified": {
+          "commits": 116,
+          "introduced": 13477,
+          "surviving": 1534,
+          "survival_rate": 0.11382355123543815
+        }
+      },
+      {
+        "repo": "anthropics/anthropic-sdk-typescript",
+        "total_commits": 1238,
+        "verified": {
+          "commits": 37,
+          "introduced": 11434,
+          "surviving": 10722,
+          "survival_rate": 0.9377295784502362
+        }
+      },
+      {
+        "repo": "ghostty-org/ghostty",
+        "total_commits": 13245,
+        "verified": {
+          "commits": 69,
+          "introduced": 3532,
+          "surviving": 2551,
+          "survival_rate": 0.7222536806342016
+        }
+      },
+      {
+        "repo": "openai/codex",
+        "total_commits": 10012,
+        "verified": {
+          "commits": 13,
+          "introduced": 2480,
+          "surviving": 1508,
+          "survival_rate": 0.6080645161290322
+        }
+      },
+      {
+        "repo": "anthropics/anthropic-sdk-python",
+        "total_commits": 1293,
+        "verified": {
+          "commits": 20,
+          "introduced": 2303,
+          "surviving": 2269,
+          "survival_rate": 0.9852366478506296
+        }
+      },
+      {
+        "repo": "croviatrust/causari",
+        "total_commits": 71,
+        "verified": {
+          "commits": 1,
+          "introduced": 1554,
+          "surviving": 1490,
+          "survival_rate": 0.9588159588159588
+        }
+      }
+    ]
+  },
+  {
+    "date": "2026-08-30T08:44:13Z",
+    "rows": [
+      {
+        "repo": "crewAIInc/crewAI",
+        "total_commits": 2704,
+        "verified": {
+          "commits": 166,
+          "introduced": 3332901,
+          "surviving": 158679,
+          "survival_rate": 0.0476098750007876
+        }
+      },
+      {
+        "repo": "lobehub/lobe-chat",
+        "total_commits": 13070,
+        "verified": {
+          "commits": 1636,
+          "introduced": 1574325,
+          "surviving": 1334387,
+          "survival_rate": 0.8475930954536071
+        }
+      },
+      {
+        "repo": "microsoft/vscode-copilot-chat",
+        "total_commits": 3713,
+        "verified": {
+          "commits": 337,
+          "introduced": 996100,
+          "surviving": 923904,
+          "survival_rate": 0.9275213331994779
+        }
+      },
+      {
+        "repo": "All-Hands-AI/OpenHands",
+        "total_commits": 8113,
+        "verified": {
+          "commits": 2509,
+          "introduced": 886691,
+          "surviving": 230495,
+          "survival_rate": 0.2599496329612007
+        }
+      },
+      {
+        "repo": "BerriAI/litellm",
+        "total_commits": 38089,
+        "verified": {
+          "commits": 2386,
+          "introduced": 874765,
+          "surviving": 547760,
+          "survival_rate": 0.6261796025218201
+        }
+      },
+      {
+        "repo": "langgenius/dify",
+        "total_commits": 12958,
+        "verified": {
+          "commits": 591,
+          "introduced": 641203,
+          "surviving": 359362,
+          "survival_rate": 0.5604496547895128
+        }
+      },
+      {
+        "repo": "pydantic/pydantic-ai",
+        "total_commits": 2863,
+        "verified": {
+          "commits": 266,
+          "introduced": 617890,
+          "surviving": 563548,
+          "survival_rate": 0.9120523070449432
+        }
+      },
+      {
+        "repo": "QwenLM/qwen-code",
+        "total_commits": 8298,
+        "verified": {
+          "commits": 524,
+          "introduced": 441808,
+          "surviving": 377104,
+          "survival_rate": 0.8535472422409734
+        }
+      },
+      {
+        "repo": "Aider-AI/aider",
+        "total_commits": 12461,
+        "verified": {
+          "commits": 11156,
+          "introduced": 374687,
+          "surviving": 239567,
+          "survival_rate": 0.6393790016733967
+        }
+      },
+      {
+        "repo": "openai/codex",
+        "total_commits": 10013,
+        "verified": {
+          "commits": 364,
+          "introduced": 183908,
+          "surviving": 109988,
+          "survival_rate": 0.5980598995149748
+        }
+      },
+      {
+        "repo": "RooCodeInc/Roo-Code",
+        "total_commits": 6210,
+        "verified": {
+          "commits": 43,
+          "introduced": 96707,
+          "surviving": 46369,
+          "survival_rate": 0.47947925176047235
+        }
+      },
+      {
+        "repo": "openai/openai-agents-python",
+        "total_commits": 2088,
+        "verified": {
+          "commits": 2,
+          "introduced": 94176,
+          "surviving": 94175,
+          "survival_rate": 0.9999893815834183
+        }
+      },
+      {
+        "repo": "cline/cline",
+        "total_commits": 7073,
+        "verified": {
+          "commits": 132,
+          "introduced": 88191,
+          "surviving": 58143,
+          "survival_rate": 0.6592849610504473
+        }
+      },
+      {
+        "repo": "danny-avila/LibreChat",
+        "total_commits": 5132,
+        "verified": {
+          "commits": 72,
+          "introduced": 79090,
+          "surviving": 75308,
+          "survival_rate": 0.9521810595524086
+        }
+      },
+      {
+        "repo": "google-gemini/gemini-cli",
+        "total_commits": 6389,
+        "verified": {
+          "commits": 414,
+          "introduced": 75748,
+          "surviving": 45356,
+          "survival_rate": 0.5987748851454824
+        }
+      },
+      {
+        "repo": "sst/opencode",
+        "total_commits": 15524,
+        "verified": {
+          "commits": 77,
+          "introduced": 69663,
+          "surviving": 34896,
+          "survival_rate": 0.500925886051419
+        }
+      },
+      {
+        "repo": "zed-industries/zed",
+        "total_commits": 36588,
+        "verified": {
+          "commits": 113,
+          "introduced": 47902,
+          "surviving": 29993,
+          "survival_rate": 0.6261325205628158
+        }
+      },
+      {
+        "repo": "continuedev/continue",
+        "total_commits": 16266,
+        "verified": {
+          "commits": 241,
+          "introduced": 37959,
+          "surviving": 19497,
+          "survival_rate": 0.5136331304828894
+        }
+      },
+      {
+        "repo": "mem0ai/mem0",
+        "total_commits": 2592,
+        "verified": {
+          "commits": 90,
+          "introduced": 33790,
+          "surviving": 24248,
+          "survival_rate": 0.7176087599881622
+        }
+      },
+      {
+        "repo": "anthropics/claude-code",
+        "total_commits": 614,
+        "verified": {
+          "commits": 71,
+          "introduced": 31257,
+          "surviving": 29158,
+          "survival_rate": 0.9328470422625332
+        }
+      },
+      {
+        "repo": "browser-use/browser-use",
+        "total_commits": 6920,
+        "verified": {
+          "commits": 214,
+          "introduced": 17661,
+          "surviving": 2588,
+          "survival_rate": 0.1465375686540966
+        }
+      },
+      {
+        "repo": "langchain-ai/langchain",
+        "total_commits": 16572,
+        "verified": {
+          "commits": 48,
+          "introduced": 11161,
+          "surviving": 6044,
+          "survival_rate": 0.5415285368694561
+        }
+      },
+      {
+        "repo": "anthropics/anthropic-sdk-typescript",
+        "total_commits": 1238,
+        "verified": {
+          "commits": 37,
+          "introduced": 11434,
+          "surviving": 10722,
+          "survival_rate": 0.9377295784502362
+        }
+      },
+      {
+        "repo": "run-llama/llama_index",
+        "total_commits": 7914,
+        "verified": {
+          "commits": 14,
+          "introduced": 8543,
+          "surviving": 8329,
+          "survival_rate": 0.9749502516680323
+        }
+      },
+      {
+        "repo": "ghostty-org/ghostty",
+        "total_commits": 13248,
+        "verified": {
+          "commits": 70,
+          "introduced": 3581,
+          "surviving": 2557,
+          "survival_rate": 0.7140463557665456
+        }
+      },
+      {
+        "repo": "anthropics/anthropic-sdk-python",
+        "total_commits": 1293,
+        "verified": {
+          "commits": 20,
+          "introduced": 2303,
+          "surviving": 2269,
+          "survival_rate": 0.9852366478506296
+        }
+      },
+      {
+        "repo": "croviatrust/causari",
+        "total_commits": 74,
+        "verified": {
+          "commits": 1,
+          "introduced": 1554,
+          "surviving": 1487,
+          "survival_rate": 0.9568854568854569
+        }
+      },
+      {
+        "repo": "openai/openai-python",
+        "total_commits": 1511,
+        "verified": {
+          "commits": 0,
+          "introduced": 0,
+          "surviving": 0,
+          "survival_rate": null
+        }
+      },
+      {
+        "repo": "stackblitz/bolt.new",
+        "total_commits": 101,
+        "verified": {
+          "commits": 0,
+          "introduced": 0,
+          "surviving": 0,
+          "survival_rate": null
+        }
+      }
+    ]
+  },
+  {
+    "date": "2026-08-31T11:36:33Z",
+    "rows": [
+      {
+        "repo": "crewAIInc/crewAI",
+        "total_commits": 2704,
+        "verified": {
+          "commits": 166,
+          "introduced": 3332901,
+          "surviving": 158679,
+          "survival_rate": 0.0476098750007876
+        }
+      },
+      {
+        "repo": "lobehub/lobe-chat",
+        "total_commits": 13108,
+        "verified": {
+          "commits": 1648,
+          "introduced": 1622057,
+          "surviving": 1380199,
+          "survival_rate": 0.8508942657378872
+        }
+      },
+      {
+        "repo": "microsoft/vscode-copilot-chat",
+        "total_commits": 3713,
+        "verified": {
+          "commits": 337,
+          "introduced": 996100,
+          "surviving": 923904,
+          "survival_rate": 0.9275213331994779
+        }
+      },
+      {
+        "repo": "All-Hands-AI/OpenHands",
+        "total_commits": 8118,
+        "verified": {
+          "commits": 2511,
+          "introduced": 887489,
+          "surviving": 231190,
+          "survival_rate": 0.2604990033679291
+        }
+      },
+      {
+        "repo": "BerriAI/litellm",
+        "total_commits": 38094,
+        "verified": {
+          "commits": 2386,
+          "introduced": 874765,
+          "surviving": 547623,
+          "survival_rate": 0.6260229890313398
+        }
+      },
+      {
+        "repo": "langgenius/dify",
+        "total_commits": 12991,
+        "verified": {
+          "commits": 592,
+          "introduced": 641246,
+          "surviving": 359029,
+          "survival_rate": 0.5598927712609514
+        }
+      },
+      {
+        "repo": "pydantic/pydantic-ai",
+        "total_commits": 2865,
+        "verified": {
+          "commits": 266,
+          "introduced": 617890,
+          "surviving": 563548,
+          "survival_rate": 0.9120523070449432
+        }
+      },
+      {
+        "repo": "QwenLM/qwen-code",
+        "total_commits": 8333,
+        "verified": {
+          "commits": 525,
+          "introduced": 441954,
+          "surviving": 376786,
+          "survival_rate": 0.8525457400543948
+        }
+      },
+      {
+        "repo": "Aider-AI/aider",
+        "total_commits": 12461,
+        "verified": {
+          "commits": 11156,
+          "introduced": 374687,
+          "surviving": 239567,
+          "survival_rate": 0.6393790016733967
+        }
+      },
+      {
+        "repo": "openai/codex",
+        "total_commits": 10022,
+        "verified": {
+          "commits": 364,
+          "introduced": 183908,
+          "surviving": 109985,
+          "survival_rate": 0.5980435870108968
+        }
+      },
+      {
+        "repo": "RooCodeInc/Roo-Code",
+        "total_commits": 6210,
+        "verified": {
+          "commits": 43,
+          "introduced": 96707,
+          "surviving": 46369,
+          "survival_rate": 0.47947925176047235
+        }
+      },
+      {
+        "repo": "openai/openai-agents-python",
+        "total_commits": 2088,
+        "verified": {
+          "commits": 2,
+          "introduced": 94176,
+          "surviving": 94175,
+          "survival_rate": 0.9999893815834183
+        }
+      },
+      {
+        "repo": "cline/cline",
+        "total_commits": 7073,
+        "verified": {
+          "commits": 132,
+          "introduced": 88191,
+          "surviving": 58143,
+          "survival_rate": 0.6592849610504473
+        }
+      },
+      {
+        "repo": "danny-avila/LibreChat",
+        "total_commits": 5166,
+        "verified": {
+          "commits": 78,
+          "introduced": 83264,
+          "surviving": 79329,
+          "survival_rate": 0.9527406802459646
+        }
+      },
+      {
+        "repo": "google-gemini/gemini-cli",
+        "total_commits": 6389,
+        "verified": {
+          "commits": 414,
+          "introduced": 75748,
+          "surviving": 45356,
+          "survival_rate": 0.5987748851454824
+        }
+      },
+      {
+        "repo": "sst/opencode",
+        "total_commits": 15525,
+        "verified": {
+          "commits": 77,
+          "introduced": 69663,
+          "surviving": 34896,
+          "survival_rate": 0.500925886051419
+        }
+      },
+      {
+        "repo": "zed-industries/zed",
+        "total_commits": 36598,
+        "verified": {
+          "commits": 114,
+          "introduced": 47988,
+          "surviving": 30036,
+          "survival_rate": 0.6259064766191548
+        }
+      },
+      {
+        "repo": "continuedev/continue",
+        "total_commits": 16266,
+        "verified": {
+          "commits": 241,
+          "introduced": 37959,
+          "surviving": 19497,
+          "survival_rate": 0.5136331304828894
+        }
+      },
+      {
+        "repo": "mem0ai/mem0",
+        "total_commits": 2592,
+        "verified": {
+          "commits": 90,
+          "introduced": 33790,
+          "surviving": 24248,
+          "survival_rate": 0.7176087599881622
+        }
+      },
+      {
+        "repo": "anthropics/claude-code",
+        "total_commits": 614,
+        "verified": {
+          "commits": 71,
+          "introduced": 31257,
+          "surviving": 29158,
+          "survival_rate": 0.9328470422625332
+        }
+      },
+      {
+        "repo": "browser-use/browser-use",
+        "total_commits": 6931,
+        "verified": {
+          "commits": 214,
+          "introduced": 17661,
+          "surviving": 2588,
+          "survival_rate": 0.1465375686540966
+        }
+      },
+      {
+        "repo": "langchain-ai/langchain",
+        "total_commits": 16573,
+        "verified": {
+          "commits": 48,
+          "introduced": 11161,
+          "surviving": 6044,
+          "survival_rate": 0.5415285368694561
+        }
+      },
+      {
+        "repo": "anthropics/anthropic-sdk-typescript",
+        "total_commits": 1238,
+        "verified": {
+          "commits": 37,
+          "introduced": 11434,
+          "surviving": 10722,
+          "survival_rate": 0.9377295784502362
+        }
+      },
+      {
+        "repo": "run-llama/llama_index",
+        "total_commits": 7914,
+        "verified": {
+          "commits": 14,
+          "introduced": 8543,
+          "surviving": 8329,
+          "survival_rate": 0.9749502516680323
+        }
+      },
+      {
+        "repo": "ghostty-org/ghostty",
+        "total_commits": 13251,
+        "verified": {
+          "commits": 70,
+          "introduced": 3581,
+          "surviving": 2557,
+          "survival_rate": 0.7140463557665456
+        }
+      },
+      {
+        "repo": "anthropics/anthropic-sdk-python",
+        "total_commits": 1293,
+        "verified": {
+          "commits": 20,
+          "introduced": 2303,
+          "surviving": 2269,
+          "survival_rate": 0.9852366478506296
+        }
+      },
+      {
+        "repo": "croviatrust/causari",
+        "total_commits": 74,
+        "verified": {
+          "commits": 1,
+          "introduced": 1554,
+          "surviving": 1487,
+          "survival_rate": 0.9568854568854569
+        }
+      },
+      {
+        "repo": "openai/openai-python",
+        "total_commits": 1511,
+        "verified": {
+          "commits": 0,
+          "introduced": 0,
+          "surviving": 0,
+          "survival_rate": null
+        }
+      },
+      {
+        "repo": "stackblitz/bolt.new",
+        "total_commits": 101,
+        "verified": {
+          "commits": 0,
+          "introduced": 0,
+          "surviving": 0,
+          "survival_rate": null
+        }
+      }
+    ]
+  },
+  {
+    "date": "2026-09-07T10:19:53Z",
+    "rows": [
+      {
+        "repo": "crewAIInc/crewAI",
+        "total_commits": 2734,
+        "verified": {
+          "commits": 173,
+          "introduced": 3334385,
+          "surviving": 160040,
+          "survival_rate": 0.047996856991619145
+        }
+      },
+      {
+        "repo": "lobehub/lobe-chat",
+        "total_commits": 13329,
+        "verified": {
+          "commits": 1737,
+          "introduced": 1770845,
+          "surviving": 1517187,
+          "survival_rate": 0.8567587790009854
+        }
+      },
+      {
+        "repo": "microsoft/vscode-copilot-chat",
+        "total_commits": 3713,
+        "verified": {
+          "commits": 337,
+          "introduced": 996100,
+          "surviving": 923904,
+          "survival_rate": 0.9275213331994779
+        }
+      },
+      {
+        "repo": "BerriAI/litellm",
+        "total_commits": 39263,
+        "verified": {
+          "commits": 2656,
+          "introduced": 928234,
+          "surviving": 590667,
+          "survival_rate": 0.6363341571198642
+        }
+      },
+      {
+        "repo": "All-Hands-AI/OpenHands",
+        "total_commits": 8141,
+        "verified": {
+          "commits": 2520,
+          "introduced": 893909,
+          "surviving": 236531,
+          "survival_rate": 0.26460299650188107
+        }
+      },
+      {
+        "repo": "langgenius/dify",
+        "total_commits": 13159,
+        "verified": {
+          "commits": 602,
+          "introduced": 662469,
+          "surviving": 375476,
+          "survival_rate": 0.566782747570075
+        }
+      },
+      {
+        "repo": "pydantic/pydantic-ai",
+        "total_commits": 2956,
+        "verified": {
+          "commits": 268,
+          "introduced": 618183,
+          "surviving": 563214,
+          "survival_rate": 0.9110797288181655
+        }
+      },
+      {
+        "repo": "QwenLM/qwen-code",
+        "total_commits": 8613,
+        "verified": {
+          "commits": 546,
+          "introduced": 481418,
+          "surviving": 411818,
+          "survival_rate": 0.8554270924643449
+        }
+      },
+      {
+        "repo": "Aider-AI/aider",
+        "total_commits": 12461,
+        "verified": {
+          "commits": 11156,
+          "introduced": 374687,
+          "surviving": 239567,
+          "survival_rate": 0.6393790016733967
+        }
+      },
+      {
+        "repo": "openai/codex",
+        "total_commits": 10352,
+        "verified": {
+          "commits": 364,
+          "introduced": 183908,
+          "surviving": 109099,
+          "survival_rate": 0.5932259608064901
+        }
+      },
+      {
+        "repo": "RooCodeInc/Roo-Code",
+        "total_commits": 6210,
+        "verified": {
+          "commits": 43,
+          "introduced": 96707,
+          "surviving": 46369,
+          "survival_rate": 0.47947925176047235
+        }
+      },
+      {
+        "repo": "openai/openai-agents-python",
+        "total_commits": 2100,
+        "verified": {
+          "commits": 2,
+          "introduced": 94176,
+          "surviving": 94175,
+          "survival_rate": 0.9999893815834183
+        }
+      },
+      {
+        "repo": "cline/cline",
+        "total_commits": 7112,
+        "verified": {
+          "commits": 136,
+          "introduced": 90380,
+          "surviving": 60254,
+          "survival_rate": 0.6666740429298518
+        }
+      },
+      {
+        "repo": "danny-avila/LibreChat",
+        "total_commits": 5358,
+        "verified": {
+          "commits": 89,
+          "introduced": 88016,
+          "surviving": 83575,
+          "survival_rate": 0.9495432648609343
+        }
+      },
+      {
+        "repo": "google-gemini/gemini-cli",
+        "total_commits": 6400,
+        "verified": {
+          "commits": 416,
+          "introduced": 75818,
+          "surviving": 45108,
+          "survival_rate": 0.5949510670289377
+        }
+      },
+      {
+        "repo": "sst/opencode",
+        "total_commits": 15613,
+        "verified": {
+          "commits": 77,
+          "introduced": 69663,
+          "surviving": 34894,
+          "survival_rate": 0.5008971764064137
+        }
+      },
+      {
+        "repo": "vercel/next.js",
+        "total_commits": 35311,
+        "verified": {
+          "commits": 219,
+          "introduced": 56251,
+          "surviving": 48650,
+          "survival_rate": 0.8648735133597625
+        }
+      },
+      {
+        "repo": "zed-industries/zed",
+        "total_commits": 36697,
+        "verified": {
+          "commits": 115,
+          "introduced": 47997,
+          "surviving": 29545,
+          "survival_rate": 0.6155593057899452
+        }
+      },
+      {
+        "repo": "continuedev/continue",
+        "total_commits": 16266,
+        "verified": {
+          "commits": 241,
+          "introduced": 37959,
+          "surviving": 19497,
+          "survival_rate": 0.5136331304828894
+        }
+      },
+      {
+        "repo": "mem0ai/mem0",
+        "total_commits": 2597,
+        "verified": {
+          "commits": 90,
+          "introduced": 33790,
+          "surviving": 24242,
+          "survival_rate": 0.7174311926605504
+        }
+      },
+      {
+        "repo": "anthropics/claude-code",
+        "total_commits": 622,
+        "verified": {
+          "commits": 71,
+          "introduced": 31257,
+          "surviving": 29158,
+          "survival_rate": 0.9328470422625332
+        }
+      },
+      {
+        "repo": "browser-use/browser-use",
+        "total_commits": 6978,
+        "verified": {
+          "commits": 216,
+          "introduced": 18122,
+          "surviving": 3015,
+          "survival_rate": 0.16637236508111689
+        }
+      },
+      {
+        "repo": "anthropics/anthropic-sdk-typescript",
+        "total_commits": 1256,
+        "verified": {
+          "commits": 39,
+          "introduced": 12536,
+          "surviving": 11810,
+          "survival_rate": 0.9420867900446713
+        }
+      },
+      {
+        "repo": "langchain-ai/langchain",
+        "total_commits": 16620,
+        "verified": {
+          "commits": 48,
+          "introduced": 11161,
+          "surviving": 6042,
+          "survival_rate": 0.5413493414568588
+        }
+      },
+      {
+        "repo": "run-llama/llama_index",
+        "total_commits": 7928,
+        "verified": {
+          "commits": 14,
+          "introduced": 8543,
+          "surviving": 8328,
+          "survival_rate": 0.9748331967692848
+        }
+      },
+      {
+        "repo": "ghostty-org/ghostty",
+        "total_commits": 13335,
+        "verified": {
+          "commits": 71,
+          "introduced": 3589,
+          "surviving": 2565,
+          "survival_rate": 0.7146837559208693
+        }
+      },
+      {
+        "repo": "anthropics/anthropic-sdk-python",
+        "total_commits": 1324,
+        "verified": {
+          "commits": 26,
+          "introduced": 2753,
+          "surviving": 2712,
+          "survival_rate": 0.9851071558300036
+        }
+      },
+      {
+        "repo": "croviatrust/causari",
+        "total_commits": 80,
+        "verified": {
+          "commits": 1,
+          "introduced": 1554,
+          "surviving": 1487,
+          "survival_rate": 0.9568854568854569
+        }
+      },
+      {
+        "repo": "openai/openai-python",
+        "total_commits": 1522,
+        "verified": {
+          "commits": 0,
+          "introduced": 0,
+          "surviving": 0,
+          "survival_rate": null
+        }
+      },
+      {
+        "repo": "stackblitz/bolt.new",
+        "total_commits": 101,
+        "verified": {
+          "commits": 0,
+          "introduced": 0,
+          "surviving": 0,
+          "survival_rate": null
+        }
+      }
+    ]
+  },
+  {
+    "date": "2026-09-14T10:40:23Z",
+    "rows": [
+      {
+        "repo": "crewAIInc/crewAI",
+        "total_commits": 2770,
+        "verified": {
+          "commits": 177,
+          "introduced": 3336449,
+          "surviving": 162071,
+          "survival_rate": 0.04857589610990607
+        }
+      },
+      {
+        "repo": "lobehub/lobe-chat",
+        "total_commits": 13552,
+        "verified": {
+          "commits": 1817,
+          "introduced": 1896019,
+          "surviving": 1624262,
+          "survival_rate": 0.8566696852721413
+        }
+      },
+      {
+        "repo": "BerriAI/litellm",
+        "total_commits": 40307,
+        "verified": {
+          "commits": 2932,
+          "introduced": 1001281,
+          "surviving": 653294,
+          "survival_rate": 0.6524582010444621
+        }
+      },
+      {
+        "repo": "microsoft/vscode-copilot-chat",
+        "total_commits": 3713,
+        "verified": {
+          "commits": 337,
+          "introduced": 996100,
+          "surviving": 923904,
+          "survival_rate": 0.9275213331994779
+        }
+      },
+      {
+        "repo": "All-Hands-AI/OpenHands",
+        "total_commits": 8224,
+        "verified": {
+          "commits": 2587,
+          "introduced": 915514,
+          "surviving": 256651,
+          "survival_rate": 0.280335418136697
+        }
+      },
+      {
+        "repo": "langgenius/dify",
+        "total_commits": 13319,
+        "verified": {
+          "commits": 608,
+          "introduced": 662785,
+          "surviving": 373498,
+          "survival_rate": 0.5635281426103488
+        }
+      },
+      {
+        "repo": "pydantic/pydantic-ai",
+        "total_commits": 2988,
+        "verified": {
+          "commits": 270,
+          "introduced": 618825,
+          "surviving": 563739,
+          "survival_rate": 0.9109829111622834
+        }
+      },
+      {
+        "repo": "QwenLM/qwen-code",
+        "total_commits": 8902,
+        "verified": {
+          "commits": 550,
+          "introduced": 495846,
+          "surviving": 422438,
+          "survival_rate": 0.851954034115431
+        }
+      },
+      {
+        "repo": "Aider-AI/aider",
+        "total_commits": 12461,
+        "verified": {
+          "commits": 11156,
+          "introduced": 374687,
+          "surviving": 239567,
+          "survival_rate": 0.6393790016733967
+        }
+      },
+      {
+        "repo": "openai/codex",
+        "total_commits": 10696,
+        "verified": {
+          "commits": 364,
+          "introduced": 183908,
+          "surviving": 105045,
+          "survival_rate": 0.5711823302955825
+        }
+      },
+      {
+        "repo": "RooCodeInc/Roo-Code",
+        "total_commits": 6210,
+        "verified": {
+          "commits": 43,
+          "introduced": 96707,
+          "surviving": 46369,
+          "survival_rate": 0.47947925176047235
+        }
+      },
+      {
+        "repo": "cline/cline",
+        "total_commits": 7192,
+        "verified": {
+          "commits": 150,
+          "introduced": 94356,
+          "surviving": 63921,
+          "survival_rate": 0.6774449955487727
+        }
+      },
+      {
+        "repo": "openai/openai-agents-python",
+        "total_commits": 2151,
+        "verified": {
+          "commits": 2,
+          "introduced": 94176,
+          "surviving": 94175,
+          "survival_rate": 0.9999893815834183
+        }
+      },
+      {
+        "repo": "danny-avila/LibreChat",
+        "total_commits": 5479,
+        "verified": {
+          "commits": 93,
+          "introduced": 89817,
+          "surviving": 84799,
+          "survival_rate": 0.9441308438268925
+        }
+      },
+      {
+        "repo": "google-gemini/gemini-cli",
+        "total_commits": 6409,
+        "verified": {
+          "commits": 419,
+          "introduced": 77935,
+          "surviving": 47161,
+          "survival_rate": 0.6051324821967023
+        }
+      },
+      {
+        "repo": "sst/opencode",
+        "total_commits": 15642,
+        "verified": {
+          "commits": 77,
+          "introduced": 69663,
+          "surviving": 34894,
+          "survival_rate": 0.5008971764064137
+        }
+      },
+      {
+        "repo": "vercel/next.js",
+        "total_commits": 35418,
+        "verified": {
+          "commits": 223,
+          "introduced": 56414,
+          "surviving": 48547,
+          "survival_rate": 0.8605487999432765
+        }
+      },
+      {
+        "repo": "zed-industries/zed",
+        "total_commits": 36775,
+        "verified": {
+          "commits": 116,
+          "introduced": 48218,
+          "surviving": 29692,
+          "survival_rate": 0.6157866356962131
+        }
+      },
+      {
+        "repo": "continuedev/continue",
+        "total_commits": 16266,
+        "verified": {
+          "commits": 241,
+          "introduced": 37959,
+          "surviving": 19497,
+          "survival_rate": 0.5136331304828894
+        }
+      },
+      {
+        "repo": "mem0ai/mem0",
+        "total_commits": 2601,
+        "verified": {
+          "commits": 90,
+          "introduced": 33790,
+          "surviving": 23659,
+          "survival_rate": 0.7001775673276117
+        }
+      },
+      {
+        "repo": "anthropics/claude-code",
+        "total_commits": 683,
+        "verified": {
+          "commits": 71,
+          "introduced": 31257,
+          "surviving": 29158,
+          "survival_rate": 0.9328470422625332
+        }
+      },
+      {
+        "repo": "browser-use/browser-use",
+        "total_commits": 6996,
+        "verified": {
+          "commits": 218,
+          "introduced": 18169,
+          "surviving": 3056,
+          "survival_rate": 0.16819857999889923
+        }
+      },
+      {
+        "repo": "anthropics/anthropic-sdk-typescript",
+        "total_commits": 1267,
+        "verified": {
+          "commits": 40,
+          "introduced": 12538,
+          "surviving": 11806,
+          "survival_rate": 0.9416174828521295
+        }
+      },
+      {
+        "repo": "langchain-ai/langchain",
+        "total_commits": 16639,
+        "verified": {
+          "commits": 48,
+          "introduced": 11161,
+          "surviving": 6040,
+          "survival_rate": 0.5411701460442613
+        }
+      },
+      {
+        "repo": "run-llama/llama_index",
+        "total_commits": 7931,
+        "verified": {
+          "commits": 14,
+          "introduced": 8543,
+          "surviving": 8328,
+          "survival_rate": 0.9748331967692848
+        }
+      },
+      {
+        "repo": "ghostty-org/ghostty",
+        "total_commits": 13363,
+        "verified": {
+          "commits": 71,
+          "introduced": 3589,
+          "surviving": 2565,
+          "survival_rate": 0.7146837559208693
+        }
+      },
+      {
+        "repo": "anthropics/anthropic-sdk-python",
+        "total_commits": 1345,
+        "verified": {
+          "commits": 34,
+          "introduced": 3186,
+          "surviving": 3142,
+          "survival_rate": 0.9861895794099184
+        }
+      },
+      {
+        "repo": "croviatrust/causari",
+        "total_commits": 81,
+        "verified": {
+          "commits": 1,
+          "introduced": 1554,
+          "surviving": 1487,
+          "survival_rate": 0.9568854568854569
+        }
+      },
+      {
+        "repo": "openai/openai-python",
+        "total_commits": 1543,
+        "verified": {
+          "commits": 1,
+          "introduced": 51,
+          "surviving": 51,
+          "survival_rate": 1.0
+        }
+      },
+      {
+        "repo": "stackblitz/bolt.new",
+        "total_commits": 101,
+        "verified": {
+          "commits": 0,
+          "introduced": 0,
+          "surviving": 0,
+          "survival_rate": null
+        }
+      }
+    ]
+  }
+]

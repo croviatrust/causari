@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-25T18:00:49Z",
+  "generated_at": "2026-09-14T10:40:23Z",
   "tool": "causari",
   "command": "re audit <owner/repo> --json",
   "rows": [
     {
       "repo": "crewAIInc/crewAI",
-      "audited_at": "2026-08-25T18:00:49Z",
+      "audited_at": "2026-09-14T10:40:23Z",
       "by_agent": {
         "aider": {
           "commits": 3,
@@ -13,24 +13,24 @@
           "surviving": 0
         },
         "claude-code": {
-          "commits": 83,
-          "introduced": 51479,
-          "surviving": 43833
+          "commits": 97,
+          "introduced": 55194,
+          "surviving": 47000
         },
         "cursor": {
-          "commits": 15,
-          "introduced": 3238232,
-          "surviving": 77874
+          "commits": 17,
+          "introduced": 3240150,
+          "surviving": 79748
         },
         "devin": {
-          "commits": 46,
-          "introduced": 10674,
-          "surviving": 5748
+          "commits": 51,
+          "introduced": 12962,
+          "surviving": 7945
         },
         "github-copilot": {
           "commits": 9,
-          "introduced": 29608,
-          "surviving": 29068
+          "introduced": 27919,
+          "surviving": 27378
         }
       },
       "probable": {
@@ -39,27 +39,120 @@
         "survival_rate": null,
         "surviving": 0
       },
-      "total_commits": 2690,
+      "total_commits": 2770,
       "verified": {
-        "commits": 156,
-        "introduced": 3330217,
-        "survival_rate": 0.04700084108633161,
-        "surviving": 156523
+        "commits": 177,
+        "introduced": 3336449,
+        "survival_rate": 0.04857589610990607,
+        "surviving": 162071
+      }
+    },
+    {
+      "repo": "lobehub/lobe-chat",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "claude-code": {
+          "commits": 1787,
+          "introduced": 1838320,
+          "surviving": 1580795
+        },
+        "cursor": {
+          "commits": 6,
+          "introduced": 5641,
+          "surviving": 3920
+        },
+        "github-copilot": {
+          "commits": 19,
+          "introduced": 27409,
+          "surviving": 18718
+        },
+        "openai-codex": {
+          "commits": 5,
+          "introduced": 24649,
+          "surviving": 20829
+        }
+      },
+      "probable": {
+        "commits": 9,
+        "introduced": 3409,
+        "survival_rate": 0.3734232912877677,
+        "surviving": 1273
+      },
+      "total_commits": 13552,
+      "verified": {
+        "commits": 1817,
+        "introduced": 1896019,
+        "survival_rate": 0.8566696852721413,
+        "surviving": 1624262
+      }
+    },
+    {
+      "repo": "BerriAI/litellm",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "aider": {
+          "commits": 7,
+          "introduced": 530,
+          "surviving": 0
+        },
+        "claude-code": {
+          "commits": 1253,
+          "introduced": 409081,
+          "surviving": 245986
+        },
+        "cursor": {
+          "commits": 526,
+          "introduced": 298211,
+          "surviving": 171182
+        },
+        "devin": {
+          "commits": 1021,
+          "introduced": 244612,
+          "surviving": 205092
+        },
+        "github-copilot": {
+          "commits": 84,
+          "introduced": 36924,
+          "surviving": 21754
+        },
+        "openai-codex": {
+          "commits": 22,
+          "introduced": 3068,
+          "surviving": 2683
+        },
+        "openhands": {
+          "commits": 19,
+          "introduced": 8855,
+          "surviving": 6597
+        }
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 40307,
+      "verified": {
+        "commits": 2932,
+        "introduced": 1001281,
+        "survival_rate": 0.6524582010444621,
+        "surviving": 653294
       }
     },
     {
       "repo": "microsoft/vscode-copilot-chat",
-      "audited_at": "2026-08-25T18:00:49Z",
+      "audited_at": "2026-09-14T10:40:23Z",
       "by_agent": {
         "claude-code": {
           "commits": 5,
-          "introduced": 705,
+          "introduced": 681,
           "surviving": 196
         },
         "github-copilot": {
           "commits": 332,
-          "introduced": 1030604,
-          "surviving": 948421
+          "introduced": 995419,
+          "surviving": 923708
         }
       },
       "probable": {
@@ -71,19 +164,210 @@
       "total_commits": 3713,
       "verified": {
         "commits": 337,
-        "introduced": 1031309,
-        "survival_rate": 0.9198184055409193,
-        "surviving": 948617
+        "introduced": 996100,
+        "survival_rate": 0.9275213331994779,
+        "surviving": 923904
+      }
+    },
+    {
+      "repo": "All-Hands-AI/OpenHands",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "claude-code": {
+          "commits": 66,
+          "introduced": 40672,
+          "surviving": 19746
+        },
+        "cursor": {
+          "commits": 32,
+          "introduced": 41813,
+          "surviving": 35201
+        },
+        "devin": {
+          "commits": 20,
+          "introduced": 7177,
+          "surviving": 1857
+        },
+        "gemini": {
+          "commits": 1,
+          "introduced": 3138,
+          "surviving": 0
+        },
+        "github-copilot": {
+          "commits": 5,
+          "introduced": 115,
+          "surviving": 31
+        },
+        "openai-codex": {
+          "commits": 2,
+          "introduced": 196,
+          "surviving": 183
+        },
+        "openhands": {
+          "commits": 2461,
+          "introduced": 822403,
+          "surviving": 199633
+        }
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 8224,
+      "verified": {
+        "commits": 2587,
+        "introduced": 915514,
+        "survival_rate": 0.280335418136697,
+        "surviving": 256651
+      }
+    },
+    {
+      "repo": "langgenius/dify",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "claude-code": {
+          "commits": 185,
+          "introduced": 153706,
+          "surviving": 84230
+        },
+        "cursor": {
+          "commits": 11,
+          "introduced": 45375,
+          "surviving": 33486
+        },
+        "devin": {
+          "commits": 6,
+          "introduced": 85,
+          "surviving": 66
+        },
+        "gemini": {
+          "commits": 192,
+          "introduced": 125049,
+          "surviving": 72530
+        },
+        "github-copilot": {
+          "commits": 213,
+          "introduced": 327482,
+          "surviving": 174673
+        },
+        "openai-codex": {
+          "commits": 1,
+          "introduced": 11088,
+          "surviving": 8513
+        }
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 13319,
+      "verified": {
+        "commits": 608,
+        "introduced": 662785,
+        "survival_rate": 0.5635281426103488,
+        "surviving": 373498
+      }
+    },
+    {
+      "repo": "pydantic/pydantic-ai",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "claude-code": {
+          "commits": 256,
+          "introduced": 612567,
+          "surviving": 559175
+        },
+        "cursor": {
+          "commits": 1,
+          "introduced": 873,
+          "surviving": 846
+        },
+        "devin": {
+          "commits": 7,
+          "introduced": 3815,
+          "surviving": 2707
+        },
+        "github-copilot": {
+          "commits": 4,
+          "introduced": 1357,
+          "surviving": 810
+        },
+        "openai-codex": {
+          "commits": 2,
+          "introduced": 213,
+          "surviving": 201
+        }
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 2988,
+      "verified": {
+        "commits": 270,
+        "introduced": 618825,
+        "survival_rate": 0.9109829111622834,
+        "surviving": 563739
+      }
+    },
+    {
+      "repo": "QwenLM/qwen-code",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "claude-code": {
+          "commits": 427,
+          "introduced": 403413,
+          "surviving": 346182
+        },
+        "cursor": {
+          "commits": 23,
+          "introduced": 29562,
+          "surviving": 27190
+        },
+        "gemini": {
+          "commits": 69,
+          "introduced": 13808,
+          "surviving": 4444
+        },
+        "github-copilot": {
+          "commits": 21,
+          "introduced": 36875,
+          "surviving": 32655
+        },
+        "openai-codex": {
+          "commits": 10,
+          "introduced": 12188,
+          "surviving": 11967
+        }
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 8902,
+      "verified": {
+        "commits": 550,
+        "introduced": 495846,
+        "survival_rate": 0.851954034115431,
+        "surviving": 422438
       }
     },
     {
       "repo": "Aider-AI/aider",
-      "audited_at": "2026-08-25T18:00:49Z",
+      "audited_at": "2026-09-14T10:40:23Z",
       "by_agent": {
         "aider": {
           "commits": 11155,
-          "introduced": 374669,
-          "surviving": 239549
+          "introduced": 374668,
+          "surviving": 239548
         },
         "claude-code": {
           "commits": 1,
@@ -100,29 +384,29 @@
       "total_commits": 12461,
       "verified": {
         "commits": 11156,
-        "introduced": 374688,
-        "survival_rate": 0.6393799641301563,
-        "surviving": 239568
+        "introduced": 374687,
+        "survival_rate": 0.6393790016733967,
+        "surviving": 239567
       }
     },
     {
-      "repo": "All-Hands-AI/OpenHands",
-      "audited_at": "2026-08-25T18:00:49Z",
+      "repo": "openai/codex",
+      "audited_at": "2026-09-14T10:40:23Z",
       "by_agent": {
         "claude-code": {
-          "commits": 97,
-          "introduced": 59858,
-          "surviving": 19100
-        },
-        "cursor": {
-          "commits": 34,
-          "introduced": 42211,
-          "surviving": 35952
+          "commits": 10,
+          "introduced": 2250,
+          "surviving": 1348
         },
         "github-copilot": {
-          "commits": 5,
-          "introduced": 115,
-          "surviving": 31
+          "commits": 3,
+          "introduced": 230,
+          "surviving": 120
+        },
+        "openai-codex": {
+          "commits": 351,
+          "introduced": 181428,
+          "surviving": 103577
         }
       },
       "probable": {
@@ -131,32 +415,66 @@
         "survival_rate": null,
         "surviving": 0
       },
-      "total_commits": 8098,
+      "total_commits": 10696,
       "verified": {
-        "commits": 136,
-        "introduced": 102184,
-        "survival_rate": 0.5390569952243013,
-        "surviving": 55083
+        "commits": 364,
+        "introduced": 183908,
+        "survival_rate": 0.5711823302955825,
+        "surviving": 105045
+      }
+    },
+    {
+      "repo": "RooCodeInc/Roo-Code",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "claude-code": {
+          "commits": 27,
+          "introduced": 82719,
+          "surviving": 43692
+        },
+        "cursor": {
+          "commits": 5,
+          "introduced": 9,
+          "surviving": 0
+        },
+        "github-copilot": {
+          "commits": 11,
+          "introduced": 13979,
+          "surviving": 2677
+        }
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 6210,
+      "verified": {
+        "commits": 43,
+        "introduced": 96707,
+        "survival_rate": 0.47947925176047235,
+        "surviving": 46369
       }
     },
     {
       "repo": "cline/cline",
-      "audited_at": "2026-08-25T18:00:49Z",
+      "audited_at": "2026-09-14T10:40:23Z",
       "by_agent": {
         "claude-code": {
-          "commits": 50,
-          "introduced": 49566,
-          "surviving": 38722
+          "commits": 64,
+          "introduced": 44161,
+          "surviving": 36930
         },
         "cursor": {
-          "commits": 34,
-          "introduced": 12711,
-          "surviving": 10073
+          "commits": 39,
+          "introduced": 13526,
+          "surviving": 11245
         },
         "github-copilot": {
           "commits": 47,
-          "introduced": 38613,
-          "surviving": 15757
+          "introduced": 36669,
+          "surviving": 15746
         }
       },
       "probable": {
@@ -165,17 +483,221 @@
         "survival_rate": null,
         "surviving": 0
       },
-      "total_commits": 7018,
+      "total_commits": 7192,
       "verified": {
-        "commits": 131,
-        "introduced": 100890,
-        "survival_rate": 0.63982555258202,
-        "surviving": 64552
+        "commits": 150,
+        "introduced": 94356,
+        "survival_rate": 0.6774449955487727,
+        "surviving": 63921
+      }
+    },
+    {
+      "repo": "openai/openai-agents-python",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "openai-codex": {
+          "commits": 2,
+          "introduced": 94176,
+          "surviving": 94175
+        }
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 2151,
+      "verified": {
+        "commits": 2,
+        "introduced": 94176,
+        "survival_rate": 0.9999893815834183,
+        "surviving": 94175
+      }
+    },
+    {
+      "repo": "danny-avila/LibreChat",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "claude-code": {
+          "commits": 66,
+          "introduced": 78470,
+          "surviving": 75496
+        },
+        "cursor": {
+          "commits": 2,
+          "introduced": 3720,
+          "surviving": 3275
+        },
+        "github-copilot": {
+          "commits": 25,
+          "introduced": 7627,
+          "surviving": 6028
+        }
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 5479,
+      "verified": {
+        "commits": 93,
+        "introduced": 89817,
+        "survival_rate": 0.9441308438268925,
+        "surviving": 84799
+      }
+    },
+    {
+      "repo": "google-gemini/gemini-cli",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "gemini": {
+          "commits": 418,
+          "introduced": 77931,
+          "surviving": 47160
+        },
+        "github-copilot": {
+          "commits": 1,
+          "introduced": 4,
+          "surviving": 1
+        }
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 6409,
+      "verified": {
+        "commits": 419,
+        "introduced": 77935,
+        "survival_rate": 0.6051324821967023,
+        "surviving": 47161
+      }
+    },
+    {
+      "repo": "sst/opencode",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "claude-code": {
+          "commits": 34,
+          "introduced": 8383,
+          "surviving": 3281
+        },
+        "cursor": {
+          "commits": 3,
+          "introduced": 222,
+          "surviving": 97
+        },
+        "devin": {
+          "commits": 28,
+          "introduced": 43669,
+          "surviving": 25736
+        },
+        "github-copilot": {
+          "commits": 12,
+          "introduced": 17389,
+          "surviving": 5780
+        }
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 15642,
+      "verified": {
+        "commits": 77,
+        "introduced": 69663,
+        "survival_rate": 0.5008971764064137,
+        "surviving": 34894
+      }
+    },
+    {
+      "repo": "vercel/next.js",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "claude-code": {
+          "commits": 158,
+          "introduced": 45711,
+          "surviving": 39692
+        },
+        "cursor": {
+          "commits": 53,
+          "introduced": 10008,
+          "surviving": 8276
+        },
+        "devin": {
+          "commits": 5,
+          "introduced": 614,
+          "surviving": 511
+        },
+        "github-copilot": {
+          "commits": 6,
+          "introduced": 80,
+          "surviving": 67
+        },
+        "openai-codex": {
+          "commits": 1,
+          "introduced": 1,
+          "surviving": 1
+        }
+      },
+      "probable": {
+        "commits": 2,
+        "introduced": 11,
+        "survival_rate": 1.0,
+        "surviving": 11
+      },
+      "total_commits": 35418,
+      "verified": {
+        "commits": 223,
+        "introduced": 56414,
+        "survival_rate": 0.8605487999432765,
+        "surviving": 48547
+      }
+    },
+    {
+      "repo": "zed-industries/zed",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "claude-code": {
+          "commits": 106,
+          "introduced": 42917,
+          "surviving": 24610
+        },
+        "cursor": {
+          "commits": 1,
+          "introduced": 3999,
+          "surviving": 3927
+        },
+        "github-copilot": {
+          "commits": 9,
+          "introduced": 1302,
+          "surviving": 1155
+        }
+      },
+      "probable": {
+        "commits": 3,
+        "introduced": 184,
+        "survival_rate": 1.0,
+        "surviving": 184
+      },
+      "total_commits": 36775,
+      "verified": {
+        "commits": 116,
+        "introduced": 48218,
+        "survival_rate": 0.6157866356962131,
+        "surviving": 29692
       }
     },
     {
       "repo": "continuedev/continue",
-      "audited_at": "2026-08-25T18:00:49Z",
+      "audited_at": "2026-09-14T10:40:23Z",
       "by_agent": {
         "aider": {
           "commits": 2,
@@ -184,52 +706,57 @@
         },
         "claude-code": {
           "commits": 214,
-          "introduced": 35558,
-          "surviving": 23403
+          "introduced": 25675,
+          "surviving": 17004
         },
         "cursor": {
           "commits": 10,
-          "introduced": 580,
-          "surviving": 574
+          "introduced": 383,
+          "surviving": 377
+        },
+        "devin": {
+          "commits": 13,
+          "introduced": 10203,
+          "surviving": 1041
         },
         "github-copilot": {
           "commits": 1,
           "introduced": 1412,
           "surviving": 883
+        },
+        "openhands": {
+          "commits": 1,
+          "introduced": 145,
+          "surviving": 143
         }
       },
       "probable": {
-        "commits": 0,
-        "introduced": 0,
-        "survival_rate": null,
-        "surviving": 0
+        "commits": 3,
+        "introduced": 1228,
+        "survival_rate": 0.3583061889250814,
+        "surviving": 440
       },
       "total_commits": 16266,
       "verified": {
-        "commits": 227,
-        "introduced": 37691,
-        "survival_rate": 0.6608739486880157,
-        "surviving": 24909
+        "commits": 241,
+        "introduced": 37959,
+        "survival_rate": 0.5136331304828894,
+        "surviving": 19497
       }
     },
     {
-      "repo": "sst/opencode",
-      "audited_at": "2026-08-25T18:00:49Z",
+      "repo": "mem0ai/mem0",
+      "audited_at": "2026-09-14T10:40:23Z",
       "by_agent": {
         "claude-code": {
-          "commits": 34,
-          "introduced": 9015,
-          "surviving": 3400
+          "commits": 89,
+          "introduced": 33738,
+          "surviving": 23609
         },
         "cursor": {
-          "commits": 3,
-          "introduced": 222,
-          "surviving": 97
-        },
-        "github-copilot": {
-          "commits": 12,
-          "introduced": 17408,
-          "surviving": 5805
+          "commits": 1,
+          "introduced": 52,
+          "surviving": 50
         }
       },
       "probable": {
@@ -238,22 +765,56 @@
         "survival_rate": null,
         "surviving": 0
       },
-      "total_commits": 15487,
+      "total_commits": 2601,
       "verified": {
-        "commits": 49,
-        "introduced": 26645,
-        "survival_rate": 0.34910865077875775,
-        "surviving": 9302
+        "commits": 90,
+        "introduced": 33790,
+        "survival_rate": 0.7001775673276117,
+        "surviving": 23659
+      }
+    },
+    {
+      "repo": "anthropics/claude-code",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "claude-code": {
+          "commits": 71,
+          "introduced": 31257,
+          "surviving": 29158
+        }
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 683,
+      "verified": {
+        "commits": 71,
+        "introduced": 31257,
+        "survival_rate": 0.9328470422625332,
+        "surviving": 29158
       }
     },
     {
       "repo": "browser-use/browser-use",
-      "audited_at": "2026-08-25T18:00:49Z",
+      "audited_at": "2026-09-14T10:40:23Z",
       "by_agent": {
         "claude-code": {
-          "commits": 114,
-          "introduced": 13474,
-          "surviving": 1564
+          "commits": 118,
+          "introduced": 13982,
+          "surviving": 2004
+        },
+        "cursor": {
+          "commits": 97,
+          "introduced": 4180,
+          "surviving": 1051
+        },
+        "gemini": {
+          "commits": 1,
+          "introduced": 4,
+          "surviving": 0
         },
         "github-copilot": {
           "commits": 2,
@@ -267,22 +828,22 @@
         "survival_rate": null,
         "surviving": 0
       },
-      "total_commits": 6883,
+      "total_commits": 6996,
       "verified": {
-        "commits": 116,
-        "introduced": 13477,
-        "survival_rate": 0.11612376641685836,
-        "surviving": 1565
+        "commits": 218,
+        "introduced": 18169,
+        "survival_rate": 0.16819857999889923,
+        "surviving": 3056
       }
     },
     {
       "repo": "anthropics/anthropic-sdk-typescript",
-      "audited_at": "2026-08-25T18:00:49Z",
+      "audited_at": "2026-09-14T10:40:23Z",
       "by_agent": {
         "claude-code": {
-          "commits": 16,
-          "introduced": 8928,
-          "surviving": 6452
+          "commits": 40,
+          "introduced": 12538,
+          "surviving": 11806
         }
       },
       "probable": {
@@ -291,80 +852,105 @@
         "survival_rate": null,
         "surviving": 0
       },
-      "total_commits": 1194,
+      "total_commits": 1267,
       "verified": {
-        "commits": 16,
-        "introduced": 8928,
-        "survival_rate": 0.7226702508960573,
-        "surviving": 6452
+        "commits": 40,
+        "introduced": 12538,
+        "survival_rate": 0.9416174828521295,
+        "surviving": 11806
+      }
+    },
+    {
+      "repo": "langchain-ai/langchain",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "claude-code": {
+          "commits": 17,
+          "introduced": 4583,
+          "surviving": 4407
+        },
+        "devin": {
+          "commits": 4,
+          "introduced": 3327,
+          "surviving": 38
+        },
+        "github-copilot": {
+          "commits": 27,
+          "introduced": 3251,
+          "surviving": 1595
+        }
+      },
+      "probable": {
+        "commits": 2,
+        "introduced": 305,
+        "survival_rate": 0.9967213114754099,
+        "surviving": 304
+      },
+      "total_commits": 16639,
+      "verified": {
+        "commits": 48,
+        "introduced": 11161,
+        "survival_rate": 0.5411701460442613,
+        "surviving": 6040
+      }
+    },
+    {
+      "repo": "run-llama/llama_index",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "aider": {
+          "commits": 1,
+          "introduced": 1,
+          "surviving": 1
+        },
+        "claude-code": {
+          "commits": 11,
+          "introduced": 8011,
+          "surviving": 7796
+        },
+        "cursor": {
+          "commits": 1,
+          "introduced": 421,
+          "surviving": 421
+        },
+        "github-copilot": {
+          "commits": 1,
+          "introduced": 110,
+          "surviving": 110
+        }
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 7931,
+      "verified": {
+        "commits": 14,
+        "introduced": 8543,
+        "survival_rate": 0.9748331967692848,
+        "surviving": 8328
       }
     },
     {
       "repo": "ghostty-org/ghostty",
-      "audited_at": "2026-08-25T18:00:49Z",
+      "audited_at": "2026-09-14T10:40:23Z",
       "by_agent": {
         "claude-code": {
-          "commits": 66,
-          "introduced": 3412,
-          "surviving": 2488
+          "commits": 69,
+          "introduced": 3539,
+          "surviving": 2558
         },
         "github-copilot": {
           "commits": 1,
           "introduced": 1,
           "surviving": 1
-        }
-      },
-      "probable": {
-        "commits": 0,
-        "introduced": 0,
-        "survival_rate": null,
-        "surviving": 0
-      },
-      "total_commits": 13209,
-      "verified": {
-        "commits": 67,
-        "introduced": 3413,
-        "survival_rate": 0.7292704365660709,
-        "surviving": 2489
-      }
-    },
-    {
-      "repo": "openai/codex",
-      "audited_at": "2026-08-25T18:00:49Z",
-      "by_agent": {
-        "claude-code": {
-          "commits": 10,
-          "introduced": 2250,
-          "surviving": 1388
         },
-        "github-copilot": {
-          "commits": 3,
-          "introduced": 230,
-          "surviving": 120
-        }
-      },
-      "probable": {
-        "commits": 0,
-        "introduced": 0,
-        "survival_rate": null,
-        "surviving": 0
-      },
-      "total_commits": 9811,
-      "verified": {
-        "commits": 13,
-        "introduced": 2480,
-        "survival_rate": 0.6080645161290322,
-        "surviving": 1508
-      }
-    },
-    {
-      "repo": "croviatrust/causari",
-      "audited_at": "2026-08-25T18:00:49Z",
-      "by_agent": {
-        "cursor": {
+        "openai-codex": {
           "commits": 1,
-          "introduced": 2032,
-          "surviving": 1968
+          "introduced": 49,
+          "surviving": 6
         }
       },
       "probable": {
@@ -373,22 +959,22 @@
         "survival_rate": null,
         "surviving": 0
       },
-      "total_commits": 61,
+      "total_commits": 13363,
       "verified": {
-        "commits": 1,
-        "introduced": 2032,
-        "survival_rate": 0.968503937007874,
-        "surviving": 1968
+        "commits": 71,
+        "introduced": 3589,
+        "survival_rate": 0.7146837559208693,
+        "surviving": 2565
       }
     },
     {
       "repo": "anthropics/anthropic-sdk-python",
-      "audited_at": "2026-08-25T18:00:49Z",
+      "audited_at": "2026-09-14T10:40:23Z",
       "by_agent": {
         "claude-code": {
-          "commits": 13,
-          "introduced": 925,
-          "surviving": 910
+          "commits": 34,
+          "introduced": 3186,
+          "surviving": 3142
         }
       },
       "probable": {
@@ -397,12 +983,78 @@
         "survival_rate": null,
         "surviving": 0
       },
-      "total_commits": 1270,
+      "total_commits": 1345,
       "verified": {
-        "commits": 13,
-        "introduced": 925,
-        "survival_rate": 0.9837837837837838,
-        "surviving": 910
+        "commits": 34,
+        "introduced": 3186,
+        "survival_rate": 0.9861895794099184,
+        "surviving": 3142
+      }
+    },
+    {
+      "repo": "croviatrust/causari",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "cursor": {
+          "commits": 1,
+          "introduced": 1554,
+          "surviving": 1487
+        }
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 81,
+      "verified": {
+        "commits": 1,
+        "introduced": 1554,
+        "survival_rate": 0.9568854568854569,
+        "surviving": 1487
+      }
+    },
+    {
+      "repo": "openai/openai-python",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {
+        "claude-code": {
+          "commits": 1,
+          "introduced": 51,
+          "surviving": 51
+        }
+      },
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 1543,
+      "verified": {
+        "commits": 1,
+        "introduced": 51,
+        "survival_rate": 1.0,
+        "surviving": 51
+      }
+    },
+    {
+      "repo": "stackblitz/bolt.new",
+      "audited_at": "2026-09-14T10:40:23Z",
+      "by_agent": {},
+      "probable": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
+      },
+      "total_commits": 101,
+      "verified": {
+        "commits": 0,
+        "introduced": 0,
+        "survival_rate": null,
+        "surviving": 0
       }
     }
   ]
