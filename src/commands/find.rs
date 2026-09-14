@@ -23,10 +23,9 @@ pub fn run(args: FindArgs) -> Result<()> {
         .collect();
 
     // 1. Signed skills — proven experience outranks raw events.
-    let skills = skill::load_skills(&repo)?;
+    let skills = skill::load_admissible_skills(&repo)?;
     let mut skill_hits: Vec<(usize, String, skill::SkillEnvelope)> = skills
         .into_iter()
-        .filter(|(_, env)| skill::verify_envelope(env).is_ok())
         .map(|(id, env)| (skill::score_skill(&env, &query_terms), id, env))
         .filter(|(score, _, _)| *score > 0)
         .collect();
@@ -82,6 +81,7 @@ pub fn run(args: FindArgs) -> Result<()> {
             break;
         }
         let trust = match env.trust() {
+            Trust::Recorded if env.is_failed() => "✗ failed".red().bold(),
             Trust::Recorded => format!("{} recorded", env.trust().badge()).bright_black(),
             Trust::Verified => format!("{} verified", env.trust().badge()).green(),
             Trust::Proven => format!("{} proven", env.trust().badge()).yellow().bold(),
