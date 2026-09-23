@@ -23,6 +23,9 @@ Local install (single binary, about 5 MB, Linux/macOS/Windows):
 - Windows: irm https://causari.dev/install.ps1 | iex
 - Homebrew: brew install croviatrust/tap/causari
 - Scoop: scoop bucket add causari https://github.com/croviatrust/scoop-bucket; scoop install causari
+- cargo: cargo install causari --locked
+- Launchers, no install: `npx causari audit` (npm) or `pipx run causari audit` (PyPI);
+  both download the release binary for the platform, check its SHA-256 and run it.
 - The binary is `causari`; `re` is installed alongside as the short alias.
 
 Key commands:
