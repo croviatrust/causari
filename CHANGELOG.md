@@ -3,6 +3,17 @@
 Each section is the release note of the tag with the same number; the
 release workflow copies it verbatim. Counts, not adjectives.
 
+## Unreleased
+
+### Install
+
+- `npx causari` and `pipx run causari`: the npm and PyPI launchers are
+  published (0.3.0, the npm one by hand once, both registries now through
+  Trusted Publishing from `publish-shims.yml`). Each downloads the release
+  archive for the platform, checks it against `SHA256SUMS.txt` and runs
+  it. Listed on the home page, in the README and in `llms.txt`. From the
+  next tag the npm package carries a provenance attestation.
+
 ## 0.3.0 — 2026-09-24
 
 Method v3: `re audit` compares AI-tagged lines with the same repository's
