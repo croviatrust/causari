@@ -307,8 +307,11 @@ iwr -useb https://causari.dev/install.ps1 | iex</code></pre>
 scoop install causari</code></pre>
       </div>
       <div class="term">
-        <div class="term-head"><span>cargo · from crates.io</span><button class="copy" data-copy="ins-cargo" aria-label="Copy the cargo command">copy</button></div>
-<pre translate="no" id="ins-cargo"><code translate="no">cargo install causari --locked</code></pre>
+        <div class="term-head"><span>cargo · npm · pip</span><button class="copy" data-copy="ins-cargo" aria-label="Copy the cargo, npm and pip commands">copy</button></div>
+<pre translate="no" id="ins-cargo"><code translate="no">cargo install causari --locked
+<span class="dim"># no install: the launchers fetch the verified binary</span>
+npx causari audit
+pipx run causari audit</code></pre>
       </div>
     </div>
     <p class="muted prose" style="margin-top:1.5rem">One program under two names, <code translate="no">causari</code> and <code translate="no">re</code>. The installers check the archive's SHA-256 against the release's <code translate="no">SHA256SUMS.txt</code>; every archive carries a signed SLSA provenance attestation. <code translate="no">re mcp</code> serves Claude Code, Cursor, Windsurf and Cline over local stdio (<a href="https://github.com/croviatrust/causari#as-an-mcp-server" rel="noopener">README</a>). Everything stays in <code translate="no">.causari/</code> next to your code. Apache 2.0, no paid tier.</p>

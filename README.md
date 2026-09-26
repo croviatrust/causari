@@ -267,6 +267,10 @@ scoop bucket add causari https://github.com/croviatrust/scoop-bucket && scoop in
 # crates.io (Rust 1.85+)
 cargo install causari --locked
 
+# no install: launchers that fetch the verified binary on first run
+npx causari audit
+pipx run causari audit
+
 # from source
 cargo install --git https://github.com/croviatrust/causari --locked
 ```
