@@ -270,6 +270,11 @@ table td.txt, table th.txt { text-align: left; }
 .foot-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s-2); }
 .foot-bottom p { margin: 0; }
 .foot-bottom .foot-note { flex-basis: 100%; color: var(--fg-3); }
+.facts { list-style: none; padding: 0; margin: var(--s-3) 0; }
+.facts li { padding: var(--s-2) 0; border-top: 1px solid var(--line); line-height: 1.55; }
+.facts li:last-child { border-bottom: 1px solid var(--line); }
+.facts .check { display: block; margin-top: 0.4rem; font-size: var(--fs-small); color: var(--fg-3); }
+.facts [data-fact] { font-variant-numeric: tabular-nums; }
 
 /* ------------------------------------------------------------------ article (method) */
 .article { max-width: var(--prose); margin: 0 auto; padding: var(--s-5) 1.25rem var(--s-6); }

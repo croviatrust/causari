@@ -62,4 +62,45 @@
 
   var year = document.getElementById("year");
   if (year) year.textContent = String(new Date().getFullYear());
+
+  // /facts: the weekly numbers come from latest.json, same origin, so the
+  // page never states a number the record does not. Without JS or on any
+  // failure the placeholders say where to look and the status line says so.
+  var facts = document.querySelectorAll("[data-fact]");
+  if (facts.length && window.fetch) {
+    var status = document.getElementById("facts-status");
+    var pct = function (x) { return (Math.round(x * 1000) / 10).toFixed(1) + " %"; };
+    fetch("/reports/survival/latest.json", { cache: "no-cache" }).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    }).then(function (d) {
+      var agg = d.aggregate || {};
+      var iv = agg.survival_rate_interval_95;
+      var values = {
+        "title": d.title,
+        "date-p": d.date ? " (" + d.date + ")" : "",
+        "repositories": agg.repositories != null ? String(agg.repositories) : null,
+        "survival": agg.survival_rate != null ? pct(agg.survival_rate) : null,
+        "interval": iv ? " (95 % interval " + pct(iv.low) + " to " + pct(iv.high) + ")" : "",
+        "doi": d.doi || null
+      };
+      facts.forEach(function (el) {
+        var v = values[el.getAttribute("data-fact")];
+        if (v === undefined || v === null) return;
+        if (el.getAttribute("data-fact") === "doi" && d.doi) {
+          var a = document.createElement("a");
+          a.href = "https://doi.org/" + d.doi;
+          a.rel = "noopener";
+          a.textContent = d.doi;
+          el.textContent = "";
+          el.appendChild(a);
+        } else {
+          el.textContent = v;
+        }
+      });
+      if (status) status.textContent = "Live values read from latest.json (" + (d.generated_at || d.date || "") + ").";
+    }).catch(function (e) {
+      if (status) status.textContent = "latest.json could not be read from this browser (" + e.message + "); the placeholders above say where to look.";
+    });
+  }
 })();

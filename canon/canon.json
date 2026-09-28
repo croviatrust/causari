@@ -94,7 +94,8 @@
       "packaging/npm/README.md",
       "packaging/pypi/README.md",
       "site/faq.html",
-      "site/compare.html"
+      "site/compare.html",
+      "site/facts.html"
     ],
     "html": [
       "site/index.html",
@@ -104,7 +105,8 @@
       "site/method.html",
       "site/verify/index.html",
       "site/faq.html",
-      "site/compare.html"
+      "site/compare.html",
+      "site/facts.html"
     ],
     "required_files": [
       "site/assets/mark.svg",

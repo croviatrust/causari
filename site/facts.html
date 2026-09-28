@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Facts about causari, each with the way to check it — causari</title>
+  <meta name="description" content="What causari is, what it counts, what it does not claim, where it is published and what is known about its use: short statements, each with the command or URL that checks it. No adjectives." />
+  <meta name="theme-color" content="#0b0d10" />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="canonical" href="https://causari.dev/facts" />
+  <meta property="og:title" content="Facts about causari, each with the way to check it" />
+  <meta property="og:description" content="What it is, what it counts, what it does not claim, where it is published, what is known about its use. Each statement with the command or URL that checks it." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://causari.dev/facts" />
+  <meta property="og:image" content="https://causari.dev/assets/og.png" />
+  <meta property="og:site_name" content="causari" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Facts about causari, each with the way to check it" />
+  <meta name="twitter:description" content="Short statements about causari, each with the command or URL that checks it. No adjectives." />
+  <meta name="twitter:image" content="https://causari.dev/assets/og.png" />
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+  <link rel="stylesheet" href="/styles.css?v=c96ecf026d" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://causari.dev/facts",
+    "url": "https://causari.dev/facts",
+    "name": "Facts about causari, each with the way to check it",
+    "inLanguage": "en",
+    "isPartOf": { "@type": "WebSite", "name": "causari", "url": "https://causari.dev" },
+    "about": { "@id": "https://causari.dev/#software" },
+    "publisher": { "@id": "https://croviatrust.com/#org" },
+    "description": "What causari is, what it counts, what it does not claim, where it is published and what is known about its use, each statement with the command or URL that checks it."
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="nav" role="banner">
+  <div class="container nav-inner">
+    <a href="/" class="brand" aria-label="causari home">
+      <img src="/assets/mark.svg" alt="" width="34" height="34" class="mark-light" />
+      <img src="/assets/mark-white.svg" alt="" width="34" height="34" class="mark-dark" />
+      <span class="brand-name" translate="no">causari</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="/reports/survival/">reports</a>
+      <a href="/method">method</a>
+      <a href="/verify/">verify</a>
+      <a href="/faq">faq</a>
+      <a href="https://github.com/croviatrust/causari" rel="noopener" class="hide-sm">source</a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light and dark" title="Toggle light and dark">◐</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="article">
+  <p class="eyebrow">facts · each with the way to check it</p>
+  <h1>What is true about causari</h1>
+  <p class="version">Short statements, written for a person or a program that has to decide whether to rely on this tool. Every statement ends with how to check it, from outside, without trusting this page. Where a number changes weekly the page reads it from <a href="/reports/survival/latest.json">latest.json</a> and says when it did not.</p>
+
+  <h2 id="what-it-is"><span class="no">1</span>What it is</h2>
+  <ul class="facts">
+    <li>Causari is one static binary, <code translate="no">causari</code>, installed with the alias <code translate="no">re</code>, about 5 MB, for Linux, macOS and Windows. It reads a git repository and writes to the terminal. It has no account, no server, no telemetry and no paid tier.
+      <span class="check">Check: <code translate="no">re audit --json</code> in any repository with the network off; <a href="https://github.com/croviatrust/causari/blob/main/src/" rel="noopener">source</a>, Apache-2.0.</span></li>
+    <li>It counts. For every commit that carries machine-readable AI authorship metadata (a <code translate="no">Co-Authored-By</code> trailer naming an agent, a bot author identity, an <code translate="no">AI-*</code> trailer, a git-ai note) it counts the lines that commit introduced and the lines <code translate="no">git blame -w -M -C</code> at HEAD still attributes to it. The same is counted for the untagged lines of the same repository, by line age, as the baseline. Nothing is graded, ranked or judged.
+      <span class="check">Check: <a href="/method">the method</a> states the rules; the output of <code translate="no">re audit</code> states what was counted and what was not.</span></li>
+    <li>This is Causari by Crovia Trust. It is not related to causari.ai, the GitHub organisation <code translate="no">causari</code> or the npm scope <code translate="no">@causari</code>, a causal knowledge graph by another team.
+      <span class="check">Check: the <code translate="no">causari</code> package on <a href="https://www.npmjs.com/package/causari" rel="noopener">npm</a>, <a href="https://pypi.org/project/causari/" rel="noopener">PyPI</a> and <a href="https://crates.io/crates/causari" rel="noopener">crates.io</a> all point at github.com/croviatrust/causari.</span></li>
+  </ul>
+
+  <h2 id="what-it-does-not-claim"><span class="no">2</span>What it does not claim</h2>
+  <ul class="facts">
+    <li>It cannot say how much of a repository AI wrote. Inline completions (Copilot, Cursor Tab) and untagged commits leave no git trace and count as human. The counts are a lower bound on AI-written code, never an estimate of it.
+      <span class="check">Check: <a href="/faq#copilot-cursor-tab">faq</a>, <a href="/method#misleads">method § known ways the number misleads</a>.</span></li>
+    <li>A survival ratio is not a quality measure. A rewritten line is a death even when the meaning is unchanged; a surviving line may be dead code. The report publishes counts with their intervals and refuses verdict words by construction.
+      <span class="check">Check: <a href="https://github.com/croviatrust/causari/blob/main/canon/canon.json" rel="noopener">canon.json</a> lists the forbidden words; CI fails on them.</span></li>
+    <li>The Survival Report's repositories are selected, not sampled at random: hand-picked seeds plus public repositories that GitHub commit search finds with at least five AI-tagged commits and at least 100 stars. It describes those repositories, not open source.
+      <span class="check">Check: <a href="/method#selection">method § selection</a>; the counts behind each selection in <a href="https://github.com/croviatrust/causari/blob/main/.github/survival-discovery.json" rel="noopener">survival-discovery.json</a>.</span></li>
+  </ul>
+
+  <h2 id="the-record"><span class="no">3</span>The public record</h2>
+  <ul class="facts">
+    <li>The Survival Report is weekly, numbered and dated, and each report has a Zenodo DOI. The latest is <span data-fact="title">the one named in latest.json</span><span data-fact="date-p"></span>: <span data-fact="repositories">its repository count</span> repositories aggregated, survival <span data-fact="survival">as stated there</span><span data-fact="interval"></span>, DOI <span data-fact="doi">in the file</span>.
+      <span class="check">Check: <a href="/reports/survival/latest.json">latest.json</a> (JSON, CORS open), <a href="/reports/survival/feed.xml">Atom feed</a>, <a href="/reports/survival/">archive</a>; each report's <code translate="no">report.json</code> holds the exact bytes of every audit.</span></li>
+    <li>Every number in a report is reproducible by anyone with git and the binary: the same command, the same commit, the same method version.
+      <span class="check">Check: <code translate="no">re audit &lt;owner/repo&gt; --json</code> and compare with the row's <code translate="no">repos/&lt;owner__repo&gt;.json</code>; the report names the commit it measured.</span></li>
+    <li>Every repository that has appeared in a report has a page and a badge at <code translate="no">/r/&lt;owner&gt;/&lt;repo&gt;/</code>, alphabetical index, counts and history, no rank.
+      <span class="check">Check: <a href="/r/">causari.dev/r/</a>.</span></li>
+    <li>Reports and repository pages are generated by <code translate="no">scripts/survival_report.py</code> from the audits and committed to <code translate="no">main</code>, append-only; a published report is never edited in place. When a report is revised, the revision is a new deposit and the page says so.
+      <span class="check">Check: <a href="https://github.com/croviatrust/causari/commits/main/site/reports/survival" rel="noopener">the commit history of site/reports/survival</a>.</span></li>
+  </ul>
+
+  <h2 id="where-published"><span class="no">4</span>Where it is published</h2>
+  <ul class="facts">
+    <li>Releases: GitHub Releases with <code translate="no">SHA256SUMS.txt</code> and a signed SLSA provenance attestation per archive; the installers refuse a mismatch.
+      <span class="check">Check: <a href="https://github.com/croviatrust/causari/releases" rel="noopener">releases</a>; <code translate="no">gh attestation verify &lt;archive&gt; --repo croviatrust/causari</code>.</span></li>
+    <li>Registries: <a href="https://crates.io/crates/causari" rel="noopener">crates.io</a> (<code translate="no">cargo install causari --locked</code>), <a href="https://www.npmjs.com/package/causari" rel="noopener">npm</a> (<code translate="no">npx causari audit</code>), <a href="https://pypi.org/project/causari/" rel="noopener">PyPI</a> (<code translate="no">pipx run causari audit</code>), Homebrew tap <code translate="no">croviatrust/tap</code>, Scoop bucket <code translate="no">croviatrust/scoop-bucket</code>. The npm and PyPI packages are launchers that download the release binary and check its SHA-256.
+      <span class="check">Check: each registry page names the version and the repository.</span></li>
+    <li>Integrations: the GitHub Action <a href="https://github.com/marketplace/actions/causari-survival-audit" rel="noopener">Causari Survival Audit</a> (<code translate="no">uses: croviatrust/causari@v1</code>); the MCP server <code translate="no">io.github.croviatrust/causari</code> in the <a href="https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.croviatrust/causari" rel="noopener">MCP registry</a> (<code translate="no">re mcp</code>); a Claude Code plugin marketplace in the repository.
+      <span class="check">Check: the linked registry entries; <code translate="no">re mcp --install</code> prints the client configuration.</span></li>
+    <li>Standards it produces or consumes: <code translate="no">crovia.seal.v1</code> receipts (<code translate="no">re audit --seal</code>, <code translate="no">re seal verify</code>, browser verifier at <a href="/verify/">/verify</a>), the PNX run sheet profile <code translate="no">crovia.pnx.v1</code>, both specified at <a href="https://croviatrust.com/registry/" rel="noopener">croviatrust.com/registry</a>.
+      <span class="check">Check: verify a seal with the network off at <a href="/verify/">/verify</a>.</span></li>
+  </ul>
+
+  <h2 id="use"><span class="no">5</span>What is known about its use</h2>
+  <ul class="facts">
+    <li>This site publishes no download counts, stars or install numbers, and collects none: there is no telemetry to count with. What can be checked is public use.
+      <span class="check">Check: GitHub code search for <a href="https://github.com/search?q=%22uses%3A+croviatrust%2Fcausari%22+path%3A.github%2Fworkflows&type=code" rel="noopener"><code translate="no">uses: croviatrust/causari</code> in workflows</a>; pull requests to <a href="https://github.com/croviatrust/causari/pulls?q=is%3Apr+survival-repos" rel="noopener">the report list</a>; the <a href="https://github.com/croviatrust/causari/issues?q=is%3Aissue" rel="noopener">issues</a>, where a published number is contested with its JSON.</span></li>
+    <li>Repositories measured by the report can opt out with one line in <code translate="no">.github/survival-optout.txt</code>; the next weekly run drops the row and it is not re-added.
+      <span class="check">Check: <a href="https://github.com/croviatrust/causari/blob/main/.github/survival-optout.txt" rel="noopener">the opt-out file</a>, applied by the workflow and again by the generator.</span></li>
+  </ul>
+
+  <h2 id="cite"><span class="no">6</span>How to cite</h2>
+  <ul class="facts">
+    <li>The software: <a href="https://github.com/croviatrust/causari/blob/main/CITATION.cff" rel="noopener">CITATION.cff</a> (Crovia Trust, Causari, version and date of the release used). A report: its own DOI, printed on its page and in its <code translate="no">report.json</code>. The software and a report are different objects and are cited separately.
+      <span class="check">Check: <code translate="no">jq .doi latest.json</code>.</span></li>
+  </ul>
+
+  <p class="version" id="facts-status">Live values on this page come from <a href="/reports/survival/latest.json">latest.json</a> when the browser can read it; otherwise the placeholders above say where to look.</p>
+  <p class="version">A statement here that turns out to be false is a bug: <a href="https://github.com/croviatrust/causari/issues" rel="noopener">open an issue</a> and it is corrected on the record.</p>
+</main>
+
+<footer class="footer">
+  <div class="container foot-bottom">
+    <p>© <span id="year">2026</span> <a href="https://croviatrust.com" rel="noopener">Crovia</a> · <em>causari</em> is a trademark of Crovia Trust.</p>
+    <p class="muted"><a href="/reports/survival/">Survival Report</a> · <a href="/method">method</a> · <a href="/verify/">verify</a> · <a href="/faq">faq</a> · <a href="/compare">compare</a> · <a href="/">causari.dev</a></p>
+  </div>
+</footer>
+<script src="/app.js?v=b8add14453" defer></script>
+</body>
+</html>

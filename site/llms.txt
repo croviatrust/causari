@@ -68,6 +68,7 @@ and says so; a survival ratio is a count, not a quality judgement.
 - [Survival Report](https://causari.dev/reports/survival/): weekly counts, archive, feed, DOIs; how it is made: https://github.com/croviatrust/causari/blob/main/docs/survival-report.md
 - [Verify](https://causari.dev/verify): offline verifier for audit seals (what a seal proves and does not)
 - [FAQ](https://causari.dev/faq): sixteen questions as people ask them (how much of my code was written by AI, what survival means, which agents leave a git trace, Copilot/Cursor Tab, seals, the report, opt-out, licence, CI), each with the command and the limit; schema.org FAQPage
+- [Facts](https://causari.dev/facts): what causari is, what it counts, what it does not claim, where it is published, what is known about its use; each statement with the command or URL that checks it
 - [Compare](https://causari.dev/compare): git blame alone, Copilot metrics, GitClear-style churn reports, DORA-type dashboards and causari side by side: what each counts, what it needs, whether a third party can check it, what it cannot see
 - [Manifesto](https://github.com/croviatrust/causari/blob/main/MANIFESTO.md)
 - [Roadmap](https://github.com/croviatrust/causari/blob/main/ROADMAP.md)
