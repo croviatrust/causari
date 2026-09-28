@@ -5,15 +5,15 @@
  "url": "https://causari.dev/r/microsoft/vscode-copilot-chat/",
  "badge": "https://causari.dev/r/microsoft/vscode-copilot-chat/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
   "commits": 336,
@@ -25,11 +25,137 @@
   "largest_commit_share": 0.8771537679076908
  },
  "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 3377,
+   "introduced": 459100,
+   "surviving": 285142,
+   "survival_rate": 0.6210890873448051,
+   "median_survival": 0.6828208556149733,
+   "capped_survival_rate": 0.6522332317538011,
+   "cap_lines": 519,
+   "largest_commit_share": 0.10340013069048137
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 1,
+     "introduced": 10,
+     "surviving": 10,
+     "survival_rate": 1.0
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 121,
+     "introduced": 15481,
+     "surviving": 11708,
+     "survival_rate": 0.7562818939345004
+    },
+    "untagged": {
+     "commits": 678,
+     "introduced": 86117,
+     "surviving": 61107,
+     "survival_rate": 0.7095811512244969
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 138,
+     "introduced": 31957,
+     "surviving": 22211,
+     "survival_rate": 0.695027693463091
+    },
+    "untagged": {
+     "commits": 1136,
+     "introduced": 128889,
+     "surviving": 89719,
+     "survival_rate": 0.6960950895731987
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 77,
+     "introduced": 948433,
+     "surviving": 905240,
+     "survival_rate": 0.9544585648116419
+    },
+    "untagged": {
+     "commits": 1562,
+     "introduced": 244084,
+     "surviving": 134306,
+     "survival_rate": 0.5502449976237689
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.9430528652807442,
+   "untagged_rate": 0.5574021639458335,
+   "gap": 0.38565070133491064,
+   "buckets_used": 3,
+   "tagged_lines_covered": 1.0
+  },
+  "oldest_surviving": {
+   "date": "2025-06-27",
+   "age_days": 327,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
  "probable_commits": 0,
  "total_commits": 3713,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -40,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 1,
+ "reports": 2,
  "reproduce": "re audit microsoft/vscode-copilot-chat --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/microsoft__vscode-copilot-chat.json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/microsoft__vscode-copilot-chat.json",
  "license": "CC-BY-4.0"
 }

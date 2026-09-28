@@ -5,15 +5,15 @@
  "url": "https://causari.dev/r/aider-ai/aider/",
  "badge": "https://causari.dev/r/aider-ai/aider/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
   "commits": 11156,
@@ -25,11 +25,137 @@
   "largest_commit_share": 0.2667266278253582
  },
  "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 1305,
+   "introduced": 17505,
+   "surviving": 6864,
+   "survival_rate": 0.3921165381319623,
+   "median_survival": 0.0,
+   "capped_survival_rate": 0.32664393227634386,
+   "cap_lines": 55,
+   "largest_commit_share": 0.06466723793201942
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 12,
+     "introduced": 694,
+     "surviving": 414,
+     "survival_rate": 0.5965417867435159
+    },
+    "untagged": {
+     "commits": 3,
+     "introduced": 46,
+     "surviving": 46,
+     "survival_rate": 1.0
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 20,
+     "introduced": 973,
+     "surviving": 526,
+     "survival_rate": 0.5405960945529291
+    },
+    "untagged": {
+     "commits": 4,
+     "introduced": 58,
+     "surviving": 43,
+     "survival_rate": 0.7413793103448276
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 35,
+     "introduced": 1960,
+     "surviving": 1081,
+     "survival_rate": 0.551530612244898
+    },
+    "untagged": {
+     "commits": 6,
+     "introduced": 271,
+     "surviving": 42,
+     "survival_rate": 0.15498154981549817
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 175,
+     "introduced": 8154,
+     "surviving": 3334,
+     "survival_rate": 0.40887907775324994
+    },
+    "untagged": {
+     "commits": 57,
+     "introduced": 1187,
+     "surviving": 703,
+     "survival_rate": 0.5922493681550126
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 7832,
+     "introduced": 293973,
+     "surviving": 197503,
+     "survival_rate": 0.6718406112125943
+    },
+    "untagged": {
+     "commits": 286,
+     "introduced": 6457,
+     "surviving": 3859,
+     "survival_rate": 0.5976459656187084
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 3082,
+     "introduced": 68933,
+     "surviving": 32924,
+     "survival_rate": 0.4776231993384881
+    },
+    "untagged": {
+     "commits": 949,
+     "introduced": 9486,
+     "surviving": 2171,
+     "survival_rate": 0.22886358844613114
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.6295694600825693,
+   "untagged_rate": 0.5270521590766181,
+   "gap": 0.10251730100595124,
+   "buckets_used": 4,
+   "tagged_lines_covered": 0.9955509531956006
+  },
+  "oldest_surviving": {
+   "date": "2023-04-04",
+   "age_days": 1144,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
  "probable_commits": 0,
  "total_commits": 12461,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -40,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 2,
+ "reports": 3,
  "reproduce": "re audit Aider-AI/aider --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/Aider-AI__aider.json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/Aider-AI__aider.json",
  "license": "CC-BY-4.0"
 }

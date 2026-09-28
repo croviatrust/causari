@@ -5,15 +5,15 @@
  "url": "https://causari.dev/r/roocodeinc/roo-code/",
  "badge": "https://causari.dev/r/roocodeinc/roo-code/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
   "commits": 43,
@@ -25,11 +25,137 @@
   "largest_commit_share": 0.6705939829121977
  },
  "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 6167,
+   "introduced": 1079826,
+   "surviving": 408473,
+   "survival_rate": 0.3782766853178197,
+   "median_survival": 0.11363636363636363,
+   "capped_survival_rate": 0.35480046669150556,
+   "cap_lines": 755,
+   "largest_commit_share": 0.03621601998840554
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 25,
+     "introduced": 41602,
+     "surviving": 40305,
+     "survival_rate": 0.968823614249315
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 13,
+     "introduced": 11921,
+     "surviving": 9291,
+     "survival_rate": 0.7793809244190923
+    },
+    "untagged": {
+     "commits": 118,
+     "introduced": 30185,
+     "surviving": 21021,
+     "survival_rate": 0.6964054994202419
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 10,
+     "introduced": 69652,
+     "surviving": 25737,
+     "survival_rate": 0.36950841325446504
+    },
+    "untagged": {
+     "commits": 843,
+     "introduced": 246716,
+     "surviving": 104419,
+     "survival_rate": 0.4232356231456411
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 17,
+     "introduced": 6361,
+     "surviving": 4304,
+     "survival_rate": 0.6766231724571609
+    },
+    "untagged": {
+     "commits": 1714,
+     "introduced": 380230,
+     "surviving": 139779,
+     "survival_rate": 0.3676169686768535
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 3,
+     "introduced": 82,
+     "surviving": 63,
+     "survival_rate": 0.7682926829268293
+    },
+    "untagged": {
+     "commits": 3467,
+     "introduced": 381093,
+     "surviving": 102949,
+     "survival_rate": 0.27014140905238354
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.4472900129642687,
+   "untagged_rate": 0.456245242109791,
+   "gap": -0.008955229145522325,
+   "buckets_used": 3,
+   "tagged_lines_covered": 0.9990683512088712
+  },
+  "oldest_surviving": {
+   "date": "2024-07-06",
+   "age_days": 678,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
  "probable_commits": 0,
  "total_commits": 6210,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -40,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 1,
+ "reports": 2,
  "reproduce": "re audit RooCodeInc/Roo-Code --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/RooCodeInc__Roo-Code.json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/RooCodeInc__Roo-Code.json",
  "license": "CC-BY-4.0"
 }

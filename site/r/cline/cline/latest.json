@@ -5,31 +5,157 @@
  "url": "https://causari.dev/r/cline/cline/",
  "badge": "https://causari.dev/r/cline/cline/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
   "commits": 155,
   "introduced": 95924,
-  "surviving": 63615,
-  "survival_rate": 0.6631812685042325,
-  "capped_survival_rate": 0.6799077212465641,
+  "surviving": 63756,
+  "survival_rate": 0.6646511821858971,
+  "capped_survival_rate": 0.6808355362947934,
   "median_survival": 0.7266187050359713,
   "largest_commit_share": 0.1182290146365873
  },
  "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 7208,
+   "introduced": 1976165,
+   "surviving": 813934,
+   "survival_rate": 0.4118755265881138,
+   "median_survival": 0.2,
+   "capped_survival_rate": 0.4867555489935012,
+   "cap_lines": 872,
+   "largest_commit_share": 0.1830550586615996
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 26,
+     "introduced": 8060,
+     "surviving": 6991,
+     "survival_rate": 0.8673697270471464
+    },
+    "untagged": {
+     "commits": 265,
+     "introduced": 105142,
+     "surviving": 90551,
+     "survival_rate": 0.8612257708622625
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 39,
+     "introduced": 29623,
+     "surviving": 25398,
+     "survival_rate": 0.8573743375080174
+    },
+    "untagged": {
+     "commits": 701,
+     "introduced": 227685,
+     "surviving": 185321,
+     "survival_rate": 0.8139359202406834
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 16,
+     "introduced": 17857,
+     "surviving": 14209,
+     "survival_rate": 0.7957103656829254
+    },
+    "untagged": {
+     "commits": 1010,
+     "introduced": 428332,
+     "surviving": 317128,
+     "survival_rate": 0.7403789583780805
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 58,
+     "introduced": 38003,
+     "surviving": 16589,
+     "survival_rate": 0.436518169618188
+    },
+    "untagged": {
+     "commits": 1724,
+     "introduced": 875172,
+     "surviving": 154282,
+     "survival_rate": 0.17628763260250557
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 16,
+     "introduced": 2381,
+     "surviving": 569,
+     "survival_rate": 0.23897522049559008
+    },
+    "untagged": {
+     "commits": 2835,
+     "introduced": 304402,
+     "surviving": 62706,
+     "survival_rate": 0.2059973324748195
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 673,
+     "introduced": 35432,
+     "surviving": 3946,
+     "survival_rate": 0.11136825468503048
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.6646511821858971,
+   "untagged_rate": 0.53650378516964,
+   "gap": 0.1281473970162571,
+   "buckets_used": 5,
+   "tagged_lines_covered": 1.0
+  },
+  "oldest_surviving": {
+   "date": "2024-07-06",
+   "age_days": 814,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
  "probable_commits": 0,
- "total_commits": 7311,
+ "total_commits": 7363,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -40,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 2,
+ "reports": 3,
  "reproduce": "re audit cline/cline --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/cline__cline.json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/cline__cline.json",
  "license": "CC-BY-4.0"
 }

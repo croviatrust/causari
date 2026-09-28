@@ -5,31 +5,157 @@
  "url": "https://causari.dev/r/qwenlm/qwen-code/",
  "badge": "https://causari.dev/r/qwenlm/qwen-code/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
-  "commits": 555,
-  "introduced": 597734,
-  "surviving": 513051,
-  "survival_rate": 0.8583266135103574,
-  "capped_survival_rate": 0.8130423638162823,
-  "median_survival": 0.6551724137931034,
-  "largest_commit_share": 0.2347532514462955
+  "commits": 563,
+  "introduced": 659736,
+  "surviving": 573206,
+  "survival_rate": 0.8688414759843331,
+  "capped_survival_rate": 0.8257806713856851,
+  "median_survival": 0.6582278481012658,
+  "largest_commit_share": 0.21269113706088497
  },
  "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 8876,
+   "introduced": 5945320,
+   "surviving": 4321078,
+   "survival_rate": 0.7268032671075737,
+   "median_survival": 0.6955704478587774,
+   "capped_survival_rate": 0.7638646642894718,
+   "cap_lines": 2645,
+   "largest_commit_share": 0.05953523107250745
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 47,
+     "introduced": 226387,
+     "surviving": 210939,
+     "survival_rate": 0.9317628662423195
+    },
+    "untagged": {
+     "commits": 1141,
+     "introduced": 1427221,
+     "surviving": 1234315,
+     "survival_rate": 0.864838031391074
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 171,
+     "introduced": 160031,
+     "surviving": 137770,
+     "survival_rate": 0.8608957014578426
+    },
+    "untagged": {
+     "commits": 2133,
+     "introduced": 2077118,
+     "surviving": 1747338,
+     "survival_rate": 0.8412319377136975
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 219,
+     "introduced": 250747,
+     "surviving": 217536,
+     "survival_rate": 0.8675517553549993
+    },
+    "untagged": {
+     "commits": 1374,
+     "introduced": 1415274,
+     "surviving": 839150,
+     "survival_rate": 0.5929240556952222
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 50,
+     "introduced": 8542,
+     "surviving": 1519,
+     "survival_rate": 0.1778272067431515
+    },
+    "untagged": {
+     "commits": 1916,
+     "introduced": 567835,
+     "surviving": 325569,
+     "survival_rate": 0.5733514137029243
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 76,
+     "introduced": 14029,
+     "surviving": 5442,
+     "survival_rate": 0.387910756290541
+    },
+    "untagged": {
+     "commits": 2312,
+     "introduced": 457872,
+     "surviving": 174706,
+     "survival_rate": 0.3815607855470525
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.8688414759843331,
+   "untagged_rate": 0.7417143946464823,
+   "gap": 0.1271270813378509,
+   "buckets_used": 5,
+   "tagged_lines_covered": 1.0
+  },
+  "oldest_surviving": {
+   "date": "2025-04-17",
+   "age_days": 528,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
  "probable_commits": 0,
- "total_commits": 9239,
+ "total_commits": 9439,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -40,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 1,
+ "reports": 2,
  "reproduce": "re audit QwenLM/qwen-code --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/QwenLM__qwen-code.json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/QwenLM__qwen-code.json",
  "license": "CC-BY-4.0"
 }

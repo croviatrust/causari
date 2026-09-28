@@ -5,31 +5,157 @@
  "url": "https://causari.dev/r/croviatrust/causari/",
  "badge": "https://causari.dev/r/croviatrust/causari/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
   "commits": 14,
   "introduced": 6267,
-  "surviving": 5235,
-  "survival_rate": 0.8353279080899952,
-  "capped_survival_rate": 0.8353279080899952,
-  "median_survival": 0.9314302511460769,
+  "surviving": 5172,
+  "survival_rate": 0.8252752513164193,
+  "capped_survival_rate": 0.8252752513164193,
+  "median_survival": 0.9270833333333333,
   "largest_commit_share": 0.24796553374820487
  },
  "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 211,
+   "introduced": 96887,
+   "surviving": 76536,
+   "survival_rate": 0.7899511802408992,
+   "median_survival": 0.92,
+   "capped_survival_rate": 0.811617566851625,
+   "cap_lines": 1223,
+   "largest_commit_share": 0.24243706586022892
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 13,
+     "introduced": 4713,
+     "surviving": 4023,
+     "survival_rate": 0.8535964353914705
+    },
+    "untagged": {
+     "commits": 151,
+     "introduced": 78572,
+     "surviving": 64487,
+     "survival_rate": 0.8207376673624192
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 23,
+     "introduced": 4443,
+     "surviving": 3370,
+     "survival_rate": 0.758496511366194
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 1,
+     "introduced": 1554,
+     "surviving": 1149,
+     "survival_rate": 0.7393822393822393
+    },
+    "untagged": {
+     "commits": 37,
+     "introduced": 13872,
+     "surviving": 8679,
+     "survival_rate": 0.6256487889273357
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.8535964353914705,
+   "untagged_rate": 0.8207376673624192,
+   "gap": 0.0328587680290513,
+   "buckets_used": 1,
+   "tagged_lines_covered": 0.7520344662517952
+  },
+  "oldest_surviving": {
+   "date": "2026-05-25",
+   "age_days": 124,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
  "probable_commits": 0,
- "total_commits": 205,
+ "total_commits": 225,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -40,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 2,
+ "reports": 3,
  "reproduce": "re audit croviatrust/causari --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/croviatrust__causari.json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/croviatrust__causari.json",
  "license": "CC-BY-4.0"
 }

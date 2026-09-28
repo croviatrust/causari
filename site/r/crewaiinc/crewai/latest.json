@@ -5,31 +5,157 @@
  "url": "https://causari.dev/r/crewaiinc/crewai/",
  "badge": "https://causari.dev/r/crewaiinc/crewai/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
   "commits": 192,
   "introduced": 3342690,
-  "surviving": 148599,
-  "survival_rate": 0.04445491505344498,
-  "capped_survival_rate": 0.7572049617310123,
+  "surviving": 148579,
+  "survival_rate": 0.044448931848301815,
+  "capped_survival_rate": 0.757077738205431,
   "median_survival": 0.899993055073269,
   "largest_commit_share": 0.9681744343627438
  },
  "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 2623,
+   "introduced": 8332522,
+   "surviving": 4506078,
+   "survival_rate": 0.5407820105365458,
+   "median_survival": 0.596227340173457,
+   "capped_survival_rate": 0.6146522328850851,
+   "cap_lines": 3029,
+   "largest_commit_share": 0.07240388924265667
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 30,
+     "introduced": 12350,
+     "surviving": 9640,
+     "survival_rate": 0.7805668016194331
+    },
+    "untagged": {
+     "commits": 92,
+     "introduced": 1026053,
+     "surviving": 931136,
+     "survival_rate": 0.907493082716
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 62,
+     "introduced": 25464,
+     "surviving": 22788,
+     "survival_rate": 0.8949104618284637
+    },
+    "untagged": {
+     "commits": 128,
+     "introduced": 3339959,
+     "surviving": 2459663,
+     "survival_rate": 0.7364350879756308
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 27,
+     "introduced": 3255792,
+     "surviving": 74907,
+     "survival_rate": 0.02300730513497177
+    },
+    "untagged": {
+     "commits": 425,
+     "introduced": 656745,
+     "surviving": 420675,
+     "survival_rate": 0.6405454171710481
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 19,
+     "introduced": 36003,
+     "surviving": 32439,
+     "survival_rate": 0.9010082493125573
+    },
+    "untagged": {
+     "commits": 402,
+     "introduced": 580223,
+     "surviving": 442698,
+     "survival_rate": 0.7629790614987686
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 51,
+     "introduced": 12857,
+     "surviving": 8805,
+     "survival_rate": 0.6848409426771409
+    },
+    "untagged": {
+     "commits": 808,
+     "introduced": 314256,
+     "surviving": 209084,
+     "survival_rate": 0.6653301766712489
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 3,
+     "introduced": 224,
+     "surviving": 0,
+     "survival_rate": 0.0
+    },
+    "untagged": {
+     "commits": 768,
+     "introduced": 2415286,
+     "surviving": 42822,
+     "survival_rate": 0.017729577366821157
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.044451910655186916,
+   "untagged_rate": 0.6436763912472161,
+   "gap": -0.5992244805920292,
+   "buckets_used": 5,
+   "tagged_lines_covered": 0.9999329881023966
+  },
+  "oldest_surviving": {
+   "date": "2023-10-29",
+   "age_days": 1061,
+   "commits_before": 1,
+   "introduced_before": 1,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.00035523978685612787
+  }
+ },
  "probable_commits": 0,
- "total_commits": 2811,
+ "total_commits": 2815,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -40,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 1,
+ "reports": 2,
  "reproduce": "re audit crewAIInc/crewAI --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/crewAIInc__crewAI.json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/crewAIInc__crewAI.json",
  "license": "CC-BY-4.0"
 }

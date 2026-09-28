@@ -1,0 +1,173 @@
+{
+ "schema": "causari.repo_survival.v1",
+ "repo": "lidge-ai/cli-jaw",
+ "repository_url": "https://github.com/lidge-ai/cli-jaw",
+ "url": "https://causari.dev/r/lidge-ai/cli-jaw/",
+ "badge": "https://causari.dev/r/lidge-ai/cli-jaw/badge.svg",
+ "report": {
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
+ },
+ "method": "v3",
+ "tool": {
+  "name": "causari",
+  "version": "0.3.0"
+ },
+ "verified": {
+  "commits": 1359,
+  "introduced": 445333,
+  "surviving": 197637,
+  "survival_rate": 0.4437959908652626,
+  "capped_survival_rate": 0.7520383020265596,
+  "median_survival": 0.6818181818181818,
+  "largest_commit_share": 0.47373313902181063
+ },
+ "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 4322,
+   "introduced": 623543,
+   "surviving": 440116,
+   "survival_rate": 0.7058310333048402,
+   "median_survival": 0.28860759493670884,
+   "capped_survival_rate": 0.7185287796012311,
+   "cap_lines": 625,
+   "largest_commit_share": 0.015724657321147056
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 96,
+     "introduced": 22998,
+     "surviving": 20962,
+     "survival_rate": 0.9114705626576224
+    },
+    "untagged": {
+     "commits": 951,
+     "introduced": 194093,
+     "surviving": 155948,
+     "survival_rate": 0.8034705012545532
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 71,
+     "introduced": 17574,
+     "surviving": 15742,
+     "survival_rate": 0.8957550927506543
+    },
+    "untagged": {
+     "commits": 936,
+     "introduced": 151764,
+     "surviving": 108879,
+     "survival_rate": 0.7174231042935083
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 1107,
+     "introduced": 183976,
+     "surviving": 145242,
+     "survival_rate": 0.7894616689133365
+    },
+    "untagged": {
+     "commits": 1966,
+     "introduced": 225651,
+     "surviving": 156085,
+     "survival_rate": 0.6917097641933783
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 85,
+     "introduced": 220785,
+     "surviving": 15691,
+     "survival_rate": 0.07106913966075594
+    },
+    "untagged": {
+     "commits": 469,
+     "introduced": 52035,
+     "surviving": 19204,
+     "survival_rate": 0.36905928701835305
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.4437959908652626,
+   "untagged_rate": 0.5385339925051464,
+   "gap": -0.09473800163988383,
+   "buckets_used": 4,
+   "tagged_lines_covered": 1.0
+  },
+  "oldest_surviving": {
+   "date": "2026-02-24",
+   "age_days": 214,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
+ "probable_commits": 0,
+ "total_commits": 5681,
+ "aggregated": true,
+ "coverage": {
+  "method": "v3",
+  "blame_flags": [
+   "-w",
+   "-M",
+   "-C"
+  ],
+  "ignore_revs_file": false,
+  "shallow": false,
+  "sample_floor": 5,
+  "small_sample": false
+ },
+ "reports": 1,
+ "reproduce": "re audit lidge-ai/cli-jaw --json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/lidge-ai__cli-jaw.json",
+ "license": "CC-BY-4.0"
+}

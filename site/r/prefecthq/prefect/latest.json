@@ -25,6 +25,7 @@
   "largest_commit_share": 0.029555399964992124
  },
  "interval_95": null,
+ "baseline": null,
  "probable_commits": 0,
  "total_commits": 18408,
  "aggregated": true,

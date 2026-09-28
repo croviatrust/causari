@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Survival Report #3">
+  <rect width="1200" height="630" fill="#0b0d10"/>
+  <circle cx="108.4" cy="116.2" r="18.9" fill="#f5f4ef"/>
+  <circle cx="165.6" cy="116.2" r="18.9" fill="#f5f4ef"/>
+  <circle cx="137.0" cy="165.6" r="18.9" fill="#f5f4ef"/>
+  <text x="252" y="170" font-family="'JetBrains Mono','SF Mono','Cascadia Mono','Fira Code',Consolas,monospace" font-size="72" font-weight="500" letter-spacing="-1" fill="#f5f4ef">causari</text>
+  <text x="72" y="270" font-family="'JetBrains Mono','SF Mono','Cascadia Mono','Fira Code',Consolas,monospace" font-size="26" fill="#9aa3ad">Survival Report #3 · 2026-09-28 · method v3</text>
+  <text x="72" y="345" font-family="'JetBrains Mono','SF Mono','Cascadia Mono','Fira Code',Consolas,monospace" font-size="44" fill="#f5f4ef">13,068,031 of 21,286,167 lines</text>
+  <text x="72" y="400" font-family="'JetBrains Mono','SF Mono','Cascadia Mono','Fira Code',Consolas,monospace" font-size="26" fill="#f5f4ef">from 39,706 AI-tagged commits in 43 repositories are still at HEAD</text>
+  <text x="72" y="450" font-family="'JetBrains Mono','SF Mono','Cascadia Mono','Fira Code',Consolas,monospace" font-size="24" fill="#9aa3ad">61.4 % · 95 % interval over the sampled repositories 40.6 % – 76.5 %</text>
+  <text x="72" y="540" font-family="'JetBrains Mono','SF Mono','Cascadia Mono','Fira Code',Consolas,monospace" font-size="24" fill="#9aa3ad">counts, not grades  ·  re audit &lt;owner/repo&gt; --json  ·  CC-BY-4.0</text>
+  <text x="72" y="580" font-family="'JetBrains Mono','SF Mono','Cascadia Mono','Fira Code',Consolas,monospace" font-size="24" fill="#9aa3ad">causari.dev/reports/survival</text>
+</svg>

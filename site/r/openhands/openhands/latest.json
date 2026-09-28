@@ -5,31 +5,157 @@
  "url": "https://causari.dev/r/openhands/openhands/",
  "badge": "https://causari.dev/r/openhands/openhands/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
-  "commits": 2632,
-  "introduced": 937664,
-  "surviving": 282084,
-  "survival_rate": 0.3008369735854208,
-  "capped_survival_rate": 0.28159852435611293,
+  "commits": 2644,
+  "introduced": 940660,
+  "surviving": 283984,
+  "survival_rate": 0.3018986668934578,
+  "capped_survival_rate": 0.28334926181202486,
   "median_survival": 0.0,
-  "largest_commit_share": 0.1436921967783769
+  "largest_commit_share": 0.143234537452427
  },
  "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 5698,
+   "introduced": 732376,
+   "surviving": 120750,
+   "survival_rate": 0.16487432684850406,
+   "median_survival": 0.0,
+   "capped_survival_rate": 0.16569261300702448,
+   "cap_lines": 581,
+   "largest_commit_share": 0.07269216904977771
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 153,
+     "introduced": 59982,
+     "surviving": 52955,
+     "survival_rate": 0.8828481877896702
+    },
+    "untagged": {
+     "commits": 76,
+     "introduced": 18127,
+     "surviving": 15444,
+     "survival_rate": 0.8519887460693992
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 231,
+     "introduced": 84836,
+     "surviving": 39443,
+     "survival_rate": 0.4649323400443208
+    },
+    "untagged": {
+     "commits": 207,
+     "introduced": 82678,
+     "surviving": 68802,
+     "survival_rate": 0.832168170492755
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 868,
+     "introduced": 423569,
+     "surviving": 191586,
+     "survival_rate": 0.45231355458024547
+    },
+    "untagged": {
+     "commits": 413,
+     "introduced": 67536,
+     "surviving": 36504,
+     "survival_rate": 0.5405117270788913
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 487,
+     "introduced": 147209,
+     "surviving": 0,
+     "survival_rate": 0.0
+    },
+    "untagged": {
+     "commits": 650,
+     "introduced": 96406,
+     "surviving": 0,
+     "survival_rate": 0.0
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 904,
+     "introduced": 225039,
+     "surviving": 0,
+     "survival_rate": 0.0
+    },
+    "untagged": {
+     "commits": 2199,
+     "introduced": 240621,
+     "surviving": 0,
+     "survival_rate": 0.0
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 1,
+     "introduced": 25,
+     "surviving": 0,
+     "survival_rate": 0.0
+    },
+    "untagged": {
+     "commits": 2153,
+     "introduced": 227008,
+     "surviving": 0,
+     "survival_rate": 0.0
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.3019066906929893,
+   "untagged_rate": 0.3727756458198313,
+   "gap": -0.07086895512684199,
+   "buckets_used": 5,
+   "tagged_lines_covered": 0.999973422915825
+  },
+  "oldest_surviving": {
+   "date": "2026-04-24",
+   "age_days": 157,
+   "commits_before": 6584,
+   "introduced_before": 978192,
+   "tagged_commits_before": 1529,
+   "tagged_introduced_before": 405996,
+   "commits_before_share": 0.7892591704627188
+  }
+ },
  "probable_commits": 0,
- "total_commits": 8305,
+ "total_commits": 8342,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -40,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 1,
+ "reports": 2,
  "reproduce": "re audit OpenHands/OpenHands --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/OpenHands__OpenHands.json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/OpenHands__OpenHands.json",
  "license": "CC-BY-4.0"
 }

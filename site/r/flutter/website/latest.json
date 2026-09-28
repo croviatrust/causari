@@ -5,31 +5,157 @@
  "url": "https://causari.dev/r/flutter/website/",
  "badge": "https://causari.dev/r/flutter/website/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
-  "commits": 148,
-  "introduced": 49776,
-  "surviving": 47362,
-  "survival_rate": 0.9515027322404371,
-  "capped_survival_rate": 0.8203409551797698,
-  "median_survival": 0.9480469708118715,
-  "largest_commit_share": 0.6585503053680488
+  "commits": 149,
+  "introduced": 49836,
+  "surviving": 47422,
+  "survival_rate": 0.9515611204751585,
+  "capped_survival_rate": 0.821180614214605,
+  "median_survival": 0.9490740740740741,
+  "largest_commit_share": 0.65775744441769
  },
  "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 8393,
+   "introduced": 828270,
+   "surviving": 466188,
+   "survival_rate": 0.5628454489478069,
+   "median_survival": 0.0,
+   "capped_survival_rate": 0.4372347363734255,
+   "cap_lines": 328,
+   "largest_commit_share": 0.05750661016335253
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 13,
+     "introduced": 5329,
+     "surviving": 5218,
+     "survival_rate": 0.9791705760930757
+    },
+    "untagged": {
+     "commits": 61,
+     "introduced": 5140,
+     "surviving": 4959,
+     "survival_rate": 0.9647859922178988
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 25,
+     "introduced": 2585,
+     "surviving": 2248,
+     "survival_rate": 0.8696324951644101
+    },
+    "untagged": {
+     "commits": 166,
+     "introduced": 66692,
+     "surviving": 64493,
+     "survival_rate": 0.9670275295387752
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 21,
+     "introduced": 33810,
+     "surviving": 33652,
+     "survival_rate": 0.995326826382727
+    },
+    "untagged": {
+     "commits": 165,
+     "introduced": 15828,
+     "surviving": 9689,
+     "survival_rate": 0.612143037654789
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 90,
+     "introduced": 8112,
+     "surviving": 6304,
+     "survival_rate": 0.777120315581854
+    },
+    "untagged": {
+     "commits": 375,
+     "introduced": 47092,
+     "surviving": 27117,
+     "survival_rate": 0.5758302896457997
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 768,
+     "introduced": 64764,
+     "surviving": 44480,
+     "survival_rate": 0.6868013093694028
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 6858,
+     "introduced": 628754,
+     "surviving": 315450,
+     "survival_rate": 0.501706549779405
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.9515611204751585,
+   "untagged_rate": 0.6623485458123055,
+   "gap": 0.289212574662853,
+   "buckets_used": 4,
+   "tagged_lines_covered": 1.0
+  },
+  "oldest_surviving": {
+   "date": "2015-09-09",
+   "age_days": 4036,
+   "commits_before": 1,
+   "introduced_before": 58,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.00011706860220088972
+  }
+ },
  "probable_commits": 0,
- "total_commits": 8538,
+ "total_commits": 8542,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -40,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 1,
+ "reports": 2,
  "reproduce": "re audit flutter/website --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/flutter__website.json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/flutter__website.json",
  "license": "CC-BY-4.0"
 }

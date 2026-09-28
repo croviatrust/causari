@@ -49,8 +49,8 @@
 # survival-report: begin (managed by scripts/survival_report.py)
 /survival             /reports/survival/                 301
 /survival-data.json   /reports/survival/latest.json      301
-/report               /reports/survival/2026/02/   302
-/report/latest        /reports/survival/2026/02/   302
+/report               /reports/survival/2026/03/   302
+/report/latest        /reports/survival/2026/03/   302
 /r/Aider-AI/aider/    /r/aider-ai/aider/   301
 /r/BerriAI/litellm/   /r/berriai/litellm/   301
 /r/crewAIInc/crewAI/  /r/crewaiinc/crewai/   301

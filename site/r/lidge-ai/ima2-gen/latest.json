@@ -1,0 +1,173 @@
+{
+ "schema": "causari.repo_survival.v1",
+ "repo": "lidge-ai/ima2-gen",
+ "repository_url": "https://github.com/lidge-ai/ima2-gen",
+ "url": "https://causari.dev/r/lidge-ai/ima2-gen/",
+ "badge": "https://causari.dev/r/lidge-ai/ima2-gen/badge.svg",
+ "report": {
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
+ },
+ "method": "v3",
+ "tool": {
+  "name": "causari",
+  "version": "0.3.0"
+ },
+ "verified": {
+  "commits": 452,
+  "introduced": 127182,
+  "surviving": 46747,
+  "survival_rate": 0.36755987482505387,
+  "capped_survival_rate": 0.531825809590293,
+  "median_survival": 0.6,
+  "largest_commit_share": 0.19222059725432844
+ },
+ "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 1522,
+   "introduced": 603201,
+   "surviving": 493646,
+   "survival_rate": 0.8183772904885768,
+   "median_survival": 0.8842592592592593,
+   "capped_survival_rate": 0.7600598323535699,
+   "cap_lines": 1226,
+   "largest_commit_share": 0.10135261712099283
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 35,
+     "introduced": 13999,
+     "surviving": 12500,
+     "survival_rate": 0.8929209229230659
+    },
+    "untagged": {
+     "commits": 406,
+     "introduced": 118290,
+     "surviving": 110773,
+     "survival_rate": 0.9364527855270944
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 599,
+     "introduced": 349586,
+     "surviving": 311240,
+     "survival_rate": 0.8903102526989067
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 417,
+     "introduced": 113183,
+     "surviving": 34247,
+     "survival_rate": 0.3025807762649868
+    },
+    "untagged": {
+     "commits": 517,
+     "introduced": 135325,
+     "surviving": 71633,
+     "survival_rate": 0.5293404766303343
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.36755987482505387,
+   "untagged_rate": 0.5741515757815173,
+   "gap": -0.20659170095646345,
+   "buckets_used": 2,
+   "tagged_lines_covered": 1.0
+  },
+  "oldest_surviving": {
+   "date": "2026-04-21",
+   "age_days": 158,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
+ "probable_commits": 0,
+ "total_commits": 1974,
+ "aggregated": true,
+ "coverage": {
+  "method": "v3",
+  "blame_flags": [
+   "-w",
+   "-M",
+   "-C"
+  ],
+  "ignore_revs_file": false,
+  "shallow": false,
+  "sample_floor": 5,
+  "small_sample": false
+ },
+ "reports": 1,
+ "reproduce": "re audit lidge-ai/ima2-gen --json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/lidge-ai__ima2-gen.json",
+ "license": "CC-BY-4.0"
+}

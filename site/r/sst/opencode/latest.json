@@ -5,31 +5,157 @@
  "url": "https://causari.dev/r/sst/opencode/",
  "badge": "https://causari.dev/r/sst/opencode/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
   "commits": 50,
   "introduced": 25998,
-  "surviving": 9470,
-  "survival_rate": 0.364258789137626,
-  "capped_survival_rate": 0.3542521866812506,
+  "surviving": 9466,
+  "survival_rate": 0.3641049311485499,
+  "capped_survival_rate": 0.35401654603323884,
   "median_survival": 0.3954326923076923,
   "largest_commit_share": 0.4264558812216324
  },
  "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 15682,
+   "introduced": 3323455,
+   "surviving": 1412638,
+   "survival_rate": 0.42505103875334554,
+   "median_survival": 0.16216216216216217,
+   "capped_survival_rate": 0.36563830681829734,
+   "cap_lines": 621,
+   "largest_commit_share": 0.057958961382055724
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 210,
+     "introduced": 31530,
+     "surviving": 20465,
+     "survival_rate": 0.6490643831271805
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 4,
+     "introduced": 73,
+     "surviving": 61,
+     "survival_rate": 0.8356164383561644
+    },
+    "untagged": {
+     "commits": 937,
+     "introduced": 389776,
+     "surviving": 258152,
+     "survival_rate": 0.6623086080210172
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 7,
+     "introduced": 11511,
+     "surviving": 5620,
+     "survival_rate": 0.4882286508557032
+    },
+    "untagged": {
+     "commits": 3883,
+     "introduced": 1183773,
+     "surviving": 509240,
+     "survival_rate": 0.4301838274736795
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 38,
+     "introduced": 14410,
+     "surviving": 3785,
+     "survival_rate": 0.2626648160999306
+    },
+    "untagged": {
+     "commits": 7798,
+     "introduced": 1344819,
+     "surviving": 570856,
+     "survival_rate": 0.4244853768425342
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 1,
+     "introduced": 4,
+     "surviving": 0,
+     "survival_rate": 0.0
+    },
+    "untagged": {
+     "commits": 2854,
+     "introduced": 373557,
+     "surviving": 53925,
+     "survival_rate": 0.14435547988660366
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.3628332240268508,
+   "untagged_rate": 0.42701594530884,
+   "gap": -0.06418272128198921,
+   "buckets_used": 2,
+   "tagged_lines_covered": 0.9970382337102854
+  },
+  "oldest_surviving": {
+   "date": "2025-04-21",
+   "age_days": 524,
+   "commits_before": 65,
+   "introduced_before": 43988,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.004131706076786168
+  }
+ },
  "probable_commits": 0,
- "total_commits": 15705,
+ "total_commits": 15732,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -40,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 2,
+ "reports": 3,
  "reproduce": "re audit sst/opencode --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/sst__opencode.json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/sst__opencode.json",
  "license": "CC-BY-4.0"
 }

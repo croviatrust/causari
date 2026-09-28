@@ -1,0 +1,173 @@
+{
+ "schema": "causari.repo_survival.v1",
+ "repo": "youknowone/pyre",
+ "repository_url": "https://github.com/youknowone/pyre",
+ "url": "https://causari.dev/r/youknowone/pyre/",
+ "badge": "https://causari.dev/r/youknowone/pyre/badge.svg",
+ "report": {
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
+ },
+ "method": "v3",
+ "tool": {
+  "name": "causari",
+  "version": "0.3.0"
+ },
+ "verified": {
+  "commits": 1857,
+  "introduced": 1905484,
+  "surviving": 1375998,
+  "survival_rate": 0.722125192339584,
+  "capped_survival_rate": 0.6966584914046929,
+  "median_survival": 0.7253032928942807,
+  "largest_commit_share": 0.1676408723452939
+ },
+ "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 83108,
+   "introduced": 16039919,
+   "surviving": 3591019,
+   "survival_rate": 0.22388012059163143,
+   "median_survival": 0.16666666666666666,
+   "capped_survival_rate": 0.3287385798088131,
+   "cap_lines": 191,
+   "largest_commit_share": 0.08821372477005651
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 391,
+     "introduced": 453783,
+     "surviving": 325721,
+     "survival_rate": 0.7177902213172376
+    },
+    "untagged": {
+     "commits": 56,
+     "introduced": 72908,
+     "surviving": 56442,
+     "survival_rate": 0.7741537279859549
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 1033,
+     "introduced": 847974,
+     "surviving": 586054,
+     "survival_rate": 0.6911226051742152
+    },
+    "untagged": {
+     "commits": 154,
+     "introduced": 205384,
+     "surviving": 133948,
+     "survival_rate": 0.6521832275152885
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 405,
+     "introduced": 602885,
+     "surviving": 463704,
+     "survival_rate": 0.7691417102764209
+    },
+    "untagged": {
+     "commits": 4288,
+     "introduced": 1343294,
+     "surviving": 609972,
+     "survival_rate": 0.454086744971689
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 28,
+     "introduced": 842,
+     "surviving": 519,
+     "survival_rate": 0.6163895486935868
+    },
+    "untagged": {
+     "commits": 163,
+     "introduced": 9944,
+     "surviving": 7941,
+     "survival_rate": 0.7985720032180209
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 1212,
+     "introduced": 260757,
+     "surviving": 218752,
+     "survival_rate": 0.8389113235694535
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 77235,
+     "introduced": 14147632,
+     "surviving": 2563964,
+     "survival_rate": 0.18122919793220518
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.722125192339584,
+   "untagged_rate": 0.6186180026621405,
+   "gap": 0.10350718967744355,
+   "buckets_used": 4,
+   "tagged_lines_covered": 1.0
+  },
+  "oldest_surviving": {
+   "date": "2005-01-23",
+   "age_days": 7918,
+   "commits_before": 2232,
+   "introduced_before": 201033,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.02626964044018125
+  }
+ },
+ "probable_commits": 0,
+ "total_commits": 84965,
+ "aggregated": true,
+ "coverage": {
+  "method": "v3",
+  "blame_flags": [
+   "-w",
+   "-M",
+   "-C"
+  ],
+  "ignore_revs_file": false,
+  "shallow": false,
+  "sample_floor": 5,
+  "small_sample": false
+ },
+ "reports": 1,
+ "reproduce": "re audit youknowone/pyre --json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/youknowone__pyre.json",
+ "license": "CC-BY-4.0"
+}

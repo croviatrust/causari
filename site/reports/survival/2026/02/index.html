@@ -139,6 +139,7 @@
     </div>
     </div>
 
+
     <div class="rp-section">
     <h3 id="not-aggregated">Measured but not aggregated</h3>
     <p class="muted">Fewer than 5 AI-tagged commits: the counts are published, the ratio is not, and the repository is left out of the aggregate above.</p>
@@ -203,7 +204,7 @@
 
     <div class="proof rp-positioning">
       <h3>What this report is, and is not</h3>
-      <p>This report counts lines. For each repository it states how many lines were introduced by commits that carry machine-readable AI authorship metadata (trailers such as Co-Authored-By naming an agent, bot author identities, aider markers, git-ai notes), and how many of those lines git blame still attributes to those commits at HEAD, under method v2 (blame with -w -M -C, a per-commit weight cap, a sample floor, full clones only). Every row is reproducible with one command.</p>
+      <p>This report counts lines. For each repository it states how many lines were introduced by commits that carry machine-readable AI authorship metadata (trailers such as Co-Authored-By naming an agent, bot author identities, aider markers, git-ai notes), and how many of those lines git blame still attributes to those commits at HEAD, under the method version stated on the page (blame with -w -M -C, a per-commit weight cap, a sample floor, full clones only; from method v3 the untagged lines of the same repository, at the same age, stand next to the AI-tagged ones). Every row is reproducible with one command.</p>
       <p>It is not a quality judgement: deleted lines include removed features and rewritten prototypes; surviving lines include dead code. It is not a sample of all AI-assisted code: inline completions leave no trace in git, untagged agent commits are invisible, and the repositories were selected, not drawn at random: 30 hand-picked and 30 found by GitHub commit search as public repositories with at least 5 commits carrying the same AI authorship metadata and at least 100 stars, most-starred first (discovered 2026-09-23); the selection rule and the counts behind it are public. The intervals describe the sampled repositories only.</p>
       <p>Prior measurement work asks related questions with different instruments. GitClear publishes churn reports built from code-change patterns across the repositories it analyses; <a href="https://arxiv.org/abs/2601.16809" rel="noopener">arXiv 2601.16809</a> (&quot;Will It Survive?&quot;) follows the modification of agent-authored code in 201 projects with its own detector and finds that such code is modified less often than human-written code. This report does not reproduce either method and does not adjudicate between them: it publishes counts from git metadata alone, with the method version, the tool version and the exact bytes behind every number, so that the three can be read side by side.</p>
 <pre translate="no"><code translate="no">re audit &lt;owner/repo&gt; --json   <span class="dim"># the exact bytes behind any row</span></code></pre>

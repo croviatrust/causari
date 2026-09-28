@@ -5,15 +5,15 @@
  "url": "https://causari.dev/r/anthropics/claude-code/",
  "badge": "https://causari.dev/r/anthropics/claude-code/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
   "commits": 71,
@@ -25,11 +25,137 @@
   "largest_commit_share": 0.7029145471414403
  },
  "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 669,
+   "introduced": 72144,
+   "surviving": 59645,
+   "survival_rate": 0.826749279219339,
+   "median_survival": 0.9629629629629629,
+   "capped_survival_rate": 0.7285966804401384,
+   "cap_lines": 230,
+   "largest_commit_share": 0.13030882679086273
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 130,
+     "introduced": 47354,
+     "surviving": 39834,
+     "survival_rate": 0.8411960974785657
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 55,
+     "introduced": 6824,
+     "surviving": 5144,
+     "survival_rate": 0.753810082063306
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 1,
+     "introduced": 1,
+     "surviving": 0,
+     "survival_rate": 0.0
+    },
+    "untagged": {
+     "commits": 105,
+     "introduced": 10838,
+     "surviving": 8960,
+     "survival_rate": 0.8267207971950544
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 30,
+     "introduced": 28876,
+     "surviving": 28377,
+     "survival_rate": 0.9827192131874221
+    },
+    "untagged": {
+     "commits": 236,
+     "introduced": 4712,
+     "surviving": 3756,
+     "survival_rate": 0.7971137521222411
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 40,
+     "introduced": 2380,
+     "surviving": 848,
+     "survival_rate": 0.3563025210084034
+    },
+    "untagged": {
+     "commits": 143,
+     "introduced": 2416,
+     "surviving": 1951,
+     "survival_rate": 0.8075331125827815
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.9350204760685948,
+   "untagged_rate": 0.7979071382847727,
+   "gap": 0.13711333778382218,
+   "buckets_used": 2,
+   "tagged_lines_covered": 0.9999680071663948
+  },
+  "oldest_surviving": {
+   "date": "2025-02-22",
+   "age_days": 580,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
  "probable_commits": 0,
- "total_commits": 727,
+ "total_commits": 740,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -40,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 1,
+ "reports": 2,
  "reproduce": "re audit anthropics/claude-code --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/anthropics__claude-code.json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/anthropics__claude-code.json",
  "license": "CC-BY-4.0"
 }

@@ -1,0 +1,173 @@
+{
+ "schema": "causari.repo_survival.v1",
+ "repo": "google/sam",
+ "repository_url": "https://github.com/google/sam",
+ "url": "https://causari.dev/r/google/sam/",
+ "badge": "https://causari.dev/r/google/sam/badge.svg",
+ "report": {
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
+ },
+ "method": "v3",
+ "tool": {
+  "name": "causari",
+  "version": "0.3.0"
+ },
+ "verified": {
+  "commits": 35,
+  "introduced": 247,
+  "surviving": 96,
+  "survival_rate": 0.38866396761133604,
+  "capped_survival_rate": 0.42210884353741496,
+  "median_survival": 0.0,
+  "largest_commit_share": 0.708502024291498
+ },
+ "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 1444,
+   "introduced": 245956,
+   "surviving": 149619,
+   "survival_rate": 0.6083161215827221,
+   "median_survival": 0.6616773057451024,
+   "capped_survival_rate": 0.6246479760967066,
+   "cap_lines": 714,
+   "largest_commit_share": 0.06510514075688334
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 9,
+     "introduced": 21,
+     "surviving": 19,
+     "survival_rate": 0.9047619047619048
+    },
+    "untagged": {
+     "commits": 429,
+     "introduced": 88395,
+     "surviving": 70453,
+     "survival_rate": 0.7970247185926805
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 6,
+     "introduced": 7,
+     "surviving": 4,
+     "survival_rate": 0.5714285714285714
+    },
+    "untagged": {
+     "commits": 551,
+     "introduced": 89445,
+     "surviving": 59835,
+     "survival_rate": 0.6689585778970317
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 20,
+     "introduced": 219,
+     "surviving": 73,
+     "survival_rate": 0.3333333333333333
+    },
+    "untagged": {
+     "commits": 464,
+     "introduced": 68116,
+     "surviving": 19331,
+     "survival_rate": 0.2837952903869869
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.38866396761133604,
+   "untagged_rate": 0.3383457397994965,
+   "gap": 0.05031822781183953,
+   "buckets_used": 3,
+   "tagged_lines_covered": 1.0
+  },
+  "oldest_surviving": {
+   "date": "2026-04-17",
+   "age_days": 162,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
+ "probable_commits": 0,
+ "total_commits": 1479,
+ "aggregated": true,
+ "coverage": {
+  "method": "v3",
+  "blame_flags": [
+   "-w",
+   "-M",
+   "-C"
+  ],
+  "ignore_revs_file": false,
+  "shallow": false,
+  "sample_floor": 5,
+  "small_sample": false
+ },
+ "reports": 1,
+ "reproduce": "re audit google/sam --json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/google__sam.json",
+ "license": "CC-BY-4.0"
+}

@@ -1,0 +1,173 @@
+{
+ "schema": "causari.repo_survival.v1",
+ "repo": "richlander/dotnet-inspect",
+ "repository_url": "https://github.com/richlander/dotnet-inspect",
+ "url": "https://causari.dev/r/richlander/dotnet-inspect/",
+ "badge": "https://causari.dev/r/richlander/dotnet-inspect/badge.svg",
+ "report": {
+  "number": 3,
+  "id": "2026/03",
+  "date": "2026-09-28",
+  "url": "https://causari.dev/reports/survival/2026/03/"
+ },
+ "method": "v3",
+ "tool": {
+  "name": "causari",
+  "version": "0.3.0"
+ },
+ "verified": {
+  "commits": 4025,
+  "introduced": 3990432,
+  "surviving": 3053584,
+  "survival_rate": 0.7652264216004683,
+  "capped_survival_rate": 0.7734597116224281,
+  "median_survival": 0.7979002624671916,
+  "largest_commit_share": 0.3284286012141041
+ },
+ "interval_95": null,
+ "baseline": {
+  "untagged": {
+   "commits": 1413,
+   "introduced": 1152016,
+   "surviving": 862835,
+   "survival_rate": 0.7489783128012111,
+   "median_survival": 0.7794117647058824,
+   "capped_survival_rate": 0.7587591894248412,
+   "cap_lines": 2965,
+   "largest_commit_share": 0.05499923612172053
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 1347,
+     "introduced": 1292519,
+     "surviving": 1087885,
+     "survival_rate": 0.8416781494121169
+    },
+    "untagged": {
+     "commits": 738,
+     "introduced": 778826,
+     "surviving": 597344,
+     "survival_rate": 0.7669800443231223
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 1366,
+     "introduced": 982209,
+     "surviving": 751965,
+     "survival_rate": 0.7655855322034313
+    },
+    "untagged": {
+     "commits": 340,
+     "introduced": 304013,
+     "surviving": 239165,
+     "survival_rate": 0.7866933321930312
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 1118,
+     "introduced": 1657234,
+     "surviving": 1188795,
+     "survival_rate": 0.7173368395772716
+    },
+    "untagged": {
+     "commits": 62,
+     "introduced": 7673,
+     "surviving": 5896,
+     "survival_rate": 0.7684087058516877
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 194,
+     "introduced": 58470,
+     "surviving": 24939,
+     "survival_rate": 0.42652642380708056
+    },
+    "untagged": {
+     "commits": 273,
+     "introduced": 61504,
+     "surviving": 20430,
+     "survival_rate": 0.33217351716961496
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.7652264216004683,
+   "untagged_rate": 0.7660545950440418,
+   "gap": -0.0008281734435735544,
+   "buckets_used": 4,
+   "tagged_lines_covered": 1.0
+  },
+  "oldest_surviving": {
+   "date": "2026-01-22",
+   "age_days": 249,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
+ "probable_commits": 0,
+ "total_commits": 5438,
+ "aggregated": true,
+ "coverage": {
+  "method": "v3",
+  "blame_flags": [
+   "-w",
+   "-M",
+   "-C"
+  ],
+  "ignore_revs_file": false,
+  "shallow": false,
+  "sample_floor": 5,
+  "small_sample": false
+ },
+ "reports": 1,
+ "reproduce": "re audit richlander/dotnet-inspect --json",
+ "bytes": "https://causari.dev/reports/survival/2026/03/repos/richlander__dotnet-inspect.json",
+ "license": "CC-BY-4.0"
+}
