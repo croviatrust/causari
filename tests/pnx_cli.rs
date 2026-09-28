@@ -553,6 +553,174 @@ mod proxy {
         let out = re(dir, &["pnx", "list"]);
         assert!(stdout(&out).contains("closed"));
     }
+
+    #[test]
+    fn an_enforced_policy_refuses_outside_destinations_and_the_sheet_says_where_the_run_went() {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path();
+        assert!(re(dir, &["init"]).status.success());
+        fs::write(dir.join("safe.txt"), SAFE).unwrap();
+        let upstream = mock_upstream();
+        let elsewhere = free_port();
+        let policy = json!({"version": "crovia.pnx.policy.v1",
+                            "allow": [format!("127.0.0.1:{upstream}")]});
+        fs::write(dir.join("policy.json"), policy.to_string()).unwrap();
+        fs::write(
+            dir.join("other-policy.json"),
+            json!({"version": "crovia.pnx.policy.v1", "allow": ["example.org:443"]}).to_string(),
+        )
+        .unwrap();
+        let port = free_port();
+        let child = Command::new(env!("CARGO_BIN_EXE_re"))
+            .args([
+                "proxy",
+                "--pnx",
+                "--pnx-run-id",
+                "policed",
+                "--pnx-policy",
+                "policy.json",
+                "--port",
+                &port.to_string(),
+                "--openai-upstream",
+                &format!("http://127.0.0.1:{upstream}"),
+                "--anthropic-upstream",
+                &format!("http://127.0.0.1:{elsewhere}"),
+            ])
+            .current_dir(dir)
+            .env("NO_COLOR", "1")
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+            .unwrap();
+        wait_for_port(port);
+        assert_eq!(
+            post(port, "/openai/v1/chat/completions", &clean_body()),
+            200
+        );
+        assert_eq!(
+            post(port, "/openai/v1/chat/completions", &clean_body()),
+            200
+        );
+        // Outside the policy: refused before anything is forwarded (nothing
+        // listens there, and the client still gets a 403, not a 502).
+        assert_eq!(post(port, "/anthropic/v1/messages", &clean_body()), 403);
+        unsafe {
+            libc::kill(child.id() as libc::pid_t, libc::SIGINT);
+        }
+        let out = child.wait_with_output().unwrap();
+        assert!(out.status.success(), "{}\n{}", stdout(&out), stderr(&out));
+        let text = stdout(&out);
+        assert!(text.contains("PNX reach:"), "{text}");
+        assert!(text.contains("2 destinations"), "{text}");
+        assert!(text.contains("1 allowed, 1 blocked"), "{text}");
+
+        let run_dir = dir.join(".causari/pnx/policed");
+        let reach_log = fs::read_to_string(run_dir.join("reach.jsonl")).unwrap();
+        assert_eq!(reach_log.lines().count(), 3, "{reach_log}");
+        let sheet: Value =
+            serde_json::from_str(&fs::read_to_string(run_dir.join("sheet.json")).unwrap()).unwrap();
+        let reach = &sheet["reach"];
+        assert_eq!(reach["version"], "crovia.pnx.reach.v1");
+        assert_eq!(reach["capture"], "proxy-http");
+        assert_eq!(reach["policy"]["kind"], "allowlist");
+        assert_eq!(reach["policy"]["mode"], "enforce");
+        assert_eq!(reach["policy"]["rules"], 1);
+        let dests = reach["destinations"].as_array().unwrap();
+        assert_eq!(dests.len(), 2);
+        let blocked = dests.iter().find(|d| d["outcome"] == "blocked").unwrap();
+        assert_eq!(blocked["port"], elsewhere);
+        assert_eq!(blocked["bytes_out"], 0);
+        let allowed = dests.iter().find(|d| d["outcome"] == "allowed").unwrap();
+        assert_eq!(allowed["port"], upstream);
+        assert_eq!(allowed["connections"], 2);
+        assert!(allowed["bytes_in"].as_u64().unwrap() > 0);
+
+        // Prove, then verify with the policy: within-policy, exit 0.
+        let out = re(
+            dir,
+            &[
+                "pnx",
+                "prove",
+                "--run",
+                "policed",
+                "--asset",
+                "aws=safe.txt",
+            ],
+        );
+        assert!(out.status.success(), "{}", stderr(&out));
+        let proof = run_dir.join("proof.json");
+        let proof = proof.to_str().unwrap();
+        let out = re(
+            dir,
+            &[
+                "pnx",
+                "verify",
+                proof,
+                "--asset",
+                "aws=safe.txt",
+                "--policy",
+                "policy.json",
+                "--json",
+            ],
+        );
+        let rep = json_report(&out);
+        assert_eq!(code(&out), 0, "{rep}");
+        assert_eq!(rep["reach"]["verdict"], "within-policy", "{rep}");
+        assert_eq!(rep["reach"]["outside"], json!([]));
+        let out = re(
+            dir,
+            &[
+                "pnx",
+                "verify",
+                proof,
+                "--asset",
+                "aws=safe.txt",
+                "--policy",
+                "policy.json",
+            ],
+        );
+        let text = stdout(&out);
+        assert!(text.contains("reach  within-policy"), "{text}");
+        assert!(text.contains("blocked"), "{text}");
+
+        // Without the document the record alone supports the verdict, with a warning.
+        let out = re(
+            dir,
+            &["pnx", "verify", proof, "--asset", "aws=safe.txt", "--json"],
+        );
+        let rep = json_report(&out);
+        assert_eq!(code(&out), 0, "{rep}");
+        assert_eq!(rep["reach"]["verdict"], "within-policy");
+        assert!(
+            rep["warnings"]
+                .to_string()
+                .contains("policy document not supplied"),
+            "{rep}"
+        );
+
+        // Another policy document does not match the bound hash: invalid.
+        let out = re(
+            dir,
+            &[
+                "pnx",
+                "verify",
+                proof,
+                "--asset",
+                "aws=safe.txt",
+                "--policy",
+                "other-policy.json",
+                "--json",
+            ],
+        );
+        let rep = json_report(&out);
+        assert_eq!(code(&out), 2, "{rep}");
+        assert!(
+            rep["errors"]
+                .to_string()
+                .contains("policy document does not match"),
+            "{rep}"
+        );
+    }
 }
 
 // ---------------------------------------------------------------------------
