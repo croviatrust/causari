@@ -469,6 +469,25 @@ pub struct ProxyArgs {
     /// Naming a run that was left open (the proxy died) resumes it.
     #[arg(long, requires = "pnx", value_name = "ID")]
     pub pnx_run_id: Option<String>,
+
+    /// Egress policy for the PNX reach record (a crovia.pnx.policy.v1
+    /// document: {"version": "crovia.pnx.policy.v1", "allow":
+    /// ["api.openai.com:443", "*.anthropic.com:443"]}). Every upstream the
+    /// proxy forwards to is recorded in the run sheet with its outcome;
+    /// with a policy, destinations outside it are refused (--pnx-reach-mode
+    /// enforce, the default) or relayed and recorded (observe). Without a
+    /// policy the sheet still states where the run connected.
+    #[arg(long, requires = "pnx", value_name = "FILE")]
+    pub pnx_policy: Option<std::path::PathBuf>,
+
+    /// enforce: refuse destinations outside --pnx-policy (HTTP 403, recorded
+    /// as blocked); observe: relay everything and let the verifier judge.
+    #[arg(long, requires = "pnx_policy", value_name = "MODE", value_parser = ["enforce", "observe"])]
+    pub pnx_reach_mode: Option<String>,
+
+    /// Disclose salted host hashes in the sheet instead of host names.
+    #[arg(long, requires = "pnx")]
+    pub pnx_reach_salted: bool,
 }
 
 #[derive(Args, Debug)]
@@ -530,8 +549,9 @@ pub enum PnxCommand {
     },
 
     /// Verify a PNX proof offline (bare or delivered inside a Crovia Seal).
-    /// Exit 0: valid, every asset absent. 1: valid, but an asset was
-    /// present, undetectable or only partially covered. 2: invalid.
+    /// Exit 0: valid, every asset absent, reach within policy. 1: valid,
+    /// but an asset was present, undetectable or only partially covered,
+    /// or a destination was reached outside the policy. 2: invalid.
     Verify {
         /// Path to the proof JSON
         proof: std::path::PathBuf,
@@ -539,7 +559,18 @@ pub enum PnxCommand {
         #[command(flatten)]
         assets: PnxAssetArgs,
 
-        /// Exit 1 on warnings too (assets not supplied, partial coverage)
+        /// The crovia.pnx.policy.v1 document the witness applied: its hash
+        /// is checked against the sheet's reach record and every
+        /// destination is matched against its rules
+        #[arg(long, value_name = "FILE")]
+        policy: Option<std::path::PathBuf>,
+
+        /// Under salted disclosure, report whether HOST was reached
+        #[arg(long, value_name = "HOST")]
+        name: Vec<String>,
+
+        /// Exit 1 on warnings too (assets not supplied, partial coverage,
+        /// reach unchecked)
         #[arg(long)]
         strict: bool,
 

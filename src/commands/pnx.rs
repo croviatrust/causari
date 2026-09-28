@@ -22,7 +22,8 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use crate::cli::{PnxArgs, PnxAssetArgs, PnxCommand};
-use crate::pnx::{VERDICT_ABSENT, VerifyResult, verify_proof};
+use crate::pnx::{VERDICT_ABSENT, VerifyResult, verify_proof_with};
+use crate::pnx_reach::{Policy, VERDICT_OUTSIDE, VERDICT_UNPOLICED, VERDICT_WITHIN};
 use crate::pnx_run::{self, Run, RunSummary};
 use crate::repo::Repo;
 use crate::seal;
@@ -47,10 +48,13 @@ pub fn run(args: PnxArgs) -> Result<()> {
         PnxCommand::Verify {
             proof,
             assets,
+            policy,
+            name,
             strict,
             json,
         } => {
-            let code = verify(&proof, &assets, strict, json)?;
+            let policy = policy.as_deref().map(Policy::load).transpose()?;
+            let code = verify(&proof, &assets, policy.as_ref(), &name, strict, json)?;
             exit_with(code)
         }
     }
@@ -350,7 +354,12 @@ fn pnx_query(proof: &Value) -> Value {
     })
 }
 
-fn verify_any(obj: &Value, assets: Option<&BTreeMap<String, Vec<u8>>>) -> (VerifyResult, Outer) {
+fn verify_any(
+    obj: &Value,
+    assets: Option<&BTreeMap<String, Vec<u8>>>,
+    policy: Option<&Policy>,
+    names: &[String],
+) -> (VerifyResult, Outer) {
     let mut outer = Outer::default();
     let proof = if obj.get("seal").is_some() && obj.get("proof").is_some() {
         outer.sealed = true;
@@ -387,7 +396,7 @@ fn verify_any(obj: &Value, assets: Option<&BTreeMap<String, Vec<u8>>>) -> (Verif
     } else {
         obj
     };
-    let mut res = verify_proof(proof, assets);
+    let mut res = verify_proof_with(proof, assets, policy, names);
     if outer.seal_ok == Some(false) {
         res.ok = false;
         let mut errors = outer.seal_errors.clone();
@@ -397,7 +406,14 @@ fn verify_any(obj: &Value, assets: Option<&BTreeMap<String, Vec<u8>>>) -> (Verif
     (res, outer)
 }
 
-fn verify(path: &Path, assets: &PnxAssetArgs, strict: bool, json_out: bool) -> Result<i32> {
+fn verify(
+    path: &Path,
+    assets: &PnxAssetArgs,
+    policy: Option<&Policy>,
+    names: &[String],
+    strict: bool,
+    json_out: bool,
+) -> Result<i32> {
     let raw =
         std::fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
     let obj: Value =
@@ -407,9 +423,10 @@ fn verify(path: &Path, assets: &PnxAssetArgs, strict: bool, json_out: bool) -> R
     } else {
         None
     };
-    let (res, outer) = verify_any(&obj, supplied.as_ref());
+    let (res, outer) = verify_any(&obj, supplied.as_ref(), policy, names);
     let proof = if outer.sealed { &obj["proof"] } else { &obj };
     let sheet = &proof["sheet"];
+    let reach_verdict = res.reach.as_ref().map(|r| r.verdict.as_str());
 
     if json_out {
         let assets: serde_json::Map<String, Value> = res
@@ -425,6 +442,11 @@ fn verify(path: &Path, assets: &PnxAssetArgs, strict: bool, json_out: bool) -> R
             "warnings": res.warnings,
             "sealed": outer.sealed,
         });
+        if let Some(r) = &res.reach {
+            report["reach"] = json!({
+                "verdict": r.verdict, "outside": r.outside, "reached": r.reached,
+            });
+        }
         if outer.sealed {
             report["seal_ok"] = json!(outer.seal_ok);
             report["seal_signature_ok"] = json!(outer.seal_signature_ok);
@@ -462,6 +484,53 @@ fn verify(path: &Path, assets: &PnxAssetArgs, strict: bool, json_out: bool) -> R
         for (label, v) in &res.assets {
             println!("  {:<14} {}", v, label);
         }
+        if let (Some(r), Some(rec)) = (&res.reach, sheet.get("reach").and_then(Value::as_object)) {
+            let sm = rec.get("summary").cloned().unwrap_or_default();
+            let pol = rec.get("policy").cloned().unwrap_or_default();
+            let verdict = if r.verdict == VERDICT_OUTSIDE {
+                r.verdict.red().bold()
+            } else {
+                r.verdict.bold()
+            };
+            println!(
+                "  reach  {verdict} · {} destinations, {} connections ({} allowed, {} blocked, {} failed) · policy {} {}{} · {} · {}",
+                sm["destinations"],
+                sm["connections"],
+                sm["allowed"],
+                sm["blocked"],
+                sm["failed"],
+                pol["kind"].as_str().unwrap_or("?"),
+                pol["mode"].as_str().unwrap_or("?"),
+                pol["hash"]
+                    .as_str()
+                    .map(|h| format!(" {h}"))
+                    .unwrap_or_default(),
+                rec.get("disclosure").and_then(Value::as_str).unwrap_or("?"),
+                rec.get("capture").and_then(Value::as_str).unwrap_or("?"),
+            );
+            if rec.get("disclosure").and_then(Value::as_str) == Some("clear") {
+                for d in rec
+                    .get("destinations")
+                    .and_then(Value::as_array)
+                    .into_iter()
+                    .flatten()
+                {
+                    println!(
+                        "  {:<14} {}:{} ({} connections)",
+                        d["outcome"].as_str().unwrap_or("?"),
+                        d["host"].as_str().unwrap_or("?"),
+                        d["port"],
+                        d["connections"]
+                    );
+                }
+            }
+            for o in &r.outside {
+                println!("  {}  {} reached outside the policy", "outside".red(), o);
+            }
+            for (n, hit) in &r.reached {
+                println!("  {:<14} {n}", if *hit { "reached" } else { "absent" });
+            }
+        }
         for e in &res.errors {
             println!("  {}    {}", "error".red(), e);
         }
@@ -476,9 +545,15 @@ fn verify(path: &Path, assets: &PnxAssetArgs, strict: bool, json_out: bool) -> R
         );
     }
 
+    let reach_unsettled =
+        strict && reach_verdict.is_some_and(|v| v != VERDICT_WITHIN && v != VERDICT_UNPOLICED);
     Ok(if !res.ok {
         EXIT_INVALID
-    } else if res.verdict != VERDICT_ABSENT || (strict && !res.warnings.is_empty()) {
+    } else if res.verdict != VERDICT_ABSENT
+        || reach_verdict == Some(VERDICT_OUTSIDE)
+        || reach_unsettled
+        || (strict && !res.warnings.is_empty())
+    {
         EXIT_PRESENT
     } else {
         EXIT_OK
@@ -537,13 +612,13 @@ mod tests {
         )))
         .unwrap();
         let proof = &doc["proofs"][0]["proof"];
-        let (res, outer) = verify_any(proof, None);
+        let (res, outer) = verify_any(proof, None, None, &[]);
         assert!(res.ok && !outer.sealed);
 
         // A sealed bundle whose Seal does not verify fails closed, even
         // though the inner proof is fine.
         let bundle = json!({"seal": {"seal_version": "crovia.seal.v1"}, "query": pnx_query(proof), "proof": proof});
-        let (res, outer) = verify_any(&bundle, None);
+        let (res, outer) = verify_any(&bundle, None, None, &[]);
         assert!(outer.sealed && outer.seal_ok == Some(false));
         assert!(!res.ok);
         assert!(!res.errors.is_empty());

@@ -11,7 +11,8 @@ use crate::capture::{
     parse_response_json, parse_sse,
 };
 use crate::cli::ProxyArgs;
-use crate::pnx_run::{self, Run};
+use crate::pnx_reach::Policy;
+use crate::pnx_run::{self, ReachConfig, Run};
 use crate::repo::Repo;
 use crate::seal::{SealGenerator, SealIssuer, SealSubject};
 
@@ -42,7 +43,10 @@ use crate::seal::{SealGenerator, SealIssuer, SealSubject};
 /// *before* it is forwarded, and Ctrl-C closes the run with a signed sheet.
 /// A body the witness cannot record is not forwarded: the sheet's claim is
 /// "everything that left through here is in the map", and a hole in the map
-/// would turn a `present` into an `absent`.
+/// would turn a `present` into an `absent`. The sheet also carries the reach
+/// record (PNX §4a): every upstream `host:port` the proxy forwarded to, with
+/// its outcome under `--pnx-policy` — refused destinations are answered 403
+/// and recorded as `blocked`, never forwarded.
 pub fn run(args: ProxyArgs) -> Result<()> {
     let repo = Arc::new(Repo::discover()?);
     let port = args.port.unwrap_or(4242);
@@ -58,7 +62,24 @@ pub fn run(args: ProxyArgs) -> Result<()> {
         None
     };
     let witness = if args.pnx {
-        Some(open_witness(&repo, args.pnx_run_id.as_deref())?)
+        let policy = args.pnx_policy.as_deref().map(Policy::load).transpose()?;
+        let reach = ReachConfig {
+            capture: "proxy-http".to_string(),
+            mode: match (&policy, args.pnx_reach_mode.as_deref()) {
+                (None, _) => "observe",
+                (Some(_), Some(m)) => m,
+                (Some(_), None) => "enforce",
+            }
+            .to_string(),
+            disclosure: if args.pnx_reach_salted {
+                "salted"
+            } else {
+                "clear"
+            }
+            .to_string(),
+            policy,
+        };
+        Some(open_witness(&repo, args.pnx_run_id.as_deref(), reach)?)
     } else {
         None
     };
@@ -134,6 +155,27 @@ pub fn run(args: ProxyArgs) -> Result<()> {
             crate::pnx::THRESHOLD,
             run.sheet_path().display().to_string().bright_black()
         );
+        if let Some(rc) = run.reach_config() {
+            println!(
+                "  {} every upstream the proxy forwards to goes into the sheet's reach record ({}); {}",
+                "PNX reach:".bright_black(),
+                rc.disclosure,
+                match &rc.policy {
+                    Some(p) if rc.mode == "enforce" => format!(
+                        "destinations outside the {}-rule policy {} are refused with 403 and recorded as blocked",
+                        p.allow.len(),
+                        p.hash()
+                    ),
+                    Some(p) => format!(
+                        "everything is relayed; a verifier holding the {}-rule policy {} judges it",
+                        p.allow.len(),
+                        p.hash()
+                    ),
+                    None => "no policy: destinations are stated, not judged".to_string(),
+                }
+                .bright_black()
+            );
+        }
     }
     println!("  {}", crate::redact::STORAGE_NOTICE.bright_black());
     println!("  Press Ctrl-C to stop.");
@@ -171,13 +213,14 @@ struct PnxWitness {
     key: ed25519_dalek::SigningKey,
 }
 
-fn open_witness(repo: &Repo, run_id: Option<&str>) -> Result<PnxWitness> {
+fn open_witness(repo: &Repo, run_id: Option<&str>, reach: ReachConfig) -> Result<PnxWitness> {
     let key = pnx_run::witness_key(repo)?;
     let run_id = match run_id {
         Some(id) => id.to_string(),
         None => pnx_run::new_run_id()?,
     };
-    let (run, resumed) = Run::open(repo, &run_id, pnx_run::new_salt()?)?;
+    let (mut run, resumed) = Run::open(repo, &run_id, pnx_run::new_salt()?)?;
+    run.start_reach(reach)?;
     println!(
         "{} PNX witness {} — {} run {}",
         "causari:".green().bold(),
@@ -187,9 +230,10 @@ fn open_witness(repo: &Repo, run_id: Option<&str>) -> Result<PnxWitness> {
     );
     if resumed {
         println!(
-            "  {} bodies and {} fingerprints already recorded in this run",
+            "  {} bodies, {} fingerprints and {} destinations already recorded in this run",
             run.witness.bodies,
-            run.witness.map.len()
+            run.witness.map.len(),
+            run.reach_destinations()
         );
     }
     Ok(PnxWitness {
@@ -213,6 +257,71 @@ fn witness_body(cfg: &ProxyConfig, body: &[u8]) -> Result<()> {
     Ok(())
 }
 
+/// `host:port` of an upstream base URL, as the reach record names it. The
+/// port is the URL's, else the scheme's default.
+fn destination(base: &str) -> Option<(String, u16)> {
+    let (scheme, rest) = base.split_once("://")?;
+    let authority = rest.split(['/', '?', '#']).next()?;
+    let authority = authority.rsplit_once('@').map_or(authority, |(_, h)| h);
+    let default_port = match scheme {
+        "https" => 443,
+        "http" => 80,
+        _ => return None,
+    };
+    let (host, port) = if let Some(h) = authority.strip_prefix('[') {
+        let (host, tail) = h.split_once(']')?;
+        (
+            host,
+            tail.strip_prefix(':').map(str::parse).transpose().ok()?,
+        )
+    } else {
+        match authority.rsplit_once(':') {
+            Some((h, p)) if !p.is_empty() => (h, Some(p.parse().ok()?)),
+            _ => (authority, None),
+        }
+    };
+    if host.is_empty() {
+        return None;
+    }
+    Some((host.to_lowercase(), port.unwrap_or(default_port)))
+}
+
+/// Ask the run whether `host:port` may be reached. `Some(false)` means the
+/// enforced policy refuses it: the attempt is recorded as blocked and the
+/// request must not be forwarded.
+fn reach_decide(cfg: &ProxyConfig, host: &str, port: u16) -> Result<Option<bool>> {
+    let Some(w) = &cfg.witness else {
+        return Ok(None);
+    };
+    let mut run = w.run.lock().map_err(|_| anyhow!("PNX witness poisoned"))?;
+    match run.reach_decide(host, port) {
+        None => Ok(None),
+        Some("blocked") => {
+            run.reach_attempt(host, port, &pnx_run::now_rfc3339(), Some("blocked"), 0, 0)
+                .context("PNX witness could not record the refused destination")?;
+            Ok(Some(false))
+        }
+        Some(_) => Ok(Some(true)),
+    }
+}
+
+/// Record a forwarded (or failed) connection in the run's reach record.
+fn reach_record(cfg: &ProxyConfig, host: &str, port: u16, outcome: &str, out: u64, inb: u64) {
+    let Some(w) = &cfg.witness else {
+        return;
+    };
+    let Ok(mut run) = w.run.lock() else {
+        return;
+    };
+    if run.reach_config().is_none() {
+        return;
+    }
+    if let Err(e) = run.reach_attempt(host, port, &pnx_run::now_rfc3339(), Some(outcome), out, inb)
+    {
+        eprintln!("{} reach record: {e:#}", "pnx:".red());
+    }
+}
+
 /// Sign the run sheet and say where it is. Called from the Ctrl-C handler.
 fn close_witness(cfg: &ProxyConfig) -> Result<()> {
     let Some(w) = &cfg.witness else {
@@ -234,13 +343,25 @@ fn close_witness(cfg: &ProxyConfig) -> Result<()> {
         );
     }
     println!(
-        "{} PNX run {} closed — {} bodies, {} bytes, {} fingerprints",
+        "{} PNX run {} closed — {} bodies, {} bytes, {} fingerprints, {} destinations",
         "causari:".green().bold(),
         run.run_id().cyan(),
         run.witness.bodies,
         run.witness.bytes,
-        run.witness.map.len()
+        run.witness.map.len(),
+        run.reach_destinations()
     );
+    if let Some(sm) = sheet.pointer("/reach/summary") {
+        println!(
+            "  reach   {} connections: {} allowed, {} blocked, {} failed · policy {} {}",
+            sm["connections"],
+            sm["allowed"],
+            sm["blocked"],
+            sm["failed"],
+            sheet["reach"]["policy"]["kind"].as_str().unwrap_or("?"),
+            sheet["reach"]["policy"]["mode"].as_str().unwrap_or("?")
+        );
+    }
     println!(
         "  root    {}",
         sheet["root"].as_str().unwrap_or("?").bright_white()
@@ -427,6 +548,31 @@ fn handle(mut request: tiny_http::Request, cfg: &ProxyConfig, repo: &Repo) -> Re
         .find(|h| h.field.equiv("user-agent"))
         .map(|h| h.value.as_str().to_string());
 
+    // PNX reach: where these bytes are about to go. An enforced policy that
+    // refuses the destination answers here; nothing is forwarded.
+    let dest = destination(&upstream_base);
+    if let Some((host, port)) = &dest {
+        match reach_decide(cfg, host, *port) {
+            Ok(Some(false)) => {
+                let resp = Response::from_string(format!(
+                    "causari proxy: destination {host}:{port} is outside the PNX egress policy; not forwarded"
+                ))
+                .with_status_code(403);
+                let _ = request.respond(resp);
+                return Ok(());
+            }
+            Ok(_) => {}
+            Err(e) => {
+                let resp = Response::from_string(format!(
+                    "causari proxy: PNX witness could not record the destination; not forwarded: {e:#}"
+                ))
+                .with_status_code(503);
+                let _ = request.respond(resp);
+                return Err(e);
+            }
+        }
+    }
+
     // PNX: the bytes about to leave are committed to the run map first. If
     // that fails the body does not leave; the client sees why.
     if let Err(e) = witness_body(cfg, &body) {
@@ -466,6 +612,9 @@ fn handle(mut request: tiny_http::Request, cfg: &ProxyConfig, repo: &Repo) -> Re
     let upstream = match upstream {
         Ok(r) => r,
         Err(e) => {
+            if let Some((host, port)) = &dest {
+                reach_record(cfg, host, *port, "failed", body.len() as u64, 0);
+            }
             let resp = Response::from_string(format!("causari proxy: upstream unreachable: {}", e))
                 .with_status_code(502);
             let _ = request.respond(resp);
@@ -515,6 +664,10 @@ fn handle(mut request: tiny_http::Request, cfg: &ProxyConfig, repo: &Repo) -> Re
     // still evidence: the exchange is recorded as truncated, not dropped.
     let respond_failed = request.respond(response).is_err();
     let truncated = respond_failed || !complete.load(Ordering::SeqCst);
+    if let Some((host, port)) = &dest {
+        let relayed = captured.lock().map(|b| b.len() as u64).unwrap_or(0);
+        reach_record(cfg, host, *port, "allowed", body.len() as u64, relayed);
+    }
 
     if !is_completion_request(&method, &upstream_path) || status >= 400 {
         return Ok(());
@@ -841,18 +994,58 @@ mod tests {
     }
 
     #[test]
+    fn destinations_are_named_from_the_upstream_url() {
+        assert_eq!(
+            destination("https://api.openai.com"),
+            Some(("api.openai.com".into(), 443))
+        );
+        assert_eq!(
+            destination("http://127.0.0.1:4711/v1"),
+            Some(("127.0.0.1".into(), 4711))
+        );
+        assert_eq!(
+            destination("https://User@API.Example.COM:8443/x?y"),
+            Some(("api.example.com".into(), 8443))
+        );
+        assert_eq!(destination("http://[::1]:8080"), Some(("::1".into(), 8080)));
+        assert_eq!(destination("ftp://x"), None);
+        assert_eq!(destination("nonsense"), None);
+    }
+
+    #[test]
     fn witness_mode_records_bodies_before_forwarding_and_signs_on_close() {
         use crate::pnx::{verify_proof, verify_sheet};
         use serde_json::json;
         use std::collections::BTreeMap;
         let tmp = tempfile::tempdir().unwrap();
         let repo = Repo::init(tmp.path()).unwrap();
+        let policy = Policy {
+            allow: vec!["api.openai.com:443".to_string()],
+        };
+        let reach = ReachConfig {
+            capture: "proxy-http".to_string(),
+            policy: Some(policy.clone()),
+            mode: "enforce".to_string(),
+            disclosure: "clear".to_string(),
+        };
         let cfg = ProxyConfig {
             openai: String::new(),
             anthropic: String::new(),
             sealer: None,
-            witness: Some(open_witness(&repo, Some("session-1")).unwrap()),
+            witness: Some(open_witness(&repo, Some("session-1"), reach.clone()).unwrap()),
         };
+        // Where the bytes go is decided before they leave: the policy
+        // refuses the Anthropic upstream, and the refusal is recorded.
+        assert_eq!(
+            reach_decide(&cfg, "api.openai.com", 443).unwrap(),
+            Some(true)
+        );
+        assert_eq!(
+            reach_decide(&cfg, "api.anthropic.com", 443).unwrap(),
+            Some(false)
+        );
+        reach_record(&cfg, "api.openai.com", 443, "allowed", 900, 4200);
+        reach_record(&cfg, "api.openai.com", 443, "allowed", 300, 1000);
         let secret = "sk-live-0123456789abcdef0123456789abcdef0123456789abcdef";
         let leaked = serde_json::to_vec(&json!({"model": "gpt-4o", "messages": [
             {"role": "user", "content": format!("why does this fail? KEY={secret}")}]}))
@@ -874,6 +1067,25 @@ mod tests {
         let sheet = run.sheet().unwrap();
         assert!(verify_sheet(&sheet).is_empty());
         assert_eq!(sheet["egress"]["bodies"], 2);
+        assert_eq!(sheet["reach"]["capture"], "proxy-http");
+        assert_eq!(sheet["reach"]["policy"]["hash"], policy.hash());
+        assert_eq!(
+            sheet["reach"]["summary"],
+            json!({
+                "destinations": 2, "connections": 3, "allowed": 1, "blocked": 1, "failed": 0
+            })
+        );
+        let dests = sheet["reach"]["destinations"].as_array().unwrap();
+        assert_eq!(dests[0]["host"], "api.anthropic.com");
+        assert_eq!(dests[0]["outcome"], "blocked");
+        assert_eq!(dests[1]["host"], "api.openai.com");
+        assert_eq!(
+            (
+                dests[1]["bytes_out"].as_u64(),
+                dests[1]["bytes_in"].as_u64()
+            ),
+            (Some(1200), Some(5200))
+        );
         assert_eq!(
             sheet["witness"]["id"],
             pnx_run::witness_id(&pnx_run::witness_key(&repo).unwrap())
@@ -903,6 +1115,15 @@ mod tests {
         let got: BTreeMap<String, String> = res.assets.into_iter().collect();
         assert_eq!(got["openai"], "present");
         assert_eq!(got["aws"], "absent");
+        // With the policy document the verifier confirms the record.
+        let res = crate::pnx::verify_proof_with(&proof, Some(&supplied), Some(&policy), &[]);
+        assert!(res.ok, "{:?}", res.errors);
+        assert_eq!(res.reach.unwrap().verdict, "within-policy");
+        let wrong = Policy {
+            allow: vec!["example.org".to_string()],
+        };
+        let res = crate::pnx::verify_proof_with(&proof, Some(&supplied), Some(&wrong), &[]);
+        assert!(!res.ok && res.errors[0].contains("policy document does not match"));
 
         // A closed run takes no more bodies: the proxy would refuse to forward.
         assert!(witness_body(&cfg, &clean).is_err());
