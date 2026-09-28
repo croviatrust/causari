@@ -5,6 +5,29 @@ release workflow copies it verbatim. Counts, not adjectives.
 
 ## Unreleased
 
+### PNX
+
+- **Reach record** (PNX draft 0.4 §4a, `crovia.pnx.reach.v1`): the run
+  sheet of `re proxy --pnx` now states where the run connected — every
+  upstream `host:port` the proxy forwarded to, with outcome, connection and
+  byte counts, first and last time — signed with the rest of the sheet.
+  `--pnx-policy FILE` binds a `crovia.pnx.policy.v1` allowlist by hash;
+  under `enforce` (default) destinations outside it are answered 403 and
+  recorded as `blocked`, under `--pnx-reach-mode observe` everything is
+  relayed and recorded. `--pnx-reach-salted` discloses host hashes instead
+  of names. Persisted in `reach.jsonl` and `meta.json`, so a resumed run
+  keeps its policy.
+- `re pnx verify --policy FILE [--name HOST]` recomputes the policy hash,
+  matches every destination against the rules and reports the reach verdict
+  (`within-policy` · `outside-policy` · `unchecked` · `unpoliced`);
+  `outside-policy` exits 1 like `present`. The `--json` report carries
+  `reach`. Without the document the verdict the record alone supports is
+  reported, with a warning.
+- Conformance: `pnx_005_reach.json` added and `pnx_002`–`004` refreshed
+  from crovia-tacet 0.5.0; the reach record a Causari witness derives from
+  the vector's connection log is byte-identical to the reference's. 244
+  unit tests, 8 + 8 integration tests.
+
 ### Install
 
 - `npx causari` and `pipx run causari`: the npm and PyPI launchers are

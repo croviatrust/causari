@@ -66,12 +66,52 @@ the run open with its fingerprint log intact; `re pnx sheet --close` signs
 it, and `re proxy --pnx --pnx-run-id <id>` resumes it with the recorded
 salt.
 
+## Where the run went: the reach record
+
+The fingerprints say what did not leave. The sheet's `reach` member
+(PNX §4a, `crovia.pnx.reach.v1`) says **where** the run connected: every
+upstream `host:port` the proxy forwarded to, with its outcome (`allowed`,
+`blocked`, `failed`), connection and byte counts, first and last time. It is
+signed with the rest of the sheet, and a verifier that predates it ignores
+it.
+
+```bash
+re proxy --pnx --pnx-policy egress-policy.json            # enforce: outside → 403, recorded as blocked
+re proxy --pnx --pnx-policy egress-policy.json --pnx-reach-mode observe   # relay everything, record it
+re proxy --pnx                                            # no policy: destinations stated, not judged
+re pnx verify proof.json --asset api_key=.env --policy egress-policy.json
+```
+
+The policy is a `crovia.pnx.policy.v1` document, an allowlist of `host` or
+`host:port` rules (`*.` matches one or more labels, never the apex):
+
+```json
+{"version": "crovia.pnx.policy.v1", "allow": ["api.openai.com:443", "*.anthropic.com:443"]}
+```
+
+Its SHA-256 (over the CSC-1 encoding) is bound in the record before the run;
+at verification the document is hashed again and, under `enforce`, every
+destination is matched against the rules. The reach verdict is
+`within-policy`, `outside-policy` (a destination was reached that no rule
+allows — exit 1, like `present`), `unchecked` (observe mode and the document
+was not supplied) or `unpoliced` (no policy). `--pnx-reach-salted` puts
+salted host hashes in the sheet instead of names; `re pnx verify --name
+HOST` then answers whether a given host was reached.
+
+What the record says is bounded by what the proxy sees: the upstream of
+each request it routes (`capture: proxy-http`). An agent that connects
+elsewhere without going through the proxy is outside the record, exactly as
+its bytes are outside the map. A refused destination is refused *before*
+the body is witnessed or forwarded; the client gets a 403 naming the
+destination.
+
 ## On disk
 
 ```text
 .causari/pnx/<run_id>/
-  meta.json          salt, parameters, counts, timestamps (rewritten per body)
+  meta.json          salt, parameters, counts, timestamps, reach policy (rewritten per body)
   fingerprints.log   one salted fingerprint per line, appended before forwarding (0600)
+  reach.jsonl        one connection attempt per line: host, port, outcome, bytes (0600)
   sheet.json         the signed run sheet, written once when the run is closed  — public
   proof.json         default output of `re pnx prove`                           — public
 .causari/keys/pnx-witness.key   the witness key (0600), never the seal issuer key
@@ -111,7 +151,8 @@ every asset is absent, otherwise `mixed`.
 It says **nothing** about:
 
 - bytes the witness did not see: traffic that bypassed the proxy, a second
-  agent, TLS the proxy did not terminate, side channels;
+  agent, TLS the proxy did not terminate, side channels — and, for the
+  reach record, connections that did not go through the proxy;
 - paraphrase, translation, summarisation, or encodings not normalised:
   base64, URL-encoding, UTF-16 and compression are outside the proof;
 - assets shorter than 32 bytes;

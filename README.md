@@ -209,13 +209,16 @@ carrying the root. `re pnx prove` then shows, for a set of protected assets,
 that none shared a substring of 47 bytes or more with that traffic — or
 records which did. Sheet and proof contain no traffic bytes and no asset
 bytes, and verify offline with `re pnx verify` or with the Python reference
-`tacet-pnx`, in both directions, same verdicts and exit codes. What a proof
-does and does not say: [`docs/pnx.md`](docs/pnx.md).
+`tacet-pnx`, in both directions, same verdicts and exit codes. The sheet also
+states *where* the run connected — every upstream the proxy forwarded to,
+with its outcome under an egress policy bound by hash (the reach record,
+PNX §4a); a destination outside the policy is refused before the body
+leaves. What a proof does and does not say: [`docs/pnx.md`](docs/pnx.md).
 
 ```bash
-re proxy --pnx                                    # witness a session; Ctrl-C signs the sheet
+re proxy --pnx --pnx-policy egress-policy.json    # witness a session; upstreams outside the policy are refused; Ctrl-C signs the sheet
 re pnx prove --asset api_key=.env --assets-dir src/secret/
-re pnx verify .causari/pnx/<run>/proof.json --asset api_key=.env --assets-dir src/secret/
+re pnx verify .causari/pnx/<run>/proof.json --asset api_key=.env --assets-dir src/secret/ --policy egress-policy.json
 ```
 
 **Audit seals.** `re audit --seal` writes the audit result as the same kind of
