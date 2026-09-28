@@ -12,6 +12,7 @@ mod index;
 mod keys;
 mod object;
 mod pnx;
+mod pnx_reach;
 mod pnx_run;
 mod provenance;
 mod redact;

@@ -1,8 +1,9 @@
 //! PNX runs on disk: `.causari/pnx/<run_id>/`.
 //!
 //! ```text
-//! meta.json         salt, parameters, counts, timestamps; rewritten atomically per body
+//! meta.json         salt, parameters, counts, timestamps, reach policy; rewritten atomically per body
 //! fingerprints.log  one salted fingerprint per line (hex), appended as bodies arrive
+//! reach.jsonl       one connection attempt per line (host, port, outcome, bytes), appended as requests are routed
 //! sheet.json        the signed run sheet, written once when the run is closed (public)
 //! proof.json        default output of `re pnx prove`
 //! ```
@@ -11,7 +12,10 @@
 //! salted SHA-256 digests of 32-byte windows. They still allow membership
 //! tests against guessed strings once the salt is known (the salt is in the
 //! public sheet), so the log is written owner-readable and `.causari/` stays
-//! gitignored. Only `sheet.json` and a proof are meant to leave the machine.
+//! gitignored. `reach.jsonl` names the hosts the run connected to and is
+//! written the same way. Only `sheet.json` and a proof are meant to leave
+//! the machine; the sheet carries the reach record aggregated per
+//! destination (PNX.md §4a).
 //!
 //! Ordering matters for the claim the sheet makes. The proxy records a body
 //! *before* forwarding it: fingerprints are appended to the log, `meta.json`
@@ -27,6 +31,7 @@ use std::path::{Path, PathBuf};
 
 use crate::keys;
 use crate::pnx::{Hash, PROFILE, Params, Witness};
+use crate::pnx_reach::{Policy, ReachLog};
 use crate::repo::Repo;
 
 /// Name of the dedicated witness key under `.causari/keys/`. Never the seal
@@ -35,6 +40,7 @@ pub const WITNESS_KEY_NAME: &str = "pnx-witness";
 const META_FORMAT: &str = "causari.pnx.run.v1";
 const META_FILE: &str = "meta.json";
 const LOG_FILE: &str = "fingerprints.log";
+const REACH_FILE: &str = "reach.jsonl";
 const SHEET_FILE: &str = "sheet.json";
 const PROOF_FILE: &str = "proof.json";
 
@@ -93,11 +99,50 @@ pub fn witness_key(repo: &Repo) -> Result<SigningKey> {
     keys::load_or_create(repo, WITNESS_KEY_NAME)
 }
 
+/// How a run records where it connected (PNX.md §4a). Fixed when the run is
+/// opened; a resumed run keeps what it was opened with.
+#[derive(Clone, Debug)]
+pub struct ReachConfig {
+    /// `proxy-http` for `re proxy`: it sees the upstream of every request it forwards.
+    pub capture: String,
+    /// The allowlist the witness applies, or none (every destination is recorded, none judged).
+    pub policy: Option<Policy>,
+    /// `enforce` (destinations outside the policy are refused) or `observe`.
+    pub mode: String,
+    /// `clear` (host names in the sheet) or `salted` (host hashes).
+    pub disclosure: String,
+}
+
+impl ReachConfig {
+    fn to_json(&self) -> Value {
+        json!({
+            "capture": self.capture,
+            "mode": self.mode,
+            "disclosure": self.disclosure,
+            "policy": self.policy.as_ref().map(Policy::to_json),
+        })
+    }
+
+    fn from_json(v: &Value) -> Result<Self> {
+        let policy = match v.get("policy") {
+            None | Some(Value::Null) => None,
+            Some(doc) => Some(Policy::from_json(doc).context("meta.json: reach.policy")?),
+        };
+        Ok(Self {
+            capture: v["capture"].as_str().unwrap_or("proxy-http").to_string(),
+            mode: v["mode"].as_str().unwrap_or("observe").to_string(),
+            disclosure: v["disclosure"].as_str().unwrap_or("clear").to_string(),
+            policy,
+        })
+    }
+}
+
 /// One run directory with its witness state loaded.
 pub struct Run {
     dir: PathBuf,
     pub witness: Witness,
     opened_at: String,
+    reach: Option<(ReachConfig, ReachLog)>,
 }
 
 impl Run {
@@ -121,6 +166,85 @@ impl Run {
         self.sheet_path().exists()
     }
 
+    /// The reach configuration of this run, if it records where it connects.
+    pub fn reach_config(&self) -> Option<&ReachConfig> {
+        self.reach.as_ref().map(|(c, _)| c)
+    }
+
+    /// Destinations recorded so far.
+    pub fn reach_destinations(&self) -> usize {
+        self.reach.as_ref().map_or(0, |(_, l)| l.destinations())
+    }
+
+    /// Start recording where the run connects. Only on a run that has not
+    /// recorded anything yet: a resumed run keeps the configuration it was
+    /// opened with (it is in `meta.json`), so the sheet describes one policy.
+    pub fn start_reach(&mut self, cfg: ReachConfig) -> Result<()> {
+        if self.is_closed() {
+            bail!("run {:?} is closed", self.witness.run_id);
+        }
+        if let Some((existing, log)) = &self.reach {
+            let same = existing.capture == cfg.capture
+                && existing.mode == cfg.mode
+                && existing.disclosure == cfg.disclosure
+                && existing.policy == cfg.policy;
+            if same {
+                return Ok(());
+            }
+            if !log.is_empty() || self.witness.bodies > 0 {
+                bail!(
+                    "run {:?} was opened with a different reach policy; resume it as it is or choose another --pnx-run-id",
+                    self.witness.run_id
+                );
+            }
+        } else if self.witness.bodies > 0 {
+            bail!(
+                "run {:?} already witnessed {} bodies without a reach record; choose another --pnx-run-id",
+                self.witness.run_id,
+                self.witness.bodies
+            );
+        }
+        let log = ReachLog::new(&cfg.capture, cfg.policy.clone(), &cfg.mode)?;
+        let mut cfg = cfg;
+        cfg.mode = log.mode.clone();
+        self.reach = Some((cfg, log));
+        self.write_meta()
+    }
+
+    /// What the witness does with a connection to `host:port`: `Some("blocked")`
+    /// when the policy is enforced and refuses it, `Some("allowed")` when it
+    /// may be relayed, `None` when this run does not record reach.
+    pub fn reach_decide(&self, host: &str, port: u16) -> Option<&'static str> {
+        self.reach.as_ref().map(|(_, l)| l.decide(host, port))
+    }
+
+    /// Record one connection attempt, persisting before returning. `outcome`
+    /// is what happened (`allowed`, `blocked`, `failed`); `None` lets the
+    /// policy decide. Bytes are counted only for relayed connections.
+    pub fn reach_attempt(
+        &mut self,
+        host: &str,
+        port: u16,
+        at: &str,
+        outcome: Option<&str>,
+        bytes_out: u64,
+        bytes_in: u64,
+    ) -> Result<&'static str> {
+        if self.is_closed() {
+            bail!("run {:?} is closed", self.witness.run_id);
+        }
+        let Some((_, log)) = &mut self.reach else {
+            bail!("run {:?} does not record reach", self.witness.run_id);
+        };
+        let outcome = log.attempt(host, port, at, outcome, bytes_out, bytes_in, None)?;
+        let line = json!({
+            "at": at, "host": host.to_lowercase(), "port": port, "outcome": outcome,
+            "bytes_out": bytes_out, "bytes_in": bytes_in,
+        });
+        append_private(&self.dir.join(REACH_FILE), format!("{line}\n").as_bytes())?;
+        Ok(outcome)
+    }
+
     /// Create a run for witnessing, or resume one that was opened and never
     /// closed (the proxy died). A closed run is refused: its sheet is signed.
     pub fn open(repo: &Repo, run_id: &str, salt: [u8; 16]) -> Result<(Self, bool)> {
@@ -141,6 +265,7 @@ impl Run {
             dir,
             witness: Witness::new(run_id, salt),
             opened_at: now_rfc3339(),
+            reach: None,
         };
         run.write_meta()?;
         Ok((run, false))
@@ -208,10 +333,49 @@ impl Run {
                 witness.map.insert(fp);
             }
         }
+        let reach = match meta.get("reach") {
+            None | Some(Value::Null) => None,
+            Some(v) => {
+                let cfg = ReachConfig::from_json(v)?;
+                let mut log = ReachLog::new(&cfg.capture, cfg.policy.clone(), &cfg.mode)?;
+                let reach_path = dir.join(REACH_FILE);
+                if reach_path.exists() {
+                    let raw = std::fs::read_to_string(&reach_path)
+                        .with_context(|| format!("reading {}", reach_path.display()))?;
+                    for (n, line) in raw.lines().enumerate() {
+                        let line = line.trim();
+                        if line.is_empty() {
+                            continue;
+                        }
+                        let a: Value = serde_json::from_str(line).with_context(|| {
+                            format!("{}:{}: corrupt reach line", reach_path.display(), n + 1)
+                        })?;
+                        let (Some(host), Some(port), Some(at)) = (
+                            a["host"].as_str(),
+                            a["port"].as_u64().and_then(|p| u16::try_from(p).ok()),
+                            a["at"].as_str(),
+                        ) else {
+                            bail!("{}:{}: corrupt reach line", reach_path.display(), n + 1);
+                        };
+                        log.attempt(
+                            host,
+                            port,
+                            at,
+                            a["outcome"].as_str(),
+                            a["bytes_out"].as_u64().unwrap_or(0),
+                            a["bytes_in"].as_u64().unwrap_or(0),
+                            a["ip"].as_str(),
+                        )?;
+                    }
+                }
+                Some((cfg, log))
+            }
+        };
         Ok(Self {
             dir: dir.to_path_buf(),
             witness,
             opened_at: meta["opened_at"].as_str().unwrap_or_default().to_string(),
+            reach,
         })
     }
 
@@ -231,6 +395,7 @@ impl Run {
             "bytes": self.witness.bytes,
             "first_at": self.witness.first_at,
             "last_at": self.witness.last_at,
+            "reach": self.reach.as_ref().map(|(c, _)| c.to_json()),
         });
         keys::write_atomic(
             &self.dir.join(META_FILE),
@@ -266,6 +431,9 @@ impl Run {
                 self.witness.run_id,
                 self.sheet_path().display()
             );
+        }
+        if let Some((cfg, log)) = &self.reach {
+            self.witness.reach = Some(log.record(&self.witness.salt, &cfg.disclosure)?);
         }
         let sheet = self.witness.sheet(key, &witness_id(key), &now_rfc3339())?;
         keys::write_atomic(
