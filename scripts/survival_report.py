@@ -185,10 +185,12 @@ def selection_sentence(root: Path) -> str:
     min_stars = (d.get("selection") or {}).get("min_stars")
     stars = f" and at least {min_stars} stars, most-starred first" if min_stars else ""
     date = str(d.get("discovered_at") or "")[:10]
+    retained = len(d.get("retained") or []) if isinstance(d.get("retained"), list) else 0
+    kept = (f", {retained} of them found in an earlier week and counted again this week" if retained else "")
     return (
         f"the repositories were selected, not drawn at random: {seeds} hand-picked and {found} found by GitHub commit search "
         f"as public repositories with at least {floor} commits carrying the same AI authorship metadata{stars}"
-        f"{' (discovered ' + date + ')' if date else ''}; the selection rule and the counts behind it are public."
+        f"{' (discovered ' + date + kept + ')' if date else ''}; the selection rule and the counts behind it are public."
     )
 
 

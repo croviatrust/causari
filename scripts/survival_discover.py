@@ -34,6 +34,14 @@ Selection rule
     4. Order by ``stargazers_count``, then matching commits, then name;
        keep the hand-picked seeds already in the list; fill up to
        ``--limit`` repositories.
+    5. Retain. The sample is a moving window, so a repository discovered
+       in an earlier week can miss it without anything having changed
+       there. Every previously discovered repository the sample missed is
+       counted again repository-wide (step 2, with the signals it was found
+       with) and kept while it passes step 3. It leaves the list through
+       the floors, an opt-out or disappearance from GitHub, never through
+       the luck of the sample; ``left_list`` in the JSON names the ones
+       that left and ``retained`` the ones kept this way.
 
 Outputs
     .github/survival-repos.txt        header and seeds kept verbatim, then a
@@ -365,6 +373,31 @@ def resolve_seeds(client: Client, seeds: list[str]) -> dict[str, str]:
     return renamed
 
 
+def retain_previous(previous_json: dict[str, Any], previous: list[str], cands: list[dict[str, Any]],
+                    signals: dict[str, str]) -> list[dict[str, Any]]:
+    """Rows for the previously discovered repositories the week's sample
+    missed, ready for `verify_counts`: sampled 0, to be counted with the
+    signals they were found with last time (all signals when the record
+    has none). A repository the sample did find is a candidate already and
+    is not repeated. Seeds are not in `previous` (they live above the
+    marker)."""
+    cand_keys = {r["repo"].lower() for r in cands}
+    prev_rows = {r["repo"].lower(): r for r in (previous_json.get("repositories") or [])
+                 if isinstance(r, dict) and isinstance(r.get("repo"), str) and not r.get("seed")}
+    out: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for name in previous:
+        k = name.lower()
+        if k in cand_keys or k in seen:
+            continue
+        seen.add(k)
+        prev = prev_rows.get(k) or {}
+        found_with = [s for s in (prev.get("by_signal") or {}) if s in signals] or list(signals)
+        out.append({"repo": prev.get("repo") or name, "sampled": 0, "sampled_by_signal": {s: 0 for s in found_with},
+                    "commits": 0, "by_signal": {}, "fork": False, "stars": None, "archived": None, "retained": True})
+    return out
+
+
 def rank_key(r: dict[str, Any]) -> tuple[int, int, str]:
     return (-int(r.get("stars") or 0), -int(r["commits"]), r["repo"].lower())
 
@@ -485,7 +518,19 @@ def discover(client: Client, root: Path, floor: int = FLOOR, limit: int = LIMIT,
     if verify:
         unverified = verify_counts(client, cands, signals)
         client.log(f"survival_discover: counted {len(cands)} candidates repository-wide ({len(unverified)} unverified)")
-    rows = [r for r in cands if r["commits"] >= floor]
+    # 2b. Retain. The sample is a moving window (the ~1,000 most recent
+    # commits per signal), so a repository discovered in an earlier week can
+    # miss it in a busy week without anything having changed there: report
+    # #3 lost 18 of the 30 repositories of report #2 that way. A previously
+    # discovered repository the sample missed is counted again repository-
+    # wide, with the signals it was found with last time, and then faces
+    # the same floors and exclusions as everything else. It leaves the list
+    # through those, never through the luck of the sample.
+    retained = retain_previous(previous_json, _previous, cands, signals) if verify else []
+    if retained:
+        unverified += verify_counts(client, retained, signals)
+        client.log(f"survival_discover: re-counted {len(retained)} previously discovered repositories the sample missed")
+    rows = [r for r in cands + retained if r["commits"] >= floor]
 
     # 3. + 4. floor, exclusions, order, limit
     unavailable = complete_details(client, rows)
@@ -494,15 +539,19 @@ def discover(client: Client, root: Path, floor: int = FLOOR, limit: int = LIMIT,
         client.log(f"survival_discover: seed {old} is now {new} on GitHub; both names count as the seed. "
                    f"Update the hand-picked line to {new}.")
     discovered, dropped = select(rows, seeds, optout, floor, limit, unavailable, min_stars, seed_names)
-    dropped["below_floor"] += len(cands) - len(rows)
+    dropped["below_floor"] += len(cands) + len(retained) - len(rows)
     dropped["not_candidates"] = len(repos) - len(cands)
     dropped["unverified"] = sorted(unverified, key=str.lower)
+    # Previously discovered repositories that are not in the new list, so a
+    # week-to-week change of the sample is a fact in the record, not a guess.
+    kept = {r["repo"].lower() for r in discovered} | {r.get("renamed_from", "").lower() for r in discovered}
+    dropped["left_list"] = sorted((p for p in _previous if p.lower() not in kept), key=str.lower)
 
     def row(r: dict[str, Any], seed: bool) -> dict[str, Any]:
         out = {"repo": r["repo"], "seed": seed, "commits": r["commits"], "by_signal": r["by_signal"], "sampled": r["sampled"],
                "counts": "repository-wide" if r.get("verified") else "sampled",
                "stars": r.get("stars"), "discovered_at": first_seen.get(r["repo"].lower()) or now}
-        for k in ("renamed_from", "incomplete", "details"):
+        for k in ("renamed_from", "incomplete", "details", "retained"):
             if r.get(k):
                 out[k] = r[k]
         return out
@@ -531,7 +580,9 @@ def discover(client: Client, root: Path, floor: int = FLOOR, limit: int = LIMIT,
                     "(a commit carrying two signals counts twice); keep repositories with at least `floor` commits and at least "
                     "`min_stars` stars; drop forks, archived repositories and .github/survival-optout.txt; order by stargazers_count, "
                     "then commits, then name; keep the hand-picked seeds, under the name listed and under the name GitHub now "
-                    "gives them (a renamed seed is never discovered a second time); fill up to `limit`. Rows below are alphabetical.",
+                    "gives them (a renamed seed is never discovered a second time); a repository discovered in an earlier week "
+                    "that the sample missed is counted again repository-wide with the signals it was found with and kept while "
+                    "it passes the same floors (`retained`); fill up to `limit`. Rows below are alphabetical.",
             "floor": floor, "min_stars": min_stars, "limit": limit, "pages": pages, "per_page": per_page, "candidate_min": candidate_min,
             "verify_max": verify_max, "verified": bool(verify), "sort": "author-date desc (most recent first)",
             "qualifiers": f"{QUALIFIERS} author-date:<={today}",
@@ -545,6 +596,8 @@ def discover(client: Client, root: Path, floor: int = FLOOR, limit: int = LIMIT,
         "seeds_renamed": dict(sorted(seed_names.items(), key=lambda kv: kv[0].lower())),
         "repositories": rows_out,
         "candidates": len(cands),
+        "retained": sorted((r["repo"] for r in discovered if r.get("retained")), key=str.lower),
+        "previously_discovered": len(_previous),
         "repositories_sampled": len(repos),
         "dropped": dropped,
     }
@@ -567,6 +620,8 @@ def summary(result: dict[str, Any]) -> str:
             f"{result['selection']['min_stars']} stars, {len(d['fork'])} forks, "
             f"{len(d['archived'])} archived, {len(d['opted_out'])} opted out, {len(d['unavailable'])} unavailable, "
             f"{len(d['over_limit'])} over the limit · {result['requests']} requests"
+            + (f" · retained from earlier weeks: {len(result['retained'])}" if result.get("retained") else "")
+            + (f" · left the list: {', '.join(d['left_list'])}" if d.get("left_list") else "")
             + (f" · incomplete: {', '.join(result['incomplete_signals'])}" if result["incomplete_signals"] else "")
             + (f" · seeds renamed: {', '.join(f'{a} → {b}' for a, b in result['seeds_renamed'].items())}" if result.get("seeds_renamed") else ""))
 

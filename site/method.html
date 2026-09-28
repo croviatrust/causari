@@ -212,7 +212,12 @@ re seal verify audit.seal.json  <span class="dim"># or drop the file on causari.
   forks, archived repositories and every line of <code translate="no">.github/survival-optout.txt</code>
   are dropped; the remaining ones are ordered by stars, then by that count, then by name, and the list
   is filled up to 100 with the hand-picked repositories kept; when fewer clear the floor, the list is
-  shorter, not padded. Stars first, because a raw commit count
+  shorter, not padded. The sample is a moving window (the most recent commits per signal), so a
+  repository found one week can miss it the next without anything having changed there: every
+  repository discovered in an earlier week that the sample missed is counted again repository-wide,
+  with the signals it was found with, and stays while it passes the same floors. A repository leaves
+  the list through the floors, an opt-out or its disappearance from GitHub, never through the luck of
+  the sample; the discovery record names the ones retained that way and the ones that left. Stars first, because a raw commit count
   selects contribution-graph painters and mirrors of large projects, which say nothing about how AI code
   fares in software people use. That order exists only to choose the sample: the list file and every
   report page stay alphabetical. The counts behind each selection are published in
