@@ -8,15 +8,22 @@ name: survival-report
 #   re audit <owner/repo> --json
 # Maintainers opt out with one line in .github/survival-optout.txt.
 #
-# Method v2 refuses shallow clones, so every repository is cloned in full
-# before it is measured. The list (up to 100 repositories, filled weekly by
-# survival-discover.yml) is audited by a matrix of SHARDS jobs: shard k
-# takes every repository whose index in the list is k mod SHARDS, uploads
-# its results as an artifact, and the report job merges the shards, builds
-# the report and commits it to main, append-only.
+# The method (v2 and later) refuses shallow clones, so every repository is
+# cloned in full before it is measured. The list (up to 100 repositories,
+# filled weekly by survival-discover.yml) is audited by a matrix of SHARDS
+# jobs: shard k takes every repository whose index in the list is k mod
+# SHARDS, uploads its results as an artifact, and the report job merges the
+# shards, builds the report and commits it to main, append-only.
+#
+# GitHub starts scheduled runs late on quiet repositories: report #3 was
+# scheduled for 05:17 UTC and started at 11:42. The schedule is therefore a
+# floor, not a clock. An operator may fire the run on time from an external
+# cron with `gh workflow run survival-report.yml` (Actions: write); the gate
+# job below keeps a late schedule from producing a second report in the
+# same week.
 on:
   schedule:
-    - cron: "17 5 * * 1" # every Monday, 05:17 UTC
+    - cron: "17 5 * * 1" # every Monday, 05:17 UTC (started 6 h late on 2026-09-28)
   workflow_dispatch:
     inputs:
       deposit:
@@ -46,13 +53,41 @@ env:
   AUDIT_TIMEOUT_S: 10800
 
 jobs:
+  # One report per week. A scheduled run that finds a report less than six
+  # days old (an operator fired the run on time, or the schedule fired twice)
+  # does nothing, and says so. Manual runs are never gated: the operator
+  # decides.
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.gate.outputs.run }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - id: gate
+        run: |
+          set -euo pipefail
+          LAST="$(jq -r '.date // empty' site/reports/survival/latest.json 2>/dev/null || true)"
+          if [ "${{ github.event_name }}" = "schedule" ] && [ -n "$LAST" ]; then
+            AGE_DAYS=$(( ( $(date -u +%s) - $(date -u -d "$LAST" +%s) ) / 86400 ))
+            if [ "$AGE_DAYS" -lt 6 ]; then
+              echo "::notice title=No report this run::the latest report is dated $LAST ($AGE_DAYS days ago); one report per week."
+              echo "run=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+          echo "run=true" >> "$GITHUB_OUTPUT"
+
   # One job per shard (up to five repositories each at a 100-repository
   # list). A repository that fails to clone or to audit is recorded in the
   # shard's `failed` list and never fails the job; a shard that hits its own
   # timeout leaves its remaining repositories unreported, and the merge
   # records those as failed too.
   audit:
-    if: ${{ !inputs.deposit_only }}
+    needs: gate
+    if: ${{ needs.gate.outputs.run == 'true' && !inputs.deposit_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 350
     strategy:
@@ -136,11 +171,15 @@ jobs:
             rm -rf "$CLONE"
             echo "::endgroup::"
           done
-          jq -n --arg now "$NOW" --arg ver "$(re --version | awk '{print $2}')" --argjson shard "$K" \
+          # The method version is what the binary says (coverage.method of any
+          # audit), never a constant written here: report #3 was method v3
+          # while this file still said v2.
+          METHOD="$(jq -rn 'first(inputs | .coverage.method // empty)' "$RUN"/*__*.json 2>/dev/null || true)"
+          jq -n --arg now "$NOW" --arg ver "$(re --version | awk '{print $2}')" --argjson shard "$K" --arg method "${METHOD:-}" \
             --argjson repos "$(printf '%s\n' "${REPOS[@]:-}" | grep -v '^$' | jq -R . | jq -s .)" \
             --argjson failed "$(printf '%s\n' "${FAILED[@]:-}" | grep -v '^$' | jq -R . | jq -s .)" \
             --argjson opted "$(printf '%s\n' "${OPTED[@]:-}" | grep -v '^$' | jq -R . | jq -s .)" \
-            '{generated_at: $now, tool: "causari", tool_version: $ver, method: "v2",
+            '{generated_at: $now, tool: "causari", tool_version: $ver, method: (if $method == "" then null else $method end),
               command: "re audit <owner/repo> --json", repos: $repos, failed: $failed, opted_out: $opted, shard: $shard}' \
             > "$RUN/run-shard-$K.json"
           cat "$RUN/run-shard-$K.json"
@@ -157,10 +196,10 @@ jobs:
           retention-days: 14
 
   report:
-    needs: audit
+    needs: [gate, audit]
     # Runs whether or not every shard succeeded, and when the matrix was
-    # skipped for deposit_only.
-    if: ${{ always() }}
+    # skipped for deposit_only; never when the gate said no.
+    if: ${{ always() && needs.gate.outputs.run == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -230,7 +269,7 @@ jobs:
           git config user.email "noreply@causari.dev"
           git add site/reports/survival site/r site/_redirects site/sitemap.xml
           if git diff --cached --quiet; then echo "no changes"; exit 0; fi
-          git commit -s -m "report: $(jq -r .title "${{ steps.build.outputs.dir }}/report.json") ($(jq -r .date "${{ steps.build.outputs.dir }}/report.json"), method v2)"
+          git commit -s -m "report: $(jq -r .title "${{ steps.build.outputs.dir }}/report.json") ($(jq -r .date "${{ steps.build.outputs.dir }}/report.json"), method $(jq -r .method.version "${{ steps.build.outputs.dir }}/report.json"))"
           git pull --rebase origin main
           if ! git push origin HEAD:main; then
             echo "::error title=Report not pushed::branch protection rejected the push. Add the secret REPORT_PUSH_TOKEN (admin PAT, Contents: read and write) or push the artifact by hand."
