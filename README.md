@@ -24,6 +24,8 @@
   <a href="https://causari.dev/r/croviatrust/causari/"><img alt="AI code survival, measured by this tool on its own repository" src="https://causari.dev/r/croviatrust/causari/badge.svg"></a>
 </p>
 
+<p align="center"><sub>Causari by Crovia Trust: the <code>causari</code> / <code>re</code> binary, the <code>causari</code> package on npm, PyPI and crates.io, the MCP server <code>io.github.croviatrust/causari</code>. Not related to causari.ai, the GitHub organisation <code>causari</code> or the npm scope <code>@causari</code> (a causal knowledge graph by another team).</sub></p>
+
 ---
 
 ```bash

@@ -6,6 +6,13 @@
 > (prompt, model, reads, writes) behind every change an AI agent makes.
 > Apache-2.0, local-first, no telemetry, verifiable offline.
 
+Name: this is Causari by Crovia Trust (causari.dev, github.com/croviatrust/causari):
+the `causari` / `re` binary, the `causari` package on npm, PyPI and crates.io, the
+MCP server `io.github.croviatrust/causari`. It is not related to causari.ai, the
+GitHub organisation `causari` or the npm scope `@causari` (a causal knowledge
+graph and MCP server by another team). Cite the software with CITATION.cff in the
+repository; cite a Survival Report with its own DOI.
+
 Ways to use Causari without installing anything:
 - Weekly Survival Report on open-source repositories:
   https://causari.dev/reports/survival/ (numbered, dated, citable; counts

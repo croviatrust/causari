@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: >-
+  If you use Causari, cite the software with this file. A Survival Report
+  has its own DOI (https://causari.dev/reports/survival/) and is cited on
+  its own; the software and a report are different objects.
+type: software
+title: Causari
+abstract: >-
+  Measures how many lines from AI-tagged commits are still alive in a git
+  repository, with the same repository's untagged lines as the baseline,
+  and records the prompt, model and files behind every agent edit in a
+  local, append-only ledger. Counts and intervals, not grades. Verifiable
+  offline. This is Causari by Crovia Trust (causari.dev), not related to
+  causari.ai or the npm scope @causari.
+authors:
+  - name: Crovia Trust
+    email: info@croviatrust.com
+    website: https://croviatrust.com
+version: 0.3.0
+date-released: 2026-09-24
+license: Apache-2.0
+repository-code: https://github.com/croviatrust/causari
+url: https://causari.dev
+keywords:
+  - AI-generated code
+  - code survival
+  - git blame
+  - provenance
+  - software engineering measurement
+  - Model Context Protocol
+references:
+  - type: generic
+    title: Causari method (detection rules, computation, limits)
+    url: https://causari.dev/method
+    authors:
+      - name: Crovia Trust
+  - type: report
+    title: Causari Survival Report (weekly series, one DOI per report)
+    url: https://causari.dev/reports/survival/
+    authors:
+      - name: Crovia Trust
