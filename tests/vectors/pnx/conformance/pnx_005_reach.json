@@ -1,0 +1,1854 @@
+{
+  "domain_reach": "CROVIA-PNX-REACH-v1\n",
+  "host_hashes": {
+    "api.github.com": "d276274a2b3c8ad454b35d39395cf0cd0208d3dab0098785dd4b638990cc29ef",
+    "example.org": "4e084a896827f88dfc9054ba43fee389dbcc5cb9f7e41da91446d268de3bb998",
+    "pastebin.com": "846d70a87d13ef1dbd30239246080e155483682f1bea48167c391579c58734d0"
+  },
+  "invalid": {
+    "blocked_destination_the_policy_allows": {
+      "expect_error_contains": "inconsistent witness",
+      "sheet": {
+        "closed_at": "2026-09-20T12:00:00Z",
+        "egress": {
+          "bodies": 4,
+          "bytes": 1739,
+          "first_at": "2026-09-20T11:00:00Z",
+          "last_at": "2026-09-20T11:15:00Z"
+        },
+        "fingerprints": 198,
+        "normalization": [
+          "json-strings-v1"
+        ],
+        "params": {
+          "hash": "sha256",
+          "k_gram": 32,
+          "threshold": 47,
+          "window": 16
+        },
+        "profile": "crovia.pnx.v1",
+        "reach": {
+          "capture": "proxy-connect",
+          "destinations": [
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 3,
+              "first_at": "2026-09-20T11:00:05Z",
+              "host": "api.github.com",
+              "ips": [
+                "140.82.112.5",
+                "140.82.112.6"
+              ],
+              "last_at": "2026-09-20T11:07:00Z",
+              "outcome": "blocked",
+              "port": 443
+            },
+            {
+              "bytes_in": 8000,
+              "bytes_out": 1200,
+              "connections": 1,
+              "first_at": "2026-09-20T11:04:00Z",
+              "host": "github.com",
+              "ips": [
+                "140.82.121.4"
+              ],
+              "last_at": "2026-09-20T11:04:00Z",
+              "outcome": "allowed",
+              "port": 22
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:06:00Z",
+              "host": "githubusercontent.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:06:00Z",
+              "outcome": "blocked",
+              "port": 443
+            },
+            {
+              "bytes_in": 700000,
+              "bytes_out": 300,
+              "connections": 1,
+              "first_at": "2026-09-20T11:03:00Z",
+              "host": "objects.githubusercontent.com",
+              "ips": [
+                "185.199.108.133"
+              ],
+              "last_at": "2026-09-20T11:03:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host": "pastebin.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "blocked",
+              "port": 443
+            }
+          ],
+          "disclosure": "clear",
+          "policy": {
+            "hash": "sha256:7c6e48cc6e2ffec86addef28336bf731aaa05153d7576c991e575e164a5f0e6a",
+            "kind": "allowlist",
+            "mode": "enforce",
+            "rules": 3
+          },
+          "summary": {
+            "allowed": 2,
+            "blocked": 3,
+            "connections": 7,
+            "destinations": 5,
+            "failed": 0
+          },
+          "version": "crovia.pnx.reach.v1"
+        },
+        "root": "sha256:e3e31b945a8907927d8bfd3b44cc1e53aadbc728ea59783634fe602835db332e",
+        "run_id": "conformance/run-001",
+        "salt_hex": "47dfe6cc13a8b4cbef0863bb1891a0a5",
+        "signature": {
+          "alg": "ed25519",
+          "domain": "CROVIA-PNX-SHEET-v1",
+          "sig_hex": "b9899f7f3bc0b1840f1ff8a8184400a4598d2109f0e20d37824c6c185ff20053a9687030197455af43d606d7208bfcdb66348126f91345bfe38b784093dbfa0c"
+        },
+        "witness": {
+          "id": "urn:crovia:pnx-witness:fixture",
+          "pubkey": {
+            "alg": "ed25519",
+            "key_hex": "b3c8f805e787a0a3c9d752d5dc908f1dcde5b9cdf87aa09f888b8f052e2d0520"
+          }
+        }
+      },
+      "with_policy": true
+    },
+    "blocked_without_policy": {
+      "expect_error_contains": "blocked without a policy",
+      "sheet": {
+        "closed_at": "2026-09-20T12:00:00Z",
+        "egress": {
+          "bodies": 4,
+          "bytes": 1739,
+          "first_at": "2026-09-20T11:00:00Z",
+          "last_at": "2026-09-20T11:15:00Z"
+        },
+        "fingerprints": 198,
+        "normalization": [
+          "json-strings-v1"
+        ],
+        "params": {
+          "hash": "sha256",
+          "k_gram": 32,
+          "threshold": 47,
+          "window": 16
+        },
+        "profile": "crovia.pnx.v1",
+        "reach": {
+          "capture": "proxy-connect",
+          "destinations": [
+            {
+              "bytes_in": 90200,
+              "bytes_out": 4300,
+              "connections": 3,
+              "first_at": "2026-09-20T11:00:05Z",
+              "host": "api.github.com",
+              "ips": [
+                "140.82.112.5",
+                "140.82.112.6"
+              ],
+              "last_at": "2026-09-20T11:07:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 8000,
+              "bytes_out": 1200,
+              "connections": 1,
+              "first_at": "2026-09-20T11:04:00Z",
+              "host": "github.com",
+              "ips": [
+                "140.82.121.4"
+              ],
+              "last_at": "2026-09-20T11:04:00Z",
+              "outcome": "allowed",
+              "port": 22
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 10,
+              "connections": 1,
+              "first_at": "2026-09-20T11:06:00Z",
+              "host": "githubusercontent.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:06:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 700000,
+              "bytes_out": 300,
+              "connections": 1,
+              "first_at": "2026-09-20T11:03:00Z",
+              "host": "objects.githubusercontent.com",
+              "ips": [
+                "185.199.108.133"
+              ],
+              "last_at": "2026-09-20T11:03:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host": "pastebin.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "blocked",
+              "port": 443
+            }
+          ],
+          "disclosure": "clear",
+          "policy": {
+            "hash": null,
+            "kind": "none",
+            "mode": "observe",
+            "rules": 0
+          },
+          "summary": {
+            "allowed": 4,
+            "blocked": 1,
+            "connections": 7,
+            "destinations": 5,
+            "failed": 0
+          },
+          "version": "crovia.pnx.reach.v1"
+        },
+        "root": "sha256:e3e31b945a8907927d8bfd3b44cc1e53aadbc728ea59783634fe602835db332e",
+        "run_id": "conformance/run-001",
+        "salt_hex": "47dfe6cc13a8b4cbef0863bb1891a0a5",
+        "signature": {
+          "alg": "ed25519",
+          "domain": "CROVIA-PNX-SHEET-v1",
+          "sig_hex": "abca2f93d3269794497af2111ee8c45b34cab7ff0a115b4e58ba741bf803ea86da502222a0b30076b39b877b705763f1c5187a81215dec1a99bbd9f4d34d1807"
+        },
+        "witness": {
+          "id": "urn:crovia:pnx-witness:fixture",
+          "pubkey": {
+            "alg": "ed25519",
+            "key_hex": "b3c8f805e787a0a3c9d752d5dc908f1dcde5b9cdf87aa09f888b8f052e2d0520"
+          }
+        }
+      },
+      "with_policy": false
+    },
+    "duplicate_destination": {
+      "expect_error_contains": "duplicate destination",
+      "sheet": {
+        "closed_at": "2026-09-20T12:00:00Z",
+        "egress": {
+          "bodies": 4,
+          "bytes": 1739,
+          "first_at": "2026-09-20T11:00:00Z",
+          "last_at": "2026-09-20T11:15:00Z"
+        },
+        "fingerprints": 198,
+        "normalization": [
+          "json-strings-v1"
+        ],
+        "params": {
+          "hash": "sha256",
+          "k_gram": 32,
+          "threshold": 47,
+          "window": 16
+        },
+        "profile": "crovia.pnx.v1",
+        "reach": {
+          "capture": "proxy-connect",
+          "destinations": [
+            {
+              "bytes_in": 90200,
+              "bytes_out": 4300,
+              "connections": 3,
+              "first_at": "2026-09-20T11:00:05Z",
+              "host": "api.github.com",
+              "ips": [
+                "140.82.112.5",
+                "140.82.112.6"
+              ],
+              "last_at": "2026-09-20T11:07:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 8000,
+              "bytes_out": 1200,
+              "connections": 1,
+              "first_at": "2026-09-20T11:04:00Z",
+              "host": "github.com",
+              "ips": [
+                "140.82.121.4"
+              ],
+              "last_at": "2026-09-20T11:04:00Z",
+              "outcome": "allowed",
+              "port": 22
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:06:00Z",
+              "host": "githubusercontent.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:06:00Z",
+              "outcome": "blocked",
+              "port": 443
+            },
+            {
+              "bytes_in": 700000,
+              "bytes_out": 300,
+              "connections": 1,
+              "first_at": "2026-09-20T11:03:00Z",
+              "host": "objects.githubusercontent.com",
+              "ips": [
+                "185.199.108.133"
+              ],
+              "last_at": "2026-09-20T11:03:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host": "pastebin.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "blocked",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host": "pastebin.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "blocked",
+              "port": 443
+            }
+          ],
+          "disclosure": "clear",
+          "policy": {
+            "hash": "sha256:7c6e48cc6e2ffec86addef28336bf731aaa05153d7576c991e575e164a5f0e6a",
+            "kind": "allowlist",
+            "mode": "enforce",
+            "rules": 3
+          },
+          "summary": {
+            "allowed": 3,
+            "blocked": 3,
+            "connections": 8,
+            "destinations": 6,
+            "failed": 0
+          },
+          "version": "crovia.pnx.reach.v1"
+        },
+        "root": "sha256:e3e31b945a8907927d8bfd3b44cc1e53aadbc728ea59783634fe602835db332e",
+        "run_id": "conformance/run-001",
+        "salt_hex": "47dfe6cc13a8b4cbef0863bb1891a0a5",
+        "signature": {
+          "alg": "ed25519",
+          "domain": "CROVIA-PNX-SHEET-v1",
+          "sig_hex": "266963c0448649438e5700425e8c763928aae1ab9a8458e7d97caa475ecc923018ea391248b79a7d419fc9f21944f0218a46b6ef78965fe5a0e9bce7da5ff202"
+        },
+        "witness": {
+          "id": "urn:crovia:pnx-witness:fixture",
+          "pubkey": {
+            "alg": "ed25519",
+            "key_hex": "b3c8f805e787a0a3c9d752d5dc908f1dcde5b9cdf87aa09f888b8f052e2d0520"
+          }
+        }
+      },
+      "with_policy": false
+    },
+    "host_under_salted": {
+      "expect_error_contains": "not allowed under salted",
+      "sheet": {
+        "closed_at": "2026-09-20T12:00:00Z",
+        "egress": {
+          "bodies": 4,
+          "bytes": 1739,
+          "first_at": "2026-09-20T11:00:00Z",
+          "last_at": "2026-09-20T11:15:00Z"
+        },
+        "fingerprints": 198,
+        "normalization": [
+          "json-strings-v1"
+        ],
+        "params": {
+          "hash": "sha256",
+          "k_gram": 32,
+          "threshold": 47,
+          "window": 16
+        },
+        "profile": "crovia.pnx.v1",
+        "reach": {
+          "capture": "proxy-connect",
+          "destinations": [
+            {
+              "bytes_in": 8000,
+              "bytes_out": 1200,
+              "connections": 1,
+              "first_at": "2026-09-20T11:04:00Z",
+              "host": "api.github.com",
+              "host_hash": "3d0610692fe319e5bed92bd516d36560c8b89c89a31314a39c64fc7045baf674",
+              "ips": [
+                "140.82.121.4"
+              ],
+              "last_at": "2026-09-20T11:04:00Z",
+              "outcome": "allowed",
+              "port": 22
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host_hash": "846d70a87d13ef1dbd30239246080e155483682f1bea48167c391579c58734d0",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "blocked",
+              "port": 443
+            },
+            {
+              "bytes_in": 700000,
+              "bytes_out": 300,
+              "connections": 1,
+              "first_at": "2026-09-20T11:03:00Z",
+              "host_hash": "90434d17ae8fe69f56d895de82a631996cf9ea5c81dc04b3c357a1254dc8b1e6",
+              "ips": [
+                "185.199.108.133"
+              ],
+              "last_at": "2026-09-20T11:03:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 90200,
+              "bytes_out": 4300,
+              "connections": 3,
+              "first_at": "2026-09-20T11:00:05Z",
+              "host_hash": "d276274a2b3c8ad454b35d39395cf0cd0208d3dab0098785dd4b638990cc29ef",
+              "ips": [
+                "140.82.112.5",
+                "140.82.112.6"
+              ],
+              "last_at": "2026-09-20T11:07:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:06:00Z",
+              "host_hash": "f5bb87552c61590cdb40949e774a667ef45c6f3ebf28d895fdf85e93ac8a9741",
+              "ips": [],
+              "last_at": "2026-09-20T11:06:00Z",
+              "outcome": "blocked",
+              "port": 443
+            }
+          ],
+          "disclosure": "salted",
+          "policy": {
+            "hash": "sha256:7c6e48cc6e2ffec86addef28336bf731aaa05153d7576c991e575e164a5f0e6a",
+            "kind": "allowlist",
+            "mode": "enforce",
+            "rules": 3
+          },
+          "summary": {
+            "allowed": 3,
+            "blocked": 2,
+            "connections": 7,
+            "destinations": 5,
+            "failed": 0
+          },
+          "version": "crovia.pnx.reach.v1"
+        },
+        "root": "sha256:e3e31b945a8907927d8bfd3b44cc1e53aadbc728ea59783634fe602835db332e",
+        "run_id": "conformance/run-001",
+        "salt_hex": "47dfe6cc13a8b4cbef0863bb1891a0a5",
+        "signature": {
+          "alg": "ed25519",
+          "domain": "CROVIA-PNX-SHEET-v1",
+          "sig_hex": "fdfa2634b3b56d0a11fed23e2c201948640df0fdd0b44dedcf1b756faf73f3fdc86b9d92a255eda29f0ddf76dc6724f4e61ada2c72d0eec8da3281a495e98807"
+        },
+        "witness": {
+          "id": "urn:crovia:pnx-witness:fixture",
+          "pubkey": {
+            "alg": "ed25519",
+            "key_hex": "b3c8f805e787a0a3c9d752d5dc908f1dcde5b9cdf87aa09f888b8f052e2d0520"
+          }
+        }
+      },
+      "with_policy": false
+    },
+    "policy_hash_mismatch": {
+      "expect_error_contains": "does not match the record",
+      "sheet": {
+        "closed_at": "2026-09-20T12:00:00Z",
+        "egress": {
+          "bodies": 4,
+          "bytes": 1739,
+          "first_at": "2026-09-20T11:00:00Z",
+          "last_at": "2026-09-20T11:15:00Z"
+        },
+        "fingerprints": 198,
+        "normalization": [
+          "json-strings-v1"
+        ],
+        "params": {
+          "hash": "sha256",
+          "k_gram": 32,
+          "threshold": 47,
+          "window": 16
+        },
+        "profile": "crovia.pnx.v1",
+        "reach": {
+          "capture": "proxy-connect",
+          "destinations": [
+            {
+              "bytes_in": 90200,
+              "bytes_out": 4300,
+              "connections": 3,
+              "first_at": "2026-09-20T11:00:05Z",
+              "host": "api.github.com",
+              "ips": [
+                "140.82.112.5",
+                "140.82.112.6"
+              ],
+              "last_at": "2026-09-20T11:07:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 8000,
+              "bytes_out": 1200,
+              "connections": 1,
+              "first_at": "2026-09-20T11:04:00Z",
+              "host": "github.com",
+              "ips": [
+                "140.82.121.4"
+              ],
+              "last_at": "2026-09-20T11:04:00Z",
+              "outcome": "allowed",
+              "port": 22
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:06:00Z",
+              "host": "githubusercontent.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:06:00Z",
+              "outcome": "blocked",
+              "port": 443
+            },
+            {
+              "bytes_in": 700000,
+              "bytes_out": 300,
+              "connections": 1,
+              "first_at": "2026-09-20T11:03:00Z",
+              "host": "objects.githubusercontent.com",
+              "ips": [
+                "185.199.108.133"
+              ],
+              "last_at": "2026-09-20T11:03:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host": "pastebin.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "blocked",
+              "port": 443
+            }
+          ],
+          "disclosure": "clear",
+          "policy": {
+            "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            "kind": "allowlist",
+            "mode": "enforce",
+            "rules": 3
+          },
+          "summary": {
+            "allowed": 3,
+            "blocked": 2,
+            "connections": 7,
+            "destinations": 5,
+            "failed": 0
+          },
+          "version": "crovia.pnx.reach.v1"
+        },
+        "root": "sha256:e3e31b945a8907927d8bfd3b44cc1e53aadbc728ea59783634fe602835db332e",
+        "run_id": "conformance/run-001",
+        "salt_hex": "47dfe6cc13a8b4cbef0863bb1891a0a5",
+        "signature": {
+          "alg": "ed25519",
+          "domain": "CROVIA-PNX-SHEET-v1",
+          "sig_hex": "ddb9fc9fb4700f2d15026bbf1f2902f9ed7611abb61b84c812740c99d201bf6554f7cc4e9fbc0caaf00710ec47a54a7e67afb9d24e60b603a173a1915b3a3a09"
+        },
+        "witness": {
+          "id": "urn:crovia:pnx-witness:fixture",
+          "pubkey": {
+            "alg": "ed25519",
+            "key_hex": "b3c8f805e787a0a3c9d752d5dc908f1dcde5b9cdf87aa09f888b8f052e2d0520"
+          }
+        }
+      },
+      "with_policy": true
+    },
+    "tampered_record_unchanged_signature": {
+      "expect_error_contains": "witness signature invalid",
+      "sheet": {
+        "closed_at": "2026-09-20T12:00:00Z",
+        "egress": {
+          "bodies": 4,
+          "bytes": 1739,
+          "first_at": "2026-09-20T11:00:00Z",
+          "last_at": "2026-09-20T11:15:00Z"
+        },
+        "fingerprints": 198,
+        "normalization": [
+          "json-strings-v1"
+        ],
+        "params": {
+          "hash": "sha256",
+          "k_gram": 32,
+          "threshold": 47,
+          "window": 16
+        },
+        "profile": "crovia.pnx.v1",
+        "reach": {
+          "capture": "proxy-connect",
+          "destinations": [
+            {
+              "bytes_in": 90200,
+              "bytes_out": 4300,
+              "connections": 3,
+              "first_at": "2026-09-20T11:00:05Z",
+              "host": "api.github.com",
+              "ips": [
+                "140.82.112.5",
+                "140.82.112.6"
+              ],
+              "last_at": "2026-09-20T11:07:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 8000,
+              "bytes_out": 1200,
+              "connections": 1,
+              "first_at": "2026-09-20T11:04:00Z",
+              "host": "github.com",
+              "ips": [
+                "140.82.121.4"
+              ],
+              "last_at": "2026-09-20T11:04:00Z",
+              "outcome": "allowed",
+              "port": 22
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:06:00Z",
+              "host": "githubusercontent.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:06:00Z",
+              "outcome": "blocked",
+              "port": 443
+            },
+            {
+              "bytes_in": 700000,
+              "bytes_out": 300,
+              "connections": 1,
+              "first_at": "2026-09-20T11:03:00Z",
+              "host": "objects.githubusercontent.com",
+              "ips": [
+                "185.199.108.133"
+              ],
+              "last_at": "2026-09-20T11:03:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host": "pastebin.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "allowed",
+              "port": 443
+            }
+          ],
+          "disclosure": "clear",
+          "policy": {
+            "hash": "sha256:7c6e48cc6e2ffec86addef28336bf731aaa05153d7576c991e575e164a5f0e6a",
+            "kind": "allowlist",
+            "mode": "enforce",
+            "rules": 3
+          },
+          "summary": {
+            "allowed": 4,
+            "blocked": 1,
+            "connections": 7,
+            "destinations": 5,
+            "failed": 0
+          },
+          "version": "crovia.pnx.reach.v1"
+        },
+        "root": "sha256:e3e31b945a8907927d8bfd3b44cc1e53aadbc728ea59783634fe602835db332e",
+        "run_id": "conformance/run-001",
+        "salt_hex": "47dfe6cc13a8b4cbef0863bb1891a0a5",
+        "signature": {
+          "alg": "ed25519",
+          "domain": "CROVIA-PNX-SHEET-v1",
+          "sig_hex": "f6f679298c3c61b31ddaf83663a9d1f318b6dcd5d7f55997aefb1083b99f3be94c1d8fbf952b9ad2f938ec841eb2ec757628404b498aeb07ce90a2720b6d5b0d"
+        },
+        "witness": {
+          "id": "urn:crovia:pnx-witness:fixture",
+          "pubkey": {
+            "alg": "ed25519",
+            "key_hex": "b3c8f805e787a0a3c9d752d5dc908f1dcde5b9cdf87aa09f888b8f052e2d0520"
+          }
+        }
+      },
+      "with_policy": false
+    },
+    "unknown_capture": {
+      "expect_error_contains": "unknown capture",
+      "sheet": {
+        "closed_at": "2026-09-20T12:00:00Z",
+        "egress": {
+          "bodies": 4,
+          "bytes": 1739,
+          "first_at": "2026-09-20T11:00:00Z",
+          "last_at": "2026-09-20T11:15:00Z"
+        },
+        "fingerprints": 198,
+        "normalization": [
+          "json-strings-v1"
+        ],
+        "params": {
+          "hash": "sha256",
+          "k_gram": 32,
+          "threshold": 47,
+          "window": 16
+        },
+        "profile": "crovia.pnx.v1",
+        "reach": {
+          "capture": "telepathy",
+          "destinations": [
+            {
+              "bytes_in": 90200,
+              "bytes_out": 4300,
+              "connections": 3,
+              "first_at": "2026-09-20T11:00:05Z",
+              "host": "api.github.com",
+              "ips": [
+                "140.82.112.5",
+                "140.82.112.6"
+              ],
+              "last_at": "2026-09-20T11:07:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 8000,
+              "bytes_out": 1200,
+              "connections": 1,
+              "first_at": "2026-09-20T11:04:00Z",
+              "host": "github.com",
+              "ips": [
+                "140.82.121.4"
+              ],
+              "last_at": "2026-09-20T11:04:00Z",
+              "outcome": "allowed",
+              "port": 22
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:06:00Z",
+              "host": "githubusercontent.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:06:00Z",
+              "outcome": "blocked",
+              "port": 443
+            },
+            {
+              "bytes_in": 700000,
+              "bytes_out": 300,
+              "connections": 1,
+              "first_at": "2026-09-20T11:03:00Z",
+              "host": "objects.githubusercontent.com",
+              "ips": [
+                "185.199.108.133"
+              ],
+              "last_at": "2026-09-20T11:03:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host": "pastebin.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "blocked",
+              "port": 443
+            }
+          ],
+          "disclosure": "clear",
+          "policy": {
+            "hash": "sha256:7c6e48cc6e2ffec86addef28336bf731aaa05153d7576c991e575e164a5f0e6a",
+            "kind": "allowlist",
+            "mode": "enforce",
+            "rules": 3
+          },
+          "summary": {
+            "allowed": 3,
+            "blocked": 2,
+            "connections": 7,
+            "destinations": 5,
+            "failed": 0
+          },
+          "version": "crovia.pnx.reach.v1"
+        },
+        "root": "sha256:e3e31b945a8907927d8bfd3b44cc1e53aadbc728ea59783634fe602835db332e",
+        "run_id": "conformance/run-001",
+        "salt_hex": "47dfe6cc13a8b4cbef0863bb1891a0a5",
+        "signature": {
+          "alg": "ed25519",
+          "domain": "CROVIA-PNX-SHEET-v1",
+          "sig_hex": "2d4f356e120ca79de9aeea74e51732b5a51d68b831b4d245a73bba4d4b65f08027076bb1633d745b3c962d45105922d9dc2ea67ea1fb59ffc2316599779b0d0e"
+        },
+        "witness": {
+          "id": "urn:crovia:pnx-witness:fixture",
+          "pubkey": {
+            "alg": "ed25519",
+            "key_hex": "b3c8f805e787a0a3c9d752d5dc908f1dcde5b9cdf87aa09f888b8f052e2d0520"
+          }
+        }
+      },
+      "with_policy": false
+    },
+    "unknown_outcome": {
+      "expect_error_contains": "unknown outcome",
+      "sheet": {
+        "closed_at": "2026-09-20T12:00:00Z",
+        "egress": {
+          "bodies": 4,
+          "bytes": 1739,
+          "first_at": "2026-09-20T11:00:00Z",
+          "last_at": "2026-09-20T11:15:00Z"
+        },
+        "fingerprints": 198,
+        "normalization": [
+          "json-strings-v1"
+        ],
+        "params": {
+          "hash": "sha256",
+          "k_gram": 32,
+          "threshold": 47,
+          "window": 16
+        },
+        "profile": "crovia.pnx.v1",
+        "reach": {
+          "capture": "proxy-connect",
+          "destinations": [
+            {
+              "bytes_in": 90200,
+              "bytes_out": 4300,
+              "connections": 3,
+              "first_at": "2026-09-20T11:00:05Z",
+              "host": "api.github.com",
+              "ips": [
+                "140.82.112.5",
+                "140.82.112.6"
+              ],
+              "last_at": "2026-09-20T11:07:00Z",
+              "outcome": "maybe",
+              "port": 443
+            },
+            {
+              "bytes_in": 8000,
+              "bytes_out": 1200,
+              "connections": 1,
+              "first_at": "2026-09-20T11:04:00Z",
+              "host": "github.com",
+              "ips": [
+                "140.82.121.4"
+              ],
+              "last_at": "2026-09-20T11:04:00Z",
+              "outcome": "allowed",
+              "port": 22
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:06:00Z",
+              "host": "githubusercontent.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:06:00Z",
+              "outcome": "blocked",
+              "port": 443
+            },
+            {
+              "bytes_in": 700000,
+              "bytes_out": 300,
+              "connections": 1,
+              "first_at": "2026-09-20T11:03:00Z",
+              "host": "objects.githubusercontent.com",
+              "ips": [
+                "185.199.108.133"
+              ],
+              "last_at": "2026-09-20T11:03:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host": "pastebin.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "blocked",
+              "port": 443
+            }
+          ],
+          "disclosure": "clear",
+          "policy": {
+            "hash": "sha256:7c6e48cc6e2ffec86addef28336bf731aaa05153d7576c991e575e164a5f0e6a",
+            "kind": "allowlist",
+            "mode": "enforce",
+            "rules": 3
+          },
+          "summary": {
+            "allowed": 3,
+            "blocked": 2,
+            "connections": 7,
+            "destinations": 5,
+            "failed": 0
+          },
+          "version": "crovia.pnx.reach.v1"
+        },
+        "root": "sha256:e3e31b945a8907927d8bfd3b44cc1e53aadbc728ea59783634fe602835db332e",
+        "run_id": "conformance/run-001",
+        "salt_hex": "47dfe6cc13a8b4cbef0863bb1891a0a5",
+        "signature": {
+          "alg": "ed25519",
+          "domain": "CROVIA-PNX-SHEET-v1",
+          "sig_hex": "9faf94c6d71a152e667e1661f2d9f38be67f1c949098d18893b809bfe09441a78823c05a378c9e4d50682d2369824228aaa3bea45fb4635153949a1126981e07"
+        },
+        "witness": {
+          "id": "urn:crovia:pnx-witness:fixture",
+          "pubkey": {
+            "alg": "ed25519",
+            "key_hex": "b3c8f805e787a0a3c9d752d5dc908f1dcde5b9cdf87aa09f888b8f052e2d0520"
+          }
+        }
+      },
+      "with_policy": false
+    },
+    "unsorted_destinations": {
+      "expect_error_contains": "not sorted",
+      "sheet": {
+        "closed_at": "2026-09-20T12:00:00Z",
+        "egress": {
+          "bodies": 4,
+          "bytes": 1739,
+          "first_at": "2026-09-20T11:00:00Z",
+          "last_at": "2026-09-20T11:15:00Z"
+        },
+        "fingerprints": 198,
+        "normalization": [
+          "json-strings-v1"
+        ],
+        "params": {
+          "hash": "sha256",
+          "k_gram": 32,
+          "threshold": 47,
+          "window": 16
+        },
+        "profile": "crovia.pnx.v1",
+        "reach": {
+          "capture": "proxy-connect",
+          "destinations": [
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host": "pastebin.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "blocked",
+              "port": 443
+            },
+            {
+              "bytes_in": 700000,
+              "bytes_out": 300,
+              "connections": 1,
+              "first_at": "2026-09-20T11:03:00Z",
+              "host": "objects.githubusercontent.com",
+              "ips": [
+                "185.199.108.133"
+              ],
+              "last_at": "2026-09-20T11:03:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:06:00Z",
+              "host": "githubusercontent.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:06:00Z",
+              "outcome": "blocked",
+              "port": 443
+            },
+            {
+              "bytes_in": 8000,
+              "bytes_out": 1200,
+              "connections": 1,
+              "first_at": "2026-09-20T11:04:00Z",
+              "host": "github.com",
+              "ips": [
+                "140.82.121.4"
+              ],
+              "last_at": "2026-09-20T11:04:00Z",
+              "outcome": "allowed",
+              "port": 22
+            },
+            {
+              "bytes_in": 90200,
+              "bytes_out": 4300,
+              "connections": 3,
+              "first_at": "2026-09-20T11:00:05Z",
+              "host": "api.github.com",
+              "ips": [
+                "140.82.112.5",
+                "140.82.112.6"
+              ],
+              "last_at": "2026-09-20T11:07:00Z",
+              "outcome": "allowed",
+              "port": 443
+            }
+          ],
+          "disclosure": "clear",
+          "policy": {
+            "hash": "sha256:7c6e48cc6e2ffec86addef28336bf731aaa05153d7576c991e575e164a5f0e6a",
+            "kind": "allowlist",
+            "mode": "enforce",
+            "rules": 3
+          },
+          "summary": {
+            "allowed": 3,
+            "blocked": 2,
+            "connections": 7,
+            "destinations": 5,
+            "failed": 0
+          },
+          "version": "crovia.pnx.reach.v1"
+        },
+        "root": "sha256:e3e31b945a8907927d8bfd3b44cc1e53aadbc728ea59783634fe602835db332e",
+        "run_id": "conformance/run-001",
+        "salt_hex": "47dfe6cc13a8b4cbef0863bb1891a0a5",
+        "signature": {
+          "alg": "ed25519",
+          "domain": "CROVIA-PNX-SHEET-v1",
+          "sig_hex": "b1091796b0d82502684ac1329070b8413193730bed703c0cefef5d8fa1b4393457f5508891035841e9cb8a096750e7929db6de52c29054336f13c0ae9b4dc207"
+        },
+        "witness": {
+          "id": "urn:crovia:pnx-witness:fixture",
+          "pubkey": {
+            "alg": "ed25519",
+            "key_hex": "b3c8f805e787a0a3c9d752d5dc908f1dcde5b9cdf87aa09f888b8f052e2d0520"
+          }
+        }
+      },
+      "with_policy": false
+    },
+    "wrong_summary": {
+      "expect_error_contains": "summary does not match",
+      "sheet": {
+        "closed_at": "2026-09-20T12:00:00Z",
+        "egress": {
+          "bodies": 4,
+          "bytes": 1739,
+          "first_at": "2026-09-20T11:00:00Z",
+          "last_at": "2026-09-20T11:15:00Z"
+        },
+        "fingerprints": 198,
+        "normalization": [
+          "json-strings-v1"
+        ],
+        "params": {
+          "hash": "sha256",
+          "k_gram": 32,
+          "threshold": 47,
+          "window": 16
+        },
+        "profile": "crovia.pnx.v1",
+        "reach": {
+          "capture": "proxy-connect",
+          "destinations": [
+            {
+              "bytes_in": 90200,
+              "bytes_out": 4300,
+              "connections": 3,
+              "first_at": "2026-09-20T11:00:05Z",
+              "host": "api.github.com",
+              "ips": [
+                "140.82.112.5",
+                "140.82.112.6"
+              ],
+              "last_at": "2026-09-20T11:07:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 8000,
+              "bytes_out": 1200,
+              "connections": 1,
+              "first_at": "2026-09-20T11:04:00Z",
+              "host": "github.com",
+              "ips": [
+                "140.82.121.4"
+              ],
+              "last_at": "2026-09-20T11:04:00Z",
+              "outcome": "allowed",
+              "port": 22
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:06:00Z",
+              "host": "githubusercontent.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:06:00Z",
+              "outcome": "blocked",
+              "port": 443
+            },
+            {
+              "bytes_in": 700000,
+              "bytes_out": 300,
+              "connections": 1,
+              "first_at": "2026-09-20T11:03:00Z",
+              "host": "objects.githubusercontent.com",
+              "ips": [
+                "185.199.108.133"
+              ],
+              "last_at": "2026-09-20T11:03:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host": "pastebin.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "blocked",
+              "port": 443
+            }
+          ],
+          "disclosure": "clear",
+          "policy": {
+            "hash": "sha256:7c6e48cc6e2ffec86addef28336bf731aaa05153d7576c991e575e164a5f0e6a",
+            "kind": "allowlist",
+            "mode": "enforce",
+            "rules": 3
+          },
+          "summary": {
+            "allowed": 9,
+            "blocked": 2,
+            "connections": 7,
+            "destinations": 5,
+            "failed": 0
+          },
+          "version": "crovia.pnx.reach.v1"
+        },
+        "root": "sha256:e3e31b945a8907927d8bfd3b44cc1e53aadbc728ea59783634fe602835db332e",
+        "run_id": "conformance/run-001",
+        "salt_hex": "47dfe6cc13a8b4cbef0863bb1891a0a5",
+        "signature": {
+          "alg": "ed25519",
+          "domain": "CROVIA-PNX-SHEET-v1",
+          "sig_hex": "8b32c170b4e14d50a1a8abee82909d0ef5b20bbcc9ce31dba00c3a3910803ccaf386bae74a5e63f00364e1e5e1060c5e4a4bb7ff8b1795058e193e489941ee02"
+        },
+        "witness": {
+          "id": "urn:crovia:pnx-witness:fixture",
+          "pubkey": {
+            "alg": "ed25519",
+            "key_hex": "b3c8f805e787a0a3c9d752d5dc908f1dcde5b9cdf87aa09f888b8f052e2d0520"
+          }
+        }
+      },
+      "with_policy": false
+    }
+  },
+  "log": [
+    {
+      "at": "2026-09-20T11:00:05Z",
+      "bytes_in": 90000,
+      "bytes_out": 4000,
+      "host": "api.github.com",
+      "ip": "140.82.112.5",
+      "port": 443
+    },
+    {
+      "at": "2026-09-20T11:02:00Z",
+      "bytes_in": 100,
+      "bytes_out": 200,
+      "host": "API.github.com",
+      "ip": "140.82.112.6",
+      "port": 443
+    },
+    {
+      "at": "2026-09-20T11:03:00Z",
+      "bytes_in": 700000,
+      "bytes_out": 300,
+      "host": "objects.githubusercontent.com",
+      "ip": "185.199.108.133",
+      "port": 443
+    },
+    {
+      "at": "2026-09-20T11:04:00Z",
+      "bytes_in": 8000,
+      "bytes_out": 1200,
+      "host": "github.com",
+      "ip": "140.82.121.4",
+      "port": 22
+    },
+    {
+      "at": "2026-09-20T11:05:00Z",
+      "bytes_in": 0,
+      "bytes_out": 500,
+      "host": "pastebin.com",
+      "port": 443
+    },
+    {
+      "at": "2026-09-20T11:06:00Z",
+      "bytes_in": 0,
+      "bytes_out": 10,
+      "host": "githubusercontent.com",
+      "port": 443
+    },
+    {
+      "at": "2026-09-20T11:07:00Z",
+      "bytes_in": 100,
+      "bytes_out": 100,
+      "host": "api.github.com",
+      "ip": "140.82.112.5",
+      "port": 443
+    }
+  ],
+  "note": "every valid sheet has the root of pnx_002 (same bodies, same salt); a verifier of draft 0.3 accepts them all",
+  "policy": {
+    "document": {
+      "allow": [
+        "api.github.com:443",
+        "*.githubusercontent.com:443",
+        "github.com"
+      ],
+      "version": "crovia.pnx.policy.v1"
+    },
+    "hash": "sha256:7c6e48cc6e2ffec86addef28336bf731aaa05153d7576c991e575e164a5f0e6a",
+    "rules": 3
+  },
+  "policy_version": "crovia.pnx.policy.v1",
+  "profile": "crovia.pnx.v1",
+  "reach_version": "crovia.pnx.reach.v1",
+  "valid": {
+    "enforce": {
+      "expect_with_policy": {
+        "ok": true,
+        "outside": [],
+        "reached": {},
+        "verdict": "within-policy",
+        "warning_contains": null
+      },
+      "expect_without_policy": {
+        "ok": true,
+        "outside": [],
+        "reached": {},
+        "verdict": "within-policy",
+        "warning_contains": "policy document not supplied"
+      },
+      "sheet": {
+        "closed_at": "2026-09-20T12:00:00Z",
+        "egress": {
+          "bodies": 4,
+          "bytes": 1739,
+          "first_at": "2026-09-20T11:00:00Z",
+          "last_at": "2026-09-20T11:15:00Z"
+        },
+        "fingerprints": 198,
+        "normalization": [
+          "json-strings-v1"
+        ],
+        "params": {
+          "hash": "sha256",
+          "k_gram": 32,
+          "threshold": 47,
+          "window": 16
+        },
+        "profile": "crovia.pnx.v1",
+        "reach": {
+          "capture": "proxy-connect",
+          "destinations": [
+            {
+              "bytes_in": 90200,
+              "bytes_out": 4300,
+              "connections": 3,
+              "first_at": "2026-09-20T11:00:05Z",
+              "host": "api.github.com",
+              "ips": [
+                "140.82.112.5",
+                "140.82.112.6"
+              ],
+              "last_at": "2026-09-20T11:07:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 8000,
+              "bytes_out": 1200,
+              "connections": 1,
+              "first_at": "2026-09-20T11:04:00Z",
+              "host": "github.com",
+              "ips": [
+                "140.82.121.4"
+              ],
+              "last_at": "2026-09-20T11:04:00Z",
+              "outcome": "allowed",
+              "port": 22
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:06:00Z",
+              "host": "githubusercontent.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:06:00Z",
+              "outcome": "blocked",
+              "port": 443
+            },
+            {
+              "bytes_in": 700000,
+              "bytes_out": 300,
+              "connections": 1,
+              "first_at": "2026-09-20T11:03:00Z",
+              "host": "objects.githubusercontent.com",
+              "ips": [
+                "185.199.108.133"
+              ],
+              "last_at": "2026-09-20T11:03:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host": "pastebin.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "blocked",
+              "port": 443
+            }
+          ],
+          "disclosure": "clear",
+          "policy": {
+            "hash": "sha256:7c6e48cc6e2ffec86addef28336bf731aaa05153d7576c991e575e164a5f0e6a",
+            "kind": "allowlist",
+            "mode": "enforce",
+            "rules": 3
+          },
+          "summary": {
+            "allowed": 3,
+            "blocked": 2,
+            "connections": 7,
+            "destinations": 5,
+            "failed": 0
+          },
+          "version": "crovia.pnx.reach.v1"
+        },
+        "root": "sha256:e3e31b945a8907927d8bfd3b44cc1e53aadbc728ea59783634fe602835db332e",
+        "run_id": "conformance/run-001",
+        "salt_hex": "47dfe6cc13a8b4cbef0863bb1891a0a5",
+        "signature": {
+          "alg": "ed25519",
+          "domain": "CROVIA-PNX-SHEET-v1",
+          "sig_hex": "f6f679298c3c61b31ddaf83663a9d1f318b6dcd5d7f55997aefb1083b99f3be94c1d8fbf952b9ad2f938ec841eb2ec757628404b498aeb07ce90a2720b6d5b0d"
+        },
+        "witness": {
+          "id": "urn:crovia:pnx-witness:fixture",
+          "pubkey": {
+            "alg": "ed25519",
+            "key_hex": "b3c8f805e787a0a3c9d752d5dc908f1dcde5b9cdf87aa09f888b8f052e2d0520"
+          }
+        }
+      }
+    },
+    "none": {
+      "expect_with_policy": {
+        "ok": true,
+        "outside": [],
+        "reached": {},
+        "verdict": "unpoliced",
+        "warning_contains": "policy document supplied but the record was made without a policy"
+      },
+      "expect_without_policy": {
+        "ok": true,
+        "outside": [],
+        "reached": {},
+        "verdict": "unpoliced",
+        "warning_contains": null
+      },
+      "sheet": {
+        "closed_at": "2026-09-20T12:00:00Z",
+        "egress": {
+          "bodies": 4,
+          "bytes": 1739,
+          "first_at": "2026-09-20T11:00:00Z",
+          "last_at": "2026-09-20T11:15:00Z"
+        },
+        "fingerprints": 198,
+        "normalization": [
+          "json-strings-v1"
+        ],
+        "params": {
+          "hash": "sha256",
+          "k_gram": 32,
+          "threshold": 47,
+          "window": 16
+        },
+        "profile": "crovia.pnx.v1",
+        "reach": {
+          "capture": "proxy-connect",
+          "destinations": [
+            {
+              "bytes_in": 90200,
+              "bytes_out": 4300,
+              "connections": 3,
+              "first_at": "2026-09-20T11:00:05Z",
+              "host": "api.github.com",
+              "ips": [
+                "140.82.112.5",
+                "140.82.112.6"
+              ],
+              "last_at": "2026-09-20T11:07:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 8000,
+              "bytes_out": 1200,
+              "connections": 1,
+              "first_at": "2026-09-20T11:04:00Z",
+              "host": "github.com",
+              "ips": [
+                "140.82.121.4"
+              ],
+              "last_at": "2026-09-20T11:04:00Z",
+              "outcome": "allowed",
+              "port": 22
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 10,
+              "connections": 1,
+              "first_at": "2026-09-20T11:06:00Z",
+              "host": "githubusercontent.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:06:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 700000,
+              "bytes_out": 300,
+              "connections": 1,
+              "first_at": "2026-09-20T11:03:00Z",
+              "host": "objects.githubusercontent.com",
+              "ips": [
+                "185.199.108.133"
+              ],
+              "last_at": "2026-09-20T11:03:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 500,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host": "pastebin.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "allowed",
+              "port": 443
+            }
+          ],
+          "disclosure": "clear",
+          "policy": {
+            "hash": null,
+            "kind": "none",
+            "mode": "observe",
+            "rules": 0
+          },
+          "summary": {
+            "allowed": 5,
+            "blocked": 0,
+            "connections": 7,
+            "destinations": 5,
+            "failed": 0
+          },
+          "version": "crovia.pnx.reach.v1"
+        },
+        "root": "sha256:e3e31b945a8907927d8bfd3b44cc1e53aadbc728ea59783634fe602835db332e",
+        "run_id": "conformance/run-001",
+        "salt_hex": "47dfe6cc13a8b4cbef0863bb1891a0a5",
+        "signature": {
+          "alg": "ed25519",
+          "domain": "CROVIA-PNX-SHEET-v1",
+          "sig_hex": "95c9b587d883e85019105b43294d8a76e6fb5099197cff444d442da79dd1c0e9fb8e894dc5292347a7b50876c1d61932b737bceb563d3be7b35fcaa89b2b3f0b"
+        },
+        "witness": {
+          "id": "urn:crovia:pnx-witness:fixture",
+          "pubkey": {
+            "alg": "ed25519",
+            "key_hex": "b3c8f805e787a0a3c9d752d5dc908f1dcde5b9cdf87aa09f888b8f052e2d0520"
+          }
+        }
+      }
+    },
+    "observe": {
+      "expect_with_policy": {
+        "ok": true,
+        "outside": [
+          "githubusercontent.com:443",
+          "pastebin.com:443"
+        ],
+        "reached": {},
+        "verdict": "outside-policy",
+        "warning_contains": null
+      },
+      "expect_without_policy": {
+        "ok": true,
+        "outside": [],
+        "reached": {},
+        "verdict": "unchecked",
+        "warning_contains": "policy document not supplied and the witness observed only"
+      },
+      "sheet": {
+        "closed_at": "2026-09-20T12:00:00Z",
+        "egress": {
+          "bodies": 4,
+          "bytes": 1739,
+          "first_at": "2026-09-20T11:00:00Z",
+          "last_at": "2026-09-20T11:15:00Z"
+        },
+        "fingerprints": 198,
+        "normalization": [
+          "json-strings-v1"
+        ],
+        "params": {
+          "hash": "sha256",
+          "k_gram": 32,
+          "threshold": 47,
+          "window": 16
+        },
+        "profile": "crovia.pnx.v1",
+        "reach": {
+          "capture": "proxy-connect",
+          "destinations": [
+            {
+              "bytes_in": 90200,
+              "bytes_out": 4300,
+              "connections": 3,
+              "first_at": "2026-09-20T11:00:05Z",
+              "host": "api.github.com",
+              "ips": [
+                "140.82.112.5",
+                "140.82.112.6"
+              ],
+              "last_at": "2026-09-20T11:07:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 8000,
+              "bytes_out": 1200,
+              "connections": 1,
+              "first_at": "2026-09-20T11:04:00Z",
+              "host": "github.com",
+              "ips": [
+                "140.82.121.4"
+              ],
+              "last_at": "2026-09-20T11:04:00Z",
+              "outcome": "allowed",
+              "port": 22
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 10,
+              "connections": 1,
+              "first_at": "2026-09-20T11:06:00Z",
+              "host": "githubusercontent.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:06:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 700000,
+              "bytes_out": 300,
+              "connections": 1,
+              "first_at": "2026-09-20T11:03:00Z",
+              "host": "objects.githubusercontent.com",
+              "ips": [
+                "185.199.108.133"
+              ],
+              "last_at": "2026-09-20T11:03:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 500,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host": "pastebin.com",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "allowed",
+              "port": 443
+            }
+          ],
+          "disclosure": "clear",
+          "policy": {
+            "hash": "sha256:7c6e48cc6e2ffec86addef28336bf731aaa05153d7576c991e575e164a5f0e6a",
+            "kind": "allowlist",
+            "mode": "observe",
+            "rules": 3
+          },
+          "summary": {
+            "allowed": 5,
+            "blocked": 0,
+            "connections": 7,
+            "destinations": 5,
+            "failed": 0
+          },
+          "version": "crovia.pnx.reach.v1"
+        },
+        "root": "sha256:e3e31b945a8907927d8bfd3b44cc1e53aadbc728ea59783634fe602835db332e",
+        "run_id": "conformance/run-001",
+        "salt_hex": "47dfe6cc13a8b4cbef0863bb1891a0a5",
+        "signature": {
+          "alg": "ed25519",
+          "domain": "CROVIA-PNX-SHEET-v1",
+          "sig_hex": "337773135c7e70cca5d450d512792c614ecb51c9c677173023163d7f911a5f17a1d16baa9bb0b7b0c0791b79c9d3c6e132ef37dad70fecf00fc07420bf439c04"
+        },
+        "witness": {
+          "id": "urn:crovia:pnx-witness:fixture",
+          "pubkey": {
+            "alg": "ed25519",
+            "key_hex": "b3c8f805e787a0a3c9d752d5dc908f1dcde5b9cdf87aa09f888b8f052e2d0520"
+          }
+        }
+      }
+    },
+    "salted": {
+      "expect_with_policy": {
+        "ok": true,
+        "outside": [],
+        "reached": {
+          "api.github.com": true,
+          "example.org": false,
+          "pastebin.com": true
+        },
+        "verdict": "within-policy",
+        "warning_contains": "salted disclosure"
+      },
+      "expect_without_policy": {
+        "ok": true,
+        "outside": [],
+        "reached": {
+          "api.github.com": true,
+          "example.org": false,
+          "pastebin.com": true
+        },
+        "verdict": "within-policy",
+        "warning_contains": "policy document not supplied"
+      },
+      "names": [
+        "api.github.com",
+        "pastebin.com",
+        "example.org"
+      ],
+      "sheet": {
+        "closed_at": "2026-09-20T12:00:00Z",
+        "egress": {
+          "bodies": 4,
+          "bytes": 1739,
+          "first_at": "2026-09-20T11:00:00Z",
+          "last_at": "2026-09-20T11:15:00Z"
+        },
+        "fingerprints": 198,
+        "normalization": [
+          "json-strings-v1"
+        ],
+        "params": {
+          "hash": "sha256",
+          "k_gram": 32,
+          "threshold": 47,
+          "window": 16
+        },
+        "profile": "crovia.pnx.v1",
+        "reach": {
+          "capture": "proxy-connect",
+          "destinations": [
+            {
+              "bytes_in": 8000,
+              "bytes_out": 1200,
+              "connections": 1,
+              "first_at": "2026-09-20T11:04:00Z",
+              "host_hash": "3d0610692fe319e5bed92bd516d36560c8b89c89a31314a39c64fc7045baf674",
+              "ips": [
+                "140.82.121.4"
+              ],
+              "last_at": "2026-09-20T11:04:00Z",
+              "outcome": "allowed",
+              "port": 22
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:05:00Z",
+              "host_hash": "846d70a87d13ef1dbd30239246080e155483682f1bea48167c391579c58734d0",
+              "ips": [],
+              "last_at": "2026-09-20T11:05:00Z",
+              "outcome": "blocked",
+              "port": 443
+            },
+            {
+              "bytes_in": 700000,
+              "bytes_out": 300,
+              "connections": 1,
+              "first_at": "2026-09-20T11:03:00Z",
+              "host_hash": "90434d17ae8fe69f56d895de82a631996cf9ea5c81dc04b3c357a1254dc8b1e6",
+              "ips": [
+                "185.199.108.133"
+              ],
+              "last_at": "2026-09-20T11:03:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 90200,
+              "bytes_out": 4300,
+              "connections": 3,
+              "first_at": "2026-09-20T11:00:05Z",
+              "host_hash": "d276274a2b3c8ad454b35d39395cf0cd0208d3dab0098785dd4b638990cc29ef",
+              "ips": [
+                "140.82.112.5",
+                "140.82.112.6"
+              ],
+              "last_at": "2026-09-20T11:07:00Z",
+              "outcome": "allowed",
+              "port": 443
+            },
+            {
+              "bytes_in": 0,
+              "bytes_out": 0,
+              "connections": 1,
+              "first_at": "2026-09-20T11:06:00Z",
+              "host_hash": "f5bb87552c61590cdb40949e774a667ef45c6f3ebf28d895fdf85e93ac8a9741",
+              "ips": [],
+              "last_at": "2026-09-20T11:06:00Z",
+              "outcome": "blocked",
+              "port": 443
+            }
+          ],
+          "disclosure": "salted",
+          "policy": {
+            "hash": "sha256:7c6e48cc6e2ffec86addef28336bf731aaa05153d7576c991e575e164a5f0e6a",
+            "kind": "allowlist",
+            "mode": "enforce",
+            "rules": 3
+          },
+          "summary": {
+            "allowed": 3,
+            "blocked": 2,
+            "connections": 7,
+            "destinations": 5,
+            "failed": 0
+          },
+          "version": "crovia.pnx.reach.v1"
+        },
+        "root": "sha256:e3e31b945a8907927d8bfd3b44cc1e53aadbc728ea59783634fe602835db332e",
+        "run_id": "conformance/run-001",
+        "salt_hex": "47dfe6cc13a8b4cbef0863bb1891a0a5",
+        "signature": {
+          "alg": "ed25519",
+          "domain": "CROVIA-PNX-SHEET-v1",
+          "sig_hex": "bc1a6137cd96a359f24587aa2e3dcaeec180cd2c6242ed7b0674e692dda0448ca0ccf9327dcc601a79ded8ccb2318387fa7d70632e12244a63aff282638f2305"
+        },
+        "witness": {
+          "id": "urn:crovia:pnx-witness:fixture",
+          "pubkey": {
+            "alg": "ed25519",
+            "key_hex": "b3c8f805e787a0a3c9d752d5dc908f1dcde5b9cdf87aa09f888b8f052e2d0520"
+          }
+        }
+      }
+    }
+  }
+}
