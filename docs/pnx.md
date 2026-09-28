@@ -98,6 +98,16 @@ was not supplied) or `unpoliced` (no policy). `--pnx-reach-salted` puts
 salted host hashes in the sheet instead of names; `re pnx verify --name
 HOST` then answers whether a given host was reached.
 
+A signed run sheet can be verified on its own, without a proof: a job that
+had nothing to prove against (a CI run behind an egress witness whose only
+claim is where it connected) publishes the sheet as its receipt, and
+`re pnx verify run.sheet.json --policy egress-policy.json` performs PNX.md
+§6 steps 1 and 1b on it. The report says `sheet-only` in place of an asset
+verdict; the exit code follows the reach verdict. `scripts/egress_witness.py`
+is such a witness for CI: a CONNECT proxy that writes one line per
+connection attempt into the log `tacet-pnx witness --reach` turns into the
+record.
+
 What the record says is bounded by what the proxy sees: the upstream of
 each request it routes (`capture: proxy-http`). An agent that connects
 elsewhere without going through the proxy is outside the record, exactly as

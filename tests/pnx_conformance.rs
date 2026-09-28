@@ -285,6 +285,74 @@ fn pnx_005_reach_records_verify_with_and_without_the_policy() {
 }
 
 #[test]
+fn pnx_005_a_sheet_alone_verifies_as_sheet_only_with_the_same_reach_verdict() {
+    // A run with nothing to prove against publishes its signed sheet as the
+    // receipt: `re pnx verify` takes it as it takes a proof (PNX.md §6).
+    let v = vector("pnx_005_reach.json");
+    let tmp = tempfile::tempdir().unwrap();
+    let no_assets = serde_json::json!({});
+    for (name, case) in v["valid"].as_object().unwrap() {
+        let names: Vec<&str> = case["names"]
+            .as_array()
+            .map(|a| a.iter().filter_map(Value::as_str).collect())
+            .unwrap_or_default();
+        for (label, policy) in [
+            ("expect_with_policy", Some(&v["policy"]["document"])),
+            ("expect_without_policy", None),
+        ] {
+            let dir = tmp.path().join(format!("sheet-{name}-{label}"));
+            fs::create_dir_all(&dir).unwrap();
+            let (code, rep) = verify_with_policy(&dir, &case["sheet"], &no_assets, policy, &names);
+            let exp = &case[label];
+            assert_eq!(rep["ok"], true, "{name} {label}\n{rep}");
+            assert_eq!(rep["sheet_only"], true, "{name} {label}\n{rep}");
+            assert_eq!(rep["verdict"], "sheet-only", "{name} {label}\n{rep}");
+            assert_eq!(
+                rep["assets"],
+                serde_json::json!({}),
+                "{name} {label}\n{rep}"
+            );
+            assert_eq!(
+                rep["reach"]["verdict"], exp["verdict"],
+                "{name} {label}\n{rep}"
+            );
+            assert_eq!(
+                rep["reach"]["reached"], exp["reached"],
+                "{name} {label}\n{rep}"
+            );
+            let expected = if exp["verdict"] == "outside-policy" {
+                1
+            } else {
+                0
+            };
+            assert_eq!(code, expected, "{name} {label}: exit code\n{rep}");
+        }
+    }
+    // Every fault of the vector is caught on the sheet alone as well.
+    for (name, case) in v["invalid"].as_object().unwrap() {
+        let dir = tmp.path().join(format!("bad-sheet-{name}"));
+        fs::create_dir_all(&dir).unwrap();
+        let policy = (case["with_policy"] == true).then_some(&v["policy"]["document"]);
+        let (code, rep) = verify_with_policy(&dir, &case["sheet"], &no_assets, policy, &[]);
+        assert_eq!(rep["ok"], false, "{name}: must be invalid\n{rep}");
+        assert_eq!(code, 2, "{name}: exit 2\n{rep}");
+        let needle = case["expect_error_contains"].as_str().unwrap();
+        let errors = errors_joined(&rep);
+        assert!(
+            errors.contains(needle),
+            "{name}: error must contain {needle:?}\n  got: {errors}"
+        );
+    }
+    // An object that is neither a proof nor a sheet is malformed, not mistaken for a sheet.
+    let dir = tmp.path().join("junk");
+    fs::create_dir_all(&dir).unwrap();
+    let junk = serde_json::json!({"profile": "crovia.pnx.v1", "hello": 1});
+    let (code, rep) = verify_with_policy(&dir, &junk, &no_assets, None, &[]);
+    assert_eq!(code, 2, "{rep}");
+    assert_eq!(rep["ok"], false, "{rep}");
+}
+
+#[test]
 fn pnx_005_every_reach_fault_is_rejected_with_the_named_error() {
     let v = vector("pnx_005_reach.json");
     let base = vector("pnx_002_proofs.json");

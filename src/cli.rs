@@ -548,12 +548,14 @@ pub enum PnxCommand {
         fail_on_present: bool,
     },
 
-    /// Verify a PNX proof offline (bare or delivered inside a Crovia Seal).
-    /// Exit 0: valid, every asset absent, reach within policy. 1: valid,
-    /// but an asset was present, undetectable or only partially covered,
-    /// or a destination was reached outside the policy. 2: invalid.
+    /// Verify a PNX proof offline (bare or delivered inside a Crovia Seal),
+    /// or a signed run sheet on its own (a reach receipt: no asset judged,
+    /// reported as `sheet-only`). Exit 0: valid, every asset absent (or a
+    /// sheet alone), reach within policy. 1: valid, but an asset was
+    /// present, undetectable or only partially covered, or a destination
+    /// was reached outside the policy. 2: invalid.
     Verify {
-        /// Path to the proof JSON
+        /// Path to the proof JSON, or to a run sheet
         proof: std::path::PathBuf,
 
         #[command(flatten)]

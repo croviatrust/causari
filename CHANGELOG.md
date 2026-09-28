@@ -23,6 +23,12 @@ release workflow copies it verbatim. Counts, not adjectives.
   `outside-policy` exits 1 like `present`. The `--json` report carries
   `reach`. Without the document the verdict the record alone supports is
   reported, with a warning.
+- `re pnx verify` takes a signed run sheet on its own (a reach receipt of a
+  run with nothing to prove against): §6 steps 1 and 1b, reported as
+  `sheet-only`, exit code from the reach verdict. `scripts/egress_witness.py`
+  (standard library) is the CI-side CONNECT witness that writes the
+  connection log such a sheet is built from; the Survival Report job runs
+  behind it (see below).
 - Conformance: `pnx_005_reach.json` added and `pnx_002`–`004` refreshed
   from crovia-tacet 0.5.0; the reach record a Causari witness derives from
   the vector's connection log is byte-identical to the reference's. 244

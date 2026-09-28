@@ -22,7 +22,10 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use crate::cli::{PnxArgs, PnxAssetArgs, PnxCommand};
-use crate::pnx::{VERDICT_ABSENT, VerifyResult, verify_proof_with};
+use crate::pnx::{
+    VERDICT_ABSENT, VERDICT_SHEET_ONLY, VerifyResult, is_sheet, verify_proof_with,
+    verify_sheet_alone,
+};
 use crate::pnx_reach::{Policy, VERDICT_OUTSIDE, VERDICT_UNPOLICED, VERDICT_WITHIN};
 use crate::pnx_run::{self, Run, RunSummary};
 use crate::repo::Repo;
@@ -332,6 +335,8 @@ fn prove(
 #[derive(Debug, Default)]
 struct Outer {
     sealed: bool,
+    /// A run sheet verified on its own: no proof, no asset judged.
+    sheet_only: bool,
     /// The Seal verifies and binds the query and the proof.
     seal_ok: Option<bool>,
     /// The Seal's own signature and structure verify, whatever it binds.
@@ -361,6 +366,10 @@ fn verify_any(
     names: &[String],
 ) -> (VerifyResult, Outer) {
     let mut outer = Outer::default();
+    if is_sheet(obj) {
+        outer.sheet_only = true;
+        return (verify_sheet_alone(obj, policy, names), outer);
+    }
     let proof = if obj.get("seal").is_some() && obj.get("proof").is_some() {
         outer.sealed = true;
         let s = &obj["seal"];
@@ -425,7 +434,11 @@ fn verify(
     };
     let (res, outer) = verify_any(&obj, supplied.as_ref(), policy, names);
     let proof = if outer.sealed { &obj["proof"] } else { &obj };
-    let sheet = &proof["sheet"];
+    let sheet = if outer.sheet_only {
+        &obj
+    } else {
+        &proof["sheet"]
+    };
     let reach_verdict = res.reach.as_ref().map(|r| r.verdict.as_str());
 
     if json_out {
@@ -442,6 +455,9 @@ fn verify(
             "warnings": res.warnings,
             "sealed": outer.sealed,
         });
+        if outer.sheet_only {
+            report["sheet_only"] = json!(true);
+        }
         if let Some(r) = &res.reach {
             report["reach"] = json!({
                 "verdict": r.verdict, "outside": r.outside, "reached": r.reached,
@@ -461,9 +477,13 @@ fn verify(
         } else {
             "INVALID".red().bold()
         };
+        let what = if outer.sheet_only {
+            "run sheet alone, no asset judged".to_string()
+        } else {
+            format!("verdict {}", res.verdict.bold())
+        };
         println!(
-            "{status} · verdict {} · run {} · witness {}{}",
-            res.verdict.bold(),
+            "{status} · {what} · run {} · witness {}{}",
             sheet["run_id"].as_str().unwrap_or("?").cyan(),
             sheet["witness"]["id"].as_str().unwrap_or("?"),
             outer
@@ -537,19 +557,27 @@ fn verify(
         for w in &res.warnings {
             println!("  {}  {}", "warning".yellow(), w);
         }
-        println!(
-            "  {} a valid proof speaks for the bytes this witness saw, normalised as the sheet declares; \
-             nothing about traffic that bypassed it, other encodings, or assets shorter than {} bytes.",
-            "note:".bright_black(),
-            sheet["params"]["k_gram"]
-        );
+        if outer.sheet_only {
+            println!(
+                "  {} a sheet alone says what the witness committed to and where the run connected \
+                 through it; nothing about any asset, nor about traffic that bypassed the witness.",
+                "note:".bright_black(),
+            );
+        } else {
+            println!(
+                "  {} a valid proof speaks for the bytes this witness saw, normalised as the sheet declares; \
+                 nothing about traffic that bypassed it, other encodings, or assets shorter than {} bytes.",
+                "note:".bright_black(),
+                sheet["params"]["k_gram"]
+            );
+        }
     }
 
     let reach_unsettled =
         strict && reach_verdict.is_some_and(|v| v != VERDICT_WITHIN && v != VERDICT_UNPOLICED);
     Ok(if !res.ok {
         EXIT_INVALID
-    } else if res.verdict != VERDICT_ABSENT
+    } else if (res.verdict != VERDICT_ABSENT && res.verdict != VERDICT_SHEET_ONLY)
         || reach_verdict == Some(VERDICT_OUTSIDE)
         || reach_unsettled
         || (strict && !res.warnings.is_empty())

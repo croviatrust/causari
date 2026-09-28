@@ -53,6 +53,8 @@ pub const VERDICT_ABSENT_PARTIAL: &str = "absent-partial";
 pub const VERDICT_PRESENT: &str = "present";
 pub const VERDICT_UNDETECTABLE: &str = "undetectable";
 pub const VERDICT_MIXED: &str = "mixed";
+/// A run sheet verified without a proof: no asset was judged (PNX.md §6).
+pub const VERDICT_SHEET_ONLY: &str = "sheet-only";
 
 const DOMAIN_EMPTY: &[u8] = b"TACET-EMPTY-v1\n";
 const DOMAIN_LEAF: &[u8] = b"TACET-LEAF-v1\n";
@@ -853,6 +855,51 @@ pub fn verify_proof(proof: &Value, assets: Option<&BTreeMap<String, Vec<u8>>>) -
 /// [`verify_proof`], plus the reach record (PNX.md §6 step 1b): with the
 /// `policy` document its hash is recomputed and every destination matched
 /// against the rules; `names` are hosts to look up under salted disclosure.
+/// A signed run sheet on its own (§4), as opposed to a proof (§5) that wraps one.
+pub fn is_sheet(obj: &Value) -> bool {
+    obj.is_object()
+        && obj.get("root").is_some()
+        && obj.get("witness").is_some()
+        && obj.get("sheet").is_none()
+        && obj.get("assets").is_none()
+}
+
+/// PNX.md §6 steps 1 and 1b for a run sheet published without a proof (a
+/// reach receipt, a run with nothing to prove against). The result carries
+/// no asset verdict: `verdict` is `sheet-only`.
+pub fn verify_sheet_alone(
+    sheet: &Value,
+    policy: Option<&Policy>,
+    names: &[String],
+) -> VerifyResult {
+    let mut res = VerifyResult {
+        ok: true,
+        verdict: VERDICT_SHEET_ONLY.to_string(),
+        errors: verify_sheet(sheet),
+        warnings: Vec::new(),
+        assets: Vec::new(),
+        reach: None,
+    };
+    if !res.errors.is_empty() {
+        res.ok = false;
+        return res;
+    }
+    let salt = sheet_salt(sheet).expect("checked by verify_sheet");
+    if let Some(reach) = sheet.get("reach").filter(|r| r.is_object()) {
+        let r = verify_reach(reach, &salt, policy, names);
+        res.errors
+            .extend(r.errors.iter().map(|e| format!("reach: {e}")));
+        res.warnings
+            .extend(r.warnings.iter().map(|w| format!("reach: {w}")));
+        res.reach = Some(r);
+    } else if policy.is_some() {
+        res.warnings
+            .push("policy document supplied but the sheet carries no reach record".to_string());
+    }
+    res.ok = res.errors.is_empty();
+    res
+}
+
 pub fn verify_proof_with(
     proof: &Value,
     assets: Option<&BTreeMap<String, Vec<u8>>>,
