@@ -1,0 +1,90 @@
+name: reach-check
+
+# Proves, on a GitHub runner and without publishing anything, the mechanism
+# the Survival Report relies on for its reach receipt: one clone behind the
+# egress witness under .github/egress-policy.json, one refused destination,
+# the connection log signed into a PNX run sheet, the sheet verified against
+# the policy with the reference verifier and with `re pnx verify` built from
+# this commit. The sheet is uploaded as an artifact for inspection. Manual only.
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: "Repository to clone through the witness (owner/repo)"
+        default: "croviatrust/crovia-seal"
+
+permissions:
+  contents: read
+
+jobs:
+  reach:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      # From source: the reach record and `re pnx verify` on a sheet alone
+      # are newer than the latest release.
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: build re from this commit
+        run: |
+          set -euo pipefail
+          cargo build --release --quiet
+          sudo install -m 0755 target/release/re /usr/local/bin/re
+          re --version
+
+      - name: install the PNX reference (crovia-tacet)
+        # Same pin as survival-report.yml.
+        run: python3 -m pip install --quiet "crovia-tacet @ git+https://github.com/croviatrust/countersign@3026b6614aa2dc7a4aada01bb7ecade5027c3c3f#subdirectory=tacet/reference/python"
+
+      - name: one clone behind the witness, one refused destination
+        run: |
+          set -euo pipefail
+          RUN=/tmp/run; mkdir -p "$RUN"
+          python3 scripts/egress_witness.py --listen 127.0.0.1:3128 --policy .github/egress-policy.json \
+            --log "$RUN/reach-shard-0.jsonl" 2>"$RUN/witness.err" &
+          WITNESS=$!
+          sleep 1
+          kill -0 "$WITNESS" || { cat "$RUN/witness.err"; exit 1; }
+          export https_proxy=http://127.0.0.1:3128 http_proxy=http://127.0.0.1:3128 GIT_LFS_SKIP_SMUDGE=1
+          git clone --quiet --single-branch "https://github.com/${{ inputs.repo }}" /tmp/clone
+          re audit /tmp/clone --json > "$RUN/audit.json" && jq '{total_commits, method: .coverage.method}' "$RUN/audit.json"
+          # A destination the policy does not name: refused by the witness, recorded as blocked.
+          if curl -sS -o /dev/null https://pypi.org/; then echo "pypi.org was reachable through the witness"; exit 1; fi
+          unset https_proxy http_proxy
+          kill -TERM "$WITNESS"; wait "$WITNESS" || true
+          cat "$RUN/witness.err"
+          echo "--- reach log"; cat "$RUN/reach-shard-0.jsonl"
+          jq -e 'select(.host == "github.com" and .port == 443 and .outcome == "allowed")' "$RUN/reach-shard-0.jsonl" >/dev/null
+          jq -e 'select(.host == "pypi.org" and .outcome == "blocked")' "$RUN/reach-shard-0.jsonl" >/dev/null
+
+      - name: sign the log into a run sheet and verify it twice
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/empty
+          tacet-pnx keygen --id "urn:causari:reach-check:run-$GITHUB_RUN_ID" --out /tmp/witness.key.json
+          tacet-pnx witness /tmp/empty --run-id "reach-check-gh-$GITHUB_RUN_ID" --key /tmp/witness.key.json \
+            --reach /tmp/run/reach-shard-0.jsonl --policy .github/egress-policy.json --reach-mode enforce \
+            --sheet /tmp/run/reach.sheet.json --state /tmp/witness.state.json
+          rm -f /tmp/witness.key.json /tmp/witness.state.json
+          echo "--- reference verifier"
+          tacet-pnx verify /tmp/run/reach.sheet.json --policy .github/egress-policy.json --json | tee /tmp/run/reach.verify.json
+          jq -e '.ok and .verdict == "sheet-only" and .reach.verdict == "within-policy"' /tmp/run/reach.verify.json >/dev/null
+          echo "--- re pnx verify"
+          re pnx verify /tmp/run/reach.sheet.json --policy .github/egress-policy.json
+          # A different policy must be refused: the hash is bound in the sheet.
+          echo '{"version":"crovia.pnx.policy.v1","allow":["example.org"]}' > /tmp/other.json
+          if tacet-pnx verify /tmp/run/reach.sheet.json --policy /tmp/other.json; then echo "another policy was accepted"; exit 1; fi
+          {
+            echo "## reach-check"
+            echo
+            echo '```'
+            tacet-pnx verify /tmp/run/reach.sheet.json --policy .github/egress-policy.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reach-check
+          path: /tmp/run
