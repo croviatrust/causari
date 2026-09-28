@@ -25,6 +25,17 @@
     "sandbox": false,
     "content_sha256": "7edded742d3ca6c2347093b467a6231da535b0701857a0e106eb48ab28654445",
     "published_at": "2026-09-24T17:50:29Z"
+   },
+   "2026/03": {
+    "doi": "10.5281/zenodo.23019874",
+    "concept_doi": "10.5281/zenodo.22863965",
+    "html": "https://zenodo.org/records/23019874",
+    "id": 23019874,
+    "version": "#3",
+    "revision": 1,
+    "sandbox": false,
+    "content_sha256": "96043a9b2651c80b15d2ef19c34f76977ed9fbfac5797ca9b708bcd6477b5dc2",
+    "published_at": "2026-09-28T16:09:57Z"
    }
   }
  },
