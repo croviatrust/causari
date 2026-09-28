@@ -1,0 +1,4 @@
+{
+  "version": "crovia.pnx.policy.v1",
+  "allow": ["github.com:443"]
+}

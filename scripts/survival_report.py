@@ -80,6 +80,16 @@ PAPER = "#f5f4ef"
 GRAPHITE = "#3b4252"
 MIST = "#9aa3ad"
 
+# The run's reach receipt (PNX draft 0.4 §4a): the signed run sheet the egress
+# witness of the audit shards produced, its verification, the policy it
+# applied. Published next to the report when the run has one.
+REACH_SHEET = "reach.sheet.json"
+REACH_VERIFY = "reach.verify.json"
+REACH_POLICY = "egress-policy.json"
+REACH_POLICY_SOURCE = f"{REPO_URL}/blob/main/.github/egress-policy.json"
+REACH_VERDICTS = ("within-policy", "outside-policy", "unchecked", "unpoliced")
+REACH_VERIFIER_URL = "https://croviatrust.com/registry/seal/verify/"
+
 REDIRECT_BEGIN = "# survival-report: begin (managed by scripts/survival_report.py)"
 REDIRECT_END = "# survival-report: end"
 SITEMAP_BEGIN = "<!-- survival-report: begin (managed by scripts/survival_report.py) -->"
@@ -430,6 +440,67 @@ def drop_duplicate_audits(rows: list[dict[str, Any]], listed: list[str]) -> tupl
     return kept_rows, sorted(dropped.values(), key=lambda d: d["dropped"].lower())
 
 
+def collect_reach(run_dir: Path, root: Path) -> dict[str, Any] | None:
+    """The run's reach receipt: `reach.sheet.json`, a `crovia.pnx.v1` run
+    sheet signed by the egress witness the audit shards ran behind, whose
+    reach record says where the measurement connected and under which
+    policy. The workflow verifies it (`tacet-pnx verify --policy --json`)
+    into `reach.verify.json` before the build; a sheet without a passing
+    verification is not published. A run without a sheet has no receipt."""
+    sheet_path = run_dir / REACH_SHEET
+    if not sheet_path.exists():
+        return None
+    sheet = load_json(sheet_path, None)
+    if not isinstance(sheet, dict) or sheet.get("profile") != "crovia.pnx.v1" or not isinstance(sheet.get("reach"), dict):
+        raise SystemExit(f"{sheet_path}: not a crovia.pnx.v1 run sheet with a reach record")
+    verify = load_json(run_dir / REACH_VERIFY, None)
+    if not isinstance(verify, dict):
+        raise SystemExit(f"{run_dir / REACH_VERIFY} missing: the reach sheet must be verified "
+                         f"(tacet-pnx verify {REACH_SHEET} --policy ... --json) before it is published")
+    if verify.get("ok") is not True or verify.get("verdict") != "sheet-only":
+        why = "; ".join(str(e) for e in (verify.get("errors") or [])) or "not ok"
+        raise SystemExit(f"{run_dir / REACH_VERIFY}: the reach sheet did not verify ({why}); refusing to publish it")
+    rv = verify.get("reach") or {}
+    verdict = rv.get("verdict")
+    if verdict not in REACH_VERDICTS:
+        raise SystemExit(f"{run_dir / REACH_VERIFY}: unknown reach verdict {verdict!r}")
+    rec = sheet["reach"]
+    policy_path = root / ".github" / "egress-policy.json"
+    files = {REACH_SHEET: sheet_path}
+    if policy_path.exists():
+        files[REACH_POLICY] = policy_path
+    witness = sheet.get("witness") or {}
+    return {
+        "profile": "crovia.pnx.v1",
+        "record": rec.get("version"),
+        "sheet": REACH_SHEET,
+        "run_id": sheet.get("run_id"),
+        "closed_at": sheet.get("closed_at"),
+        "witness": {"id": witness.get("id"), "key_hex": (witness.get("pubkey") or {}).get("key_hex")},
+        "capture": rec.get("capture"),
+        "disclosure": rec.get("disclosure"),
+        "policy": {
+            **{k: (rec.get("policy") or {}).get(k) for k in ("kind", "mode", "hash", "rules")},
+            "file": REACH_POLICY if REACH_POLICY in files else None,
+            "source": REACH_POLICY_SOURCE,
+        },
+        "summary": rec.get("summary"),
+        "destinations": [
+            {k: d.get(k) for k in ("host", "host_hash", "port", "outcome", "connections", "bytes_out", "bytes_in", "first_at", "last_at") if k in d}
+            for d in (rec.get("destinations") or [])
+        ],
+        "verdict": verdict,
+        "outside": list(rv.get("outside") or []),
+        "warnings": [str(w) for w in (verify.get("warnings") or [])],
+        "covers": "the measurement step of every audit shard, the clone of each repository and the audit itself, "
+                  "with the shard's egress pointed at the witness",
+        "not_covered": "what the runner does outside that step: checking out this repository, installing the tool, "
+                       "uploading the shard; and any connection that did not go through the witness",
+        "verify": [f"tacet-pnx verify {REACH_SHEET} --policy {REACH_POLICY}", f"re pnx verify {REACH_SHEET} --policy {REACH_POLICY}"],
+        "_files": files,
+    }
+
+
 def collect(run_dir: Path, number: int, date: str, root: Path) -> dict[str, Any]:
     run = load_json(run_dir / "run.json", None)
     if not isinstance(run, dict):
@@ -568,6 +639,7 @@ def collect(run_dir: Path, number: int, date: str, root: Path) -> dict[str, Any]
             "opted_out": opted_out,
             "optout_file": f"{REPO_URL}/blob/main/.github/survival-optout.txt",
         },
+        "reach": collect_reach(run_dir, root),
         "doi": None,
         "concept_doi": None,
         "zenodo": None,
@@ -709,6 +781,59 @@ def baseline_md(f: dict[str, Any]) -> list[str]:
     return lines
 
 
+def reach_destination_label(d: dict[str, Any]) -> str:
+    host = d.get("host") or (str(d.get("host_hash") or "")[:16] + "…")
+    return f"{host}:{d.get('port')}"
+
+
+def reach_sentence(r: dict[str, Any]) -> str:
+    """One plain sentence on the receipt: what the witness saw, under which policy."""
+    sm = r.get("summary") or {}
+    pol = r.get("policy") or {}
+    where = (f"{sm.get('destinations', 0)} destination(s) over {sm.get('connections', 0)} connection(s): "
+             f"{sm.get('allowed', 0)} allowed, {sm.get('blocked', 0)} blocked, {sm.get('failed', 0)} failed")
+    if pol.get("kind") == "allowlist":
+        under = f"under an allowlist of {pol.get('rules')} rule(s) in {pol.get('mode')} mode"
+    else:
+        under = "with no policy in force (destinations stated, not judged)"
+    return f"The egress witness of the audit shards recorded {where}, {under}."
+
+
+def reach_verdict_sentence(r: dict[str, Any]) -> str:
+    v = r.get("verdict")
+    if v == "within-policy":
+        return "Every destination the witness saw is one the policy allows."
+    if v == "outside-policy":
+        return f"A destination outside the policy was reached: {', '.join(r.get('outside') or [])}."
+    if v == "unchecked":
+        return "The policy could not be checked against the destinations."
+    return "No policy was in force; the destinations are stated, not judged."
+
+
+def reach_md(f: dict[str, Any]) -> list[str]:
+    r = f.get("reach")
+    if not r:
+        return []
+    pol = r.get("policy") or {}
+    lines = ["", "## Where this measurement connected", "",
+             reach_sentence(r) + " " + reach_verdict_sentence(r),
+             "",
+             "| Destination | Outcome | Connections | Bytes out | Bytes in |", "|---|---|---:|---:|---:|"]
+    for d in r.get("destinations") or []:
+        lines.append(f"| {reach_destination_label(d)} | {d.get('outcome')} | {fmt_int(d.get('connections'))} | "
+                     f"{fmt_int(d.get('bytes_out'))} | {fmt_int(d.get('bytes_in'))} |")
+    lines += ["",
+              f"Signed run sheet: {f['url']}{r['sheet']} (profile {r['profile']}, witness `{(r.get('witness') or {}).get('id')}`, "
+              f"capture `{r.get('capture')}`, disclosure `{r.get('disclosure')}`).  "]
+    if pol.get("hash"):
+        lines.append(f"Policy: {f['url']}{pol['file']} (source {pol['source']}), bound in the sheet as `{pol['hash']}`.  "
+                     if pol.get("file") else f"Policy bound in the sheet as `{pol['hash']}` (source {pol['source']}).  ")
+    lines.append("Verify: `" + "` or `".join(r.get("verify") or []) + f"`, or paste the sheet and the policy at {REACH_VERIFIER_URL}.  ")
+    lines += ["", f"Covered: {r['covers']}. Not covered: {r['not_covered']}. "
+              "The record says where the measurement connected through the witness and how many bytes crossed, nothing about their content."]
+    return lines
+
+
 def report_md(f: dict[str, Any]) -> str:
     a = f["aggregate"]
     m = f["method"]
@@ -785,6 +910,7 @@ def report_md(f: dict[str, Any]) -> str:
     for d in ex.get("duplicates") or []:
         lines.append(f"- {d['dropped']} is the same repository as {d['kept']} ({d['reason']}); counted once, under {d['kept']}")
     lines.append(f"- Opted out by their maintainers ({ex['optout_file']}): {ex['opted_out']}")
+    lines += reach_md(f)
     lines += ["", "## Method", "",
               f"Method {m['version']}, {f['tool']['name']} {f['tool']['version']}. Detection from commit metadata only; "
               f"survival from `git blame {' '.join(m['blame_flags'])}` at HEAD. Per-commit cap: {m['cap_rule']}. "
@@ -1011,6 +1137,44 @@ def doi_html(f: dict[str, Any]) -> str:
     return '<span class="rp-doi" id="doi">DOI: pending deposit</span>'
 
 
+def reach_html(f: dict[str, Any]) -> str:
+    r = f.get("reach")
+    if not r:
+        return ""
+    pol = r.get("policy") or {}
+    rows = "".join(
+        f"<tr><td><code translate=\"no\">{esc(reach_destination_label(d))}</code></td><td>{esc(d.get('outcome'))}</td>"
+        f"<td class=\"num\">{fmt_int(d.get('connections'))}</td><td class=\"num\">{fmt_int(d.get('bytes_out'))}</td>"
+        f"<td class=\"num\">{fmt_int(d.get('bytes_in'))}</td></tr>"
+        for d in r.get("destinations") or []
+    )
+    policy_html = ""
+    if pol.get("hash"):
+        policy_html = (
+            f' The policy is <a href="{esc(pol["file"])}"><code translate="no">{esc(pol["file"])}</code></a>'
+            if pol.get("file") else " The policy"
+        ) + (f' (<a href="{esc(pol["source"])}" rel="noopener">source</a>), bound in the sheet as '
+             f'<code translate="no">{esc(pol["hash"])}</code>.')
+    verify_cmds = " or ".join(f'<code translate="no">{esc(c)}</code>' for c in r.get("verify") or [])
+    warnings = ""
+    if r.get("warnings"):
+        warnings = "<p class=\"muted\">" + " ".join(esc(w) for w in r["warnings"]) + "</p>"
+    return f"""
+    <div class="rp-section" id="reach">
+    <h3>Where this measurement connected</h3>
+    <p class="muted">{esc(reach_sentence(r))} <strong>{esc(reach_verdict_sentence(r))}</strong>{policy_html}</p>
+    <div class="tbl-scroll">
+      <table class="lb-table">
+        <thead><tr><th>Destination</th><th>Outcome</th><th>Connections</th><th>Bytes out</th><th>Bytes in</th></tr></thead>
+        <tbody>{rows}</tbody>
+      </table>
+    </div>
+    <p class="muted">Signed run sheet: <a href="{esc(r['sheet'])}"><code translate="no">{esc(r['sheet'])}</code></a> (profile <code translate="no">{esc(r['profile'])}</code>, witness <code translate="no">{esc((r.get('witness') or {}).get('id'))}</code>, capture <code translate="no">{esc(r.get('capture'))}</code>, disclosure <code translate="no">{esc(r.get('disclosure'))}</code>). Verify it offline with {verify_cmds}, or paste the sheet and the policy at <a href="{REACH_VERIFIER_URL}" rel="noopener">croviatrust.com/registry/seal/verify</a>.</p>
+    {warnings}
+    <p class="muted">Covered: {esc(r['covers'])}. Not covered: {esc(r['not_covered'])}. The record says where the measurement connected through the witness and how many bytes crossed, nothing about their content.</p>
+    </div>"""
+
+
 def render_report(f: dict[str, Any]) -> str:
     a = f["aggregate"]
     m = f["method"]
@@ -1136,6 +1300,7 @@ def render_report(f: dict[str, Any]) -> str:
         f'<a href="{REPO_URL}/edit/main/.github/survival-optout.txt" rel="noopener"><code translate="no">.github/survival-optout.txt</code></a> '
         "removes a repository from the next report, no questions asked.</li>"
     )
+    reach_section = reach_html(f)
     corrections = ""
     if f.get("corrections"):
         items = "".join(f"<li>{esc(c)}</li>" for c in correction_lines(f))
@@ -1183,6 +1348,7 @@ def render_report(f: dict[str, Any]) -> str:
       {''.join(excluded_items)}
     </ul>
     </div>
+{reach_section}
 
     <div class="proof rp-section" id="method">
       <h3>Method</h3>
@@ -1805,6 +1971,9 @@ def write_report(f: dict[str, Any], site: Path, png: bool = True) -> Path:
     (out / "repos").mkdir(exist_ok=True)
     for repo, src in sources.items():
         shutil.copyfile(src, out / "repos" / f"{repo_slug(repo)}.json")
+    if f.get("reach"):
+        for name, src in f["reach"].pop("_files", {}).items():
+            shutil.copyfile(src, out / name)
     dump_json(out / "report.json", f)
     (out / "report.md").write_text(report_md(f), encoding="utf-8")
     (out / "card.svg").write_text(card_svg(f), encoding="utf-8")

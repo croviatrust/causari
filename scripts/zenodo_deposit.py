@@ -82,7 +82,7 @@ def dump_json(p: Path, data: Any) -> None:
 
 def gather(report_dir: Path) -> dict[str, bytes]:
     files: dict[str, bytes] = {}
-    for name in ("report.json", "report.md", "card.png", "card.svg"):
+    for name in ("report.json", "report.md", "card.png", "card.svg", "reach.sheet.json", "egress-policy.json"):
         if (report_dir / name).exists():
             files[name] = (report_dir / name).read_bytes()
     for fp in sorted((report_dir / "repos").glob("*.json")) if (report_dir / "repos").is_dir() else []:

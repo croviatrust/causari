@@ -95,6 +95,9 @@ site/reports/survival/
     report.md                plain-text version, also the Zenodo description
     card.svg, card.png       Open Graph card, identity style
     repos/<owner>__<repo>.json   the exact `re audit --json` bytes per repository
+    reach.sheet.json         signed PNX run sheet (crovia.pnx.v1) with the reach record: where the
+                             measurement connected, under which policy (from the first run behind the witness)
+    egress-policy.json       the policy the witness applied, byte for byte; its hash is bound in the sheet
 ```
 
 `site/_redirects` and `site/sitemap.xml` contain a block managed by the
@@ -117,19 +120,47 @@ Mondays 05:17 UTC or on demand:
    full `-w -M -C` blame of ~20,000 files over ~20,000 commits takes about
    two hours on a 4-core runner), keep the bytes. A repository that fails
    is recorded in the shard's `failed` list, never fatal; a timeout is
-   logged as such and written to the repository's `.err`. The shard uploads `/tmp/run` (audits, the `.err` of
-   each failure, `run-shard-<k>.json`) as the artifact `run-shard-<k>`.
+   logged as such and written to the repository's `.err`. The clones and
+   audits run behind an egress witness (`scripts/egress_witness.py`, a
+   CONNECT proxy on `127.0.0.1:3128` under
+   [`.github/egress-policy.json`](../.github/egress-policy.json):
+   `github.com:443` and nothing else): `https_proxy` points git at it,
+   `GIT_LFS_SKIP_SMUDGE=1` keeps LFS objects, a second destination, from
+   being fetched (blame reads committed pointers either way). A destination
+   outside the policy is refused with 403 and written down as `blocked`;
+   every attempt is one line of `reach-shard-<k>.jsonl`. The shard uploads
+   `/tmp/run` (audits, the `.err` of each failure, `run-shard-<k>.json`, the
+   connection log) as the artifact `run-shard-<k>`.
 2. The `report` job (`needs: audit`, `if: always()`) downloads every shard
    into `/tmp/run` and runs `python3 scripts/survival_report.py merge-shards
    --run /tmp/run`: one `run.json` with the same schema (`generated_at`,
    `tool`, `tool_version`, `method`, `command`, `repos`, `failed`,
    `opted_out`); a repository no shard reported (a shard that hit its
    timeout) is recorded as failed.
-3. `python3 scripts/survival_report.py build --run /tmp/run`: report number =
+3. The shards' connection logs become one signed run sheet:
+   `tacet-pnx witness --reach /tmp/run/reach.jsonl --policy
+   .github/egress-policy.json --reach-mode enforce` (the PNX reference,
+   `crovia-tacet`, installed from the countersign repository until 0.5.0 is
+   on PyPI), signed with the seed in the secret `PNX_WITNESS_SEED` as
+   `urn:causari:survival-report:witness` or, without the secret, with a key
+   made for the run (a notice says so; the public half is in the sheet).
+   `tacet-pnx verify reach.sheet.json --policy .github/egress-policy.json
+   --json` writes `reach.verify.json`; the build refuses a sheet without a
+   passing verification and publishes a verified `outside-policy` verdict
+   as what it is. A run whose shards uploaded no log is published without a
+   receipt, with a warning.
+4. `python3 scripts/survival_report.py build --run /tmp/run`: report number =
    existing report directories + 1; writes the report, the archive, the feed,
    `latest.json`, the redirect and sitemap blocks. `scripts/audit_surfaces.py
    --gate` runs on the result.
-4. Commit `site/reports/survival/**` to `main`: plain commit, never a
+   The report's `reach` block (sheet, policy hash, destinations with outcome
+   and byte counts, verdict, what is and is not covered) feeds the section
+   "Where this measurement connected" of the page and of `report.md`; the
+   sheet and the policy are copied next to the report and into the deposit.
+   Covered: the measurement step of each shard. Not covered: what the runner
+   does outside it (checkout, tool install, artifact upload) and any
+   connection that did not go through the witness.
+5. Commit `site/reports/survival/**` to `main`: plain commit, never a
    force-push. A concurrency group keeps two runs from racing. `main` is
    protected (required check `lint`), so the checkout uses the secret
    `REPORT_PUSH_TOKEN` (a fine-grained token of an administrator, Contents
@@ -138,7 +169,7 @@ Mondays 05:17 UTC or on demand:
    and applied by hand. The `push-check` workflow (manual) proves the secret
    works without touching `main`: token identity, admin permission,
    `enforce_admins` off, one push to a throwaway branch, deleted.
-5. If `ZENODO_TOKEN` is set: `python3 scripts/zenodo_deposit.py <report dir>`
+6. If `ZENODO_TOKEN` is set: `python3 scripts/zenodo_deposit.py <report dir>`
    publishes the record, writes the DOI into `report.json`, re-renders the page
    and the archive, and commits again. Without the secret the step prints a
    notice and the dry-run payload; the report is published without a DOI and

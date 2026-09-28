@@ -996,5 +996,159 @@ class ZenodoTests(unittest.TestCase):
         self.assertNotEqual(zd.content_hash(files), zd.content_hash({"report.json": b"{ }"}))
 
 
+PNX_005 = json.loads((ROOT / "tests" / "vectors" / "pnx" / "conformance" / "pnx_005_reach.json").read_text(encoding="utf-8"))
+
+
+def verify_json(sheet: dict, verdict: str = "within-policy", ok: bool = True, outside: list | None = None) -> dict:
+    """What `tacet-pnx verify SHEET --policy POLICY --json` writes for a sheet alone."""
+    return {"ok": ok, "verdict": "sheet-only" if ok else "?", "assets": {}, "errors": [] if ok else ["witness signature invalid"],
+            "warnings": [], "sealed": False, "sheet_only": True,
+            "reach": {"verdict": verdict if ok else "?", "outside": outside or [], "reached": {}}}
+
+
+class ReachTests(unittest.TestCase):
+    """The run's reach receipt: the signed PNX run sheet of the egress witness
+    the shards ran behind, published next to the report once verified."""
+
+    def scratch(self, sheet: dict | None, verify: dict | None, policy: bool = True) -> Scratch:
+        s = Scratch()
+        if sheet is not None:
+            (s.run / "reach.sheet.json").write_text(json.dumps(sheet), encoding="utf-8")
+        if verify is not None:
+            (s.run / "reach.verify.json").write_text(json.dumps(verify), encoding="utf-8")
+        if policy:
+            (s.root / ".github" / "egress-policy.json").write_text(json.dumps(PNX_005["policy"]["document"]), encoding="utf-8")
+        return s
+
+    def test_a_run_without_a_sheet_has_no_receipt(self) -> None:
+        s = Scratch()
+        try:
+            f = s.build()
+            self.assertIsNone(f["reach"])
+            d = s.site / "reports" / "survival" / "2026" / "01"
+            self.assertNotIn("Where this measurement connected", (d / "index.html").read_text(encoding="utf-8"))
+            self.assertNotIn("Where this measurement connected", (d / "report.md").read_text(encoding="utf-8"))
+            self.assertFalse((d / "reach.sheet.json").exists())
+        finally:
+            s.close()
+
+    def test_a_verified_sheet_is_published_with_its_destinations_and_policy(self) -> None:
+        sheet = PNX_005["valid"]["enforce"]["sheet"]
+        s = self.scratch(sheet, verify_json(sheet))
+        try:
+            f = s.build()
+            r = f["reach"]
+            self.assertEqual(r["profile"], "crovia.pnx.v1")
+            self.assertEqual(r["record"], "crovia.pnx.reach.v1")
+            self.assertEqual(r["run_id"], sheet["run_id"])
+            self.assertEqual(r["witness"], {"id": sheet["witness"]["id"], "key_hex": sheet["witness"]["pubkey"]["key_hex"]})
+            self.assertEqual(r["verdict"], "within-policy")
+            self.assertEqual(r["summary"], sheet["reach"]["summary"])
+            self.assertEqual([d["host"] for d in r["destinations"]], [d["host"] for d in sheet["reach"]["destinations"]])
+            self.assertEqual(r["policy"]["hash"], sheet["reach"]["policy"]["hash"])
+            self.assertEqual(r["policy"]["file"], "egress-policy.json")
+            self.assertEqual(r["policy"]["mode"], "enforce")
+            self.assertNotIn("_files", r)
+            self.assertIn("tacet-pnx verify reach.sheet.json --policy egress-policy.json", r["verify"])
+            d = s.site / "reports" / "survival" / "2026" / "01"
+            # the sheet and the policy travel with the report, byte for byte
+            self.assertEqual(json.loads((d / "reach.sheet.json").read_text(encoding="utf-8")), sheet)
+            self.assertEqual(json.loads((d / "egress-policy.json").read_text(encoding="utf-8")), PNX_005["policy"]["document"])
+            html = (d / "index.html").read_text(encoding="utf-8")
+            text = visible_text(html)
+            self.assertIn("Where this measurement connected", text)
+            self.assertIn("Every destination the witness saw is one the policy allows.", text)
+            self.assertIn("pastebin.com:443", text)
+            self.assertIn("blocked", text)
+            self.assertIn('href="reach.sheet.json"', html)
+            self.assertIn('href="egress-policy.json"', html)
+            self.assertIn("re pnx verify reach.sheet.json --policy egress-policy.json", text)
+            self.assertIn("Not covered:", text)
+            for word in FORBIDDEN:
+                self.assertNotIn(word, text)
+            md = (d / "report.md").read_text(encoding="utf-8")
+            self.assertIn("## Where this measurement connected", md)
+            self.assertIn("| pastebin.com:443 | blocked | 1 | 0 | 0 |", md)
+            self.assertIn(sheet["reach"]["policy"]["hash"], md)
+            # the receipt is part of the deposit
+            self.assertTrue({"reach.sheet.json", "egress-policy.json"} <= set(zd.gather(d)))
+        finally:
+            s.close()
+
+    def test_a_sheet_without_a_verification_is_not_published(self) -> None:
+        sheet = PNX_005["valid"]["enforce"]["sheet"]
+        s = self.scratch(sheet, None)
+        try:
+            with self.assertRaises(SystemExit) as cm:
+                s.build()
+            self.assertIn("reach.verify.json missing", str(cm.exception))
+            self.assertFalse((s.site / "reports" / "survival" / "2026" / "01").exists())
+        finally:
+            s.close()
+
+    def test_a_sheet_that_failed_verification_is_not_published(self) -> None:
+        sheet = PNX_005["valid"]["enforce"]["sheet"]
+        s = self.scratch(sheet, verify_json(sheet, ok=False))
+        try:
+            with self.assertRaises(SystemExit) as cm:
+                s.build()
+            self.assertIn("did not verify", str(cm.exception))
+            self.assertIn("witness signature invalid", str(cm.exception))
+        finally:
+            s.close()
+
+    def test_an_object_that_is_not_a_sheet_is_refused(self) -> None:
+        s = self.scratch({"profile": "crovia.pnx.v1", "hello": 1}, verify_json({}))
+        try:
+            with self.assertRaises(SystemExit) as cm:
+                s.build()
+            self.assertIn("not a crovia.pnx.v1 run sheet with a reach record", str(cm.exception))
+        finally:
+            s.close()
+
+    def test_outside_policy_is_published_and_said_plainly(self) -> None:
+        # observe mode: the witness relayed everything; the verifier found pastebin.com outside the policy.
+        sheet = PNX_005["valid"]["observe"]["sheet"]
+        s = self.scratch(sheet, verify_json(sheet, verdict="outside-policy", outside=["pastebin.com:443"]))
+        try:
+            f = s.build()
+            self.assertEqual(f["reach"]["verdict"], "outside-policy")
+            self.assertEqual(f["reach"]["outside"], ["pastebin.com:443"])
+            d = s.site / "reports" / "survival" / "2026" / "01"
+            text = visible_text((d / "index.html").read_text(encoding="utf-8"))
+            self.assertIn("A destination outside the policy was reached: pastebin.com:443.", text)
+            self.assertIn("observe mode", text)
+        finally:
+            s.close()
+
+    def test_without_a_policy_the_destinations_are_stated_not_judged(self) -> None:
+        sheet = PNX_005["valid"]["none"]["sheet"]
+        s = self.scratch(sheet, verify_json(sheet, verdict="unpoliced"), policy=False)
+        try:
+            f = s.build()
+            self.assertEqual(f["reach"]["verdict"], "unpoliced")
+            self.assertIsNone(f["reach"]["policy"]["file"])
+            self.assertIsNone(f["reach"]["policy"]["hash"])
+            d = s.site / "reports" / "survival" / "2026" / "01"
+            self.assertFalse((d / "egress-policy.json").exists())
+            text = visible_text((d / "index.html").read_text(encoding="utf-8"))
+            self.assertIn("with no policy in force (destinations stated, not judged)", text)
+            self.assertIn("No policy was in force; the destinations are stated, not judged.", text)
+        finally:
+            s.close()
+
+    def test_rerender_keeps_the_receipt(self) -> None:
+        sheet = PNX_005["valid"]["enforce"]["sheet"]
+        s = self.scratch(sheet, verify_json(sheet))
+        try:
+            s.build()
+            d = s.site / "reports" / "survival" / "2026" / "01"
+            (d / "index.html").unlink()
+            self.assertEqual(sr.main(["--site", str(s.site), "--root", str(s.root), "rerender", str(d)]), 0)
+            self.assertIn("Where this measurement connected", (d / "index.html").read_text(encoding="utf-8"))
+        finally:
+            s.close()
+
+
 if __name__ == "__main__":
     unittest.main()

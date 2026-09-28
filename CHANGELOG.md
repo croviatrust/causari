@@ -29,6 +29,17 @@ release workflow copies it verbatim. Counts, not adjectives.
   (standard library) is the CI-side CONNECT witness that writes the
   connection log such a sheet is built from; the Survival Report job runs
   behind it (see below).
+- **The Survival Report carries its own reach receipt.** Every audit shard
+  clones and measures behind the egress witness under
+  `.github/egress-policy.json` (`github.com:443`, nothing else); the report
+  job signs the shards' connection logs into one `crovia.pnx.v1` run sheet,
+  verifies it against the policy and publishes `reach.sheet.json`,
+  `egress-policy.json`, a `reach` block in `report.json` and the section
+  "Where this measurement connected" on the page and in `report.md`
+  (destinations, outcomes, bytes, verdict, what is and is not covered). The
+  build refuses a sheet that did not verify. Zenodo deposits include both
+  files. Secret `PNX_WITNESS_SEED` (optional) keeps one witness identity
+  across weeks.
 - Conformance: `pnx_005_reach.json` added and `pnx_002`–`004` refreshed
   from crovia-tacet 0.5.0; the reach record a Causari witness derives from
   the vector's connection log is byte-identical to the reference's. 244

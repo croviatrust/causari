@@ -15,6 +15,15 @@ name: survival-report
 # SHARDS, uploads its results as an artifact, and the report job merges the
 # shards, builds the report and commits it to main, append-only.
 #
+# Where the measurement connected is part of the report. Every shard runs
+# its clones and audits behind an egress witness (scripts/egress_witness.py,
+# a CONNECT proxy under .github/egress-policy.json: github.com:443 and
+# nothing else; anything else is refused and written down). The report job
+# turns the shards' connection logs into one signed PNX run sheet
+# (crovia.pnx.v1 with a reach record), verifies it against the policy and
+# publishes sheet, policy and verdict next to the report. A reader checks
+# it offline: `tacet-pnx verify reach.sheet.json --policy egress-policy.json`.
+#
 # GitHub starts scheduled runs late on quiet repositories: report #3 was
 # scheduled for 05:17 UTC and started at 11:42. The schedule is therefore a
 # floor, not a clock. An operator may fire the run on time from an external
@@ -139,6 +148,18 @@ jobs:
             if $skip; then echo "opt-out: $r"; OPTED+=("$r"); else REPOS+=("$r"); fi
           done
           echo "shard $K of $N: ${#REPOS[@]} repositories (${#OPTED[@]} opted out) of ${#ALL[@]} listed"
+          # From here to the end of the loop every connection goes through
+          # the egress witness: git honours https_proxy, nothing else in the
+          # loop speaks to the network, and LFS content is not fetched (blame
+          # reads committed pointers; the objects would be a second
+          # destination the policy does not name). Each attempt is one line
+          # of reach-shard-K.jsonl, uploaded with the shard.
+          python3 scripts/egress_witness.py --listen 127.0.0.1:3128 --policy .github/egress-policy.json \
+            --log "$RUN/reach-shard-$K.jsonl" 2>"$RUN/reach-shard-$K.err" &
+          WITNESS=$!
+          sleep 1
+          kill -0 "$WITNESS" 2>/dev/null || { echo "egress witness did not start:"; cat "$RUN/reach-shard-$K.err"; exit 1; }
+          export https_proxy=http://127.0.0.1:3128 http_proxy=http://127.0.0.1:3128 GIT_LFS_SKIP_SMUDGE=1
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           FAILED=()
           for repo in "${REPOS[@]:-}"; do
@@ -171,6 +192,12 @@ jobs:
             rm -rf "$CLONE"
             echo "::endgroup::"
           done
+          unset https_proxy http_proxy
+          kill -TERM "$WITNESS" 2>/dev/null || true
+          wait "$WITNESS" 2>/dev/null || true
+          echo "reach: $(wc -l < "$RUN/reach-shard-$K.jsonl") connection attempt(s) recorded by the egress witness"
+          grep -E 'blocked|failed' "$RUN/reach-shard-$K.err" || true
+          rm -f "$RUN/reach-shard-$K.err"
           # The method version is what the binary says (coverage.method of any
           # audit), never a constant written here: report #3 was method v3
           # while this file still said v2.
@@ -237,6 +264,48 @@ jobs:
           jq '{generated_at, tool_version, repos: (.repos | length), failed, opted_out: (.opted_out | length), shards}' /tmp/run/run.json
           ls /tmp/run/*__*.json | wc -l
 
+      # The shards' connection logs become one signed run sheet with a reach
+      # record, verified against the policy before the build. The build
+      # refuses a sheet without a passing verification; a verdict of
+      # outside-policy (exit 1) is a verified sheet and is published as such,
+      # said plainly. Without PNX_WITNESS_SEED the sheet is signed with a key
+      # made for this run: valid, but a new witness identity every week.
+      - name: install the PNX reference (crovia-tacet)
+        if: ${{ !inputs.deposit_only }}
+        # Pinned to the countersign commit until crovia-tacet 0.5.0 is on PyPI; then `crovia-tacet>=0.5.0`.
+        run: python3 -m pip install --quiet "crovia-tacet @ git+https://github.com/croviatrust/countersign@3026b6614aa2dc7a4aada01bb7ecade5027c3c3f#subdirectory=tacet/reference/python"
+
+      - name: reach record — sign and verify where the shards connected
+        if: ${{ !inputs.deposit_only }}
+        env:
+          PNX_WITNESS_SEED: ${{ secrets.PNX_WITNESS_SEED }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          LOGS=(/tmp/run/reach-shard-*.jsonl)
+          if [ "${#LOGS[@]}" -eq 0 ]; then
+            echo "::warning title=No reach record::no shard uploaded a connection log; the report is published without a reach receipt."
+            exit 0
+          fi
+          cat "${LOGS[@]}" > /tmp/run/reach.jsonl
+          echo "${#LOGS[@]} shard log(s), $(wc -l < /tmp/run/reach.jsonl) connection attempt(s)"
+          mkdir -p /tmp/empty
+          if [ -n "${PNX_WITNESS_SEED:-}" ]; then
+            KEY=(--key-env PNX_WITNESS_SEED --key-id urn:causari:survival-report:witness)
+          else
+            echo "::notice title=Per-run witness key::PNX_WITNESS_SEED is not set, so this sheet is signed with a key made for this run (its public half is in the sheet). Add the secret (32 random bytes as 64 hex characters) to keep one witness identity across reports."
+            tacet-pnx keygen --id "urn:causari:survival-report:witness:run-$GITHUB_RUN_ID" --out /tmp/witness.key.json
+            KEY=(--key /tmp/witness.key.json)
+          fi
+          tacet-pnx witness /tmp/empty --run-id "survival-report-gh-$GITHUB_RUN_ID" "${KEY[@]}" \
+            --reach /tmp/run/reach.jsonl --policy .github/egress-policy.json --reach-mode enforce \
+            --sheet /tmp/run/reach.sheet.json --state /tmp/witness.state.json
+          rm -f /tmp/witness.key.json /tmp/witness.state.json
+          rc=0
+          tacet-pnx verify /tmp/run/reach.sheet.json --policy .github/egress-policy.json --json > /tmp/run/reach.verify.json || rc=$?
+          if [ "$rc" -gt 1 ]; then cat /tmp/run/reach.verify.json; exit "$rc"; fi
+          tacet-pnx verify /tmp/run/reach.sheet.json --policy .github/egress-policy.json || true
+
       # Report number = existing report directories + 1; the generator refuses
       # to overwrite a directory that already holds a different report.
       - name: build the report
@@ -250,6 +319,7 @@ jobs:
             echo "## $(jq -r .title "$DIR/report.json") · $(jq -r .date "$DIR/report.json")"
             echo
             sed -n '/^## Aggregate/,/^## Repositories/p' "$DIR/report.md" | sed '$d'
+            sed -n '/^## Where this measurement connected/,/^## Method/p' "$DIR/report.md" | sed '$d'
           } >> "$GITHUB_STEP_SUMMARY"
 
       # The report to publish and deposit: the one latest.json names, whether
