@@ -35,8 +35,8 @@ jobs:
           re --version
 
       - name: install the PNX reference (crovia-tacet)
-        # Same pin as survival-report.yml.
-        run: python3 -m pip install --quiet "crovia-tacet @ git+https://github.com/croviatrust/countersign@3026b6614aa2dc7a4aada01bb7ecade5027c3c3f#subdirectory=tacet/reference/python"
+        # Same published TACET requirement as survival-report.yml.
+        run: python3 -m pip install --quiet "crovia-tacet>=0.5.0"
 
       - name: one clone behind the witness, one refused destination
         run: |

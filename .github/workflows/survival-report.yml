@@ -272,8 +272,8 @@ jobs:
       # made for this run: valid, but a new witness identity every week.
       - name: install the PNX reference (crovia-tacet)
         if: ${{ !inputs.deposit_only }}
-        # Pinned to the countersign commit until crovia-tacet 0.5.0 is on PyPI; then `crovia-tacet>=0.5.0`.
-        run: python3 -m pip install --quiet "crovia-tacet @ git+https://github.com/croviatrust/countersign@3026b6614aa2dc7a4aada01bb7ecade5027c3c3f#subdirectory=tacet/reference/python"
+        # Install the published TACET reference implementation from PyPI.
+        run: python3 -m pip install --quiet "crovia-tacet>=0.5.0"
 
       - name: reach record — sign and verify where the shards connected
         if: ${{ !inputs.deposit_only }}
