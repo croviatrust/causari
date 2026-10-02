@@ -34,20 +34,39 @@ lobehub/lobe-chat
 RooCodeInc/Roo-Code
 stackblitz/bolt.new
 # discovered 2026-09-27 by scripts/survival_discover.py: 16 repositories, the most-starred public repositories with ≥5 AI-attributed commits found via GitHub commit search and ≥100 stars
+# restored 2026-10-02: 18 repositories from the 2026-09-23 discovery (measured in report #2) that the 2026-09-27 sample missed. The next run re-counts them.
 # Alphabetical. Counts per signal and the selection rule: .github/survival-discovery.json
+airbytehq/airbyte
+apache/fluss
+apache/spark
+apache/texera
+cfug/flutter.cn
 cloudflare/workers-sdk
 cozystack/cozystack
 fastrepl/anarlog
+fern-api/fern
 flutter/flutter
 flutter/website
+github/gh-aw-mcpg
 google/sam
 GoogleCloudPlatform/scion
+jdubois/boot-ui
 lidge-ai/cli-jaw
 lidge-ai/ima2-gen
 llvm/llvm-project
+managarm/managarm
+microsoft/BCApps
+microsoft/vscode
+NovaSky-AI/SkyRL
+NVIDIA-NeMo/Switchyard
+OpenHands/extensions
 OpenHands/software-agent-sdk
+PrefectHQ/prefect
 ray-project/ray
 richlander/dotnet-inspect
 secdev/scapy
+smithersai/smithers
+TracecatHQ/tracecat
 vllm-project/llm-compressor
+xing-shuyin/pi-web-ui
 youknowone/pyre

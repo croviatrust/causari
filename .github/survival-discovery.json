@@ -140,6 +140,19 @@
    "discovered_at": null
   },
   {
+   "repo": "airbytehq/airbyte",
+   "seed": false,
+   "commits": 1339,
+   "by_signal": {
+    "author:devin-ai-integration": 1303,
+    "co-authored-by:devin-ai-integration": 36
+   },
+   "sampled": 18,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 22123,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
    "repo": "anthropics/anthropic-sdk-python",
    "seed": true,
    "commits": 0,
@@ -170,6 +183,42 @@
    "discovered_at": null
   },
   {
+   "repo": "apache/fluss",
+   "seed": false,
+   "commits": 34,
+   "by_signal": {
+    "trailer:ai-model": 34
+   },
+   "sampled": 9,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 2168,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
+   "repo": "apache/spark",
+   "seed": false,
+   "commits": 12081,
+   "by_signal": {
+    "trailer:ai-tool": 12081
+   },
+   "sampled": 17,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 44031,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
+   "repo": "apache/texera",
+   "seed": false,
+   "commits": 1654,
+   "by_signal": {
+    "trailer:ai-tool": 1654
+   },
+   "sampled": 8,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 318,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
    "repo": "BerriAI/litellm",
    "seed": true,
    "commits": 775,
@@ -191,6 +240,18 @@
    "counts": "not sampled",
    "stars": null,
    "discovered_at": null
+  },
+  {
+   "repo": "cfug/flutter.cn",
+   "seed": false,
+   "commits": 139,
+   "by_signal": {
+    "co-authored-by:gemini-code-assist": 139
+   },
+   "sampled": 10,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 568,
+   "discovered_at": "2026-09-23T18:23:04Z"
   },
   {
    "repo": "cline/cline",
@@ -280,6 +341,19 @@
    "discovered_at": "2026-09-23T18:23:04Z"
   },
   {
+   "repo": "fern-api/fern",
+   "seed": false,
+   "commits": 884,
+   "by_signal": {
+    "author:devin-ai-integration": 864,
+    "co-authored-by:devin-ai-integration": 20
+   },
+   "sampled": 25,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 3782,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
    "repo": "flutter/flutter",
    "seed": false,
    "commits": 1283,
@@ -315,6 +389,18 @@
    "discovered_at": null
   },
   {
+   "repo": "github/gh-aw-mcpg",
+   "seed": false,
+   "commits": 3331,
+   "by_signal": {
+    "author:copilot-swe-agent": 3331
+   },
+   "sampled": 22,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 180,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
    "repo": "google-gemini/gemini-cli",
    "seed": true,
    "commits": 3,
@@ -348,6 +434,18 @@
    "sampled": 14,
    "counts": "repository-wide",
    "stars": 1724,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
+   "repo": "jdubois/boot-ui",
+   "seed": false,
+   "commits": 981,
+   "by_signal": {
+    "co-authored-by:copilot": 981
+   },
+   "sampled": 10,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 296,
    "discovered_at": "2026-09-23T18:23:04Z"
   },
   {
@@ -419,6 +517,18 @@
    "now_named": "lobehub/lobehub"
   },
   {
+   "repo": "managarm/managarm",
+   "seed": false,
+   "commits": 595,
+   "by_signal": {
+    "trailer:assisted-by": 595
+   },
+   "sampled": 16,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 1981,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
    "repo": "mem0ai/mem0",
    "seed": true,
    "commits": 0,
@@ -429,6 +539,30 @@
    "discovered_at": null
   },
   {
+   "repo": "microsoft/BCApps",
+   "seed": false,
+   "commits": 499,
+   "by_signal": {
+    "co-authored-by:copilot": 499
+   },
+   "sampled": 9,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 684,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
+   "repo": "microsoft/vscode",
+   "seed": false,
+   "commits": 5981,
+   "by_signal": {
+    "co-authored-by:copilot": 5981
+   },
+   "sampled": 42,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 192826,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
    "repo": "microsoft/vscode-copilot-chat",
    "seed": true,
    "commits": 0,
@@ -437,6 +571,30 @@
    "counts": "not sampled",
    "stars": null,
    "discovered_at": null
+  },
+  {
+   "repo": "NovaSky-AI/SkyRL",
+   "seed": false,
+   "commits": 129,
+   "by_signal": {
+    "co-authored-by:gemini-code-assist": 129
+   },
+   "sampled": 9,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 2345,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
+   "repo": "NVIDIA-NeMo/Switchyard",
+   "seed": false,
+   "commits": 61,
+   "by_signal": {
+    "trailer:assisted-by": 61
+   },
+   "sampled": 17,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 3211,
+   "discovered_at": "2026-09-23T18:23:04Z"
   },
   {
    "repo": "openai/codex",
@@ -469,6 +627,18 @@
    "discovered_at": null
   },
   {
+   "repo": "OpenHands/extensions",
+   "seed": false,
+   "commits": 252,
+   "by_signal": {
+    "co-authored-by:openhands": 252
+   },
+   "sampled": 16,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 150,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
    "repo": "OpenHands/OpenHands",
    "seed": true,
    "commits": 5,
@@ -490,6 +660,19 @@
    "sampled": 9,
    "counts": "repository-wide",
    "stars": 1175,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
+   "repo": "PrefectHQ/prefect",
+   "seed": false,
+   "commits": 1145,
+   "by_signal": {
+    "author:devin-ai-integration": 1132,
+    "co-authored-by:devin-ai-integration": 13
+   },
+   "sampled": 10,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 23909,
    "discovered_at": "2026-09-23T18:23:04Z"
   },
   {
@@ -571,6 +754,18 @@
    "discovered_at": "2026-09-23T18:23:04Z"
   },
   {
+   "repo": "smithersai/smithers",
+   "seed": false,
+   "commits": 1014,
+   "by_signal": {
+    "co-authored-by:codex": 1014
+   },
+   "sampled": 25,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 421,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
    "repo": "sst/opencode",
    "seed": true,
    "commits": 0,
@@ -592,6 +787,19 @@
    "discovered_at": null
   },
   {
+   "repo": "TracecatHQ/tracecat",
+   "seed": false,
+   "commits": 54,
+   "by_signal": {
+    "author:devin-ai-integration": 53,
+    "co-authored-by:devin-ai-integration": 1
+   },
+   "sampled": 10,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 3807,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
    "repo": "vercel/next.js",
    "seed": true,
    "commits": 0,
@@ -611,6 +819,18 @@
    "sampled": 12,
    "counts": "repository-wide",
    "stars": 3824,
+   "discovered_at": "2026-09-23T18:23:04Z"
+  },
+  {
+   "repo": "xing-shuyin/pi-web-ui",
+   "seed": false,
+   "commits": 30,
+   "by_signal": {
+    "trailer:assisted-by": 30
+   },
+   "sampled": 12,
+   "counts": "carried forward from the 2026-09-23 discovery; the next run re-counts this repository",
+   "stars": 233,
    "discovered_at": "2026-09-23T18:23:04Z"
   },
   {
@@ -1034,5 +1254,29 @@
   "seed_duplicates": [],
   "not_candidates": 5823,
   "unverified": []
+ },
+ "carried_forward": {
+  "at": "2026-10-02",
+  "reason": "The 2026-09-27 sample dropped 18 repositories that the 2026-09-23 discovery had kept and report #2 measured. They are back on the list with the signals recorded then, so the next discovery run re-counts them. They leave only if they miss the same floors as every other repository. These rows are that record, not a new measurement.",
+  "repositories": [
+   "airbytehq/airbyte",
+   "apache/fluss",
+   "apache/spark",
+   "apache/texera",
+   "cfug/flutter.cn",
+   "fern-api/fern",
+   "github/gh-aw-mcpg",
+   "jdubois/boot-ui",
+   "managarm/managarm",
+   "microsoft/BCApps",
+   "microsoft/vscode",
+   "NovaSky-AI/SkyRL",
+   "NVIDIA-NeMo/Switchyard",
+   "OpenHands/extensions",
+   "PrefectHQ/prefect",
+   "smithersai/smithers",
+   "TracecatHQ/tracecat",
+   "xing-shuyin/pi-web-ui"
+  ]
  }
 }
