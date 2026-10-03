@@ -247,7 +247,7 @@ jobs:
 
       - name: download the shards
         if: ${{ !inputs.deposit_only }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: run-shard-*
           path: /tmp/run
