@@ -41,19 +41,7 @@ jobs:
               missing=1
             fi
             # GitHub's users.noreply.github.com addresses are a real identity; example.* is not.
-            if git show -s --format='%(trailers:key=Signed-off-by,valueonly)' "$sha" | grep -qiE '@example\.(com|org|net)>?
-              echo "::error::commit ${sha:0:10} is signed off with a placeholder identity"
-              missing=1
-            fi
-          done < <(git rev-list --no-merges "${BASE}..${HEAD}")
-          if [ "$missing" != "0" ]; then
-            echo
-            echo "Add the trailer to each commit with:  git commit -s   (or amend: git commit --amend -s --no-edit)"
-            echo "Then force-push your branch. See DCO.md."
-            exit 1
-          fi
-          echo "every commit in ${BASE:0:10}..${HEAD:0:10} is signed off"
-; then
+            if git show -s --format='%(trailers:key=Signed-off-by,valueonly)' "$sha" | grep -qiE '@example\.(com|org|net)>?$'; then
               echo "::error::commit ${sha:0:10} is signed off with a placeholder identity"
               missing=1
             fi
