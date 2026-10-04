@@ -452,9 +452,10 @@ enum ReversedPre {
     /// A pre-snapshot whose only difference from the post-tree is `rel`
     /// restored to the bytes before the declared edits.
     Snapshot(String),
-    /// No file was declared (a shell). The caller may fall back to the
-    /// previous post-state. That fallback can attribute the whole gap to
-    /// this call: a known limit, not a proof.
+    /// No file was declared and no pre-snapshot was captured. The caller
+    /// must not fall back to the previous post-state: that diff is the gap
+    /// since the last event, and a command string does not say which lines
+    /// the command wrote.
     Fallback,
     /// The declaration cannot be turned into a diff without assigning lines
     /// the ledger cannot support. Record nothing. The lines stay with whoever
@@ -591,10 +592,13 @@ fn record_tool_action(repo: &Repo, action: ToolAction) -> Result<Option<String>>
     // previous event's post-state is the whole gap since then — a human edit,
     // a rename, a formatter — and every inserted line would be this agent's.
     // A declared edit can be reversed onto the file as it sits now, which
-    // puts that gap on both sides of the diff. A shell declares no file, so
-    // it still falls back; that is a limit. A file declaration that does not
-    // reverse, or that claims to have created a file the ledger already has,
-    // is dropped: recording it would turn the declaration into line ownership.
+    // puts that gap on both sides of the diff. A file declaration that does
+    // not reverse, or that claims to have created a file the ledger already
+    // has, is dropped. A shell with no captured pre-state is dropped too:
+    // the previous snapshot's diff would assign the whole gap to a command
+    // that did not say which lines it wrote. A shell whose PreToolUse
+    // snapshot is still pending keeps that snapshot, so its diff is the
+    // change after the capture.
     let pre_snapshot_id = match take_pending_pre(repo, session_id) {
         Some(id) => id,
         None => match reversed_pre_snapshot(
@@ -605,8 +609,7 @@ fn record_tool_action(repo: &Repo, action: ToolAction) -> Result<Option<String>>
             &parent_id,
         )? {
             ReversedPre::Snapshot(id) => id,
-            ReversedPre::Fallback => crate::commit::resolve_pre_snapshot(repo, &store, &parent_id)?,
-            ReversedPre::Drop => return Ok(None),
+            ReversedPre::Fallback | ReversedPre::Drop => return Ok(None),
         },
     };
 

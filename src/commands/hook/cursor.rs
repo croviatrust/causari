@@ -13,8 +13,9 @@
 //!   to change, so the event's diff is exactly that tool call
 //! - `afterFileEdit` → a Causari event for the written file, joined to
 //!   the conversation's prompt
-//! - `afterShellExecution` → a Causari event for a command that changed
-//!   the tree, the command as its message
+//! - `afterShellExecution` → a Causari event when PreToolUse captured the
+//!   tree, the command as its message. Without that snapshot the command
+//!   is not given every change since the previous event.
 //! - `afterAgentResponse` → the agent's answer, stored as an exchange next
 //!   to its prompt
 //! - `stop` → pre-states the turn never used are dropped
@@ -100,7 +101,7 @@ pub(super) fn install(user: bool, dry_run: bool) -> Result<()> {
         PRE_TOOL_MATCHER
     );
     println!("  afterFileEdit → records the edit as a Causari event, diffed against that snapshot");
-    println!("  afterShellExecution → records a command that changed the tree");
+    println!("  afterShellExecution → records a command when preToolUse captured the tree");
     println!("  afterAgentResponse → keeps the agent's answer next to its prompt");
     println!("  stop → drops the pre-states the turn never used");
     println!("  sessionStart → injects verified experience into every new conversation");
@@ -1152,17 +1153,23 @@ mod tests {
         assert_declared(again.event.evidence.as_ref().unwrap());
     }
 
-    /// Expected for a shell that declares no edit: AMBIGUOUS line ownership.
-    /// The shell falls back to the previous snapshot, so a human line edited
-    /// since then can become this event's diff. This test does not lock that
-    /// ownership. It locks the evidence class: the event stays declared.
+    /// Expected, written first. A shell declares a command and no edit.
+    /// PreToolUse did not leave a snapshot (the pending pre was discarded).
+    /// The file already holds an earlier agent's line plus a human rewrite.
+    ///
+    /// - `def refresh(user):` stays the first event.
+    /// - `    return rewritten` is introduced by no event (UNKNOWN).
+    /// - No shell event is recorded. Inheriting the previous snapshot would
+    ///   turn the gap into the shell's diff, and the command string is not
+    ///   evidence of which lines the command wrote.
     #[test]
-    fn shell_with_no_declared_edit_stays_declared() {
+    fn shell_without_a_captured_pre_does_not_inherit_the_gap() {
         let tmp = tempfile::tempdir().unwrap();
         let repo = Repo::init(tmp.path()).unwrap();
         let original = "def refresh(user):\n    return token\n";
         let first = pre_tool_then_write(&repo, "conv-a", "auth.py", original);
         handle_in(&repo, "afterFileEdit", &first).unwrap();
+        let agent_a = repo.head_event().unwrap().unwrap();
 
         std::fs::write(
             repo.root.join("auth.py"),
@@ -1170,8 +1177,6 @@ mod tests {
         )
         .unwrap();
         pre_tool_shell(&repo, "conv-sh");
-        // Drop the pending pre so this is the no-edit fallback, not a captured pre.
-        // pre_tool_shell just recorded one. Discard it the way a missed hook would.
         let pending = repo.dir.join("capture").join("pending-pre.jsonl");
         if pending.exists() {
             std::fs::remove_file(&pending).unwrap();
@@ -1181,9 +1186,63 @@ mod tests {
             json!({ "command": "rewrite auth.py", "output": "", "duration": 4, "sandbox": false }),
         );
         handle_in(&repo, "afterShellExecution", &generated).unwrap();
+
+        assert_eq!(
+            repo.head_event().unwrap().as_deref(),
+            Some(agent_a.as_str())
+        );
+        let kept = origin(&repo, "auth.py", "def refresh(user):").unwrap();
+        assert_eq!(kept.id, agent_a);
+        assert_declared(kept.event.evidence.as_ref().unwrap());
+        assert!(
+            origin(&repo, "auth.py", "    return rewritten").is_none(),
+            "the rewritten line must stay unknown"
+        );
+    }
+
+    /// Expected: PreToolUse ran after the human rewrite and before the shell
+    /// appended one line. The shell owns that line. It does not own the
+    /// human rewrite, and it does not own the first agent's signature.
+    #[test]
+    fn shell_with_a_captured_pre_owns_only_the_change_after_the_snapshot() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let original = "def refresh(user):\n    return token\n";
+        let first = pre_tool_then_write(&repo, "conv-a", "auth.py", original);
+        handle_in(&repo, "afterFileEdit", &first).unwrap();
+        let agent_a = repo.head_event().unwrap().unwrap();
+
+        let rewritten = "def refresh(user):\n    return rewritten\n";
+        std::fs::write(repo.root.join("auth.py"), rewritten).unwrap();
+        pre_tool_shell(&repo, "conv-sh");
+        let after = "def refresh(user):\n    return rewritten\ndef ping():\n    return 1\n";
+        std::fs::write(repo.root.join("auth.py"), after).unwrap();
+        let generated = with(
+            common_fields("conv-sh"),
+            json!({ "command": "printf ping >> auth.py", "output": "", "duration": 4, "sandbox": false }),
+        );
+        handle_in(&repo, "afterShellExecution", &generated).unwrap();
+        let shell = repo.head_event().unwrap().unwrap();
+        assert_ne!(shell, agent_a);
         let ev = head_event(&repo);
         assert_eq!(ev.tool.as_deref(), Some("Shell"));
         assert_declared(ev.evidence.as_ref().unwrap());
+
+        let store = Store::new(&repo);
+        let chain = chain_to(&store, Some(&shell)).unwrap();
+        let owners = line_owners(&store, &chain, std::path::Path::new("auth.py")).unwrap();
+        let text = std::fs::read_to_string(repo.root.join("auth.py")).unwrap();
+        let lines: Vec<&str> = text.lines().collect();
+        assert_eq!(owners.len(), lines.len());
+        for (line, owner) in lines.iter().zip(&owners) {
+            let want = match *line {
+                "def refresh(user):" => Some(agent_a.as_str()),
+                "    return rewritten" => None,
+                "def ping():" | "    return 1" => Some(shell.as_str()),
+                _ => panic!("unexpected line {line:?}"),
+            };
+            assert_eq!(owner.as_deref(), want, "{line}");
+        }
     }
 
     #[test]
