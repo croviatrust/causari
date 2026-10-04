@@ -120,8 +120,8 @@ pub enum Command {
     /// Distill, inspect and verify signed skills (the experience layer)
     Skill(SkillArgs),
 
-    /// Emit a portable Markdown briefing of verified experience for a task —
-    /// paste it into any model's context (CLAUDE.md, AGENTS.md, .cursorrules)
+    /// Emit a Markdown briefing of past skills for a task (recall counts, not proofs).
+    /// Paste it into any model's context (CLAUDE.md, AGENTS.md, .cursorrules)
     Brief(BriefArgs),
 
     /// Retired: use `re audit --seal` and `re seal verify`

@@ -31,6 +31,10 @@ which commit; Causari says which prompt. Everything is local, in `.causari/`.
 - Causari records what happened; it does not judge quality. Never call a
   survival number "healthy" or a repository "high churn".
 - An `observed` event has no known cause. Say "cause unknown".
+- A skill ranked `proven` was recalled at least 3 times after a success
+  signal (exit 0, or the files still exist). `verified` on a skill is that
+  success signal. That rank is not a cryptographic proof, and it is not the
+  audit field `verified` (metadata matched).
 - If `re` is not installed the hooks do nothing. Suggest
   `curl -fsSL https://causari.dev/install.sh | sh` (or
   `brew install croviatrust/tap/causari`) and `re init` in the project.

@@ -86,14 +86,10 @@ pub fn render(repo: &Repo, terms: &[String], limit: usize, bump: bool) -> Result
     if !terms.is_empty() {
         let _ = writeln!(out, "Task: {}\n", terms.join(" "));
     }
-    out.push_str(
-        "_Signed and verified by Causari. This experience was accumulated \
-         across previous sessions and models; treat VERIFIED entries as \
-         reliable priors and UNVERIFIED entries as risk signals._\n",
-    );
+    out.push_str(briefing_limit());
 
     if !trusted.is_empty() {
-        out.push_str("\n## Verified experience (worked before)\n");
+        out.push_str("\n## Recalled after a success signal\n");
         for (_, id, env) in trusted.iter().take(limit) {
             push_entry(&mut out, id, env);
             if bump {
@@ -103,7 +99,7 @@ pub fn render(repo: &Repo, terms: &[String], limit: usize, bump: bool) -> Result
     }
 
     if !unverified.is_empty() {
-        out.push_str("\n## Unverified attempts (no success signal — treat as risk)\n");
+        out.push_str("\n## No success signal yet\n");
         for (_, id, env) in unverified.iter().take(limit) {
             push_entry(&mut out, id, env);
         }
@@ -123,6 +119,16 @@ pub fn render(repo: &Repo, terms: &[String], limit: usize, bump: bool) -> Result
          success signal: `re why <file>` or `re skill show <id>`._\n",
     );
     Ok(Some(out))
+}
+
+/// The human limit on a briefing. `proven` / `verified` / `recorded` stay the machine words.
+fn briefing_limit() -> &'static str {
+    "_Ed25519 signs each skill file so a later edit is detectable. \
+     The words below are a recall ladder, not a proof and not the audit field `verified`: \
+     `proven` means recalled at least 3 times after a success signal; \
+     `verified` means a success signal (exit 0, or the files still exist); \
+     `recorded` means neither. None of this proves the approach was correct \
+     or that a model typed the code._\n"
 }
 
 /// Higher = more trusted, for descending sort.
@@ -184,4 +190,19 @@ fn first_lines(s: &str, n: usize) -> String {
         out.push('…');
     }
     out
+}
+
+#[cfg(test)]
+mod wording_tests {
+    use super::*;
+
+    #[test]
+    fn briefing_does_not_promote_the_recall_ladder_to_a_proof() {
+        let text = briefing_limit();
+        assert!(text.contains("at least 3 times"));
+        assert!(text.contains("success signal"));
+        assert!(text.contains("not the audit field `verified`"));
+        assert!(text.contains("None of this proves the approach was correct"));
+        assert!(text.contains("not a proof"));
+    }
 }

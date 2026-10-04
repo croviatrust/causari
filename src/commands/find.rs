@@ -22,7 +22,7 @@ pub fn run(args: FindArgs) -> Result<()> {
         .map(|t| t.to_lowercase())
         .collect();
 
-    // 1. Signed skills — proven experience outranks raw events.
+    // 1. Signed skills — a higher recall rank outranks a raw event. Rank is not a proof.
     let skills = skill::load_admissible_skills(&repo)?;
     let mut skill_hits: Vec<(usize, String, skill::SkillEnvelope)> = skills
         .into_iter()

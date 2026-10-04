@@ -11,7 +11,7 @@ with that traffic; or, when one did, hand over a signed record of the
 exposure. Neither the sheet nor the proof contains traffic bytes or asset
 bytes.
 
-Causari records what an agent did; PNX proves what it did not do.
+Causari records what an agent runtime declared. A PNX proof is about the bodies this witness saw: a named asset shared no 47-byte substring with that traffic, or it did. It does not show that the rest of the job made no other connection.
 
 ## In five commands
 

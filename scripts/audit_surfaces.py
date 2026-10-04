@@ -296,6 +296,46 @@ def check_release(canon: dict, r: Report) -> None:
 
 _HUMAN_COLLAPSE = re.compile(r"count(?:s|ed)? as human", re.I)
 
+# Exact slogans that state a stronger proposition than the evidence. A denial
+# ("is not", "does not") does not contain these strings.
+_STRENGTHEN = (
+    "Verified AI survival",
+    "Verified AI-tagged",
+    "verified AI",
+    "verified only",
+    "no verified AI",
+    "proof of cause",
+    "PNX proves",
+    "proves what an agent",
+    "proves what it did not",
+    "Recall proven experience",
+    "Verified experience",
+    "verified experience",
+    "reliable priors",
+    "proven experience",
+    "authorship proven",
+    "proves AI authorship",
+    "proves the attribution",
+    "proves who typed",
+)
+
+# Same-sentence collapses. A "not" inside the match is the correction.
+_COLLAPSE = (
+    (re.compile(r"(?i)\bunknown\b[^.?\n]{0,48}\b(?:is|means|counts as)\s+human\b"), "unknown stated as human"),
+    (re.compile(r"(?i)\bdeclared\b[^.?\n]{0,48}\b(?:is|means)\s+true\b"), "declared stated as true"),
+    (re.compile(r"(?i)\bsigned\b[^.?\n]{0,60}\bproves?\s+(?:the\s+)?attribution\b"), "signed bytes stated as true attribution"),
+    (re.compile(r"(?i)\bproven\b[^.?\n]{0,48}\bcryptographically\b"), "skill proven stated as cryptographic proof"),
+    (re.compile(r"(?i)\bmetadata matched\b[^.?\n]{0,80}\b(?:proves|proven)\b"), "metadata matched stated as authorship proved"),
+)
+
+
+def _collapse_hit(text: str, pattern: re.Pattern[str]) -> str | None:
+    for match in pattern.finditer(text):
+        if re.search(r"\bnot\b", match.group(0), re.I):
+            continue
+        return match.group(0)
+    return None
+
 
 def check_evidence_invariants(_canon: dict, r: Report) -> None:
     surfaces = list(_canon["surfaces"]["text"]) + [
@@ -303,6 +343,20 @@ def check_evidence_invariants(_canon: dict, r: Report) -> None:
         "plugin/skills/causari/SKILL.md",
         "src/commands/report.rs",
         "src/commands/mcp.rs",
+        "src/commands/audit.rs",
+        "src/commands/brief.rs",
+        "src/commands/seal.rs",
+        "src/commands/hook.rs",
+        "src/commands/hook/cursor.rs",
+        "src/cli.rs",
+        "src/skill.rs",
+        "src/commands/find.rs",
+        "site/verify/verify.js",
+        "docs/pnx.md",
+        "scripts/survival_report.py",
+        "drafts/launch/reddit-r-programming.md",
+        "drafts/launch/show-hn.md",
+        "drafts/launch/x-thread.md",
     ]
     for path in surfaces:
         if not (ROOT / path).exists():
@@ -316,6 +370,13 @@ def check_evidence_invariants(_canon: dict, r: Report) -> None:
                 path,
                 "unknown collapsed into human ('count as human' or the same words)",
             )
+        for slogan in _STRENGTHEN:
+            if slogan in text:
+                r.add("evidence", "high", path, f"claim stronger than the evidence: {slogan!r}")
+        for pattern, why in _COLLAPSE:
+            hit = _collapse_hit(text, pattern)
+            if hit:
+                r.add("evidence", "high", path, f"{why}: {hit!r}")
         if path == "action.yml" and "AI-written code is still alive" in text:
             r.add("evidence", "high", path, "AI-tagged collapsed into AI-written")
         if path == "src/commands/report.rs" and "AI-written lines" in text:
@@ -329,9 +390,54 @@ def check_evidence_invariants(_canon: dict, r: Report) -> None:
         "observed",
         "signed is not",
         "does not prove the numbers",
+        "at least 3 recalls",
+        "not a cryptographic proof",
     ):
         if phrase not in llms:
             r.add("evidence", "high", "site/llms.txt", f"missing evidence-class phrase {phrase!r}")
+    readme = read("README.md")
+    for phrase in (
+        "metadata matched",
+        "does not prove a model wrote the line",
+        "UNKNOWN",
+        "is not human",
+        "local ledger",
+        "re mcp",
+        "does not authenticate",
+        "causari.dev/method",
+        "llms.txt",
+        "curl -fsSL https://causari.dev/install.sh | sh",
+        "re audit",
+        "no other connection",
+    ):
+        if phrase not in readme:
+            r.add("evidence", "high", "README.md", f"opening omits {phrase!r}")
+    # The first section, before the console sample, is what an agent quotes.
+    opening = readme.split("```console", 1)[0]
+    for phrase in (
+        "metadata matched",
+        "does not prove a model wrote the line",
+        "survival",
+        "local ledger",
+        "re mcp",
+        "does not authenticate",
+        "causari.dev/method",
+        "llms.txt",
+        "curl -fsSL https://causari.dev/install.sh | sh",
+        "\nre audit\n",
+    ):
+        if phrase not in opening:
+            r.add("evidence", "high", "README.md", f"first section omits {phrase!r}")
+    verify_js = read("site/verify/verify.js")
+    if "a.verified" not in verify_js:
+        r.add("evidence", "high", "site/verify/verify.js", "stopped reading the JSON field verified")
+    if "AI-tagged (metadata matched)" not in verify_js:
+        r.add("evidence", "high", "site/verify/verify.js", "display label is not metadata matched")
+    for path in ("src/commands/audit.rs", "src/commands/seal.rs", "site/index.html"):
+        if "AI-tagged (metadata matched)" not in read(path):
+            r.add("evidence", "high", path, "human label is not metadata matched")
+    if '"verified"' not in read("src/commands/audit.rs") and "`verified`" not in read("src/commands/audit.rs"):
+        r.add("evidence", "high", "src/commands/audit.rs", "stopped naming the JSON field verified")
     desc = json.loads(read("server.json"))["description"]
     if "does not prove" not in desc or "declared" not in desc:
         r.add(
@@ -343,7 +449,24 @@ def check_evidence_invariants(_canon: dict, r: Report) -> None:
     why = read("src/commands/mcp.rs")
     if "does not prove who typed the line" not in why:
         r.add("evidence", "high", "src/commands/mcp.rs", "causari_why description omits the limit")
-    else:
+    if "at least 3 times" not in why or "does not prove the approach" not in why:
+        r.add("evidence", "high", "src/commands/mcp.rs", "causari_recall does not keep proven as a recall count")
+    brief = read("src/commands/brief.rs")
+    if "at least 3 times" not in brief or "None of this proves the approach was correct" not in brief:
+        r.add("evidence", "high", "src/commands/brief.rs", "briefing promotes the recall ladder")
+    skill = read("plugin/skills/causari/SKILL.md")
+    if "at least 3 times" not in skill or "not a cryptographic proof" not in skill:
+        r.add("evidence", "high", "plugin/skills/causari/SKILL.md", "skill text promotes proven to a cryptographic proof")
+    pnx = read("docs/pnx.md")
+    if "no other connection" not in pnx or "witness saw" not in pnx:
+        r.add("evidence", "high", "docs/pnx.md", "PNX line does not limit the witness to bodies it saw")
+    lede = "AI-tagged means that metadata matched; it does not prove a model wrote the line."
+    readme_link = "https://github.com/croviatrust/causari#readme"
+    for path in ("scripts/survival_report.py", "site/reports/survival/index.html"):
+        page = read(path)
+        if lede not in page or readme_link not in page:
+            r.add("evidence", "high", path, "survival index does not lead to the README with the metadata limit")
+    if not any(f["severity"] == "high" and f["area"] == "evidence" for f in r.findings):
         r.add("evidence", "info", "surfaces", "evidence classes are not collapsed on the scanned surfaces")
 
 

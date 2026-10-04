@@ -1,8 +1,9 @@
-/// `re audit` — retroactive Group-0 AI-code survival audit.
+/// `re audit` — retroactive survival count for commits whose git metadata
+/// matched an AI-detection rule. Matching metadata is not proof a model
+/// wrote the line. The JSON field stays `verified`.
 ///
-/// Works on any git repository without a Causari ledger. Reads git history,
-/// classifies commits tagged as AI-authored by their metadata, then counts how many of those
-/// lines survived to HEAD.
+/// Works on any git repository without a Causari ledger. Counts how many
+/// of those lines `git blame` still attributes to the commit at HEAD.
 use anyhow::{Context, Result, bail};
 use colored::Colorize;
 use std::io::Write;
@@ -20,6 +21,13 @@ use crate::repo::Repo;
 use crate::seal::SealIssuer;
 
 const DEFAULT_SEAL_FILE: &str = "audit.seal.json";
+
+/// Human label for the audit class whose JSON field is still `verified`.
+const LABEL_TAGGED: &str = "AI-tagged (metadata matched)";
+const LABEL_BY_AGENT: &str = "By agent (metadata matched only)";
+const CARD_EMPTY: &str = "no AI-tagged commits";
+const SUMMARY_FIELD_NOTE: &str =
+    "The JSON field is still `verified`: metadata matched, not authorship proved.";
 
 /// Best-effort temp-clone guard: removes the checkout when the audit is done.
 struct TempClone(PathBuf);
@@ -352,11 +360,11 @@ fn print_terminal(report: &SurvivalReport) {
     );
     println!();
 
-    print_class("Verified AI-tagged", &report.verified);
+    print_class(LABEL_TAGGED, &report.verified);
     print_class("Probable AI-assisted", &report.probable);
 
     if !report.by_agent.is_empty() {
-        println!("{}", "By agent (verified only)".bold());
+        println!("{}", LABEL_BY_AGENT.bold());
         println!(
             "  {:20} {:>7} {:>10} {:>9} {:>8} {:>8} {:>8}",
             "agent", "commits", "introduced", "survived", "line-wt", "capped", "median"
@@ -382,7 +390,9 @@ fn print_terminal(report: &SurvivalReport) {
 
     println!();
     println!("{}", "Confidence notes".bright_black().bold());
-    println!("  · VERIFIED = explicit metadata (trailers, bot author, etc.)");
+    println!(
+        "  · JSON field `verified` = metadata matched (trailers, bot author, …), not authorship proved"
+    );
     println!("  · PROBABLE = weak heuristic; may include human-assisted commits");
     println!("  · UNKNOWN commits are excluded from headline numbers; they form");
     println!("    the untagged baseline (human, inline-completed and untagged-agent code alike)");
@@ -440,16 +450,7 @@ fn print_summary(report: &SurvivalReport) {
     }
 
     if v.commits > 0 {
-        println!(
-            "**Verified AI survival: {}** line-weighted ({} of {} lines still at HEAD, {} commit{}) · {} capped · median {}",
-            pct(v.survival_rate()),
-            v.surviving,
-            v.introduced,
-            v.commits,
-            plural(v.commits),
-            pct(v.capped_survival_rate()),
-            pct(v.median_survival()),
-        );
+        println!("{}", tagged_summary_bold(v));
         if let Some(sentence) = dominance_sentence(v) {
             println!();
             println!("_{sentence}._");
@@ -509,18 +510,34 @@ fn print_summary(report: &SurvivalReport) {
     }
 
     println!(
-        "<sub>VERIFIED = explicit commit metadata; PROBABLE = heuristic. \
+        "<sub>PROBABLE = heuristic. \
          Counts lines from AI-tagged commits still attributed to them by `git blame {}`; \
          inline completions leave no git trace and are not measured. \
          Capped: each commit weighs at most min(p95 of per-commit introduced lines, {} lines); \
          median: median of per-commit rates. \
          Untagged = commits with no AI signal (human, inline-completed and untagged-agent code alike); \
          age = commit date to HEAD date. \
-         Method {}: [causari.dev/method](https://causari.dev/method) · reproduce: `re audit`</sub>",
+         Method {}: [causari.dev/method](https://causari.dev/method) · reproduce: `re audit`. \
+         {}</sub>",
         report.coverage.blame_flags.join(" "),
         CAP_CEILING_LINES,
         report.coverage.method,
+        SUMMARY_FIELD_NOTE,
     );
+}
+
+/// The bold line of `re audit --summary`. Metadata matched, not authorship.
+fn tagged_summary_bold(v: &SurvivalStat) -> String {
+    format!(
+        "**AI-tagged (metadata matched): {}** line-weighted ({} of {} lines still at HEAD, {} commit{}) · {} capped · median {}",
+        pct(v.survival_rate()),
+        v.surviving,
+        v.introduced,
+        v.commits,
+        plural(v.commits),
+        pct(v.capped_survival_rate()),
+        pct(v.median_survival()),
+    )
 }
 
 /// The Markdown counterpart of [`print_baseline`]: one paragraph, one
@@ -786,7 +803,7 @@ fn generate_svg_card(report: &SurvivalReport) -> String {
     let v = &report.verified;
     let (headline, detail) = match v.survival_rate() {
         None => (
-            "no verified AI commits".to_string(),
+            CARD_EMPTY.to_string(),
             "nothing to measure from git metadata".to_string(),
         ),
         Some(r) => (
@@ -817,4 +834,25 @@ fn generate_svg_card(report: &SurvivalReport) -> String {
         probable = report.probable.commits,
         method = report.coverage.method,
     )
+}
+
+#[cfg(test)]
+mod wording_tests {
+    use super::*;
+
+    #[test]
+    fn labels_say_metadata_matched_and_keep_the_json_field_name() {
+        assert_eq!(LABEL_TAGGED, "AI-tagged (metadata matched)");
+        assert_eq!(LABEL_BY_AGENT, "By agent (metadata matched only)");
+        assert_eq!(CARD_EMPTY, "no AI-tagged commits");
+        assert!(SUMMARY_FIELD_NOTE.contains("`verified`"));
+        assert!(SUMMARY_FIELD_NOTE.contains("metadata matched"));
+        assert!(SUMMARY_FIELD_NOTE.contains("not authorship proved"));
+        let mut stat = SurvivalStat::default();
+        stat.record(10, 4);
+        let line = tagged_summary_bold(&stat);
+        assert!(line.starts_with("**AI-tagged (metadata matched):"));
+        assert!(!line.contains("Verified"));
+        assert!(!line.to_lowercase().contains("proven"));
+    }
 }

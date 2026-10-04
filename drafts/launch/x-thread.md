@@ -26,7 +26,7 @@ https://causari.dev/reports/survival/2026/01/
 
 ## 4
 
-What it cannot see: inline completions (Copilot, Cursor Tab, Windsurf) leave no git trace and count as human. Untagged commits are never counted. A rewritten line is a death even if the meaning is unchanged.
+What it cannot see: inline completions (Copilot, Cursor Tab, Windsurf) leave no git trace and are not measured; that absence is not a finding that a human wrote them. Untagged commits are never counted. A rewritten line is a death even if the meaning is unchanged.
 
 A count, not a grade. Limits first: https://causari.dev/method
 

@@ -17,7 +17,7 @@ Method: walk `git log --no-merges`, classify each commit from its trailers and a
 
 First weekly report, 10 open-source repositories: 462,838 of 754,476 lines from 12,349 AI-tagged commits still at HEAD, 61.3 %, 95 % bootstrap interval over that sample 53.0 % to 64.9 %.
 
-Limits: inline completions leave no git trace and count as human; untagged commits are never counted; a rewritten line is a death even if the meaning is unchanged; a surviving line may be dead code. It is a count, not a grade.
+Limits: inline completions leave no git trace and are not measured; that absence is not a finding that a human wrote them. Untagged commits are never counted; a rewritten line is a death even if the meaning is unchanged; a surviving line may be dead code. It is a count, not a grade.
 
 Method with the known ways the number misleads: https://causari.dev/method. Code, Apache-2.0: https://github.com/croviatrust/causari
 

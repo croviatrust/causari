@@ -105,7 +105,7 @@ fn install_claude_code(dry_run: bool) -> Result<()> {
         "  PostToolUse ({}) → records the edit as a Causari event, diffed against that snapshot",
         TOOL_MATCHER
     );
-    println!("  SessionStart → injects verified experience into every new session");
+    println!("  SessionStart → injects a briefing of past skills (recall counts, not proofs)");
     println!();
     println!("  {}", crate::redact::STORAGE_NOTICE.bright_black());
     println!();

@@ -303,7 +303,7 @@
   }
   function renderAudit(a) {
     const tb = auditTbl.tBodies[0];
-    for (const [label, s] of [["verified AI", a.verified], ["probable AI", a.probable]]) {
+    for (const [label, s] of [["AI-tagged (metadata matched)", a.verified], ["probable (heuristic)", a.probable]]) {
       if (!isObject(s)) continue;
       const tr = el("tr");
       for (const cell of [label, s.commits, s.introduced, s.surviving, pct(s.survival_rate), pct(s.capped_survival_rate), pct(s.median_survival)]) tr.appendChild(el("td", "", String(cell)));

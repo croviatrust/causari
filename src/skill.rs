@@ -14,9 +14,10 @@ use crate::store::Store;
 //
 // The ledger (layers 1-2) records what agents did. This module turns that
 // record into something agents can *reuse*: a skill. A skill is a distilled,
-// Ed25519-signed unit of proven experience — the prompt that triggered the
-// work, the steps that were taken, and the evidence that it worked
-// (exit code 0, or the code surviving at the tip of the timeline).
+// Ed25519-signed file — the prompt that triggered the work, the steps that
+// were taken, and a success signal if one was seen (exit code 0, or the
+// files still existing at the tip of the timeline). The signature detects a
+// later edit. It does not prove the approach was correct.
 //
 // Trust is earned, never claimed:
 //
@@ -697,7 +698,7 @@ pub fn score_skill(env: &SkillEnvelope, terms: &[String]) -> usize {
     if base == 0 {
         return 0;
     }
-    // Trust multiplies relevance: proven experience outranks raw recordings.
+    // A higher recall rank outranks a recording. Rank is not a proof.
     match env.trust() {
         Trust::Proven => base * 4,
         Trust::Verified => base * 2,

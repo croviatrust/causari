@@ -140,7 +140,7 @@ fn print_audit_verdict(v: &VerifiedAudit, json: bool) {
     }
     let a = &v.audit;
     println!(
-        "  audit     {} commits · verified AI: {} commits, {} introduced, {} survived ({} line-weighted · {} capped · median {})",
+        "  audit     {} commits · AI-tagged (metadata matched): {} commits, {} introduced, {} survived ({} line-weighted · {} capped · median {})",
         a["total_commits"],
         a["verified"]["commits"],
         a["verified"]["introduced"],

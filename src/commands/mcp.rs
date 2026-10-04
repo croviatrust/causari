@@ -16,7 +16,7 @@ use crate::store::Store;
 /// Cline, Windsurf, …) the agent can call Causari tools directly:
 ///
 /// - `causari_record`  — record an event from inside the agent's loop
-/// - `causari_recall`  — find verified past actions similar to the current task
+/// - `causari_recall`  — search past skills and ledger events; `proven` and `verified` are recall signals, not proofs
 /// - `causari_why`     — provenance for a specific line of code
 ///
 /// This is the bridge that turns Causari from a CLI for power users into a
@@ -137,11 +137,12 @@ fn handle_tools_list() -> Result<Value, String> {
             },
             {
                 "name": "causari_recall",
-                "description": "Recall proven experience before acting. Searches the signed skill \
-                    library first (skills are distilled, Ed25519-signed units of verified past \
-                    work, ranked by trust: proven > verified > recorded), then raw ledger events. \
-                    Use this BEFORE acting on a task that looks similar to something you (or \
-                    another agent) may have done before — it is how you avoid repeating mistakes.",
+                "description": "Search past skills and ledger events before acting. Ed25519 signs \
+                    each skill file so a later edit is detectable; it does not prove the approach \
+                    was correct. Trust is a recall ladder, not the audit field `verified`: \
+                    `proven` means recalled at least 3 times after a success signal, `verified` \
+                    means a success signal (exit 0 or the files still exist), `recorded` means \
+                    neither. None of these proves a model typed the code.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -479,7 +480,7 @@ fn print_install_snippet() -> Result<()> {
 
 The agent then has three new tools:
   causari_record  - record one of its own actions into the ledger
-  causari_recall  - find past similar events before acting
+  causari_recall  - search past skills and events; proven and verified are recall signals, not proofs
   causari_why     - explain the provenance of a line of code
 
 Tip: have the agent call `causari_record` after every tool call. Causari will
@@ -488,4 +489,32 @@ build a complete, queryable history of the session for you.
         exe = exe
     );
     Ok(())
+}
+
+#[cfg(test)]
+mod wording_tests {
+    use super::*;
+
+    #[test]
+    fn recall_description_keeps_proven_as_a_recall_count() {
+        let list = handle_tools_list().expect("tools");
+        let tools = list["tools"].as_array().expect("array");
+        let recall = tools
+            .iter()
+            .find(|t| t["name"] == "causari_recall")
+            .expect("causari_recall");
+        let desc = recall["description"].as_str().expect("description");
+        assert!(desc.contains("at least 3 times"));
+        assert!(desc.contains("success signal"));
+        assert!(desc.contains("does not prove the approach"));
+        assert!(desc.contains("not the audit field `verified`"));
+        assert!(desc.contains("None of these proves a model typed the code"));
+        assert!(desc.contains("recall ladder"));
+        let why = tools
+            .iter()
+            .find(|t| t["name"] == "causari_why")
+            .expect("causari_why");
+        let why_desc = why["description"].as_str().expect("description");
+        assert!(why_desc.contains("does not prove who typed the line"));
+    }
 }

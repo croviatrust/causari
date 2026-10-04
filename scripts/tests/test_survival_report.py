@@ -1071,6 +1071,14 @@ class ArchiveRateTests(unittest.TestCase):
             _archive_facts(3, names, "v3"),
         ]))
 
+    def test_the_lede_names_metadata_matched_and_points_at_the_readme(self) -> None:
+        html = sr.render_index([_archive_facts(1, ["o/only"], "v3")])
+        for text in (html, (ROOT / "site/reports/survival/index.html").read_text(encoding="utf-8")):
+            self.assertIn("AI-tagged means that metadata matched", text)
+            self.assertIn("does not prove a model wrote the line", text)
+            self.assertIn("https://github.com/croviatrust/causari#readme", text)
+            self.assertNotIn("Verified AI", text)
+
     def test_one_report_has_nothing_to_line_up(self) -> None:
         html = sr.render_index([_archive_facts(1, ["o/only"], "v2")])
         self.assertNotIn("not a series", visible_text(html))

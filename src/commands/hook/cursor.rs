@@ -104,7 +104,7 @@ pub(super) fn install(user: bool, dry_run: bool) -> Result<()> {
     println!("  afterShellExecution → records a command when preToolUse captured the tree");
     println!("  afterAgentResponse → keeps the agent's answer next to its prompt");
     println!("  stop → drops the pre-states the turn never used");
-    println!("  sessionStart → injects verified experience into every new conversation");
+    println!("  sessionStart → injects a briefing of past skills (recall counts, not proofs)");
     println!();
     println!("  {}", crate::redact::STORAGE_NOTICE.bright_black());
     println!();

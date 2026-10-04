@@ -3,6 +3,17 @@
 <p align="center"><strong>AI-written code has no author. It has causes. Causari records them.</strong></p>
 <p align="center"><em>How many lines from AI-tagged commits are still alive in your repo? One command, any git repo, no setup. A count, not a grade.</em></p>
 
+`re audit` counts lines introduced by commits whose git metadata matched an AI-detection rule, and how many of those lines `git blame` still attributes to those commits at HEAD. That count is **survival**: a count, not a grade. **AI-tagged means the metadata matched.** It does not prove a model wrote the line. UNKNOWN (no such metadata) is not human.
+
+Causari also keeps a local ledger of what an agent runtime declared (prompt, model, files) and exposes it over MCP (`re mcp`). A Seal authenticates that a key signed these bytes for this commit and method. It does not authenticate that the numbers, or the attribution, are true.
+
+Method and limits: [causari.dev/method](https://causari.dev/method). The same limits, for an agent, in one file: [causari.dev/llms.txt](https://causari.dev/llms.txt).
+
+```bash
+curl -fsSL https://causari.dev/install.sh | sh
+re audit
+```
+
 <p align="center">
   <a href="https://causari.dev"><strong>causari.dev</strong></a>
   &nbsp;·&nbsp;
@@ -29,9 +40,6 @@
 ---
 
 ```bash
-curl -fsSL https://causari.dev/install.sh | sh     # Linux / macOS (Windows below)
-
-re audit                    # the repo you are in
 re audit vercel/next.js     # any public repo, cloned to a temp dir and removed after
 ```
 
@@ -41,10 +49,10 @@ $ re audit
 ───────────────────────────────────────────────────
   216 commits analyzed (git metadata only, no setup required)
 
-Verified AI-tagged: 14 commits, 6267 introduced, 5185 survived
+AI-tagged (metadata matched): 14 commits, 6267 introduced, 5185 survived
   survival 82.7% line-weighted · 82.7% capped · median 92.8%
 Probable AI-assisted: none detected
-By agent (verified only)
+By agent (metadata matched only)
   agent                commits introduced  survived  line-wt   capped   median
   cursor                    14       6267      5185    82.7%    82.7%    92.8%
 
@@ -57,7 +65,7 @@ Baseline: untagged lines of the same repository
   age-matched: AI-tagged 85.6% vs untagged 82.7% of the same age → +2.9 points, over 1 window holding 75% of AI-tagged lines
 
 Confidence notes
-  · VERIFIED = explicit metadata (trailers, bot author, etc.)
+  · JSON field `verified` = metadata matched (trailers, bot author, …), not authorship proved
   · PROBABLE = weak heuristic; may include human-assisted commits
   · UNKNOWN commits are excluded from headline numbers; they form
     the untagged baseline (human, inline-completed and untagged-agent code alike)
@@ -68,9 +76,10 @@ Confidence notes
 
 Everyone argues about how much code AI writes. Nobody can check the numbers.
 `re audit` reads plain git history — `Co-Authored-By` trailers, bot authors,
-agent markers — finds the commits that carry machine-readable AI authorship,
-and asks `git blame` how many of their lines are still at HEAD. No model, no
-estimate, no survey. Anyone re-runs it and gets the same bytes.
+agent markers — finds the commits whose metadata matched, and asks `git blame`
+how many of their lines are still at HEAD. Metadata matched is not proof a
+model wrote the line. No model, no estimate, no survey. Anyone re-runs it
+and gets the same bytes.
 
 - `--json` the exact bytes behind any published row
 - `--summary` Markdown for CI; `--badge` / `--card` one-colour SVGs
@@ -377,20 +386,27 @@ Causari does not compete with provenance trackers (Agent Trace, git-ai,
 public method, and signs the result so a third party can verify it offline.
 Next: `git blame -w -M -C` and per-commit caps in the audit; Agent Trace and
 `Assisted-by:` readers; the audit result as a Seal. Done: a PNX witness mode
-in the proxy that proves what an agent session did *not* send to the model.
+in the proxy. For the request bodies it saw, a proof can show that named
+assets shared no 47-byte substring with that traffic. It does not prove the
+session made no other connection.
+
 Phases and exit criteria: [`ROADMAP.md`](ROADMAP.md).
 
 ## Family
 
 Causari is part of [Crovia](https://croviatrust.com), one grammar in three
 tenses: **TACET** proves that a model's public card carried no training-data
-disclosure in the hours it was observed, **PNX** proves an agent's egress
-carried no protected bytes, **Causari** records why a line of code exists and
-measures whether it is still there. Same rules everywhere: reproducible
-numbers, no verdicts, verification without our servers, limits stated first.
+disclosure in the hours it was observed, **PNX** shows that named assets
+shared no long substring with request bodies a witness saw (not that the job
+made no other connection), **Causari** records what a runtime declared and
+measures whether lines from AI-tagged commits are still at HEAD. Same rules
+everywhere: reproducible numbers, no verdicts, verification without our
+servers, limits stated first.
 
-Role in the Crovia canon — Sibling product: proof of cause for AI-written code
-(audit + local ledger); Seal issuer for agent completions and audit results.
+Role in the Crovia canon — Sibling product: a git-metadata audit and a local
+ledger. A Seal authenticates bytes for a commit and a method; it does not
+authenticate truth or who typed a line. Seal issuer for agent completions
+and audit results.
 
 ## License
 
