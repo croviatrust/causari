@@ -457,7 +457,7 @@ mod tests {
     use super::*;
     use crate::capture::load_unclaimed_exchanges_since;
     use crate::object::{Event, Evidence};
-    use crate::provenance::{chain_to, line_owners};
+    use crate::provenance::{chain_to, find_line_origin, line_owners};
     use crate::store::Store;
 
     fn expected_fresh() -> Value {
@@ -847,6 +847,343 @@ mod tests {
                 "pre captured: {capture_pre}"
             );
         }
+    }
+
+    fn origin(repo: &Repo, rel: &str, line: &str) -> Option<crate::provenance::LineOrigin> {
+        let store = Store::new(repo);
+        let head = repo.head_event().unwrap();
+        find_line_origin(&store, head.as_deref(), std::path::Path::new(rel), line)
+            .unwrap()
+            .0
+    }
+
+    fn assert_declared(ev: &Evidence) {
+        assert_eq!(ev.label(), "declared");
+        let described = ev.describe();
+        assert!(described.starts_with("declared by"), "{described}");
+        let lower = described.to_lowercase();
+        assert!(!lower.contains("proven"), "{described}");
+        assert!(!lower.contains("verified"), "{described}");
+        let json = serde_json::to_value(ev).unwrap();
+        assert_eq!(json["class"], "declared");
+    }
+
+    /// Expected, written first. A runtime declares `old_string: ""` and
+    /// `new_string` equal to the whole file, and it skips PreToolUse.
+    /// The file already holds an earlier agent's lines plus a human line.
+    ///
+    /// - `def refresh(user):` stays the first event. Evidence stays declared.
+    /// - `# human` is introduced by no event (UNKNOWN).
+    /// - The lying call records nothing. A declaration is not line ownership.
+    #[test]
+    fn wholesale_declaration_does_not_take_lines_the_ledger_already_has() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let original = "def refresh(user):\n    return token\n";
+        let first = pre_tool_then_write(&repo, "conv-a", "auth.py", original);
+        handle_in(&repo, "afterFileEdit", &first).unwrap();
+        let agent_a = repo.head_event().unwrap().unwrap();
+
+        let human = "def refresh(user):\n    return token\n# human\n";
+        std::fs::write(repo.root.join("auth.py"), human).unwrap();
+        let abs = repo.root.join("auth.py");
+        let lie = with(
+            common_fields("conv-lie"),
+            json!({
+                "file_path": abs.to_string_lossy(),
+                "edits": [{ "old_string": "", "new_string": human }],
+                "timestamp": "1999-01-01T00:00:00Z"
+            }),
+        );
+        assert_eq!(handle_in(&repo, "afterFileEdit", &lie).unwrap(), json!({}));
+        assert_eq!(
+            repo.head_event().unwrap().as_deref(),
+            Some(agent_a.as_str())
+        );
+
+        let kept = origin(&repo, "auth.py", "def refresh(user):").expect("still the first event");
+        assert_eq!(kept.id, agent_a);
+        assert_declared(kept.event.evidence.as_ref().unwrap());
+        assert!(
+            origin(&repo, "auth.py", "# human").is_none(),
+            "the human line must stay unknown"
+        );
+        // The planted timestamp is not the event's clock. The first event
+        // was recorded in this process, not in 1999.
+        assert!(!kept.event.created_at.starts_with("1999"));
+    }
+
+    /// Expected: a path the declaration names, and that the tree does not
+    /// contain, does not become ownership of a different file a human edited.
+    #[test]
+    fn declared_path_that_is_not_in_the_tree_does_not_steal_another_file() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let original = "def refresh(user):\n    return token\n";
+        let first = pre_tool_then_write(&repo, "conv-a", "auth.py", original);
+        handle_in(&repo, "afterFileEdit", &first).unwrap();
+        let agent_a = repo.head_event().unwrap().unwrap();
+
+        std::fs::write(
+            repo.root.join("auth.py"),
+            "def refresh(user):\n    return token\n# human\n",
+        )
+        .unwrap();
+        let lie = with(
+            common_fields("conv-lie"),
+            json!({
+                "file_path": repo.root.join("other.py").to_string_lossy(),
+                "edits": [{ "old_string": "", "new_string": "print('nope')\n" }]
+            }),
+        );
+        handle_in(&repo, "afterFileEdit", &lie).unwrap();
+        assert_eq!(
+            repo.head_event().unwrap().as_deref(),
+            Some(agent_a.as_str())
+        );
+        assert!(origin(&repo, "auth.py", "# human").is_none());
+        assert_eq!(
+            origin(&repo, "auth.py", "def refresh(user):").unwrap().id,
+            agent_a
+        );
+    }
+
+    /// Expected: the first time the ledger sees a path, a creation
+    /// declaration is recorded. Evidence is declared. Nothing in the ledger
+    /// contradicts it, and that is not a proof a human did not type it first.
+    #[test]
+    fn first_observation_of_a_path_stays_declared() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let body = "def refresh(user):\n    return token\n";
+        let abs = repo.root.join("auth.py");
+        std::fs::write(&abs, body).unwrap();
+        let edit = with(
+            common_fields("conv-a"),
+            json!({
+                "file_path": abs.to_string_lossy(),
+                "edits": [{ "old_string": "", "new_string": body }]
+            }),
+        );
+        handle_in(&repo, "afterFileEdit", &edit).unwrap();
+        let ev = head_event(&repo);
+        assert_declared(ev.evidence.as_ref().unwrap());
+        let id = repo.head_event().unwrap().unwrap();
+        let store = Store::new(&repo);
+        let chain = chain_to(&store, Some(&id)).unwrap();
+        let owners = line_owners(&store, &chain, std::path::Path::new("auth.py")).unwrap();
+        assert!(owners.iter().all(|o| o.as_deref() == Some(id.as_str())));
+    }
+
+    /// Expected attribution of `final.py` after
+    /// AI-A → human line → AI-B → two renames → formatter → AI-C
+    /// (AI-C has no PreToolUse; its edit is the appended function only):
+    ///
+    /// - `def refresh(user):` → AI-A
+    /// - `        return token` → UNKNOWN (the formatter changed the indent)
+    /// - `# human` → UNKNOWN
+    /// - `def ping():` / `    return 1` → AI-B
+    /// - `def logout(user):` / `    return drop(user)` → AI-C
+    ///
+    /// AI-C owns none of the earlier lines. A shell is not in this chain:
+    /// a shell that declares no edit still falls back to the previous
+    /// snapshot, and that result is not asserted as correct.
+    #[test]
+    fn two_renames_and_a_formatter_between_three_agents_keep_each_edit() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let original = "def refresh(user):\n    return token\n";
+        let a = pre_tool_then_write(&repo, "conv-a", "auth.py", original);
+        handle_in(&repo, "afterFileEdit", &a).unwrap();
+        let agent_a = repo.head_event().unwrap().unwrap();
+
+        let with_human = "def refresh(user):\n    return token\n# human\n";
+        std::fs::write(repo.root.join("auth.py"), with_human).unwrap();
+
+        let ping = "def ping():\n    return 1\n";
+        let with_b = format!("{with_human}{ping}");
+        let abs = repo.root.join("auth.py");
+        handle_in(
+            &repo,
+            "preToolUse",
+            &with(common_fields("conv-b"), json!({ "tool_name": "Write" })),
+        )
+        .unwrap();
+        std::fs::write(&abs, &with_b).unwrap();
+        handle_in(
+            &repo,
+            "afterFileEdit",
+            &with(
+                common_fields("conv-b"),
+                json!({
+                    "file_path": abs.to_string_lossy(),
+                    "edits": [{ "old_string": "", "new_string": ping }]
+                }),
+            ),
+        )
+        .unwrap();
+        let agent_b = repo.head_event().unwrap().unwrap();
+
+        std::fs::rename(repo.root.join("auth.py"), repo.root.join("mid.py")).unwrap();
+        std::fs::rename(repo.root.join("mid.py"), repo.root.join("final.py")).unwrap();
+        let formatted =
+            "def refresh(user):\n        return token\n# human\ndef ping():\n    return 1\n";
+        std::fs::write(repo.root.join("final.py"), formatted).unwrap();
+
+        let logout = "def logout(user):\n    return drop(user)\n";
+        let final_abs = repo.root.join("final.py");
+        std::fs::write(&final_abs, format!("{formatted}{logout}")).unwrap();
+        handle_in(
+            &repo,
+            "afterFileEdit",
+            &with(
+                common_fields("conv-c"),
+                json!({
+                    "file_path": final_abs.to_string_lossy(),
+                    "edits": [{ "old_string": "", "new_string": logout }]
+                }),
+            ),
+        )
+        .unwrap();
+        let agent_c = repo.head_event().unwrap().unwrap();
+
+        let store = Store::new(&repo);
+        let chain = chain_to(&store, Some(&agent_c)).unwrap();
+        let owners = line_owners(&store, &chain, std::path::Path::new("final.py")).unwrap();
+        let text = std::fs::read_to_string(&final_abs).unwrap();
+        let lines: Vec<&str> = text.lines().collect();
+        assert_eq!(owners.len(), lines.len());
+        for (line, owner) in lines.iter().zip(&owners) {
+            let want: Option<&str> = match *line {
+                "def refresh(user):" => Some(agent_a.as_str()),
+                "        return token" | "# human" => None,
+                "def ping():" | "    return 1" => Some(agent_b.as_str()),
+                "def logout(user):" | "    return drop(user)" => Some(agent_c.as_str()),
+                _ => panic!("unexpected line {line:?}"),
+            };
+            assert_eq!(owner.as_deref(), want, "{line}");
+        }
+        let c_ev = store.read_event(&agent_c).unwrap();
+        assert_declared(c_ev.evidence.as_ref().unwrap());
+    }
+
+    /// Expected: two conversations, one file, each with PreToolUse.
+    /// Each owns the function it appended. Neither owns the other's lines.
+    #[test]
+    fn two_agents_on_one_file_keep_their_own_lines() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let alpha = "def alpha():\n    return 1\n";
+        let first = pre_tool_then_write(&repo, "conv-1", "auth.py", alpha);
+        handle_in(&repo, "afterFileEdit", &first).unwrap();
+        let agent_a = repo.head_event().unwrap().unwrap();
+
+        let beta = "def beta():\n    return 2\n";
+        let abs = repo.root.join("auth.py");
+        handle_in(
+            &repo,
+            "preToolUse",
+            &with(common_fields("conv-2"), json!({ "tool_name": "Write" })),
+        )
+        .unwrap();
+        std::fs::write(&abs, format!("{alpha}{beta}")).unwrap();
+        handle_in(
+            &repo,
+            "afterFileEdit",
+            &with(
+                common_fields("conv-2"),
+                json!({
+                    "file_path": abs.to_string_lossy(),
+                    "edits": [{ "old_string": "", "new_string": beta }]
+                }),
+            ),
+        )
+        .unwrap();
+        let agent_b = repo.head_event().unwrap().unwrap();
+        let store = Store::new(&repo);
+        let chain = chain_to(&store, Some(&agent_b)).unwrap();
+        let owners = line_owners(&store, &chain, std::path::Path::new("auth.py")).unwrap();
+        let text = std::fs::read_to_string(&abs).unwrap();
+        let lines: Vec<&str> = text.lines().collect();
+        for (line, owner) in lines.iter().zip(&owners) {
+            let want = if line.contains("alpha") || *line == "    return 1" {
+                Some(agent_a.as_str())
+            } else if line.contains("beta") || *line == "    return 2" {
+                Some(agent_b.as_str())
+            } else {
+                panic!("{line}");
+            };
+            assert_eq!(owner.as_deref(), want, "{line}");
+        }
+    }
+
+    /// Expected: a copy, a split and a merge that no hook observed are
+    /// unknown on the new path. Delete-and-recreate of the same bytes is
+    /// not observed either, so the earlier event still answers for that
+    /// text. That is a limit of an unobserved delete, not continuous authorship.
+    #[test]
+    fn unobserved_copy_split_merge_and_recreate_are_not_invented() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let body = "def refresh(user):\n    return token\n";
+        let first = pre_tool_then_write(&repo, "conv-a", "auth.py", body);
+        handle_in(&repo, "afterFileEdit", &first).unwrap();
+        let agent_a = repo.head_event().unwrap().unwrap();
+
+        std::fs::copy(repo.root.join("auth.py"), repo.root.join("copy.py")).unwrap();
+        assert!(origin(&repo, "copy.py", "def refresh(user):").is_none());
+
+        std::fs::write(repo.root.join("left.py"), "def refresh(user):\n").unwrap();
+        std::fs::write(repo.root.join("right.py"), "    return token\n").unwrap();
+        assert!(origin(&repo, "left.py", "def refresh(user):").is_none());
+        assert!(origin(&repo, "right.py", "    return token").is_none());
+
+        std::fs::write(
+            repo.root.join("merged.py"),
+            "def refresh(user):\n    return token\n",
+        )
+        .unwrap();
+        assert!(origin(&repo, "merged.py", "def refresh(user):").is_none());
+
+        std::fs::remove_file(repo.root.join("auth.py")).unwrap();
+        std::fs::write(repo.root.join("auth.py"), body).unwrap();
+        let again = origin(&repo, "auth.py", "def refresh(user):").unwrap();
+        assert_eq!(again.id, agent_a);
+        assert_declared(again.event.evidence.as_ref().unwrap());
+    }
+
+    /// Expected for a shell that declares no edit: AMBIGUOUS line ownership.
+    /// The shell falls back to the previous snapshot, so a human line edited
+    /// since then can become this event's diff. This test does not lock that
+    /// ownership. It locks the evidence class: the event stays declared.
+    #[test]
+    fn shell_with_no_declared_edit_stays_declared() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let original = "def refresh(user):\n    return token\n";
+        let first = pre_tool_then_write(&repo, "conv-a", "auth.py", original);
+        handle_in(&repo, "afterFileEdit", &first).unwrap();
+
+        std::fs::write(
+            repo.root.join("auth.py"),
+            "def refresh(user):\n    return rewritten\n",
+        )
+        .unwrap();
+        pre_tool_shell(&repo, "conv-sh");
+        // Drop the pending pre so this is the no-edit fallback, not a captured pre.
+        // pre_tool_shell just recorded one. Discard it the way a missed hook would.
+        let pending = repo.dir.join("capture").join("pending-pre.jsonl");
+        if pending.exists() {
+            std::fs::remove_file(&pending).unwrap();
+        }
+        let generated = with(
+            common_fields("conv-sh"),
+            json!({ "command": "rewrite auth.py", "output": "", "duration": 4, "sandbox": false }),
+        );
+        handle_in(&repo, "afterShellExecution", &generated).unwrap();
+        let ev = head_event(&repo);
+        assert_eq!(ev.tool.as_deref(), Some("Shell"));
+        assert_declared(ev.evidence.as_ref().unwrap());
     }
 
     #[test]

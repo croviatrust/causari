@@ -109,7 +109,7 @@ fn render_html(a: &Analysis) -> String {
         html.push_str(&format!(
             "<div class=\"card\"><div class=\"label\">Code Survival</div>\
              <div class=\"big\" style=\"color:#22C55E\">{}</div>\
-             <div class=\"hint\">{} of {} AI-written lines still alive</div></div>",
+             <div class=\"hint\">{} of {} recorded lines still alive</div></div>",
             pct(o.survival_rate()),
             o.surviving,
             o.introduced

@@ -155,7 +155,7 @@ Baseline <span class="dim">(untagged lines of the same repository)</span>
     <div class="screen-more proof-grid">
       <div class="proof">
         <h3>What it cannot see</h3>
-        <p>Inline completions (Copilot, Cursor Tab, Windsurf, …) leave no git trace and count as human. Commits without a trailer are UNKNOWN and excluded from the headline. One bulk commit can dominate a line-weighted ratio, so method v2 also reports a capped ratio and the median per commit; repositories under five AI-tagged commits are measured but not aggregated. Method v3 puts the repository's own untagged lines next to the AI-tagged ones, at the same age, and names the oldest line still at HEAD. All of it is written down at <a href="/method">causari.dev/method</a>, with how to reproduce or contest a number.</p>
+        <p>Inline completions (Copilot, Cursor Tab, Windsurf, …) leave no git trace. Commits without a trailer are UNKNOWN and excluded from the headline. UNKNOWN is not a finding that a human wrote them. One bulk commit can dominate a line-weighted ratio, so method v2 also reports a capped ratio and the median per commit; repositories under five AI-tagged commits are measured but not aggregated. Method v3 puts the repository's own untagged lines next to the AI-tagged ones, at the same age, and names the oldest line still at HEAD. All of it is written down at <a href="/method">causari.dev/method</a>, with how to reproduce or contest a number.</p>
 <pre translate="no"><code translate="no">re audit --json   <span class="dim"># "coverage": what was counted, what was not</span></code></pre>
       </div>
     </div>

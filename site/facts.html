@@ -73,7 +73,7 @@
 
   <h2 id="what-it-does-not-claim"><span class="no">2</span>What it does not claim</h2>
   <ul class="facts">
-    <li>It cannot say how much of a repository AI wrote. Inline completions (Copilot, Cursor Tab) and untagged commits leave no git trace and count as human. The counts are a lower bound on AI-written code, never an estimate of it.
+    <li>It cannot say how much of a repository AI wrote. Inline completions (Copilot, Cursor Tab) and untagged commits leave no git trace. They are not a finding that a human wrote them: the untagged cohort mixes human-written, inline-completed and untagged-agent lines. The AI-tagged counts are a lower bound on lines that carry a tag, never an estimate of how much of the repository an AI wrote.
       <span class="check">Check: <a href="/faq#copilot-cursor-tab">faq</a>, <a href="/method#misleads">method § known ways the number misleads</a>.</span></li>
     <li>A survival ratio is not a quality measure. A rewritten line is a death even when the meaning is unchanged; a surviving line may be dead code. The report publishes counts with their intervals and refuses verdict words by construction.
       <span class="check">Check: <a href="https://github.com/croviatrust/causari/blob/main/canon/canon.json" rel="noopener">canon.json</a> lists the forbidden words; CI fails on them.</span></li>

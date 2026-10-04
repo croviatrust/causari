@@ -357,7 +357,10 @@ pub fn detect_ai(commit: &CommitMeta) -> Option<Detection> {
             )],
         });
     }
-    if email_lower == "noreply@anthropic.com" || author_lower == "claude" {
+    // The address is the bot identity. A person whose git author name is
+    // "Claude" and whose email is their own is not this signal: the method
+    // table names `noreply@anthropic.com`, not the display name.
+    if email_lower == "noreply@anthropic.com" {
         return Some(Detection {
             agent: "claude-code".into(),
             confidence: 0.95,
@@ -2446,5 +2449,234 @@ mod tests {
         let report = audit_repo(dir, &AuditOptions::default()).unwrap();
         assert!(report.verified.introduced > 0);
         assert_eq!(report.verified.surviving, report.verified.introduced);
+    }
+
+    /// Expected: a person whose author name is Claude, Devin or Jules, and
+    /// whose email is their own, is UNKNOWN. The bot address still matches.
+    /// `Verified` on that address is metadata, not a signature.
+    #[test]
+    fn human_authors_named_like_agents_are_unknown() {
+        for (name, email) in [
+            ("Claude", "claude.person@example.com"),
+            ("Devin", "devin@example.com"),
+            ("Jules", "jules@example.com"),
+        ] {
+            let c = meta("a".repeat(40).as_str(), name, email, "hand written");
+            assert!(detect_ai(&c).is_none(), "{name} <{email}>");
+            assert_eq!(classify(None), EvidenceClass::Unknown);
+        }
+        let bot = meta(
+            "b".repeat(40).as_str(),
+            "Claude",
+            "noreply@anthropic.com",
+            "hand written",
+        );
+        let d = detect_ai(&bot).expect("bot address");
+        assert_eq!(d.agent, "claude-code");
+        assert_eq!(classify(Some(&d)), EvidenceClass::Verified);
+        assert!(d.evidence[0].starts_with("author:"));
+        assert!(!d.evidence[0].to_lowercase().contains("sign"));
+    }
+
+    /// Expected: a trailer, a forged git-ai note and a spoofed bot email are
+    /// `Verified` because the metadata matched a rule. The evidence string
+    /// names the metadata. It does not say the commit was signed or that a
+    /// model typed the code. A note that is not the authorship log, and a
+    /// trailer key written as prose, match nothing.
+    #[test]
+    fn metadata_matches_are_not_signatures() {
+        let forged = {
+            let mut c = meta(
+                "c".repeat(40).as_str(),
+                "Dev",
+                "dev@example.com",
+                "add parser",
+            );
+            c.notes = concat!(
+                "src/lib.rs\n---\n",
+                "{\"schema_version\":\"authorship/3.0.0\",",
+                "\"sessions\":{\"s\":{\"agent_id\":{\"tool\":\"claude\"}}}}"
+            )
+            .into();
+            c
+        };
+        let d = detect_ai(&forged).expect("forged note still matches the rule");
+        assert_eq!(classify(Some(&d)), EvidenceClass::Verified);
+        assert!(d.evidence[0].contains("refs/notes/ai"));
+        assert!(!d.evidence[0].to_lowercase().contains("sign"));
+
+        let spoof = meta(
+            "d".repeat(40).as_str(),
+            "Mallory",
+            "copilot-swe-agent@evil.example",
+            "fix",
+        );
+        let d = detect_ai(&spoof).expect("the email string matches");
+        assert_eq!(d.agent, "copilot");
+        assert_eq!(classify(Some(&d)), EvidenceClass::Verified);
+        assert!(d.evidence[0].starts_with("author:"));
+
+        let mut garbage = meta(
+            "e".repeat(40).as_str(),
+            "Dev",
+            "dev@example.com",
+            "add parser",
+        );
+        garbage.notes = "this is not an authorship log".into();
+        assert!(detect_ai(&garbage).is_none());
+
+        for message in [
+            "Claude wrote this function by hand",
+            "fix\n\nAI-Agent:\n",
+            "fix\n\nAI-Agent: \n",
+        ] {
+            let c = meta("f".repeat(40).as_str(), "Dev", "dev@example.com", message);
+            assert!(detect_ai(&c).is_none(), "{message:?}");
+        }
+    }
+
+    /// Expected: a fake `Co-Authored-By: Claude` on a human commit is
+    /// `Verified`. That class means the trailer is there. The lines are
+    /// counted with the tagged cohort. This is a false positive for
+    /// "a model typed this", and the test locks it as metadata.
+    #[test]
+    fn fake_trailer_is_verified_metadata() {
+        let tmp = synthetic_repo();
+        let dir = tmp.path();
+        std::fs::write(
+            dir.join("auth.py"),
+            "def refresh(user):\n    return token\n",
+        )
+        .unwrap();
+        commit_all(dir, &format!("hand written{CLAUDE_TRAILER}"));
+        let report = audit_repo(dir, &AuditOptions::default()).unwrap();
+        assert_eq!(report.verified.commits, 1);
+        assert_eq!(report.verified.introduced, 2);
+        assert_eq!(report.verified.surviving, 2);
+        assert!(report.by_agent.contains_key("claude-code"));
+    }
+
+    /// Expected: cherry-pick, squash and amend that drop the trailer leave
+    /// the lines untagged. The original AI commit is no longer what blame
+    /// can see. UNKNOWN, not recovered.
+    #[test]
+    fn history_rewrite_that_drops_the_trailer_is_unknown() {
+        // Cherry-pick without the message.
+        let tmp = synthetic_repo();
+        let dir = tmp.path();
+        run_git(dir, &["checkout", "-q", "-b", "side"]);
+        std::fs::write(
+            dir.join("auth.py"),
+            "def refresh(user):\n    return token\n",
+        )
+        .unwrap();
+        commit_all(dir, &format!("add token refresh{CLAUDE_TRAILER}"));
+        run_git(dir, &["checkout", "-q", "main"]);
+        run_git(dir, &["cherry-pick", "-n", "side"]);
+        commit_all(dir, "bring refresh across by hand");
+        let report = audit_repo(dir, &AuditOptions::default()).unwrap();
+        assert_eq!(report.verified.commits, 0);
+        assert_eq!(report.verified.surviving, 0);
+
+        // Squash of a tagged commit and a follow-up, message without a trailer.
+        let tmp = synthetic_repo();
+        let dir = tmp.path();
+        std::fs::write(
+            dir.join("auth.py"),
+            "def refresh(user):\n    return token\n",
+        )
+        .unwrap();
+        commit_all(dir, &format!("add token refresh{CLAUDE_TRAILER}"));
+        std::fs::write(
+            dir.join("auth.py"),
+            "def refresh(user):\n    return token\n# note\n",
+        )
+        .unwrap();
+        commit_all(dir, "human follow-up");
+        run_git(dir, &["reset", "-q", "--soft", "HEAD~2"]);
+        commit_all(dir, "squash without a trailer");
+        let report = audit_repo(dir, &AuditOptions::default()).unwrap();
+        assert_eq!(report.verified.commits, 0);
+
+        // Amend strips the trailer and keeps the patch.
+        let tmp = synthetic_repo();
+        let dir = tmp.path();
+        std::fs::write(
+            dir.join("auth.py"),
+            "def refresh(user):\n    return token\n",
+        )
+        .unwrap();
+        commit_all(dir, &format!("add token refresh{CLAUDE_TRAILER}"));
+        run_git(
+            dir,
+            &[
+                "commit",
+                "-q",
+                "--amend",
+                "-m",
+                "same patch, trailer removed",
+            ],
+        );
+        let report = audit_repo(dir, &AuditOptions::default()).unwrap();
+        assert_eq!(report.verified.commits, 0);
+        assert!(report.baseline.untagged.introduced >= 2);
+    }
+
+    /// Expected: a merge commit does not invent a tag and does not erase
+    /// the tagged parent. The AI lines still survive. The merge commit
+    /// itself is untagged.
+    #[test]
+    fn merge_commit_keeps_the_tagged_parent() {
+        let tmp = synthetic_repo();
+        let dir = tmp.path();
+        run_git(dir, &["checkout", "-q", "-b", "feature"]);
+        std::fs::write(
+            dir.join("auth.py"),
+            "def refresh(user):\n    return token\n",
+        )
+        .unwrap();
+        commit_all(dir, &format!("add token refresh{CLAUDE_TRAILER}"));
+        run_git(dir, &["checkout", "-q", "main"]);
+        run_git(
+            dir,
+            &["merge", "-q", "--no-ff", "-m", "merge feature", "feature"],
+        );
+        let report = audit_repo(dir, &AuditOptions::default()).unwrap();
+        assert_eq!(report.verified.commits, 1);
+        assert_eq!(report.verified.introduced, 2);
+        assert_eq!(report.verified.surviving, 2);
+    }
+
+    /// Expected: a shallow clone is refused. With `--allow-shallow` the
+    /// report says `coverage.shallow` and does not pretend the history
+    /// is complete.
+    #[test]
+    fn shallow_clone_is_refused_and_marked() {
+        let tmp = synthetic_repo();
+        let dir = tmp.path();
+        std::fs::write(
+            dir.join("auth.py"),
+            "def refresh(user):\n    return token\n",
+        )
+        .unwrap();
+        commit_all(dir, &format!("add token refresh{CLAUDE_TRAILER}"));
+        let shallow = tempfile::tempdir().unwrap();
+        let repo = shallow.path().join("repo");
+        // `--depth` is ignored for a local path. `file://` is a real shallow clone.
+        let url = format!("file://{}", dir.display());
+        run_git(
+            shallow.path(),
+            &["clone", "-q", "--depth", "1", &url, "repo"],
+        );
+        let err = audit_repo(&repo, &AuditOptions::default()).unwrap_err();
+        assert!(err.to_string().contains("shallow"), "{err}");
+        let report = audit_repo(
+            &repo,
+            &AuditOptions {
+                allow_shallow: true,
+            },
+        )
+        .unwrap();
+        assert!(report.coverage.shallow);
     }
 }

@@ -78,12 +78,13 @@
   <h2 id="cannot-see"><span class="no">3</span>What it cannot see</h2>
   <ul>
     <li><strong>Inline completions.</strong> Copilot, Cursor Tab, Windsurf, Continue, Zed AI,
-    JetBrains AI leave no trace in git. Their code is counted as human. "No git signal" means no
-    metadata, not no AI.</li>
+    JetBrains AI leave no trace in git. Those lines land in the untagged baseline. "No git signal"
+    means no metadata, not no AI, and not a finding that a human wrote them.</li>
     <li><strong>Untagged agent commits.</strong> Claude Code's trailer can be disabled; many teams
-    strip trailers on squash. Those commits are UNKNOWN.</li>
+    strip trailers on squash. Those commits are UNKNOWN. UNKNOWN is not human.</li>
     <li><strong>Mixed commits.</strong> Granularity is the commit. A human's review edits inside an
-    AI co-authored commit count as AI; AI code committed by a human counts as human.</li>
+    AI-tagged commit are counted with that commit. AI code committed without a tag is untagged,
+    which is not a finding that a human wrote it.</li>
     <li><strong>Paraphrase and rewrite.</strong> A line rewritten by a human with the same meaning
     is a death; a line the AI copied from elsewhere is an introduction.</li>
   </ul>

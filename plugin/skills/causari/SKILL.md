@@ -1,6 +1,6 @@
 ---
 name: causari
-description: Use when the user asks why a line or file exists, who or what wrote it, which prompt produced a change, whether an AI edit survived, or how much AI-written code is still alive in a repository. Also use before repeating a task this repository has already tried.
+description: Use when the user asks why a line or file exists, who or what wrote it, which prompt produced a change, whether an AI edit survived, or how many lines from AI-tagged commits are still at HEAD. Also use before repeating a task this repository has already tried. Report the evidence class; do not treat declared as proven or untagged as human.
 ---
 
 # Causari: the causes behind code

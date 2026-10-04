@@ -44,7 +44,7 @@
         "name": "How much of my code was written by AI?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Causari cannot tell you that. It counts something narrower: the lines introduced by commits that carry machine-readable AI authorship metadata (a Co-Authored-By trailer naming an agent, a bot author, an AI-* trailer, a git-ai note), and how many of those lines git blame still attributes to them at HEAD. Code from inline completions or from untagged commits counts as human. Run re audit in any repository; the output states what was counted and what was not. Rules: causari.dev/method."
+          "text": "Causari cannot tell you that. It counts something narrower: the lines introduced by commits that carry machine-readable AI authorship metadata (a Co-Authored-By trailer naming an agent, a bot author, an AI-* trailer, a git-ai note), and how many of those lines git blame still attributes to them at HEAD. Code from inline completions or from untagged commits is not counted as AI-tagged, and that is not a finding that a human wrote it. Run re audit in any repository; the output states what was counted and what was not. Rules: causari.dev/method."
         }
       },
       {
@@ -89,7 +89,7 @@
         "name": "Does it work with Copilot or Cursor Tab?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No. Inline completions (Copilot, Cursor Tab, Windsurf, Continue, Zed AI, JetBrains AI) leave no trace in git: a person accepts the suggestion and commits it under their own name, so re audit counts those lines as human. \"No git signal\" means no metadata, not no AI. Agents that commit with a trailer or a bot identity (Claude Code, aider, Codex CLI, the Copilot coding agent, Devin, Jules) are visible. What stays invisible: causari.dev/method#cannot-see."
+          "text": "No. Inline completions (Copilot, Cursor Tab, Windsurf, Continue, Zed AI, JetBrains AI) leave no trace in git: a person accepts the suggestion and commits it under their own name, so those lines are untagged. Untagged is not a finding that a human wrote them. \"No git signal\" means no metadata, not no AI. Agents that commit with a trailer or a bot identity (Claude Code, aider, Codex CLI, the Copilot coding agent, Devin, Jules) are visible. What stays invisible: causari.dev/method#cannot-see."
         }
       },
       {
@@ -218,7 +218,7 @@
   <section class="faq-q" id="how-much-ai">
     <h2>How much of my code was written by AI?</h2>
     <div class="faq-a">
-      <p>Causari cannot tell you that. It counts something narrower: the lines introduced by commits that carry machine-readable AI authorship metadata (a <code translate="no">Co-Authored-By</code> trailer naming an agent, a bot author, an <code translate="no">AI-*</code> trailer, a git-ai note), and how many of those lines <code translate="no">git blame</code> still attributes to them at HEAD. Code from inline completions or from untagged commits counts as human. Run <code translate="no">re audit</code> in any repository; the output states what was counted and what was not. Rules: <a href="/method#counted">causari.dev/method</a>.</p>
+      <p>Causari cannot tell you that. It counts something narrower: the lines introduced by commits that carry machine-readable AI authorship metadata (a <code translate="no">Co-Authored-By</code> trailer naming an agent, a bot author, an <code translate="no">AI-*</code> trailer, a git-ai note), and how many of those lines <code translate="no">git blame</code> still attributes to them at HEAD. Code from inline completions or from untagged commits is not counted as AI-tagged, and that is not a finding that a human wrote it. Run <code translate="no">re audit</code> in any repository; the output states what was counted and what was not. Rules: <a href="/method#counted">causari.dev/method</a>.</p>
     </div>
     <div class="term">
 <pre translate="no"><code translate="no">re audit                    <span class="dim"># the repository you are in</span>
@@ -268,7 +268,7 @@ brew install croviatrust/tap/causari                <span class="dim"># Homebrew
   <section class="faq-q" id="copilot-cursor-tab">
     <h2>Does it work with Copilot or Cursor Tab?</h2>
     <div class="faq-a">
-      <p>No. Inline completions (Copilot, Cursor Tab, Windsurf, Continue, Zed AI, JetBrains AI) leave no trace in git: a person accepts the suggestion and commits it under their own name, so <code translate="no">re audit</code> counts those lines as human. "No git signal" means no metadata, not no AI. Agents that commit with a trailer or a bot identity (Claude Code, aider, Codex CLI, the Copilot coding agent, Devin, Jules) are visible. What stays invisible: <a href="/method#cannot-see">causari.dev/method#cannot-see</a>.</p>
+      <p>No. Inline completions (Copilot, Cursor Tab, Windsurf, Continue, Zed AI, JetBrains AI) leave no trace in git: a person accepts the suggestion and commits it under their own name, so those lines are untagged. Untagged is not a finding that a human wrote them. "No git signal" means no metadata, not no AI. Agents that commit with a trailer or a bot identity (Claude Code, aider, Codex CLI, the Copilot coding agent, Devin, Jules) are visible. What stays invisible: <a href="/method#cannot-see">causari.dev/method#cannot-see</a>.</p>
     </div>
   </section>
 

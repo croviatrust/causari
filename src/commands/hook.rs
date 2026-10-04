@@ -447,29 +447,58 @@ fn reverse_edits(post: &str, edits: &[(String, String)]) -> Option<String> {
     Some(text)
 }
 
+/// How to place a declared edit against the tree it claims to have changed.
+enum ReversedPre {
+    /// A pre-snapshot whose only difference from the post-tree is `rel`
+    /// restored to the bytes before the declared edits.
+    Snapshot(String),
+    /// No file was declared (a shell). The caller may fall back to the
+    /// previous post-state. That fallback can attribute the whole gap to
+    /// this call: a known limit, not a proof.
+    Fallback,
+    /// The declaration cannot be turned into a diff without assigning lines
+    /// the ledger cannot support. Record nothing. The lines stay with whoever
+    /// already owns them, or with nobody.
+    Drop,
+}
+
 /// A pre-snapshot whose only difference from `post_tree` is `rel` restored
 /// to the bytes before the declared edits. The human edit, the rename and
 /// the formatter that happened since the previous event are already in
 /// `post_tree`, so they stay on both sides and are not this agent's lines.
+///
+/// A declared file edit that does not reverse onto that file is dropped.
+/// Falling back to the previous snapshot would make every change since then
+/// — including a file the declaration never named — this call's inserts.
+/// A declaration that the whole file is new, when the path already exists
+/// in the parent snapshot, is the same kind of claim: grafting the file out
+/// would mark every current line as this event's.
 fn reversed_pre_snapshot(
     store: &Store,
     post_tree: &str,
     rel: Option<&str>,
     edits: &[(String, String)],
-) -> Result<Option<String>> {
+    parent: &Option<String>,
+) -> Result<ReversedPre> {
     let Some(rel) = rel else {
-        return Ok(None);
+        return Ok(ReversedPre::Fallback);
     };
     let Some(blob) = crate::provenance::lookup_blob(store, post_tree, std::path::Path::new(rel))?
     else {
-        return Ok(None);
+        // The declared path is not in the tree this call left behind.
+        return Ok(ReversedPre::Drop);
     };
     let post = String::from_utf8_lossy(&store.read_blob(&blob)?).into_owned();
     let Some(pre_text) = reverse_edits(&post, edits) else {
-        return Ok(None);
+        return Ok(ReversedPre::Drop);
     };
     if pre_text == post {
-        return Ok(None);
+        return Ok(ReversedPre::Drop);
+    }
+    // Empty pre-text means "this call created the file". If the path was
+    // already in the parent snapshot, that claim contradicts the ledger.
+    if pre_text.is_empty() && path_in_parent(store, parent, rel)? {
+        return Ok(ReversedPre::Drop);
     }
     let pre_tree = graft_file(
         store,
@@ -481,10 +510,23 @@ fn reversed_pre_snapshot(
             Some(pre_text.as_bytes())
         },
     )?;
-    Ok(Some(store.write_snapshot(&Snapshot {
+    Ok(ReversedPre::Snapshot(store.write_snapshot(&Snapshot {
         tree: pre_tree,
         created_at: Utc::now().to_rfc3339(),
     })?))
+}
+
+/// True when `rel` is already a file in the parent event's post-snapshot.
+/// A root event has no parent, so nothing in the ledger contradicts a
+/// creation declaration. That declaration stays `declared`; it is not a
+/// proof that nobody else typed the file first.
+fn path_in_parent(store: &Store, parent: &Option<String>, rel: &str) -> Result<bool> {
+    let Some(pid) = parent else {
+        return Ok(false);
+    };
+    let ev = store.read_event(pid)?;
+    let tree = store.read_snapshot(&ev.post_snapshot)?.tree;
+    Ok(crate::provenance::lookup_blob(store, &tree, std::path::Path::new(rel))?.is_some())
 }
 
 /// `post_tree` with `rel` replaced by `contents`, or removed when `contents`
@@ -549,8 +591,10 @@ fn record_tool_action(repo: &Repo, action: ToolAction) -> Result<Option<String>>
     // previous event's post-state is the whole gap since then — a human edit,
     // a rename, a formatter — and every inserted line would be this agent's.
     // A declared edit can be reversed onto the file as it sits now, which
-    // puts that gap on both sides of the diff. Only a call that declares no
-    // reversible edit falls back to the previous post-state.
+    // puts that gap on both sides of the diff. A shell declares no file, so
+    // it still falls back; that is a limit. A file declaration that does not
+    // reverse, or that claims to have created a file the ledger already has,
+    // is dropped: recording it would turn the declaration into line ownership.
     let pre_snapshot_id = match take_pending_pre(repo, session_id) {
         Some(id) => id,
         None => match reversed_pre_snapshot(
@@ -558,9 +602,11 @@ fn record_tool_action(repo: &Repo, action: ToolAction) -> Result<Option<String>>
             &post_tree,
             action.rel_file.as_deref(),
             &action.edits,
+            &parent_id,
         )? {
-            Some(id) => id,
-            None => crate::commit::resolve_pre_snapshot(repo, &store, &parent_id)?,
+            ReversedPre::Snapshot(id) => id,
+            ReversedPre::Fallback => crate::commit::resolve_pre_snapshot(repo, &store, &parent_id)?,
+            ReversedPre::Drop => return Ok(None),
         },
     };
 

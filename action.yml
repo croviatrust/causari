@@ -1,7 +1,8 @@
 name: "Causari Survival Audit"
 description: >-
-  Zero-setup audit of AI code survival: how much AI-written code is
-  still alive at HEAD. Sticky PR comment + job summary.
+  Zero-setup audit of AI code survival: how many lines from AI-tagged
+  commits are still alive at HEAD. AI-tagged is metadata, not proof a
+  model typed the line. Sticky PR comment + job summary.
   Check out with full history (actions/checkout `fetch-depth: 0`): the
   audit refuses shallow clones because a truncated history misstates
   every count. Optionally verifies a PNX proof (crovia.pnx.v1) produced

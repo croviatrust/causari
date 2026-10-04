@@ -84,8 +84,10 @@ how many commits predate it: a repository that was cleared or rewritten
 shows there, and its ratio is read accordingly.
 
 **What it cannot see**: code from inline completions (Copilot, Cursor Tab,
-Windsurf, …) leaves no git trace and counts as human, so it is in the
-untagged baseline. Commits without a trailer are UNKNOWN. A formatter pass
+Windsurf, …) leaves no git trace, so it is in the untagged baseline.
+Untagged is not a finding that a human wrote it. Commits without a trailer
+are UNKNOWN. An agent that needs the same limits in one file should read
+[causari.dev/llms.txt](https://causari.dev/llms.txt). A formatter pass
 or a moved function counts as a death under method v1. One bulk commit can
 dominate a line-weighted ratio; ratios under 5 AI-tagged commits are
 flagged. All of this is written out at

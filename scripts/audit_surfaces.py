@@ -282,6 +282,71 @@ def check_release(canon: dict, r: Report) -> None:
             r.add("release", "info", path, "asset name and checksum file agree with the canon")
 
 
+# ---------------------------------------------------- evidence invariants
+#
+# These equivalences are false. A public surface or a machine-readable
+# description that states one of them is a high finding: an agent will
+# repeat it.
+#
+#   correlated == declared == cryptographically verified
+#   signed == true
+#   absence of observed egress == proof of all job egress
+#   AI-tagged == AI-written
+#   unknown == human
+
+_HUMAN_COLLAPSE = re.compile(r"count(?:s|ed)? as human", re.I)
+
+
+def check_evidence_invariants(_canon: dict, r: Report) -> None:
+    surfaces = list(_canon["surfaces"]["text"]) + [
+        "server.json",
+        "plugin/skills/causari/SKILL.md",
+        "src/commands/report.rs",
+        "src/commands/mcp.rs",
+    ]
+    for path in surfaces:
+        if not (ROOT / path).exists():
+            r.add("evidence", "high", path, "surface missing")
+            continue
+        text = read(path)
+        if _HUMAN_COLLAPSE.search(text):
+            r.add(
+                "evidence",
+                "high",
+                path,
+                "unknown collapsed into human ('count as human' or the same words)",
+            )
+        if path == "action.yml" and "AI-written code is still alive" in text:
+            r.add("evidence", "high", path, "AI-tagged collapsed into AI-written")
+        if path == "src/commands/report.rs" and "AI-written lines" in text:
+            r.add("evidence", "high", path, "recorded lines described as AI-written")
+    llms = read("site/llms.txt")
+    for phrase in (
+        "UNKNOWN",
+        "is not human",
+        "declared",
+        "correlated",
+        "observed",
+        "signed is not",
+        "does not prove the numbers",
+    ):
+        if phrase not in llms:
+            r.add("evidence", "high", "site/llms.txt", f"missing evidence-class phrase {phrase!r}")
+    desc = json.loads(read("server.json"))["description"]
+    if "does not prove" not in desc or "declared" not in desc:
+        r.add(
+            "evidence",
+            "high",
+            "server.json",
+            "MCP description does not keep declared distinct from proof",
+        )
+    why = read("src/commands/mcp.rs")
+    if "does not prove who typed the line" not in why:
+        r.add("evidence", "high", "src/commands/mcp.rs", "causari_why description omits the limit")
+    else:
+        r.add("evidence", "info", "surfaces", "evidence classes are not collapsed on the scanned surfaces")
+
+
 # ---------------------------------------------------------------- live
 
 def fetch(url: str, follow: bool = True, plain: bool = False) -> tuple[int, dict, bytes]:
@@ -400,7 +465,7 @@ def main() -> int:
 
     canon = json.loads(read("canon/canon.json"))
     r = Report()
-    for check in (check_versions, check_forbidden, check_live_words_offline, check_required, check_files, check_html, check_assets, check_matrix, check_release):
+    for check in (check_versions, check_forbidden, check_live_words_offline, check_required, check_files, check_html, check_assets, check_matrix, check_release, check_evidence_invariants):
         try:
             check(canon, r)
         except Exception as e:  # noqa: BLE001

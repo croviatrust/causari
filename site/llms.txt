@@ -61,6 +61,41 @@ Key commands:
 What Causari does not claim: inline completions (Copilot, Cursor Tab) leave
 no git trace and are invisible to `re audit`; the proxy join is a heuristic
 and says so; a survival ratio is a count, not a quality judgement.
+UNKNOWN (no machine-readable AI metadata) is not human. AI-tagged is not
+AI-written: a trailer, a bot author or a git-ai note is metadata, and a
+person can forge it. A seal proves a key signed these bytes; signed is not
+true. Absence of observed egress is not proof that a job made no other
+connection.
+
+Evidence classes — do not collapse these into one word:
+- `re audit` JSON: `verified` and `probable` are confidence in git metadata.
+  `verified` there means a detection rule matched. It is not a cryptographic
+  verification and not a ledger `declared`. The untagged baseline is the
+  commits with no such metadata. Method version is `coverage.method` (v3).
+- Ledger events (`re why`, `re show`, MCP `causari_why`): `declared` (the
+  runtime said so), `correlated` (a proxy completion overlapped the diff; a
+  score, not a fact), `observed` (a change was seen, cause unknown).
+  Declared is not proven. Correlated is not declared.
+- A seal (`audit.seal.json`, `re seal verify`, https://causari.dev/verify)
+  proves a key signed the audit JSON for one commit and one method version.
+  It does not prove the numbers are true. Re-run `re audit` and compare bytes.
+
+When to run `re audit`: the question is how many lines from AI-tagged commits
+`git blame` still attributes at HEAD, in a repository you have or can clone.
+Not when the question is who typed a line, and not for inline completions.
+Full history only; a shallow clone is refused unless `--allow-shallow`, and
+then `coverage.shallow` is true.
+
+Machine-readable outputs: `re audit --json`, `re audit --summary`,
+`audit.seal.json`, https://causari.dev/reports/survival/latest.json, and
+`latest.json` beside each https://causari.dev/r/<owner>/<repo>/ page.
+Event schema is `causari.event.v0.2`. Audit method and the detection table
+are https://causari.dev/method.
+
+Official: repository https://github.com/croviatrust/causari ; crates.io
+crate `causari` ; npm package `causari` ; PyPI project `causari` ; MCP
+`io.github.croviatrust/causari` (`server.json` in the repository) ; GitHub
+Action `croviatrust/causari@v1`.
 
 ## Docs
 - [README](https://github.com/croviatrust/causari#readme): full command reference

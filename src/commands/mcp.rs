@@ -153,9 +153,10 @@ fn handle_tools_list() -> Result<Value, String> {
             },
             {
                 "name": "causari_why",
-                "description": "Get the full provenance of a specific source line: the agent, model, \
-                    prompt and reasoning that introduced it. Useful before modifying code you did \
-                    not write yourself.",
+                "description": "Report the recorded event for a source line: agent, model, \
+                    prompt and evidence class (declared, correlated, or observed). Declared is \
+                    what a runtime said; it does not prove who typed the line. A line with no \
+                    recorded event is unknown, not human.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
