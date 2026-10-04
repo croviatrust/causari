@@ -10,7 +10,7 @@ use crate::capture::{
     significant_lines,
 };
 use crate::cli::{HookArgs, HookEventArgs};
-use crate::object::{Event, Snapshot};
+use crate::object::{Event, Snapshot, TreeEntry};
 use crate::repo::Repo;
 use crate::snapshot::{flatten_tree, snapshot_workspace};
 use crate::store::Store;
@@ -342,6 +342,7 @@ fn record_tool_event(repo: &Repo, v: &Value, session_id: Option<&str>) -> Result
         .unwrap_or("unknown")
         .to_string();
     let input = v.get("tool_input");
+    let edits = input.map(edits_from_tool_input).unwrap_or_default();
     // Edit/Write/MultiEdit use `file_path`; NotebookEdit uses `notebook_path`.
     let file = input
         .and_then(|i| i.get("file_path").or_else(|| i.get("notebook_path")))
@@ -370,9 +371,34 @@ fn record_tool_event(repo: &Repo, v: &Value, session_id: Option<&str>) -> Result
             model: None,
             reads: Vec::new(),
             added: None,
+            edits,
         },
     )
     .map(|_| ())
+}
+
+/// `old_string`/`new_string` pairs a tool payload declared, in order.
+/// Claude's Edit carries one pair; MultiEdit and Cursor carry `edits[]`.
+fn edits_from_tool_input(input: &Value) -> Vec<(String, String)> {
+    let mut out = Vec::new();
+    if let Some(pairs) = input.get("edits").and_then(Value::as_array) {
+        for pair in pairs {
+            if let (Some(old), Some(new)) = (
+                pair.get("old_string").and_then(Value::as_str),
+                pair.get("new_string").and_then(Value::as_str),
+            ) {
+                out.push((old.to_string(), new.to_string()));
+            }
+        }
+        return out;
+    }
+    if let (Some(old), Some(new)) = (
+        input.get("old_string").and_then(Value::as_str),
+        input.get("new_string").and_then(Value::as_str),
+    ) {
+        out.push((old.to_string(), new.to_string()));
+    }
+    out
 }
 
 /// One tool call an agent runtime declared through a hook, in the terms
@@ -397,6 +423,116 @@ struct ToolAction<'a> {
     /// The lines the runtime says it inserted. `None`: derive them from the
     /// snapshot diff of `rel_file`.
     added: Option<Vec<String>>,
+    /// Declared replacements, oldest first. Used to rebuild a pre-state when
+    /// no PreToolUse snapshot was taken.
+    edits: Vec<(String, String)>,
+}
+
+/// The file as it was before `edits`, recovered by undoing them on `post`.
+/// `None` when the payload declares nothing reversible: an empty new text
+/// has no location to put the old text back, and a new text that is not in
+/// the file was not this write.
+fn reverse_edits(post: &str, edits: &[(String, String)]) -> Option<String> {
+    if edits.is_empty() {
+        return None;
+    }
+    let mut text = post.to_string();
+    for (old, new) in edits.iter().rev() {
+        if new.is_empty() {
+            return None;
+        }
+        let at = text.rfind(new.as_str())?;
+        text.replace_range(at..at + new.len(), old);
+    }
+    Some(text)
+}
+
+/// A pre-snapshot whose only difference from `post_tree` is `rel` restored
+/// to the bytes before the declared edits. The human edit, the rename and
+/// the formatter that happened since the previous event are already in
+/// `post_tree`, so they stay on both sides and are not this agent's lines.
+fn reversed_pre_snapshot(
+    store: &Store,
+    post_tree: &str,
+    rel: Option<&str>,
+    edits: &[(String, String)],
+) -> Result<Option<String>> {
+    let Some(rel) = rel else {
+        return Ok(None);
+    };
+    let Some(blob) = crate::provenance::lookup_blob(store, post_tree, std::path::Path::new(rel))?
+    else {
+        return Ok(None);
+    };
+    let post = String::from_utf8_lossy(&store.read_blob(&blob)?).into_owned();
+    let Some(pre_text) = reverse_edits(&post, edits) else {
+        return Ok(None);
+    };
+    if pre_text == post {
+        return Ok(None);
+    }
+    let pre_tree = graft_file(
+        store,
+        post_tree,
+        rel,
+        if pre_text.is_empty() {
+            None
+        } else {
+            Some(pre_text.as_bytes())
+        },
+    )?;
+    Ok(Some(store.write_snapshot(&Snapshot {
+        tree: pre_tree,
+        created_at: Utc::now().to_rfc3339(),
+    })?))
+}
+
+/// `post_tree` with `rel` replaced by `contents`, or removed when `contents`
+/// is `None` (the edit created the file). Intermediate directories that
+/// become empty are removed with it.
+fn graft_file(store: &Store, tree_id: &str, rel: &str, contents: Option<&[u8]>) -> Result<String> {
+    let comps: Vec<&str> = rel.split('/').filter(|s| !s.is_empty()).collect();
+    if comps.is_empty() {
+        return Err(anyhow!("empty path"));
+    }
+    graft_at(store, tree_id, &comps, contents)
+}
+
+fn graft_at(
+    store: &Store,
+    tree_id: &str,
+    comps: &[&str],
+    contents: Option<&[u8]>,
+) -> Result<String> {
+    let mut tree = store.read_tree(tree_id)?;
+    let name = comps[0];
+    if comps.len() == 1 {
+        match contents {
+            Some(bytes) => {
+                let id = store.write_blob(bytes)?;
+                let exec = tree.entries.get(name).map(|e| e.exec).unwrap_or(false);
+                tree.entries
+                    .insert(name.to_string(), TreeEntry::blob(id, exec));
+            }
+            None => {
+                tree.entries.remove(name);
+            }
+        }
+        return store.write_tree(&tree);
+    }
+    let child = match tree.entries.get(name) {
+        Some(entry) if entry.kind == "tree" => entry.id.clone(),
+        _ => return Ok(tree_id.to_string()),
+    };
+    let new_child = graft_at(store, &child, &comps[1..], contents)?;
+    let child_tree = store.read_tree(&new_child)?;
+    if child_tree.entries.is_empty() {
+        tree.entries.remove(name);
+    } else {
+        tree.entries
+            .insert(name.to_string(), TreeEntry::tree(new_child));
+    }
+    store.write_tree(&tree)
 }
 
 /// Record a declared tool action as a full Causari event: pre-state,
@@ -408,13 +544,25 @@ fn record_tool_action(repo: &Repo, action: ToolAction) -> Result<Option<String>>
 
     let _lock = repo.lock()?;
     let parent_id = crate::commit::resolve_parent(repo, None)?;
-    // Prefer the pre-state captured by PreToolUse moments ago; fall back to
-    // the previous event's post-state when the hook is not installed.
+    let post_tree = snapshot_workspace(repo)?;
+    // Prefer the pre-state captured by PreToolUse moments ago. Without it the
+    // previous event's post-state is the whole gap since then — a human edit,
+    // a rename, a formatter — and every inserted line would be this agent's.
+    // A declared edit can be reversed onto the file as it sits now, which
+    // puts that gap on both sides of the diff. Only a call that declares no
+    // reversible edit falls back to the previous post-state.
     let pre_snapshot_id = match take_pending_pre(repo, session_id) {
         Some(id) => id,
-        None => crate::commit::resolve_pre_snapshot(repo, &store, &parent_id)?,
+        None => match reversed_pre_snapshot(
+            &store,
+            &post_tree,
+            action.rel_file.as_deref(),
+            &action.edits,
+        )? {
+            Some(id) => id,
+            None => crate::commit::resolve_pre_snapshot(repo, &store, &parent_id)?,
+        },
     };
-    let post_tree = snapshot_workspace(repo)?;
 
     // Skip no-op tool calls (nothing actually changed on disk).
     if crate::commit::tree_unchanged(&store, &pre_snapshot_id, &post_tree)? {

@@ -274,6 +274,7 @@ fn handle_in(repo: &Repo, event: &str, v: &Value) -> Result<Value> {
                     model: common.model.clone(),
                     reads: Vec::new(),
                     added: Some(edit.added),
+                    edits: edit.edits,
                 },
             )?;
             Ok(json!({}))
@@ -295,6 +296,7 @@ fn handle_in(repo: &Repo, event: &str, v: &Value) -> Result<Value> {
                     model: common.model.clone(),
                     reads: Vec::new(),
                     added: None,
+                    edits: Vec::new(),
                 },
             )?;
             Ok(json!({}))
@@ -393,20 +395,33 @@ struct FileEdit {
     file_path: String,
     /// Every line of every `new_string`, verbatim: what the agent inserted.
     added: Vec<String>,
+    /// Declared replacements, in order. Reversed when no pre-state was captured.
+    edits: Vec<(String, String)>,
 }
 
 impl FileEdit {
     fn parse(v: &Value) -> Option<Self> {
         let file_path = str_field(v, "file_path")?;
-        let added = v
-            .get("edits")
-            .and_then(Value::as_array)
+        let pairs = v.get("edits").and_then(Value::as_array);
+        let edits = pairs
             .into_iter()
             .flatten()
-            .filter_map(|e| e.get("new_string").and_then(Value::as_str))
-            .flat_map(|s| s.lines().map(String::from).collect::<Vec<_>>())
+            .filter_map(|e| {
+                Some((
+                    e.get("old_string").and_then(Value::as_str)?.to_string(),
+                    e.get("new_string").and_then(Value::as_str)?.to_string(),
+                ))
+            })
+            .collect::<Vec<_>>();
+        let added = edits
+            .iter()
+            .flat_map(|(_, new)| new.lines().map(String::from).collect::<Vec<_>>())
             .collect();
-        Some(Self { file_path, added })
+        Some(Self {
+            file_path,
+            added,
+            edits,
+        })
     }
 }
 
@@ -442,6 +457,7 @@ mod tests {
     use super::*;
     use crate::capture::load_unclaimed_exchanges_since;
     use crate::object::{Event, Evidence};
+    use crate::provenance::{chain_to, line_owners};
     use crate::store::Store;
 
     fn expected_fresh() -> Value {
@@ -616,6 +632,13 @@ mod tests {
                     "}".into(),
                     "  // wired in app.ts".into(),
                 ],
+                edits: vec![
+                    (
+                        "".into(),
+                        "export function health() {\n  return { sha: SHA, uptime: process.uptime() };\n}\n".into(),
+                    ),
+                    ("// TODO".into(), "  // wired in app.ts".into()),
+                ],
             }
         );
         assert!(FileEdit::parse(&common_fields("c")).is_none());
@@ -742,6 +765,88 @@ mod tests {
         let pre = store.read_snapshot(&ev.pre_snapshot).unwrap();
         let post = store.read_snapshot(&ev.post_snapshot).unwrap();
         assert_ne!(pre.tree, post.tree);
+    }
+
+    /// AI writes the file, a human rewrites a line, the file is renamed, a
+    /// formatter reindents, then the agent adds a function. The second event
+    /// owns the function it added. It does not own the human's line or the
+    /// line that survived from the first event. This holds when PreToolUse
+    /// captured the gap, and when it did not: the declared edit is reversed
+    /// onto the file as it sits, so the gap is on both sides of the diff.
+    #[test]
+    fn human_rename_formatter_between_agents_is_not_the_second_agents() {
+        for capture_pre in [true, false] {
+            let tmp = tempfile::tempdir().unwrap();
+            let repo = Repo::init(tmp.path()).unwrap();
+            let original = "def refresh(user):\n    token = rotate(user)\n    return token\n";
+            let first_edit = pre_tool_then_write(&repo, "conv-1", "auth.py", original);
+            handle_in(&repo, "afterFileEdit", &first_edit).unwrap();
+            let first = repo.head_event().unwrap().unwrap();
+
+            std::fs::write(
+                repo.root.join("auth.py"),
+                "def refresh(user):\n    return rotate(user)\n",
+            )
+            .unwrap();
+            std::fs::rename(repo.root.join("auth.py"), repo.root.join("session.py")).unwrap();
+            let formatted = "def refresh(user):\n        return rotate(user)\n";
+            std::fs::write(repo.root.join("session.py"), formatted).unwrap();
+
+            let addition = "\ndef logout(user):\n    return drop(user)\n";
+            let abs = repo.root.join("session.py");
+            if capture_pre {
+                let pre = with(common_fields("conv-1"), json!({ "tool_name": "Write" }));
+                handle_in(&repo, "preToolUse", &pre).unwrap();
+            }
+            std::fs::write(&abs, format!("{formatted}{addition}")).unwrap();
+            let second_edit = with(
+                common_fields("conv-1"),
+                json!({
+                    "file_path": abs.to_string_lossy(),
+                    "edits": [{ "old_string": "", "new_string": addition }]
+                }),
+            );
+            handle_in(&repo, "afterFileEdit", &second_edit).unwrap();
+            let second = repo.head_event().unwrap().unwrap();
+            assert_ne!(first, second);
+
+            let store = Store::new(&repo);
+            let chain = chain_to(&store, Some(&second)).unwrap();
+            let owners = line_owners(&store, &chain, std::path::Path::new("session.py")).unwrap();
+            let text = std::fs::read_to_string(&abs).unwrap();
+            let lines: Vec<&str> = text.lines().collect();
+            assert_eq!(owners.len(), lines.len(), "pre captured: {capture_pre}");
+            for (line, owner) in lines.iter().zip(&owners) {
+                match *line {
+                    "def logout(user):" | "    return drop(user)" => {
+                        assert_eq!(
+                            owner.as_deref(),
+                            Some(second.as_str()),
+                            "{line} / pre {capture_pre}"
+                        );
+                    }
+                    "def refresh(user):" | "        return rotate(user)" => {
+                        assert_ne!(
+                            owner.as_deref(),
+                            Some(second.as_str()),
+                            "{line} was attributed to the second agent (pre captured: {capture_pre})"
+                        );
+                    }
+                    _ => {}
+                }
+            }
+            // The surviving signature is the first agent's. The rename and
+            // the reindent do not move it.
+            let signature = lines
+                .iter()
+                .position(|l| *l == "def refresh(user):")
+                .unwrap();
+            assert_eq!(
+                owners[signature].as_deref(),
+                Some(first.as_str()),
+                "pre captured: {capture_pre}"
+            );
+        }
     }
 
     #[test]

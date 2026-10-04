@@ -17,9 +17,10 @@
 
 use anyhow::{Result, anyhow};
 use similar::{ChangeTag, TextDiff};
-use std::path::{Component, Path};
+use std::path::{Component, Path, PathBuf};
 
 use crate::object::Event;
+use crate::snapshot::flatten_tree;
 use crate::store::Store;
 
 /// The blob id of `rel` inside the tree `tree_id`, if the path exists and is
@@ -170,7 +171,7 @@ pub fn line_owners(store: &Store, chain: &[String], rel: &Path) -> Result<Vec<Op
     let mut owners: Vec<Option<String>> = Vec::new();
     let mut prev_content = String::new();
 
-    for id in chain {
+    for (i, id) in chain.iter().enumerate() {
         let ev = store.read_event(id)?;
         let (pre, post) = file_around(store, &ev, rel)?;
         let post = match post {
@@ -191,6 +192,16 @@ pub fn line_owners(store: &Store, chain: &[String], rel: &Path) -> Result<Vec<Op
             prev_content = post;
             continue;
         }
+        // A rename between events: this path is new, exactly one other path
+        // disappeared, and its lines still match. Carry those owners by line
+        // text onto the pre-state. A line the human or a formatter changed
+        // stays unknown; it is not given to this event.
+        if prev_content.is_empty() && !pre.is_empty() {
+            if let Some((donor_owners, donor_text)) = renamed_from(store, &chain[..i], &ev, rel)? {
+                owners = carry_owners(&donor_owners, &donor_text, &pre);
+                prev_content = pre.clone();
+            }
+        }
         if pre == post {
             continue;
         }
@@ -198,6 +209,56 @@ pub fn line_owners(store: &Store, chain: &[String], rel: &Path) -> Result<Vec<Op
         prev_content = post;
     }
     Ok(owners)
+}
+
+/// The path this file was renamed from, when the previous event's snapshot
+/// has exactly one file that this event's pre-snapshot no longer has, and
+/// `rel` is one of the paths that appeared. Returns that file's owners on
+/// the chain so far and its text. More than one disappeared path is not a
+/// rename we can name, so the lines stay unknown rather than guessed.
+fn renamed_from(
+    store: &Store,
+    chain_before: &[String],
+    ev: &Event,
+    rel: &Path,
+) -> Result<Option<(Vec<Option<String>>, String)>> {
+    let Some(prev_id) = chain_before.last() else {
+        return Ok(None);
+    };
+    let prev = store.read_event(prev_id)?;
+    let prev_files = flatten_tree(store, &store.read_snapshot(&prev.post_snapshot)?.tree)?;
+    let pre_files = flatten_tree(store, &store.read_snapshot(&ev.pre_snapshot)?.tree)?;
+    let gone: Vec<&Path> = prev_files
+        .keys()
+        .filter(|p| !pre_files.contains_key(*p))
+        .map(PathBuf::as_path)
+        .collect();
+    let appeared = pre_files.keys().any(|p| p == rel);
+    if gone.len() != 1 || !appeared || gone[0] == rel {
+        return Ok(None);
+    }
+    let old = gone[0];
+    let owners = line_owners(store, chain_before, old)?;
+    let text = file_in_snapshot(store, &prev.post_snapshot, old)?.unwrap_or_default();
+    Ok(Some((owners, text)))
+}
+
+/// Owners of `pre`'s lines taken from a renamed file, by exact line text.
+/// A line that is not in the donor stays unknown.
+fn carry_owners(
+    donor_owners: &[Option<String>],
+    donor_text: &str,
+    pre: &str,
+) -> Vec<Option<String>> {
+    let donor_lines: Vec<&str> = donor_text.lines().collect();
+    pre.lines()
+        .map(|line| {
+            donor_lines
+                .iter()
+                .position(|l| *l == line)
+                .and_then(|idx| donor_owners.get(idx).cloned().flatten())
+        })
+        .collect()
 }
 
 /// Replay one event's pre→post line diff on top of the existing owner map.
