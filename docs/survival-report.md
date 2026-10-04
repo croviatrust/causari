@@ -48,6 +48,14 @@ That order chooses the sample and nothing else; the list and every report
 page are alphabetical. The intervals describe the sampled repositories
 only, not a population.
 
+The line-weighted column of the archive is not a series. Each rate is that
+report's own aggregated repositories. Report #1 aggregated 10 (method v2),
+#2 aggregated 54 (method v2), #3 aggregated 43 (method v3); a later report
+with a different count, including one near 61, does not continue those
+rates. The generator states the counts under the table whenever the
+repository set or the method differs (`archive_rate_note`). A repository
+followed across reports is on its own page.
+
 ## Prior measurement work
 
 GitClear publishes churn reports built from code-change patterns across the
@@ -74,6 +82,7 @@ for, so no editor has to remember it:
 | Opt-out list honoured (`.github/survival-optout.txt`, case-insensitive, `#` comments) | workflow skips them; generator drops them again |
 | One repository counts once, whatever it is called: audits that measured the same `repository.head` (written by `re audit` from 0.2.1) or are byte-identical are one measurement; the name in `.github/survival-repos.txt` is kept, the other is listed under `excluded.duplicates` with the name it was counted under | `drop_duplicate_audits()`; discovery resolves every seed through `GET /repos` so a renamed seed is never discovered a second time (`resolve_seeds()`) |
 | Bootstrap interval over repositories, 2,000 resamples, seed = report number, labelled as an interval over the sample | `bootstrap_rate()`, `bootstrap_median()` |
+| Archive line-weighted column names each report's repository count and method, and says the column is not a series when the set or the method differs | `archive_rate_note()`, `render_index()` |
 | Method section states method version, tool version, blame flags, cap rule, sample floor; links `/method` | `render_report()` |
 | Report directories are append-only; a directory holding a different report is never overwritten, and the same number is never rebuilt in place: a correction is a revision | `write_report()`, `revise()` |
 | A correction keeps the superseded bytes (`report.r<K>.json`, `report.r<K>.md`) next to the page; the new `report.json` carries `revision`, `revised_at` and `corrections[]` (what changed, the previous aggregate, the previous file and DOI); page, markdown, archive row and feed entry say so; the measurement date does not move | `revise()`, `correction_lines()` |
@@ -157,9 +166,12 @@ Mondays 05:17 UTC or on demand:
    and byte counts, verdict, what is and is not covered) feeds the section
    "Where this measurement connected" of the page and of `report.md`; the
    sheet and the policy are copied next to the report and into the deposit.
-   Covered: the measurement step of each shard. Not covered: what the runner
-   does outside it (checkout, tool install, artifact upload) and any
-   connection that did not go through the witness.
+   Covered: the connection attempts in the shard logs that were uploaded
+   and concatenated into the sheet. Not covered: a shard that uploaded no
+   log; what the runner does outside the measurement step (checkout, tool
+   install, artifact upload); and any connection that did not go through
+   the witness. The policy file is the allowlist and nothing else. The
+   sheet does not say the whole Actions job spoke only to github.com.
 5. Commit `site/reports/survival/**` to `main`: plain commit, never a
    force-push. A concurrency group keeps two runs from racing. `main` is
    protected (required check `lint`), so the checkout uses the secret

@@ -440,6 +440,21 @@ def drop_duplicate_audits(rows: list[dict[str, Any]], listed: list[str]) -> tupl
     return kept_rows, sorted(dropped.values(), key=lambda d: d["dropped"].lower())
 
 
+def reach_log_scope(run_dir: Path) -> dict[str, int]:
+    """How many shard logs were actually uploaded, against how many shards
+    reported a fragment. Absent when no log is in the run directory: the
+    sheet then speaks only for the bytes it contains, and the sentence must
+    not invent a count of shards."""
+    uploaded = len(list(run_dir.glob("reach-shard-*.jsonl")))
+    if not uploaded:
+        return {}
+    run = load_json(run_dir / "run.json", None)
+    out: dict[str, int] = {"uploaded": uploaded}
+    if isinstance(run, dict) and isinstance(run.get("shards"), list) and run["shards"]:
+        out["shards"] = len(run["shards"])
+    return out
+
+
 def collect_reach(run_dir: Path, root: Path) -> dict[str, Any] | None:
     """The run's reach receipt: `reach.sheet.json`, a `crovia.pnx.v1` run
     sheet signed by the egress witness the audit shards ran behind, whose
@@ -492,10 +507,11 @@ def collect_reach(run_dir: Path, root: Path) -> dict[str, Any] | None:
         "verdict": verdict,
         "outside": list(rv.get("outside") or []),
         "warnings": [str(w) for w in (verify.get("warnings") or [])],
-        "covers": "the measurement step of every audit shard, the clone of each repository and the audit itself, "
-                  "with the shard's egress pointed at the witness",
-        "not_covered": "what the runner does outside that step: checking out this repository, installing the tool, "
-                       "uploading the shard; and any connection that did not go through the witness",
+        "logs": reach_log_scope(run_dir),
+        "covers": "the connection attempts in the shard logs that were uploaded and concatenated into this sheet",
+        "not_covered": "any shard that uploaded no log; what the runner does outside the measurement step "
+                       "(checking out this repository, installing the tool, uploading the shard); "
+                       "and any connection that did not go through the witness",
         "verify": [f"tacet-pnx verify {REACH_SHEET} --policy {REACH_POLICY}", f"re pnx verify {REACH_SHEET} --policy {REACH_POLICY}"],
         "_files": files,
     }
@@ -796,7 +812,15 @@ def reach_sentence(r: dict[str, Any]) -> str:
         under = f"under an allowlist of {pol.get('rules')} rule(s) in {pol.get('mode')} mode"
     else:
         under = "with no policy in force (destinations stated, not judged)"
-    return f"The egress witness of the audit shards recorded {where}, {under}."
+    logs = r.get("logs") or {}
+    uploaded, shards = logs.get("uploaded"), logs.get("shards")
+    if isinstance(uploaded, int) and isinstance(shards, int) and shards and uploaded < shards:
+        scope = f"{uploaded} of {shards} uploaded shard logs; a shard that uploaded no log is absent from this sheet"
+    elif isinstance(uploaded, int) and isinstance(shards, int) and shards:
+        scope = f"{uploaded} of {shards} uploaded shard logs"
+    else:
+        scope = "the shard logs concatenated into this sheet"
+    return f"The witness recorded, in {scope}, {where}, {under}."
 
 
 def reach_verdict_sentence(r: dict[str, Any]) -> str:
@@ -1349,7 +1373,6 @@ def render_report(f: dict[str, Any]) -> str:
     </ul>
     </div>
 {reach_section}
-
     <div class="proof rp-section" id="method">
       <h3>Method</h3>
       <ul>
@@ -1372,6 +1395,62 @@ def render_report(f: dict[str, Any]) -> str:
     return page_head(title, desc, url, img, jsonld) + body + page_foot()
 
 
+def _aggregated_names(report: dict[str, Any]) -> frozenset[str] | None:
+    """Lowercased names of the repositories inside the aggregate. None when
+    the report does not carry that list: the count alone cannot prove the
+    sample is the same one."""
+    rows = report.get("repositories")
+    if not isinstance(rows, list):
+        return None
+    names: list[str] = []
+    for row in rows:
+        if not isinstance(row, dict) or not row.get("repo"):
+            return None
+        names.append(str(row["repo"]).lower())
+    return frozenset(names)
+
+
+def archive_rate_note(archive: list[dict[str, Any]]) -> str:
+    """The line-weighted column of the archive. Empty only when every report
+    aggregated the same repositories under the same method: that is the one
+    case in which the column repeats one measurement. A different count, a
+    different set or a different method is not a series, and the sentence
+    names the counts so a reader cannot treat 43 and 61 as one sample."""
+    if len(archive) < 2:
+        return ""
+    parts: list[str] = []
+    counts: list[int] = []
+    methods: list[str] = []
+    sets: list[frozenset[str] | None] = []
+    for report in archive:
+        n = int(report["aggregate"]["repositories"])
+        method = str(report["method"]["version"])
+        counts.append(n)
+        methods.append(method)
+        sets.append(_aggregated_names(report))
+        noun = "repository" if n == 1 else "repositories"
+        parts.append(f"#{report['number']} aggregated {n} {noun} under method {method}")
+    same_method = len(set(methods)) == 1
+    same_count = len(set(counts)) == 1
+    same_set = all(s is not None for s in sets) and len(set(sets)) == 1 and all(len(s) == counts[0] for s in sets)
+    if same_method and same_count and same_set:
+        return ""
+    if same_method and same_count:
+        why = ("The repository counts match, but the repositories are not the same set, "
+               "so the rates do not measure one sample over time.")
+    elif not same_method and not same_count:
+        why = "A different repository count and a different method mean the rates do not measure the same thing over time."
+    elif not same_count:
+        why = "A different repository count means the rates do not measure the same sample over time."
+    else:
+        why = "A different method means the rates do not measure the same thing over time."
+    return (
+        "The line-weighted column is not a series. Each rate is lines still at HEAD divided by lines introduced, "
+        f"inside that report's own aggregated repositories. {'; '.join(parts)}. {why} "
+        "A repository followed across reports is on its page."
+    )
+
+
 def render_index(archive: list[dict[str, Any]]) -> str:
     url = f"{SITE_URL}/{REPORTS_REL}/"
     title = "Survival Report · weekly"
@@ -1389,6 +1468,8 @@ def render_index(archive: list[dict[str, Any]]) -> str:
         f'<td class="txt">{("<a href=\"https://doi.org/" + esc(a["doi"]) + "\" rel=\"noopener\">" + esc(a["doi"]) + "</a>") if a.get("doi") else "<span class=\"muted\">pending</span>"}</td></tr>'
         for a in archive
     )
+    rate_note = archive_rate_note(archive)
+    rate_html = f'\n    <p class="muted" id="archive-rates">{esc(rate_note)}</p>' if rate_note else ""
     latest_block = ""
     if latest:
         latest_block = f"""
@@ -1414,7 +1495,7 @@ def render_index(archive: list[dict[str, Any]]) -> str:
 {rows}
         </tbody>
       </table>
-    </div>
+    </div>{rate_html}
     <p class="muted">The report replaced the weekly measurements table in September 2026. Repositories enter <a href="{REPO_URL}/blob/main/.github/survival-repos.txt" rel="noopener"><code translate="no">.github/survival-repos.txt</code></a> by pull request or through the weekly discovery, which lists the most-starred public repositories where GitHub commit search finds at least five commits carrying AI authorship metadata (<a href="/method#selection">how repositories are selected</a>); maintainers opt out with one line in <a href="{REPO_URL}/edit/main/.github/survival-optout.txt" rel="noopener"><code translate="no">.github/survival-optout.txt</code></a>.</p>
     <p><a href="/{REPOS_REL}/">Every repository has a page and a badge</a>: its counts across reports, the exact bytes behind each number, and a README badge that follows the latest report.</p>
     </div>

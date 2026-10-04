@@ -1006,6 +1006,83 @@ def verify_json(sheet: dict, verdict: str = "within-policy", ok: bool = True, ou
             "reach": {"verdict": verdict if ok else "?", "outside": outside or [], "reached": {}}}
 
 
+def _archive_facts(number: int, names: list[str], method: str, rate: float = 0.5) -> dict:
+    """The fields render_index reads. Names are the aggregated repositories."""
+    n = len(names)
+    return {
+        "number": number,
+        "id": f"2026/{number:02d}",
+        "date": "2026-09-28",
+        "url": f"https://causari.dev/reports/survival/2026/{number:02d}/",
+        "generated_at": "2026-09-28T05:17:00Z",
+        "aggregate": {
+            "repositories": n,
+            "ai_tagged_commits": 10,
+            "introduced": 100,
+            "surviving": 50,
+            "survival_rate": rate,
+            "survival_rate_interval_95": None,
+        },
+        "method": {"version": method},
+        "repositories": [{"repo": name} for name in names],
+    }
+
+
+class ArchiveRateTests(unittest.TestCase):
+    """The archive table puts one line-weighted rate per report in one column.
+    That column is a series only when the aggregated repositories and the
+    method are the same. Report #4 will not have report #3's 43 repositories."""
+
+    def test_a_changed_sample_is_named_and_is_not_a_series(self) -> None:
+        older = ["o/r" + str(i) for i in range(43)]
+        newer = older + ["o/extra" + str(i) for i in range(18)]
+        html = sr.render_index([
+            _archive_facts(4, newer, "v3", 0.40),
+            _archive_facts(3, older, "v3", 0.614),
+        ])
+        text = visible_text(html)
+        self.assertIn("The line-weighted column is not a series.", text)
+        self.assertIn("#4 aggregated 61 repositories under method v3", text)
+        self.assertIn("#3 aggregated 43 repositories under method v3", text)
+        self.assertIn("A different repository count means the rates do not measure the same sample over time.", text)
+        self.assertIn("A repository followed across reports is on its page.", text)
+        self.assertIn('id="archive-rates"', html)
+        self.assertNotIn("up from", text.lower())
+        self.assertNotIn("down from", text.lower())
+
+    def test_a_method_change_is_not_a_series_even_at_the_same_count(self) -> None:
+        names = ["o/r" + str(i) for i in range(43)]
+        text = visible_text(sr.render_index([
+            _archive_facts(3, names, "v3"),
+            _archive_facts(2, names, "v2"),
+        ]))
+        self.assertIn("not a series", text)
+        self.assertIn("A different method means the rates do not measure the same thing over time.", text)
+
+    def test_the_same_repositories_under_the_same_method_need_no_warning(self) -> None:
+        names = ["o/r" + str(i) for i in range(43)]
+        text = visible_text(sr.render_index([
+            _archive_facts(4, names, "v3", 0.55),
+            _archive_facts(3, names, "v3", 0.614),
+        ]))
+        self.assertNotIn("not a series", text)
+        self.assertNotIn('id="archive-rates"', sr.render_index([
+            _archive_facts(4, names, "v3"),
+            _archive_facts(3, names, "v3"),
+        ]))
+
+    def test_one_report_has_nothing_to_line_up(self) -> None:
+        html = sr.render_index([_archive_facts(1, ["o/only"], "v2")])
+        self.assertNotIn("not a series", visible_text(html))
+
+    def test_equal_counts_of_different_repositories_are_not_the_same_sample(self) -> None:
+        text = visible_text(sr.render_index([
+            _archive_facts(2, ["o/a", "o/b"], "v3"),
+            _archive_facts(1, ["o/a", "o/c"], "v3"),
+        ]))
+        self.assertIn("not the same set", text)
+
+
 class ReachTests(unittest.TestCase):
     """The run's reach receipt: the signed PNX run sheet of the egress witness
     the shards ran behind, published next to the report once verified."""
@@ -1134,6 +1211,30 @@ class ReachTests(unittest.TestCase):
             text = visible_text((d / "index.html").read_text(encoding="utf-8"))
             self.assertIn("with no policy in force (destinations stated, not judged)", text)
             self.assertIn("No policy was in force; the destinations are stated, not judged.", text)
+        finally:
+            s.close()
+
+    def test_a_missing_shard_log_is_said_and_the_sheet_does_not_cover_the_job(self) -> None:
+        sheet = PNX_005["valid"]["enforce"]["sheet"]
+        s = self.scratch(sheet, verify_json(sheet))
+        try:
+            run = json.loads((s.run / "run.json").read_text(encoding="utf-8"))
+            run["shards"] = ["run-shard-0.json", "run-shard-1.json", "run-shard-2.json"]
+            (s.run / "run.json").write_text(json.dumps(run), encoding="utf-8")
+            (s.run / "reach-shard-0.jsonl").write_text("{}\n", encoding="utf-8")
+            (s.run / "reach-shard-1.jsonl").write_text("{}\n", encoding="utf-8")
+            f = s.build()
+            self.assertEqual(f["reach"]["logs"], {"uploaded": 2, "shards": 3})
+            self.assertNotIn("every audit shard", f["reach"]["covers"])
+            self.assertIn("uploaded and concatenated", f["reach"]["covers"])
+            self.assertIn("uploaded no log", f["reach"]["not_covered"])
+            text = visible_text((s.site / "reports" / "survival" / "2026" / "01" / "index.html").read_text(encoding="utf-8"))
+            self.assertIn("2 of 3 uploaded shard logs", text)
+            self.assertIn("a shard that uploaded no log is absent from this sheet", text)
+            self.assertIn("Every destination the witness saw is one the policy allows.", text)
+            policy = json.loads((ROOT / ".github" / "egress-policy.json").read_text(encoding="utf-8"))
+            self.assertEqual(set(policy), {"version", "allow"})
+            self.assertEqual(policy["allow"], ["github.com:443"])
         finally:
             s.close()
 

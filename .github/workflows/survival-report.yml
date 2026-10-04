@@ -15,14 +15,18 @@ name: survival-report
 # SHARDS, uploads its results as an artifact, and the report job merges the
 # shards, builds the report and commits it to main, append-only.
 #
-# Where the measurement connected is part of the report. Every shard runs
-# its clones and audits behind an egress witness (scripts/egress_witness.py,
-# a CONNECT proxy under .github/egress-policy.json: github.com:443 and
-# nothing else; anything else is refused and written down). The report job
-# turns the shards' connection logs into one signed PNX run sheet
-# (crovia.pnx.v1 with a reach record), verifies it against the policy and
-# publishes sheet, policy and verdict next to the report. A reader checks
-# it offline: `tacet-pnx verify reach.sheet.json --policy egress-policy.json`.
+# Where the measurement connected is part of the report. Each audit shard
+# points git at an egress witness (scripts/egress_witness.py, a CONNECT
+# proxy under .github/egress-policy.json: github.com:443 and nothing else).
+# A destination outside that list is refused and written down, for the
+# connections that go through the witness. The sheet proves the logs that
+# were uploaded, not the rest of the job: checkout, tool install, artifact
+# upload, a shard that uploaded no log, and any connection that did not go
+# through the witness are outside it. The report job turns the uploaded logs
+# into one signed PNX run sheet (crovia.pnx.v1 with a reach record), verifies
+# it against the policy and publishes sheet, policy and verdict next to the
+# report. A reader checks it offline:
+# `tacet-pnx verify reach.sheet.json --policy egress-policy.json`.
 #
 # GitHub starts scheduled runs late on quiet repositories: report #3 was
 # scheduled for 05:17 UTC and started at 11:42. The schedule is therefore a
