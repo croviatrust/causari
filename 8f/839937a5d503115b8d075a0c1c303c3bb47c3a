@@ -1,0 +1,18 @@
+.github/workflows/survival-report-recover.yml
+  h_b6bdc81170adbc 403-405,411-412,420-421,423,426-427,430,437-442,444-452,456-458,460,473,476,481-482,485-494,501,506-526,530-539,541
+scripts/recovery_publish_gate.py
+  h_b6bdc81170adbc 1-523
+scripts/tests/test_recovery_publish_gate.py
+  h_b6bdc81170adbc 1-241
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8f839937a5d503115b8d075a0c1c303c3bb47c3a",
+  "prompts": {},
+  "humans": {
+    "h_b6bdc81170adbc": {
+      "author": "Crovia Trust <info@croviatrust.com>"
+    }
+  }
+}
