@@ -1,0 +1,18 @@
+.github/workflows/ci.yml
+  h_b6bdc81170adbc 83-88
+.github/workflows/survival-report-recover.yml
+  h_b6bdc81170adbc 96-97,99-102,104-106,108-141,143-145,147-150,152-155,157-163,165-182,184-197,199-210,212-231,233-245,247-287,289-296,298-326,328-359,361-378,380-382
+scripts/check_workflow_yaml.py
+  h_b6bdc81170adbc 1-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "897ddbc73bd41519bf10cc571ec9393bc1af0491",
+  "prompts": {},
+  "humans": {
+    "h_b6bdc81170adbc": {
+      "author": "Crovia Trust <info@croviatrust.com>"
+    }
+  }
+}
