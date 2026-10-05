@@ -1,0 +1,14 @@
+.github/workflows/survival-report-recover.yml
+  h_b6bdc81170adbc 1-544
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "47658edfa7c830e3b22f387987a3db9dce188cca",
+  "prompts": {},
+  "humans": {
+    "h_b6bdc81170adbc": {
+      "author": "Crovia Trust <info@croviatrust.com>"
+    }
+  }
+}
