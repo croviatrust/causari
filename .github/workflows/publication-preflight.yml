@@ -1,0 +1,142 @@
+name: publication-preflight
+
+# Read-only credential check for Report #4. Manual dispatch.
+# One production Zenodo deposition GET. No repository writes.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: GitHub publication credential
+        env:
+          REPORT_PUSH_TOKEN: ${{ secrets.REPORT_PUSH_TOKEN }}
+        run: |
+          set -euo pipefail
+          unset GITHUB_TOKEN
+          unset GH_HOST
+          export GH_HOST=github.com
+          login=""
+          perm=""
+          enforce=""
+          if [ -z "${REPORT_PUSH_TOKEN:-}" ]; then
+            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
+            exit 1
+          fi
+          export GH_TOKEN="${REPORT_PUSH_TOKEN}"
+          if ! login="$(gh api user --jq .login 2>/dev/null)"; then
+            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
+            exit 1
+          fi
+          if [[ ! "$login" =~ ^[A-Za-z0-9-]{1,39}$ ]]; then
+            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
+            exit 1
+          fi
+          if [ "$login" != "croviatrust" ]; then
+            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
+            printf '%s\n' "GITHUB_LOGIN=${login}"
+            exit 1
+          fi
+          repo="${GITHUB_REPOSITORY}"
+          if ! perm="$(gh api "repos/${repo}/collaborators/${login}/permission" --jq .permission 2>/dev/null)"; then
+            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
+            printf '%s\n' "GITHUB_LOGIN=${login}"
+            exit 1
+          fi
+          case "$perm" in
+            admin|write|maintain|triage|read) ;;
+            *)
+              printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
+              printf '%s\n' "GITHUB_LOGIN=${login}"
+              exit 1
+              ;;
+          esac
+          if [ "$perm" != "admin" ]; then
+            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
+            printf '%s\n' "GITHUB_LOGIN=${login}"
+            printf '%s\n' "GITHUB_PERMISSION=${perm}"
+            exit 1
+          fi
+          if ! enforce="$(gh api "repos/${repo}/branches/main/protection" --jq .enforce_admins.enabled 2>/dev/null)"; then
+            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
+            printf '%s\n' "GITHUB_LOGIN=${login}"
+            printf '%s\n' "GITHUB_PERMISSION=${perm}"
+            exit 1
+          fi
+          case "$enforce" in
+            true|false) ;;
+            *)
+              printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
+              printf '%s\n' "GITHUB_LOGIN=${login}"
+              printf '%s\n' "GITHUB_PERMISSION=${perm}"
+              exit 1
+              ;;
+          esac
+          if [ "$enforce" != "false" ]; then
+            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
+            printf '%s\n' "GITHUB_LOGIN=${login}"
+            printf '%s\n' "GITHUB_PERMISSION=${perm}"
+            printf '%s\n' "ENFORCE_ADMINS=${enforce}"
+            exit 1
+          fi
+          printf '%s\n' "REPORT_PUSH_TOKEN=PASS"
+          printf '%s\n' "GITHUB_LOGIN=${login}"
+          printf '%s\n' "GITHUB_PERMISSION=${perm}"
+          printf '%s\n' "ENFORCE_ADMINS=${enforce}"
+
+      - name: Zenodo environment
+        env:
+          ZENODO_SANDBOX: ${{ vars.ZENODO_SANDBOX }}
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          set -euo pipefail
+          case "${ZENODO_SANDBOX:-}" in
+            ""|0|false|no)
+              printf '%s\n' "ZENODO_PRODUCTION=PASS"
+              ;;
+            *)
+              printf '%s\n' "ZENODO_PRODUCTION=FAIL"
+              exit 1
+              ;;
+          esac
+          if [ -z "${ZENODO_TOKEN:-}" ]; then
+            printf '%s\n' "ZENODO_TOKEN=FAIL"
+            exit 1
+          fi
+          if ! status="$(
+            curl \
+              --silent \
+              --show-error \
+              --output /dev/null \
+              --write-out '%{http_code}' \
+              --proto '=https' \
+              --max-time 30 \
+              --request GET \
+              --header "Accept: application/json" \
+              --header "Authorization: Bearer ${ZENODO_TOKEN}" \
+              --url "https://zenodo.org/api/deposit/depositions?size=1"
+          )"; then
+            printf '%s\n' "ZENODO_TOKEN=FAIL"
+            printf '%s\n' "ZENODO_HTTP=0"
+            exit 1
+          fi
+          case "$status" in
+            [0-9][0-9][0-9]) ;;
+            *)
+              printf '%s\n' "ZENODO_TOKEN=FAIL"
+              printf '%s\n' "ZENODO_HTTP=0"
+              exit 1
+              ;;
+          esac
+          if [ "$status" != "200" ]; then
+            printf '%s\n' "ZENODO_TOKEN=FAIL"
+            printf '%s\n' "ZENODO_HTTP=${status}"
+            exit 1
+          fi
+          printf '%s\n' "ZENODO_TOKEN=PASS"
+          printf '%s\n' "ZENODO_HTTP=200"
