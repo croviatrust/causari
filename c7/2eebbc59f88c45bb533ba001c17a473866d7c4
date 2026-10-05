@@ -1,0 +1,16 @@
+.github/workflows/survival-discover.yml
+  h_b6bdc81170adbc 46,76-77,86-100
+.github/workflows/survival-report.yml
+  h_b6bdc81170adbc 47,50-53,250,344-345,353-367,372,376,379-390,397-405,412-415
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c72eebbc59f88c45bb533ba001c17a473866d7c4",
+  "prompts": {},
+  "humans": {
+    "h_b6bdc81170adbc": {
+      "author": "Crovia Trust <info@croviatrust.com>"
+    }
+  }
+}
