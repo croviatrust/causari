@@ -199,6 +199,23 @@ def deposit_phase(history: str, main_kind: str) -> str:
     die(f"deposit state refused: history={history} report={main_kind}")
 
 
+# Fields the existing deposit already sends. source_sha is not among them:
+# provenance.json is not uploaded. The canonical report hash is not a Zenodo
+# metadata field; it is implied by report.json, whose MD5 Zenodo stores.
+REPORT_URL = "https://causari.dev/reports/survival/2026/04/"
+ZENODO_VERSION = "#4"
+CONCEPT_DOI = "10.5281/zenodo.22863965"
+
+
+class DepositIdentity:
+    def __init__(self, title: str, report_url: str, version: str, concept_doi: str, report_md5: str) -> None:
+        self.title = title
+        self.report_url = report_url
+        self.version = version
+        self.concept_doi = concept_doi
+        self.report_md5 = report_md5
+
+
 def _title_of(record: dict) -> str:
     meta = record.get("metadata") or {}
     return meta.get("title") or record.get("title") or ""
@@ -211,19 +228,56 @@ def _published(record: dict) -> bool:
     return bool(doi) and (bool(record.get("submitted")) or state in ("done", "published"))
 
 
-def select_record(records: list[dict], title: str) -> tuple[str, dict | None]:
-    published = [item for item in records if _title_of(item) == title and _published(item)]
-    drafts = [item for item in records if _title_of(item) == title and not _published(item)]
-    if len(published) > 1:
-        die(f"{len(published)} Zenodo records match this report title")
-    if len(published) == 1:
-        return "adopt", published[0]
-    if drafts:
-        die("an unpublished Zenodo draft matches this report title; not creating a second deposit")
+def _links_report(record: dict, report_url: str) -> bool:
+    rels = (record.get("metadata") or {}).get("related_identifiers") or []
+    return any(
+        isinstance(item, dict) and item.get("relation") == "isIdenticalTo" and item.get("identifier") == report_url
+        for item in rels
+    )
+
+
+def _report_md5(record: dict) -> str | None:
+    for item in record.get("files") or []:
+        name = item.get("filename") or item.get("key") or ""
+        if name != "report.json":
+            continue
+        raw = str(item.get("checksum") or "")
+        hexdigest = raw.split(":", 1)[1] if raw.startswith("md5:") else raw
+        return hexdigest.lower() or None
+    return None
+
+
+def same_deposit(record: dict, identity: DepositIdentity) -> bool:
+    """A published record is this report only when every identity Zenodo
+    already stores agrees. Title alone is not enough."""
+    meta = record.get("metadata") or {}
+    conceptdoi = record.get("conceptdoi") or meta.get("conceptdoi")
+    return (
+        _title_of(record) == identity.title
+        and meta.get("version") == identity.version
+        and _links_report(record, identity.report_url)
+        and conceptdoi == identity.concept_doi
+        and _report_md5(record) == identity.report_md5.lower()
+    )
+
+
+def _mentions_report(record: dict, identity: DepositIdentity) -> bool:
+    return _title_of(record) == identity.title or _links_report(record, identity.report_url)
+
+
+def select_record(records: list[dict], identity: DepositIdentity) -> tuple[str, dict | None]:
+    mentioned = [item for item in records if _mentions_report(item, identity)]
+    published = [item for item in mentioned if _published(item)]
+    drafts = [item for item in mentioned if not _published(item)]
+    matched = [item for item in published if same_deposit(item, identity)]
+    if len(matched) == 1 and len(published) == 1 and not drafts:
+        return "adopt", matched[0]
+    if matched or published or drafts:
+        die("Zenodo has a record for this report that is not the single published deposit")
     return "create", None
 
 
-def deposit_action(report: dict, state: dict, records: list[dict] | None, title: str) -> str:
+def deposit_action(report: dict, state: dict, records: list[dict] | None, identity: DepositIdentity | None = None) -> str:
     stored = ((state.get("production") or {}).get("reports") or {}).get(REPORT_ID) or {}
     report_doi = report.get("doi") or None
     state_doi = stored.get("doi") or None
@@ -235,8 +289,27 @@ def deposit_action(report: dict, state: dict, records: list[dict] | None, title:
         die("the report and zenodo.json disagree about whether a DOI exists")
     if records is None:
         die("Zenodo was not listed")
-    action, _record = select_record(records, title)
+    if identity is None:
+        die("deposit identity is missing")
+    action, _record = select_record(records, identity)
     return action
+
+
+def identity_for(report: dict, state: dict, report_bytes: bytes) -> DepositIdentity:
+    if report.get("url") != REPORT_URL:
+        die("report url is not 2026/04")
+    if report.get("revision") not in (None, 1):
+        die("report revision is not the first deposit")
+    concept = (state.get("production") or {}).get("concept_doi")
+    if concept != CONCEPT_DOI:
+        die("concept lineage is not the Survival Report series")
+    return DepositIdentity(
+        expected_title(report),
+        REPORT_URL,
+        ZENODO_VERSION,
+        CONCEPT_DOI,
+        hashlib.md5(report_bytes).hexdigest(),
+    )
 
 
 def doi_subject(doi: str) -> str:
@@ -502,15 +575,17 @@ def main(argv: list[str] | None = None) -> int:
         if report_dir.parts[-4:] != ("reports", "survival", "2026", "04"):
             die("report dir is not 2026/04")
         site = report_dir.parents[3]
-        report = json.loads((report_dir / "report.json").read_text(encoding="utf-8"))
+        report_bytes = (report_dir / "report.json").read_bytes()
+        report = json.loads(report_bytes.decode("utf-8"))
         state = load_state(site)
         stored = ((state.get("production") or {}).get("reports") or {}).get(REPORT_ID) or {}
         if report.get("doi") or stored.get("doi"):
-            print(deposit_action(report, state, None, ""))
+            print(deposit_action(report, state, None, None))
             return 0
         assert_production_sandbox(os.environ.get("ZENODO_SANDBOX", ""))
         records = list_depositions(os.environ.get("ZENODO_TOKEN", ""))
-        action, record = select_record(records, expected_title(report))
+        identity = identity_for(report, state, report_bytes)
+        action, record = select_record(records, identity)
         if action == "adopt" and record is not None:
             Path(args.record_out).write_text(json.dumps(record), encoding="utf-8")
         print(action)

@@ -36,6 +36,24 @@ def report(**overrides) -> dict:
     return body
 
 
+def _record(title: str, doi: str = "10.5281/zenodo.1") -> dict:
+    return {
+        "doi": doi,
+        "conceptdoi": gate.CONCEPT_DOI,
+        "submitted": True,
+        "state": "done",
+        "metadata": {
+            "title": title,
+            "doi": doi,
+            "version": gate.ZENODO_VERSION,
+            "related_identifiers": [
+                {"identifier": gate.REPORT_URL, "relation": "isIdenticalTo", "resource_type": "publication-report"},
+            ],
+        },
+        "files": [{"filename": "report.json", "checksum": "md5:" + ("ab" * 16)}],
+    }
+
+
 def provenance() -> dict:
     return {
         "source_sha": MEASUREMENT,
@@ -120,26 +138,30 @@ class DepositChoice(unittest.TestCase):
         self.assertEqual(gate.canonical_sha(original), gate.canonical_sha(gate.neutralized(edited)))
         self.assertNotEqual(gate.canonical_sha(original), gate.canonical_sha(edited))
 
-    def test_one_published_record_is_adopted_and_a_draft_stops_creation(self):
+    def test_adoption_requires_the_deposited_identity_not_the_title(self):
         title = "Causari — Survival Report #4"
-        published = {"metadata": {"title": title, "doi": "10.5281/zenodo.1"}, "doi": "10.5281/zenodo.1", "submitted": True}
+        identity = gate.DepositIdentity(title, gate.REPORT_URL, gate.ZENODO_VERSION, gate.CONCEPT_DOI, "ab" * 16)
+        published = _record(title, doi="10.5281/zenodo.1")
         other = {"metadata": {"title": "something else"}, "submitted": True, "doi": "10.5281/zenodo.9"}
-        action, chosen = gate.select_record([other, published], title)
+        action, chosen = gate.select_record([other, published], identity)
         self.assertEqual(action, "adopt")
         self.assertEqual(chosen["doi"], "10.5281/zenodo.1")
+        title_only = {"metadata": {"title": title, "doi": "10.5281/zenodo.2"}, "doi": "10.5281/zenodo.2", "submitted": True}
+        with self.assertRaises(SystemExit):
+            gate.select_record([title_only], identity)
         draft = {"metadata": {"title": title}, "state": "unsubmitted", "submitted": False}
         with self.assertRaises(SystemExit):
-            gate.select_record([draft], title)
+            gate.select_record([draft], identity)
         with self.assertRaises(SystemExit):
-            gate.select_record([published, dict(published)], title)
-        self.assertEqual(gate.select_record([other], title), ("create", None))
+            gate.select_record([published, dict(published, doi="10.5281/zenodo.3")], identity)
+        self.assertEqual(gate.select_record([other], identity), ("create", None))
 
     def test_state_and_report_must_agree_before_any_list(self):
         body = report(doi="10.5281/zenodo.23019874")
         state = {"production": {"reports": {"2026/04": {"doi": "10.5281/zenodo.23019874"}}}}
-        self.assertEqual(gate.deposit_action(body, state, None, ""), "skip")
+        self.assertEqual(gate.deposit_action(body, state, None), "skip")
         with self.assertRaises(SystemExit):
-            gate.deposit_action(report(), state, None, "")
+            gate.deposit_action(report(), state, None)
 
     def test_adopt_updates_state_and_does_not_create(self):
         import zenodo_deposit
@@ -204,6 +226,53 @@ class GitHistory(unittest.TestCase):
             subprocess.check_call(["git", "update-ref", "refs/remotes/origin/main", tip], cwd=repo)
             with self.assertRaises(SystemExit):
                 gate.classify_history(gate.history_rows(repo, base))
+
+
+IDENT = gate.DepositIdentity(
+    "Causari — Survival Report #4", gate.REPORT_URL, gate.ZENODO_VERSION, gate.CONCEPT_DOI, "ab" * 16
+)
+
+
+def next_action(history: str, kind: str, records: list | None = None, *, rows=None, artifact_ok: bool = True) -> str:
+    if not artifact_ok:
+        return "REFUSE"
+    try:
+        if rows is not None:
+            history = gate.classify_history(rows)
+        decision = gate.publish_decision(history, kind)
+    except SystemExit:
+        return "REFUSE"
+    if decision == "commit":
+        return "PUBLISH_REPORT"
+    if history == "doi" and kind == "deposited":
+        return "NOOP"
+    if kind != "ready":
+        return "REFUSE"
+    try:
+        action, _chosen = gate.select_record(records or [], IDENT)
+    except SystemExit:
+        return "REFUSE"
+    return {"create": "CREATE_DEPOSIT", "adopt": "ADOPT_DEPOSIT"}[action]
+
+
+class PartialStates(unittest.TestCase):
+    def test_matrix(self):
+        title = IDENT.title
+        published = _record(title)
+        draft = {"metadata": {"title": title, "version": gate.ZENODO_VERSION,
+                              "related_identifiers": [{"identifier": gate.REPORT_URL, "relation": "isIdenticalTo"}]},
+                 "state": "unsubmitted", "submitted": False}
+        unrelated = [( "b" * 40, "docs: unrelated", ["README.md"])]
+        self.assertEqual(next_action("at-tip", "absent", []), "PUBLISH_REPORT")
+        self.assertEqual(next_action("report", "ready", []), "CREATE_DEPOSIT")
+        self.assertEqual(next_action("report", "ready", [published]), "ADOPT_DEPOSIT")
+        self.assertEqual(next_action("report", "ready", [draft]), "REFUSE")
+        self.assertEqual(next_action("report", "ready", [published, _record(title, "10.5281/zenodo.2")]), "REFUSE")
+        self.assertEqual(next_action("doi", "deposited", []), "NOOP")
+        self.assertEqual(next_action("at-tip", "absent", rows=unrelated), "REFUSE")
+        edited = [("c" * 40, "edit the report page", ["site/reports/survival/2026/04/report.json"])]
+        self.assertEqual(next_action("report", "ready", rows=edited), "REFUSE")
+        self.assertEqual(next_action("report", "ready", [published], artifact_ok=False), "REFUSE")
 
 
 class WorkflowText(unittest.TestCase):
