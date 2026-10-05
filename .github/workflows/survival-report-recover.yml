@@ -400,83 +400,64 @@ jobs:
     if: ${{ inputs.publish == true && needs.assemble.result == 'success' && needs.assemble.outputs.report_id == '2026/04' && needs.assemble.outputs.report_sha256 == '2bbc49cbb54140937b04b0eb2ca9c50cfd521ba40a86d0d9587050219efc588e' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # The assembled artifact belongs to this run. download-artifact reads it
-    # with ACTIONS_RUNTIME_TOKEN, so github.token stays contents: read.
+    # Parent the report on the workflow commit that is executing. That commit
+    # must still be origin/main. The measurement commit stays pinned in
+    # assemble and in the report hash; main is not required to equal it.
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 8c7c431f3fd934a0d9c5005d376f131ab89bd0fa
+          ref: ${{ github.sha }}
+          fetch-depth: 0
           persist-credentials: false
-
-      - name: require main to still be the measured commit
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          git fetch origin main
-          tip="$(git rev-parse origin/main)"
-          [ "$tip" = "8c7c431f3fd934a0d9c5005d376f131ab89bd0fa" ]
 
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: survival-report-4-assembled
           path: /tmp/assembled
 
-      - name: overlay the assembled tree and refuse any other report
-        run: |
-          set -euo pipefail
-          python3 - << 'PY'
-          import hashlib, json
-          from pathlib import Path
-          rep = json.loads(Path("/tmp/assembled/site/reports/survival/2026/04/report.json").read_text())
-          assert rep["id"] == "2026/04" and rep["number"] == 4
-          assert rep["generated_at"] == "2026-10-05T12:17:49Z"
-          assert rep["method"]["version"] == "v3"
-          assert rep["tool"]["version"] == "0.3.0"
-          assert rep["reach"]["run_id"] == "survival-report-gh-37308519983"
-          r = json.loads(json.dumps(rep))
-          r["reach"].pop("closed_at", None)
-          r["reach"].pop("witness", None)
-          got = hashlib.sha256((json.dumps(r, indent=1, ensure_ascii=False) + "\n").encode()).hexdigest()
-          want = "2bbc49cbb54140937b04b0eb2ca9c50cfd521ba40a86d0d9587050219efc588e"
-          if got != want:
-              raise SystemExit(f"assembled report sha256 {got}")
-          prov = json.loads(Path("/tmp/assembled/site/reports/survival/2026/04/provenance.json").read_text())
-          if prov["source_run_id"] != "37308519983" or prov["measurement_generated_at"] == prov["recovery_assembled_at"]:
-              raise SystemExit("provenance does not keep measurement time apart from recovery time")
-          PY
-          cp -a /tmp/assembled/site/reports/survival site/reports/survival
-          cp -a /tmp/assembled/site/r site/r
-          cp -a /tmp/assembled/site/_redirects site/_redirects
-          cp -a /tmp/assembled/site/sitemap.xml site/sitemap.xml
+      - name: verify the downloaded artifact is the measured report
+        run: python3 scripts/recovery_publish_gate.py verify-artifact --root /tmp/assembled
 
-      - name: push with an admin token, or stop
+      - name: push the measured report onto the reviewed commit, or stop
         env:
           PUSH_TOKEN: ${{ secrets.REPORT_PUSH_TOKEN }}
+          WORKFLOW_SHA: ${{ github.sha }}
+          WORKFLOW_REF: ${{ github.ref }}
         run: |
           set -euo pipefail
+          python3 scripts/recovery_publish_gate.py assert-ref --ref "$WORKFLOW_REF"
           if [ -z "${PUSH_TOKEN}" ] || ! login="$(GH_TOKEN="$PUSH_TOKEN" gh api user --jq .login)"; then
             echo "::error title=Push token rejected::REPORT_PUSH_TOKEN is missing or rejected. The assembled artifact is unchanged."
             exit 1
           fi
           perm="$(GH_TOKEN="$PUSH_TOKEN" gh api "repos/${GITHUB_REPOSITORY}/collaborators/${login}/permission" --jq .permission)"
-          if [ "$perm" != "admin" ]; then
-            echo "::error title=Push token cannot publish::permission is ${perm}. Stopping before any deposit."
-            exit 1
-          fi
           enforce="$(GH_TOKEN="$PUSH_TOKEN" gh api "repos/${GITHUB_REPOSITORY}/branches/main/protection" --jq '.enforce_admins.enabled')"
-          if [ "$enforce" != "false" ]; then
-            echo "::error title=Admins cannot bypass protection::stopping before any deposit."
-            exit 1
+          python3 scripts/recovery_publish_gate.py assert-pusher --login "$login" --permission "$perm" --enforce-admins "$enforce"
+          git fetch origin main
+          decision="$(python3 scripts/recovery_publish_gate.py publish-decision --base "$WORKFLOW_SHA")"
+          if [ "$decision" = "already" ]; then
+            echo "measured report is already on main"
+            exit 0
           fi
+          [ "$decision" = "commit" ]
+          python3 scripts/recovery_publish_gate.py assert-control-plane --ref "$WORKFLOW_REF" --workflow-sha "$WORKFLOW_SHA" --origin-main "$(git rev-parse origin/main)"
+          [ "$(git rev-parse HEAD)" = "$WORKFLOW_SHA" ]
+          # The artifact's common root is site/, so the zip has no site/ prefix.
+          cp -a /tmp/assembled/reports/survival site/reports/survival
+          cp -a /tmp/assembled/r site/r
+          cp -a /tmp/assembled/_redirects site/_redirects
+          cp -a /tmp/assembled/sitemap.xml site/sitemap.xml
+          python3 scripts/recovery_publish_gate.py verify-worktree
           git config user.name "causari-report[bot]"
           git config user.email "noreply@causari.dev"
           git add site/reports/survival site/r site/_redirects site/sitemap.xml
-          git commit -s -m "report: Survival Report #4 (2026-10-05, method v3) assembled from Actions run 37308519983"
+          git commit -s -m "$(python3 scripts/recovery_publish_gate.py report-subject)"
+          git fetch origin main
+          python3 scripts/recovery_publish_gate.py assert-control-plane --ref "$WORKFLOW_REF" --workflow-sha "$WORKFLOW_SHA" --origin-main "$(git rev-parse origin/main)"
           auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
-          git -c "http.extraheader=$auth" push origin HEAD:main
+          git -c "http.extraheader=$auth" push --ff-only origin HEAD:main
 
   deposit:
     needs: [assemble, publish]
@@ -489,56 +470,72 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: main
+          fetch-depth: 0
           persist-credentials: false
 
-      - name: deposit only the pushed report 2026/04
+      - name: deposit the pushed report, or adopt a DOI that already exists
         env:
           ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
           ZENODO_SANDBOX: ${{ vars.ZENODO_SANDBOX }}
           PUSH_TOKEN: ${{ secrets.REPORT_PUSH_TOKEN }}
+          WORKFLOW_SHA: ${{ github.sha }}
+          WORKFLOW_REF: ${{ github.ref }}
         run: |
           set -euo pipefail
-          id="$(jq -r .id site/reports/survival/latest.json)"
-          [ "$id" = "2026/04" ]
-          python3 - << 'PY'
-          import hashlib, json
-          from pathlib import Path
-          rep = json.loads(Path("site/reports/survival/2026/04/report.json").read_text())
-          if rep.get("id") != "2026/04" or rep.get("generated_at") != "2026-10-05T12:17:49Z":
-              raise SystemExit("deposit: report clock or id is not the measured report")
-          if (rep.get("reach") or {}).get("run_id") != "survival-report-gh-37308519983":
-              raise SystemExit("deposit: reach.run_id is not the measurement run")
-          r = json.loads(json.dumps(rep))
-          r["reach"].pop("closed_at", None)
-          r["reach"].pop("witness", None)
-          got = hashlib.sha256((json.dumps(r, indent=1, ensure_ascii=False) + "\n").encode()).hexdigest()
-          want = "2bbc49cbb54140937b04b0eb2ca9c50cfd521ba40a86d0d9587050219efc588e"
-          if got != want:
-              raise SystemExit(f"deposit: deterministic sha256 {got}")
-          PY
+          python3 scripts/recovery_publish_gate.py assert-ref --ref "$WORKFLOW_REF"
+          python3 scripts/recovery_publish_gate.py assert-production-sandbox --value "${ZENODO_SANDBOX:-}"
+          git fetch origin main
+          phase="$(python3 scripts/recovery_publish_gate.py deposit-phase --base "$WORKFLOW_SHA")"
+          if [ "$phase" = "skip" ]; then
+            echo "DOI write-back is already on main"
+            exit 0
+          fi
+          [ "$phase" = "proceed" ]
+          tip="$(git rev-parse origin/main)"
           if [ -z "${PUSH_TOKEN}" ] || ! login="$(GH_TOKEN="$PUSH_TOKEN" gh api user --jq .login)"; then
             echo "::error title=Deposit refused::push token is missing or rejected. Zenodo was not called."
             exit 1
           fi
           perm="$(GH_TOKEN="$PUSH_TOKEN" gh api "repos/${GITHUB_REPOSITORY}/collaborators/${login}/permission" --jq .permission)"
-          if [ "$perm" != "admin" ]; then
-            echo "::error title=Deposit refused::token permission is ${perm}. Zenodo was not called."
-            exit 1
-          fi
           enforce="$(GH_TOKEN="$PUSH_TOKEN" gh api "repos/${GITHUB_REPOSITORY}/branches/main/protection" --jq '.enforce_admins.enabled')"
-          if [ "$enforce" != "false" ]; then
-            echo "::error title=Deposit refused::admins cannot bypass protection. Zenodo was not called."
-            exit 1
-          fi
+          python3 scripts/recovery_publish_gate.py assert-pusher --login "$login" --permission "$perm" --enforce-admins "$enforce"
           if [ -z "${ZENODO_TOKEN:-}" ]; then
             echo "::error title=Deposit refused::ZENODO_TOKEN is not set. Zenodo was not called."
             exit 1
           fi
-          python3 scripts/zenodo_deposit.py "site/reports/survival/${id}" | tee /tmp/zenodo.log
+          git fetch origin main
+          [ "$(git rev-parse origin/main)" = "$tip" ]
+          git reset --hard "$tip"
+          python3 scripts/recovery_publish_gate.py verify-worktree
+          git fetch origin main
+          [ "$(git rev-parse origin/main)" = "$tip" ]
+          plan="$(python3 scripts/recovery_publish_gate.py deposit-plan --report-dir site/reports/survival/2026/04 --record-out "$RUNNER_TEMP/adopted.json")"
+          if [ "$plan" = "skip" ]; then
+            echo "DOI already recorded"
+            exit 0
+          fi
+          if [ "$plan" = "adopt" ]; then
+            python3 scripts/recovery_publish_gate.py adopt --report-dir site/reports/survival/2026/04 --site site --record "$RUNNER_TEMP/adopted.json"
+            subject="$(python3 scripts/recovery_publish_gate.py doi-subject --json "$RUNNER_TEMP/adopted.json")"
+          elif [ "$plan" = "create" ]; then
+            python3 scripts/zenodo_deposit.py site/reports/survival/2026/04 | tee /tmp/zenodo.log
+            subject="$(python3 scripts/recovery_publish_gate.py doi-subject --json /tmp/zenodo.log)"
+          else
+            echo "deposit plan refused" >&2
+            exit 1
+          fi
           git config user.name "causari-report[bot]"
           git config user.email "noreply@causari.dev"
           git add site/reports/survival site/r site/_redirects site/sitemap.xml
-          if git diff --cached --quiet; then echo "nothing to write back"; exit 0; fi
-          git commit -s -m "report: DOI $(jq -r '.doi // "n/a"' /tmp/zenodo.log) for Survival Report #4 assembled from Actions run 37308519983"
+          if git diff --cached --quiet; then
+            echo "nothing to write back"
+            exit 0
+          fi
+          git commit -s -m "$subject"
+          git fetch origin main
+          if [ "$(git rev-parse origin/main)" != "$tip" ]; then
+            echo "::error title=Deposit write-back stopped::main moved after Zenodo. Not pushing."
+            exit 1
+          fi
           auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
-          git -c "http.extraheader=$auth" push origin HEAD:main
+          git -c "http.extraheader=$auth" push --ff-only origin HEAD:main
