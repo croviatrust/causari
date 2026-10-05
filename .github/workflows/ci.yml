@@ -80,6 +80,12 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo fmt --all -- --check
       - run: cargo clippy --all-targets -- -D warnings
+      # rustfmt does not read workflow files. GitHub rejected a workflow
+      # whose YAML block ended early; this parse fails the lint job on that.
+      - name: workflow files parse
+        run: |
+          python3 -m pip install --quiet 'PyYAML==6.0.2'
+          python3 scripts/check_workflow_yaml.py
 
   # Every public surface against canon/canon.json: one version, no verdict
   # wording, same agent matrix in README and site, installers agree with the
