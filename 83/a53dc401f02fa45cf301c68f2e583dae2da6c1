@@ -1,0 +1,16 @@
+scripts/recovery_publish_gate.py
+  h_b6bdc81170adbc 202-218,231-276,280,292-294,298-314,578-579,583,587-588
+scripts/tests/test_recovery_publish_gate.py
+  h_b6bdc81170adbc 39-56,141,143-144,146,149-151,154,156-157,162,164,231-277
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "83a53dc401f02fa45cf301c68f2e583dae2da6c1",
+  "prompts": {},
+  "humans": {
+    "h_b6bdc81170adbc": {
+      "author": "Crovia Trust <info@croviatrust.com>"
+    }
+  }
+}
