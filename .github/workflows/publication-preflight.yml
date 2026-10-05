@@ -24,65 +24,43 @@ jobs:
           login=""
           perm=""
           enforce=""
-          if [ -z "${REPORT_PUSH_TOKEN:-}" ]; then
+          fail() {
             printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
             exit 1
+          }
+          if [ -z "${REPORT_PUSH_TOKEN:-}" ]; then
+            fail
           fi
           export GH_TOKEN="${REPORT_PUSH_TOKEN}"
           if ! login="$(gh api user --jq .login 2>/dev/null)"; then
-            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
-            exit 1
+            fail
           fi
           if [[ ! "$login" =~ ^[A-Za-z0-9-]{1,39}$ ]]; then
-            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
-            exit 1
+            fail
           fi
           if [ "$login" != "croviatrust" ]; then
-            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
-            printf '%s\n' "GITHUB_LOGIN=${login}"
-            exit 1
+            fail
           fi
           repo="${GITHUB_REPOSITORY}"
           if ! perm="$(gh api "repos/${repo}/collaborators/${login}/permission" --jq .permission 2>/dev/null)"; then
-            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
-            printf '%s\n' "GITHUB_LOGIN=${login}"
-            exit 1
+            fail
           fi
           case "$perm" in
             admin|write|maintain|triage|read) ;;
-            *)
-              printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
-              printf '%s\n' "GITHUB_LOGIN=${login}"
-              exit 1
-              ;;
+            *) fail ;;
           esac
           if [ "$perm" != "admin" ]; then
-            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
-            printf '%s\n' "GITHUB_LOGIN=${login}"
-            printf '%s\n' "GITHUB_PERMISSION=${perm}"
-            exit 1
+            fail
           fi
           if ! enforce="$(gh api "repos/${repo}/branches/main/protection" --jq .enforce_admins.enabled 2>/dev/null)"; then
-            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
-            printf '%s\n' "GITHUB_LOGIN=${login}"
-            printf '%s\n' "GITHUB_PERMISSION=${perm}"
-            exit 1
+            fail
           fi
           case "$enforce" in
             true|false) ;;
-            *)
-              printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
-              printf '%s\n' "GITHUB_LOGIN=${login}"
-              printf '%s\n' "GITHUB_PERMISSION=${perm}"
-              exit 1
-              ;;
+            *) fail ;;
           esac
           if [ "$enforce" != "false" ]; then
-            printf '%s\n' "REPORT_PUSH_TOKEN=FAIL"
-            printf '%s\n' "GITHUB_LOGIN=${login}"
-            printf '%s\n' "GITHUB_PERMISSION=${perm}"
-            printf '%s\n' "ENFORCE_ADMINS=${enforce}"
-            exit 1
+            fail
           fi
           printf '%s\n' "REPORT_PUSH_TOKEN=PASS"
           printf '%s\n' "GITHUB_LOGIN=${login}"

@@ -88,6 +88,13 @@ class PublicationPreflight(unittest.TestCase):
         self.assertIn('"$login" != "croviatrust"', self.text)
         self.assertIn('"$perm" != "admin"', self.text)
         self.assertIn('"$enforce" != "false"', self.text)
+        before, after = self.text.split("REPORT_PUSH_TOKEN=PASS", 1)
+        self.assertNotIn("GITHUB_LOGIN=", before)
+        self.assertNotIn("GITHUB_PERMISSION=", before)
+        self.assertNotIn("ENFORCE_ADMINS=", before)
+        self.assertEqual(after.count("GITHUB_LOGIN="), 1)
+        self.assertEqual(after.count("GITHUB_PERMISSION="), 1)
+        self.assertEqual(after.count("ENFORCE_ADMINS="), 1)
         self.assertIn("unset GITHUB_TOKEN", self.text)
         self.assertIn("export GH_HOST=github.com", self.text)
         self.assertNotIn("uses:", self.text)
@@ -104,18 +111,30 @@ class PublicationPreflight(unittest.TestCase):
         script = run_block(self.text, "Zenodo environment")
         self.assertIn('""|0|false|no)', script)
         for good in PRODUCTION:
-            proc = self._run(script, {"ZENODO_SANDBOX": good, "ZENODO_TOKEN": ""})
+            proc = self._run(script, {
+                "ZENODO_SANDBOX": good,
+                "ZENODO_TOKEN": "",
+                "REPORT_PUSH_TOKEN": "push-test-token",
+            })
             self.assertEqual(proc.returncode, 1, proc.stderr)
             self.assertEqual(proc.stdout, "ZENODO_PRODUCTION=PASS\nZENODO_TOKEN=FAIL\n")
+            self.assertNotIn("push-test-token", proc.stdout + proc.stderr)
             self.assertEqual(proc.stderr, "")
             self.assertEqual(self._calls(proc, "curl"), [])
 
     def test_invalid_sandbox_is_not_printed_and_skips_zenodo(self):
         script = run_block(self.text, "Zenodo environment")
+        token = "zenodo-test-token"
         for bad in ("1", "true", "yes", "False", "NO", " false", "sandbox", "bad;echo LEAK"):
-            proc = self._run(script, {"ZENODO_SANDBOX": bad, "ZENODO_TOKEN": "present"})
+            proc = self._run(script, {
+                "ZENODO_SANDBOX": bad,
+                "ZENODO_TOKEN": token,
+                "REPORT_PUSH_TOKEN": "push-test-token",
+            })
             self.assertEqual(proc.returncode, 1)
             self.assertEqual(proc.stdout, "ZENODO_PRODUCTION=FAIL\n")
+            self.assertNotIn(token, proc.stdout + proc.stderr)
+            self.assertNotIn("push-test-token", proc.stdout + proc.stderr)
             self.assertNotIn(bad, proc.stderr)
             if bad not in "ZENODO_PRODUCTION=FAIL\n":
                 self.assertNotIn(bad, proc.stdout)
@@ -126,14 +145,20 @@ class PublicationPreflight(unittest.TestCase):
         token = "zenodo-test-token"
         proc = self._run(
             script,
-            {"ZENODO_SANDBOX": "false", "ZENODO_TOKEN": token, "PREFLIGHT_CURL_STATUS": "200"},
+            {
+                "ZENODO_SANDBOX": "false",
+                "ZENODO_TOKEN": token,
+                "REPORT_PUSH_TOKEN": "push-test-token",
+                "PREFLIGHT_CURL_STATUS": "200",
+            },
         )
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertEqual(
             proc.stdout,
             "ZENODO_PRODUCTION=PASS\nZENODO_TOKEN=PASS\nZENODO_HTTP=200\n",
         )
-        self.assertNotIn(token, proc.stdout)
+        self.assertNotIn(token, proc.stdout + proc.stderr)
+        self.assertNotIn("push-test-token", proc.stdout + proc.stderr)
         self.assertNotIn("Authorization", proc.stdout)
         self.assertNotIn("PRIVATE-DEPOSITION", proc.stdout)
         calls = self._calls(proc, "curl")
@@ -145,44 +170,63 @@ class PublicationPreflight(unittest.TestCase):
 
         refused = self._run(
             script,
-            {"ZENODO_SANDBOX": "0", "ZENODO_TOKEN": token, "PREFLIGHT_CURL_STATUS": "401"},
+            {
+                "ZENODO_SANDBOX": "0",
+                "ZENODO_TOKEN": token,
+                "REPORT_PUSH_TOKEN": "push-test-token",
+                "PREFLIGHT_CURL_STATUS": "401",
+            },
         )
         self.assertEqual(refused.returncode, 1)
         self.assertEqual(refused.stdout, "ZENODO_PRODUCTION=PASS\nZENODO_TOKEN=FAIL\nZENODO_HTTP=401\n")
-        self.assertNotIn(token, refused.stdout)
+        self.assertNotIn(token, refused.stdout + refused.stderr)
+        self.assertNotIn("push-test-token", refused.stdout + refused.stderr)
         self.assertNotIn("PRIVATE-DEPOSITION", refused.stdout)
 
         down = self._run(
             script,
-            {"ZENODO_SANDBOX": "no", "ZENODO_TOKEN": token, "PREFLIGHT_CURL_EXIT": "7"},
+            {
+                "ZENODO_SANDBOX": "no",
+                "ZENODO_TOKEN": token,
+                "REPORT_PUSH_TOKEN": "push-test-token",
+                "PREFLIGHT_CURL_EXIT": "7",
+            },
         )
         self.assertEqual(down.returncode, 1)
         self.assertEqual(down.stdout, "ZENODO_PRODUCTION=PASS\nZENODO_TOKEN=FAIL\nZENODO_HTTP=0\n")
+        self.assertNotIn(token, down.stdout + down.stderr)
+        self.assertNotIn("push-test-token", down.stdout + down.stderr)
 
     def test_github_credential_outcomes(self):
         script = run_block(self.text, "GitHub publication credential")
-        absent = self._run(script, {"REPORT_PUSH_TOKEN": "", "GITHUB_REPOSITORY": "croviatrust/causari"})
-        self.assertEqual(absent.stdout, "REPORT_PUSH_TOKEN=FAIL\n")
+        absent = self._run(script, {
+            "REPORT_PUSH_TOKEN": "",
+            "ZENODO_TOKEN": "zenodo-test-token",
+            "GITHUB_REPOSITORY": "croviatrust/causari",
+        })
+        self.assert_github_fail(absent)
+        self.assertNotIn("zenodo-test-token", absent.stdout + absent.stderr)
         self.assertEqual(self._calls(absent, "gh"), [])
 
         unauth = self._github(script, user=("1", ""))
-        self.assertEqual(unauth.stdout, "REPORT_PUSH_TOKEN=FAIL\n")
+        self.assert_github_fail(unauth)
         self.assertEqual([c["kind"] for c in self._calls(unauth, "gh")], ["user"])
 
         other = self._github(script, user=("0", "someone"))
-        self.assertEqual(other.stdout, "REPORT_PUSH_TOKEN=FAIL\nGITHUB_LOGIN=someone\n")
+        self.assert_github_fail(other, "someone")
         self.assertEqual([c["kind"] for c in self._calls(other, "gh")], ["user"])
 
         weird = self._github(script, user=("0", "ok\nREPORT_PUSH_TOKEN=PASS"))
-        self.assertEqual(weird.stdout, "REPORT_PUSH_TOKEN=FAIL\n")
+        self.assert_github_fail(weird, "ok")
         self.assertNotIn("REPORT_PUSH_TOKEN=PASS", weird.stdout)
 
         writer = self._github(script, user=("0", "croviatrust"), permission=("0", "write"))
-        self.assertEqual(
-            writer.stdout,
-            "REPORT_PUSH_TOKEN=FAIL\nGITHUB_LOGIN=croviatrust\nGITHUB_PERMISSION=write\n",
-        )
+        self.assert_github_fail(writer, "write")
         self.assertEqual([c["kind"] for c in self._calls(writer, "gh")], ["user", "permission"])
+
+        custom = self._github(script, user=("0", "croviatrust"), permission=("0", "superuser"))
+        self.assert_github_fail(custom, "superuser")
+        self.assertEqual([c["kind"] for c in self._calls(custom, "gh")], ["user", "permission"])
 
         blocked = self._github(
             script,
@@ -190,11 +234,19 @@ class PublicationPreflight(unittest.TestCase):
             permission=("0", "admin"),
             protection=("0", "true"),
         )
+        self.assert_github_fail(blocked, "true")
         self.assertEqual(
-            blocked.stdout,
-            "REPORT_PUSH_TOKEN=FAIL\nGITHUB_LOGIN=croviatrust\n"
-            "GITHUB_PERMISSION=admin\nENFORCE_ADMINS=true\n",
+            [c["kind"] for c in self._calls(blocked, "gh")],
+            ["user", "permission", "protection"],
         )
+
+        unexpected = self._github(
+            script,
+            user=("0", "croviatrust"),
+            permission=("0", "admin"),
+            protection=("0", "null"),
+        )
+        self.assert_github_fail(unexpected, "null")
 
         unknown = self._github(
             script,
@@ -202,10 +254,7 @@ class PublicationPreflight(unittest.TestCase):
             permission=("0", "admin"),
             protection=("1", ""),
         )
-        self.assertEqual(
-            unknown.stdout,
-            "REPORT_PUSH_TOKEN=FAIL\nGITHUB_LOGIN=croviatrust\nGITHUB_PERMISSION=admin\n",
-        )
+        self.assert_github_fail(unknown)
         self.assertNotIn("unknown", unknown.stdout)
 
         passed = self._github(
@@ -225,12 +274,27 @@ class PublicationPreflight(unittest.TestCase):
         self.assertEqual(kinds[1]["path"], "repos/croviatrust/causari/collaborators/croviatrust/permission")
         self.assertEqual(kinds[2]["path"], "repos/croviatrust/causari/branches/main/protection")
         self.assertTrue(all(c["token"] == "push" for c in kinds))
+        self.assertNotIn("push-test-token", passed.stdout + passed.stderr)
+        self.assertNotIn("zenodo-test-token", passed.stdout + passed.stderr)
+
+    def assert_github_fail(self, proc: subprocess.CompletedProcess, *hidden: str) -> None:
+        self.assertEqual(proc.returncode, 1)
+        self.assertEqual(proc.stdout, "REPORT_PUSH_TOKEN=FAIL\n")
+        blob = proc.stdout + proc.stderr
+        self.assertNotIn("push-test-token", blob)
+        self.assertNotIn("zenodo-test-token", blob)
+        self.assertNotIn("GITHUB_LOGIN=", proc.stdout)
+        self.assertNotIn("GITHUB_PERMISSION=", proc.stdout)
+        self.assertNotIn("ENFORCE_ADMINS=", proc.stdout)
+        for value in hidden:
+            self.assertNotIn(value, blob)
 
     def _github(self, script: str, user, permission=("0", "admin"), protection=("0", "false")):
         return self._run(
             script,
             {
                 "REPORT_PUSH_TOKEN": "push-test-token",
+                "ZENODO_TOKEN": "zenodo-test-token",
                 "GITHUB_TOKEN": "workflow-token-must-not-be-used",
                 "GITHUB_REPOSITORY": "croviatrust/causari",
                 "PREFLIGHT_GH_USER": json.dumps(user),
