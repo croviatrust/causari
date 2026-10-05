@@ -1,0 +1,16 @@
+.github/workflows/publication-preflight.yml
+  h_b6bdc81170adbc 27,30-32,36,39,42,46,50,53,56,60,63
+scripts/tests/test_publication_preflight.py
+  h_b6bdc81170adbc 91-97,114-118,121,127,129-133,136-137,148-153,160-161,173-178,182-183,188-193,197-198,202-208,212,216,220,224,227-230,237,239-240,243-250,257,277-290,297
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8228359f08a11068316c812f40d26080dbcfed72",
+  "prompts": {},
+  "humans": {
+    "h_b6bdc81170adbc": {
+      "author": "Crovia Trust <info@croviatrust.com>"
+    }
+  }
+}
