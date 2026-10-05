@@ -1,0 +1,16 @@
+.github/workflows/publication-preflight.yml
+  h_b6bdc81170adbc 1-142
+scripts/tests/test_publication_preflight.py
+  h_b6bdc81170adbc 1-343
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "83d0ed6c4720efaac0078fcaca2fd790fb0096c8",
+  "prompts": {},
+  "humans": {
+    "h_b6bdc81170adbc": {
+      "author": "Crovia Trust <info@croviatrust.com>"
+    }
+  }
+}
