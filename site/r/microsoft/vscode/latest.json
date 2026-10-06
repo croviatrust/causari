@@ -5,32 +5,157 @@
  "url": "https://causari.dev/r/microsoft/vscode/",
  "badge": "https://causari.dev/r/microsoft/vscode/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 4,
+  "id": "2026/04",
+  "date": "2026-10-05",
+  "url": "https://causari.dev/reports/survival/2026/04/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
-  "commits": 6364,
-  "introduced": 2404416,
-  "surviving": 1939808,
-  "survival_rate": 0.8067688785967154,
-  "capped_survival_rate": 0.7156942619695517,
-  "median_survival": 0.75,
-  "largest_commit_share": 0.363303188799276
+  "commits": 6999,
+  "introduced": 2681466,
+  "surviving": 2128434,
+  "survival_rate": 0.7937575937938426,
+  "capped_survival_rate": 0.721041129186669,
+  "median_survival": 0.7567567567567568,
+  "largest_commit_share": 0.3257665769396293
  },
  "interval_95": null,
- "baseline": null,
+ "baseline": {
+  "untagged": {
+   "commits": 142099,
+   "introduced": 10820465,
+   "surviving": 3896386,
+   "survival_rate": 0.36009413643498683,
+   "median_survival": 0.18181818181818182,
+   "capped_survival_rate": 0.38367036619479516,
+   "cap_lines": 219,
+   "largest_commit_share": 0.05870671916595081
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 1379,
+     "introduced": 530886,
+     "surviving": 413505,
+     "survival_rate": 0.778896034176829
+    },
+    "untagged": {
+     "commits": 594,
+     "introduced": 148739,
+     "surviving": 122153,
+     "survival_rate": 0.8212573702929292
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 2026,
+     "introduced": 626028,
+     "surviving": 480769,
+     "survival_rate": 0.7679672474713591
+    },
+    "untagged": {
+     "commits": 1653,
+     "introduced": 350498,
+     "surviving": 240865,
+     "survival_rate": 0.6872079155943829
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 1838,
+     "introduced": 333061,
+     "surviving": 215722,
+     "survival_rate": 0.6476951669513993
+    },
+    "untagged": {
+     "commits": 3705,
+     "introduced": 619346,
+     "surviving": 374297,
+     "survival_rate": 0.6043423223852257
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 1507,
+     "introduced": 306971,
+     "surviving": 184595,
+     "survival_rate": 0.6013434493812119
+    },
+    "untagged": {
+     "commits": 10891,
+     "introduced": 1007286,
+     "surviving": 577881,
+     "survival_rate": 0.5737010144090159
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 249,
+     "introduced": 884520,
+     "surviving": 833843,
+     "survival_rate": 0.9427067788178899
+    },
+    "untagged": {
+     "commits": 11707,
+     "introduced": 1018417,
+     "surviving": 512657,
+     "survival_rate": 0.50338613750556
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 113549,
+     "introduced": 7676179,
+     "surviving": 2068533,
+     "survival_rate": 0.26947430485922746
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.7937575937938426,
+   "untagged_rate": 0.6298244974747268,
+   "gap": 0.1639330963191158,
+   "buckets_used": 5,
+   "tagged_lines_covered": 1.0
+  },
+  "oldest_surviving": {
+   "date": "2015-11-13",
+   "age_days": 3979,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
  "probable_commits": 0,
- "total_commits": 148188,
+ "total_commits": 149098,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -41,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 1,
+ "reports": 2,
  "reproduce": "re audit microsoft/vscode --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/microsoft__vscode.json",
+ "bytes": "https://causari.dev/reports/survival/2026/04/repos/microsoft__vscode.json",
  "license": "CC-BY-4.0"
 }

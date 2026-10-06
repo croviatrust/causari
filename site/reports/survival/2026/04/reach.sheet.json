@@ -1,0 +1,76 @@
+{
+ "profile": "crovia.pnx.v1",
+ "run_id": "survival-report-gh-37308519983",
+ "salt_hex": "068163c8ef50db7a56594f35bf58cb00",
+ "params": {
+  "k_gram": 32,
+  "window": 16,
+  "threshold": 47,
+  "hash": "sha256"
+ },
+ "egress": {
+  "bodies": 0,
+  "bytes": 0,
+  "first_at": null,
+  "last_at": null
+ },
+ "normalization": [
+  "json-strings-v1"
+ ],
+ "fingerprints": 0,
+ "root": "sha256:98d40796b5cedb4e1fb1ea01fec3043782309c447fcdc575381c1dff03b3e81e",
+ "closed_at": "2026-10-06T19:06:45Z",
+ "witness": {
+  "id": "urn:causari:survival-report:witness:run-37308519983",
+  "pubkey": {
+   "alg": "ed25519",
+   "key_hex": "fa9706f88f16d4943293a0be7a66c0a0908cb228dee0572587d4f58125f2a73c"
+  }
+ },
+ "reach": {
+  "version": "crovia.pnx.reach.v1",
+  "capture": "proxy-connect",
+  "disclosure": "clear",
+  "policy": {
+   "kind": "allowlist",
+   "mode": "enforce",
+   "hash": "sha256:7a501cbe66356070f9c6c6a5372a8dd425be059bb2315a71bffcccff64692e21",
+   "rules": 1
+  },
+  "destinations": [
+   {
+    "port": 443,
+    "outcome": "allowed",
+    "connections": 128,
+    "bytes_out": 515039,
+    "bytes_in": 30149527997,
+    "ips": [
+     "140.82.112.3",
+     "140.82.112.4",
+     "140.82.113.3",
+     "140.82.113.4",
+     "140.82.114.3",
+     "140.82.114.4",
+     "140.82.116.3",
+     "140.82.116.4",
+     "172.182.252.133"
+    ],
+    "first_at": "2026-10-05T12:17:49Z",
+    "last_at": "2026-10-05T15:21:12Z",
+    "host": "github.com"
+   }
+  ],
+  "summary": {
+   "destinations": 1,
+   "connections": 128,
+   "allowed": 1,
+   "blocked": 0,
+   "failed": 0
+  }
+ },
+ "signature": {
+  "alg": "ed25519",
+  "domain": "CROVIA-PNX-SHEET-v1",
+  "sig_hex": "8931d526d9cd1f79c42c0390be3e6e73bdfea65727e4f2a76eed37762ad7dfa2f8b0635d839785316c7477f6500b8c06b3fccf24740763b702b89eb2db618f01"
+ }
+}

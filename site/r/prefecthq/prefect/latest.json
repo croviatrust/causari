@@ -5,32 +5,157 @@
  "url": "https://causari.dev/r/prefecthq/prefect/",
  "badge": "https://causari.dev/r/prefecthq/prefect/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 4,
+  "id": "2026/04",
+  "date": "2026-10-05",
+  "url": "https://causari.dev/reports/survival/2026/04/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
-  "commits": 1651,
-  "introduced": 457040,
-  "surviving": 373178,
-  "survival_rate": 0.8165105898827236,
-  "capped_survival_rate": 0.8049219962214734,
-  "median_survival": 0.8969769880669469,
-  "largest_commit_share": 0.029555399964992124
+  "commits": 1664,
+  "introduced": 459450,
+  "surviving": 375141,
+  "survival_rate": 0.8165001632386549,
+  "capped_survival_rate": 0.804864947333922,
+  "median_survival": 0.8969072164948454,
+  "largest_commit_share": 0.029400370007617804
  },
  "interval_95": null,
- "baseline": null,
+ "baseline": {
+  "untagged": {
+   "commits": 16771,
+   "introduced": 1760673,
+   "surviving": 933748,
+   "survival_rate": 0.5303358431690609,
+   "median_survival": 0.0,
+   "capped_survival_rate": 0.4586041750799584,
+   "cap_lines": 313,
+   "largest_commit_share": 0.10656436487638533
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 65,
+     "introduced": 14148,
+     "surviving": 12556,
+     "survival_rate": 0.887475261521063
+    },
+    "untagged": {
+     "commits": 49,
+     "introduced": 3225,
+     "surviving": 2900,
+     "survival_rate": 0.8992248062015504
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 126,
+     "introduced": 23144,
+     "surviving": 17310,
+     "survival_rate": 0.7479260283442793
+    },
+    "untagged": {
+     "commits": 157,
+     "introduced": 12948,
+     "surviving": 10336,
+     "survival_rate": 0.7982700030892802
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 314,
+     "introduced": 53374,
+     "surviving": 41811,
+     "survival_rate": 0.783358938809158
+    },
+    "untagged": {
+     "commits": 315,
+     "introduced": 46830,
+     "surviving": 38504,
+     "survival_rate": 0.8222079863335469
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 1078,
+     "introduced": 313792,
+     "surviving": 252941,
+     "survival_rate": 0.8060785488476443
+    },
+    "untagged": {
+     "commits": 422,
+     "introduced": 39305,
+     "surviving": 26490,
+     "survival_rate": 0.6739600559725226
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 81,
+     "introduced": 54992,
+     "surviving": 50523,
+     "survival_rate": 0.9187336339831248
+    },
+    "untagged": {
+     "commits": 1765,
+     "introduced": 420848,
+     "surviving": 251237,
+     "survival_rate": 0.5969780063110672
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 14063,
+     "introduced": 1237517,
+     "surviving": 604281,
+     "survival_rate": 0.4883011708121989
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.8165001632386549,
+   "untagged_rate": 0.6951664184981882,
+   "gap": 0.12133374474046676,
+   "buckets_used": 5,
+   "tagged_lines_covered": 1.0
+  },
+  "oldest_surviving": {
+   "date": "2021-07-12",
+   "age_days": 1908,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
  "probable_commits": 0,
- "total_commits": 18408,
+ "total_commits": 18435,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -41,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 1,
+ "reports": 2,
  "reproduce": "re audit PrefectHQ/prefect --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/PrefectHQ__prefect.json",
+ "bytes": "https://causari.dev/reports/survival/2026/04/repos/PrefectHQ__prefect.json",
  "license": "CC-BY-4.0"
 }

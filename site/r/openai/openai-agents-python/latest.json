@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/openai/openai-agents-python/",
  "badge": "https://causari.dev/r/openai/openai-agents-python/badge.svg",
  "report": {
-  "number": 3,
-  "id": "2026/03",
-  "date": "2026-09-28",
-  "url": "https://causari.dev/reports/survival/2026/03/"
+  "number": 4,
+  "id": "2026/04",
+  "date": "2026-10-05",
+  "url": "https://causari.dev/reports/survival/2026/04/"
  },
  "method": "v3",
  "tool": {
@@ -16,41 +16,41 @@
   "version": "0.3.0"
  },
  "verified": {
-  "commits": 5,
-  "introduced": 95773,
-  "surviving": 95593,
-  "survival_rate": 0.9981205558978,
-  "capped_survival_rate": 0.984534753844832,
-  "median_survival": 0.9619205298013245,
-  "largest_commit_share": 0.9828866173138567
+  "commits": 6,
+  "introduced": 97483,
+  "surviving": 97002,
+  "survival_rate": 0.9950658063457218,
+  "capped_survival_rate": 0.9639673383774066,
+  "median_survival": 0.8935333643158669,
+  "largest_commit_share": 0.9656452919996307
  },
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 2284,
-   "introduced": 708642,
-   "surviving": 472415,
-   "survival_rate": 0.6666483217195707,
+   "commits": 2342,
+   "introduced": 718005,
+   "surviving": 478620,
+   "survival_rate": 0.6665970292685984,
    "median_survival": 0.7777777777777778,
-   "capped_survival_rate": 0.6267377860181308,
-   "cap_lines": 1190,
-   "largest_commit_share": 0.05880120004177004
+   "capped_survival_rate": 0.6275992324887413,
+   "cap_lines": 1188,
+   "largest_commit_share": 0.05803441480212533
   },
   "by_age": [
    {
     "from_days": 0,
     "to_days": 30,
     "tagged": {
-     "commits": 3,
-     "introduced": 1597,
-     "surviving": 1441,
-     "survival_rate": 0.902316844082655
+     "commits": 4,
+     "introduced": 3307,
+     "surviving": 2850,
+     "survival_rate": 0.8618082854550952
     },
     "untagged": {
-     "commits": 198,
-     "introduced": 58664,
-     "surviving": 47269,
-     "survival_rate": 0.8057582162825583
+     "commits": 253,
+     "introduced": 68018,
+     "surviving": 53522,
+     "survival_rate": 0.7868799435443559
     }
    },
    {
@@ -63,10 +63,10 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 562,
-     "introduced": 266086,
-     "surviving": 206172,
-     "survival_rate": 0.7748321971092053
+     "commits": 539,
+     "introduced": 260239,
+     "surviving": 204167,
+     "survival_rate": 0.7845365221969036
     }
    },
    {
@@ -79,10 +79,10 @@
      "survival_rate": 1.0
     },
     "untagged": {
-     "commits": 340,
-     "introduced": 63235,
-     "surviving": 34357,
-     "survival_rate": 0.5433225270815213
+     "commits": 355,
+     "introduced": 67386,
+     "surviving": 35691,
+     "survival_rate": 0.5296500756833764
     }
    },
    {
@@ -95,10 +95,10 @@
      "survival_rate": 0.42857142857142855
     },
     "untagged": {
-     "commits": 531,
-     "introduced": 197030,
-     "surviving": 111813,
-     "survival_rate": 0.5674922600619196
+     "commits": 532,
+     "introduced": 194037,
+     "surviving": 111511,
+     "survival_rate": 0.574689363368842
     }
    },
    {
@@ -111,10 +111,10 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 653,
-     "introduced": 123627,
-     "surviving": 72804,
-     "survival_rate": 0.5889004829042199
+     "commits": 663,
+     "introduced": 128325,
+     "surviving": 73729,
+     "survival_rate": 0.5745489966880967
     }
    },
    {
@@ -137,7 +137,7 @@
   "age_matched": null,
   "oldest_surviving": {
    "date": "2025-03-11",
-   "age_days": 565,
+   "age_days": 572,
    "commits_before": 0,
    "introduced_before": 0,
    "tagged_commits_before": 0,
@@ -146,7 +146,7 @@
   }
  },
  "probable_commits": 0,
- "total_commits": 2289,
+ "total_commits": 2348,
  "aggregated": true,
  "coverage": {
   "method": "v3",
@@ -160,8 +160,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 2,
+ "reports": 3,
  "reproduce": "re audit openai/openai-agents-python --json",
- "bytes": "https://causari.dev/reports/survival/2026/03/repos/openai__openai-agents-python.json",
+ "bytes": "https://causari.dev/reports/survival/2026/04/repos/openai__openai-agents-python.json",
  "license": "CC-BY-4.0"
 }

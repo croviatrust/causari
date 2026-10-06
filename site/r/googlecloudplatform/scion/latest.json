@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/googlecloudplatform/scion/",
  "badge": "https://causari.dev/r/googlecloudplatform/scion/badge.svg",
  "report": {
-  "number": 3,
-  "id": "2026/03",
-  "date": "2026-09-28",
-  "url": "https://causari.dev/reports/survival/2026/03/"
+  "number": 4,
+  "id": "2026/04",
+  "date": "2026-10-05",
+  "url": "https://causari.dev/reports/survival/2026/04/"
  },
  "method": "v3",
  "tool": {
@@ -16,41 +16,41 @@
   "version": "0.3.0"
  },
  "verified": {
-  "commits": 82,
-  "introduced": 14657,
-  "surviving": 10911,
-  "survival_rate": 0.7444224602578973,
-  "capped_survival_rate": 0.7392773473987707,
-  "median_survival": 0.8346757100466299,
-  "largest_commit_share": 0.16094698778740535
+  "commits": 85,
+  "introduced": 23869,
+  "surviving": 19896,
+  "survival_rate": 0.8335497926180402,
+  "capped_survival_rate": 0.7643888149427872,
+  "median_survival": 0.84604119425548,
+  "largest_commit_share": 0.35816330805647495
  },
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 4480,
-   "introduced": 2110312,
-   "surviving": 1678801,
-   "survival_rate": 0.7955226525745956,
-   "median_survival": 0.7871813777122394,
-   "capped_survival_rate": 0.7698156209904854,
-   "cap_lines": 1365,
-   "largest_commit_share": 0.07336308564799897
+   "commits": 4894,
+   "introduced": 2833669,
+   "surviving": 2328646,
+   "survival_rate": 0.821777702335735,
+   "median_survival": 0.8,
+   "capped_survival_rate": 0.8057722298437489,
+   "cap_lines": 2020,
+   "largest_commit_share": 0.054635527296942585
   },
   "by_age": [
    {
     "from_days": 0,
     "to_days": 30,
     "tagged": {
-     "commits": 18,
-     "introduced": 4552,
-     "surviving": 3398,
-     "survival_rate": 0.7464850615114236
+     "commits": 19,
+     "introduced": 12699,
+     "surviving": 12041,
+     "survival_rate": 0.9481848964485392
     },
     "untagged": {
-     "commits": 697,
-     "introduced": 515872,
-     "surviving": 450563,
-     "survival_rate": 0.8734007660815086
+     "commits": 1016,
+     "introduced": 1134542,
+     "surviving": 1008924,
+     "survival_rate": 0.8892786692779994
     }
    },
    {
@@ -58,31 +58,31 @@
     "to_days": 90,
     "tagged": {
      "commits": 46,
-     "introduced": 7658,
-     "surviving": 6066,
-     "survival_rate": 0.7921128231914338
+     "introduced": 8526,
+     "surviving": 6310,
+     "survival_rate": 0.7400891391039174
     },
     "untagged": {
-     "commits": 764,
-     "introduced": 600240,
-     "surviving": 479237,
-     "survival_rate": 0.7984089697454352
+     "commits": 777,
+     "introduced": 636472,
+     "surviving": 520377,
+     "survival_rate": 0.8175960607850777
     }
    },
    {
     "from_days": 90,
     "to_days": 180,
     "tagged": {
-     "commits": 18,
-     "introduced": 2447,
-     "surviving": 1447,
-     "survival_rate": 0.5913363302002452
+     "commits": 20,
+     "introduced": 2644,
+     "surviving": 1545,
+     "survival_rate": 0.5843419062027232
     },
     "untagged": {
-     "commits": 830,
-     "introduced": 485880,
-     "surviving": 373112,
-     "survival_rate": 0.7679097719601548
+     "commits": 768,
+     "introduced": 528163,
+     "surviving": 401849,
+     "survival_rate": 0.7608427701296758
     }
    },
    {
@@ -95,10 +95,10 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 2189,
-     "introduced": 508320,
-     "surviving": 375889,
-     "survival_rate": 0.7394731665092855
+     "commits": 2333,
+     "introduced": 534492,
+     "surviving": 397496,
+     "survival_rate": 0.7436893349198865
     }
    },
    {
@@ -135,15 +135,15 @@
    }
   ],
   "age_matched": {
-   "tagged_rate": 0.7444224602578973,
-   "untagged_rate": 0.8166071767414934,
-   "gap": -0.07218471648359615,
+   "tagged_rate": 0.8335497926180402,
+   "untagged_rate": 0.8494466512898633,
+   "gap": -0.01589685867182311,
    "buckets_used": 3,
    "tagged_lines_covered": 1.0
   },
   "oldest_surviving": {
    "date": "2025-12-20",
-   "age_days": 281,
+   "age_days": 288,
    "commits_before": 0,
    "introduced_before": 0,
    "tagged_commits_before": 0,
@@ -152,7 +152,7 @@
   }
  },
  "probable_commits": 0,
- "total_commits": 4562,
+ "total_commits": 4979,
  "aggregated": true,
  "coverage": {
   "method": "v3",
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 2,
+ "reports": 3,
  "reproduce": "re audit GoogleCloudPlatform/scion --json",
- "bytes": "https://causari.dev/reports/survival/2026/03/repos/GoogleCloudPlatform__scion.json",
+ "bytes": "https://causari.dev/reports/survival/2026/04/repos/GoogleCloudPlatform__scion.json",
  "license": "CC-BY-4.0"
 }

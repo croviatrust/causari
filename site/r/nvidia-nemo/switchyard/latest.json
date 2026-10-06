@@ -5,32 +5,157 @@
  "url": "https://causari.dev/r/nvidia-nemo/switchyard/",
  "badge": "https://causari.dev/r/nvidia-nemo/switchyard/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 4,
+  "id": "2026/04",
+  "date": "2026-10-05",
+  "url": "https://causari.dev/reports/survival/2026/04/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
-  "commits": 24,
-  "introduced": 14294,
-  "surviving": 9274,
-  "survival_rate": 0.6488036938575626,
-  "capped_survival_rate": 0.6562224515386771,
-  "median_survival": 0.8057718260147411,
-  "largest_commit_share": 0.22086190009794318
+  "commits": 25,
+  "introduced": 15168,
+  "surviving": 10046,
+  "survival_rate": 0.6623154008438819,
+  "capped_survival_rate": 0.6694560530459568,
+  "median_survival": 0.7866666666666666,
+  "largest_commit_share": 0.20813554852320676
  },
  "interval_95": null,
- "baseline": null,
+ "baseline": {
+  "untagged": {
+   "commits": 495,
+   "introduced": 340689,
+   "surviving": 172128,
+   "survival_rate": 0.5052349797028962,
+   "median_survival": 0.7944042871385842,
+   "capped_survival_rate": 0.601547093721197,
+   "cap_lines": 1060,
+   "largest_commit_share": 0.40759754497503586
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 10,
+     "introduced": 6048,
+     "surviving": 5314,
+     "survival_rate": 0.8786375661375662
+    },
+    "untagged": {
+     "commits": 182,
+     "introduced": 28350,
+     "surviving": 24510,
+     "survival_rate": 0.8645502645502645
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 15,
+     "introduced": 9120,
+     "surviving": 4732,
+     "survival_rate": 0.518859649122807
+    },
+    "untagged": {
+     "commits": 308,
+     "introduced": 172606,
+     "surviving": 122688,
+     "survival_rate": 0.710798002386939
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 5,
+     "introduced": 139733,
+     "surviving": 24930,
+     "survival_rate": 0.17841168514237868
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.6623154008438819,
+   "untagged_rate": 0.7721042841356068,
+   "gap": -0.10978888329172498,
+   "buckets_used": 2,
+   "tagged_lines_covered": 1.0
+  },
+  "oldest_surviving": {
+   "date": "2026-06-30",
+   "age_days": 94,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
  "probable_commits": 0,
- "total_commits": 489,
+ "total_commits": 520,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -41,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 1,
+ "reports": 2,
  "reproduce": "re audit NVIDIA-NeMo/Switchyard --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/NVIDIA-NeMo__Switchyard.json",
+ "bytes": "https://causari.dev/reports/survival/2026/04/repos/NVIDIA-NeMo__Switchyard.json",
  "license": "CC-BY-4.0"
 }
