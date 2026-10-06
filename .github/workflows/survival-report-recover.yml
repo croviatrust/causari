@@ -445,8 +445,8 @@ jobs:
           python3 scripts/recovery_publish_gate.py assert-control-plane --ref "$WORKFLOW_REF" --workflow-sha "$WORKFLOW_SHA" --origin-main "$(git rev-parse origin/main)"
           [ "$(git rev-parse HEAD)" = "$WORKFLOW_SHA" ]
           # The artifact's common root is site/, so the zip has no site/ prefix.
-          cp -a /tmp/assembled/reports/survival site/reports/survival
-          cp -a /tmp/assembled/r site/r
+          cp -a /tmp/assembled/reports/survival/. site/reports/survival/
+          cp -a /tmp/assembled/r/. site/r/
           cp -a /tmp/assembled/_redirects site/_redirects
           cp -a /tmp/assembled/sitemap.xml site/sitemap.xml
           python3 scripts/recovery_publish_gate.py verify-worktree

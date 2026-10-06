@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -18,6 +19,7 @@ MEASUREMENT = gate.MEASUREMENT_SHA
 OTHER = "897ddbc73bd41519bf10cc571ec9393bc1af0491"
 CHILD = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 WORKFLOW = Path(__file__).resolve().parents[2] / ".github" / "workflows" / "survival-report-recover.yml"
+REPORT_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "report-2026-04" / "report.json"
 
 
 def report(**overrides) -> dict:
@@ -296,7 +298,10 @@ class WorkflowText(unittest.TestCase):
         self.assertIn("push --ff-only origin HEAD:main", self.deposit)
         self.assertNotIn("measured commit", self.publish)
         self.assertNotIn("897ddbc73bd41519bf10cc571ec9393bc1af0491", self.text)
-        self.assertIn('cp -a /tmp/assembled/reports/survival', self.publish)
+        self.assertIn("cp -a /tmp/assembled/reports/survival/. site/reports/survival/", self.publish)
+        self.assertIn("cp -a /tmp/assembled/r/. site/r/", self.publish)
+        self.assertNotIn("cp -a /tmp/assembled/reports/survival site/reports/survival", self.publish)
+        self.assertNotIn("cp -a /tmp/assembled/r site/r", self.publish)
         self.assertNotIn("/tmp/assembled/site/", self.text)
 
     def test_deposit_lists_before_it_creates_and_can_adopt(self):
@@ -304,6 +309,103 @@ class WorkflowText(unittest.TestCase):
         self.assertIn("recovery_publish_gate.py adopt", self.deposit)
         self.assertIn("assert-production-sandbox", self.deposit)
         self.assertLess(self.deposit.index("deposit-plan"), self.deposit.index("zenodo_deposit.py"))
+
+
+def _publication_copies() -> list[str]:
+    publish = WORKFLOW.read_text(encoding="utf-8").split("\n  publish:\n", 1)[1].split("\n  deposit:\n", 1)[0]
+    return [line.strip() for line in publish.splitlines() if line.strip().startswith("cp -a ")]
+
+
+def _seed_existing_site(root: Path) -> tuple[Path, Path]:
+    """Source artifact plus a site whose survival and r directories already exist."""
+    assembled = root / "assembled"
+    repo = root / "repo"
+    survival = assembled / "reports" / "survival"
+    (survival / "2026" / "04").mkdir(parents=True)
+    shutil.copy(REPORT_FIXTURE, survival / "2026" / "04" / "report.json")
+    (survival / "2026" / "04" / "provenance.json").write_text(
+        json.dumps(provenance(), indent=1) + "\n", encoding="utf-8"
+    )
+    (survival / "latest.json").write_text(
+        json.dumps({"id": gate.REPORT_ID, "number": 4}, indent=1) + "\n", encoding="utf-8"
+    )
+    card = assembled / "r" / "openai-openai-python"
+    card.mkdir(parents=True)
+    (card / "index.html").write_text("card\n", encoding="utf-8")
+    prior = repo / "site" / "reports" / "survival" / "2026" / "03"
+    prior.mkdir(parents=True)
+    (prior / "report.json").write_text("{}\n", encoding="utf-8")
+    old = repo / "site" / "r" / "aider-ai"
+    old.mkdir(parents=True)
+    (old / "index.html").write_text("old\n", encoding="utf-8")
+    return assembled, repo
+
+
+class ExistingDestinationCopy(unittest.TestCase):
+    def test_content_copy_does_not_nest_and_verify_worktree_accepts_it(self):
+        copies = _publication_copies()
+        self.assertEqual(copies[:2], [
+            "cp -a /tmp/assembled/reports/survival/. site/reports/survival/",
+            "cp -a /tmp/assembled/r/. site/r/",
+        ])
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            assembled, repo = _seed_existing_site(root / "fixed")
+            script = "\n".join(line.replace("/tmp/assembled", str(assembled)) for line in copies[:2])
+            subprocess.check_call(["bash", "-euo", "pipefail", "-c", script], cwd=repo)
+            survival = repo / "site" / "reports" / "survival"
+            cards = repo / "site" / "r"
+            self.assertFalse((survival / "survival").exists())
+            self.assertFalse((cards / "r").exists())
+            report_path = survival / "2026" / "04" / "report.json"
+            provenance_path = survival / "2026" / "04" / "provenance.json"
+            latest_path = survival / "latest.json"
+            self.assertTrue(report_path.is_file())
+            self.assertTrue(provenance_path.is_file())
+            self.assertTrue(latest_path.is_file())
+            self.assertEqual((cards / "openai-openai-python" / "index.html").read_text(encoding="utf-8"), "card\n")
+            self.assertEqual((cards / "aider-ai" / "index.html").read_text(encoding="utf-8"), "old\n")
+            self.assertTrue((survival / "2026" / "03" / "report.json").is_file())
+            files = sorted(
+                path.relative_to(survival).as_posix() for path in survival.rglob("*") if path.is_file()
+            )
+            self.assertEqual(files, [
+                "2026/03/report.json",
+                "2026/04/provenance.json",
+                "2026/04/report.json",
+                "latest.json",
+            ])
+            copied = json.loads(report_path.read_text(encoding="utf-8"))
+            self.assertEqual(gate.canonical_sha(copied), gate.CANON_SHA)
+            subprocess.check_call([
+                sys.executable,
+                str(Path(__file__).resolve().parents[1] / "recovery_publish_gate.py"),
+                "--repo", str(repo),
+                "verify-worktree",
+            ])
+            self.assertEqual(gate.verify_survival_tree(survival, allow_deposited=False), "ready")
+
+            nested_assembled, nested_repo = _seed_existing_site(root / "nested")
+            old = "\n".join([
+                f"cp -a {nested_assembled}/reports/survival site/reports/survival",
+                f"cp -a {nested_assembled}/r site/r",
+            ])
+            subprocess.check_call(["bash", "-euo", "pipefail", "-c", old], cwd=nested_repo)
+            self.assertTrue((nested_repo / "site" / "reports" / "survival" / "survival").is_dir())
+            self.assertTrue((nested_repo / "site" / "r" / "r").is_dir())
+            self.assertFalse((nested_repo / "site" / "reports" / "survival" / "2026" / "04" / "report.json").exists())
+            failed = subprocess.run(
+                [
+                    sys.executable,
+                    str(Path(__file__).resolve().parents[1] / "recovery_publish_gate.py"),
+                    "--repo", str(nested_repo),
+                    "verify-worktree",
+                ],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(failed.returncode, 1)
+            self.assertIn("missing the measured report", failed.stderr)
 
 
 if __name__ == "__main__":
