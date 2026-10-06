@@ -294,8 +294,20 @@ class WorkflowText(unittest.TestCase):
         self.assertIn("ref: ${{ github.sha }}", self.publish)
         self.assertIn("fetch-depth: 0", self.publish)
         self.assertIn("assert-control-plane", self.publish)
-        self.assertIn("push --ff-only origin HEAD:main", self.publish)
-        self.assertIn("push --ff-only origin HEAD:main", self.deposit)
+        self.assertIn('git -c "http.extraheader=$auth" push origin HEAD:main', self.publish)
+        self.assertIn('git -c "http.extraheader=$auth" push origin HEAD:main', self.deposit)
+        self.assertLess(
+            self.publish.rindex("assert-control-plane"),
+            self.publish.rindex('push origin HEAD:main'),
+        )
+        self.assertLess(
+            self.deposit.rindex('origin/main)" != "$tip"'),
+            self.deposit.rindex('push origin HEAD:main'),
+        )
+        self.assertNotIn("push --ff-only", self.text)
+        self.assertNotIn("force-with-lease", self.text)
+        self.assertNotIn("push --force", self.text)
+        self.assertNotIn("push -f ", self.text)
         self.assertNotIn("measured commit", self.publish)
         self.assertNotIn("897ddbc73bd41519bf10cc571ec9393bc1af0491", self.text)
         self.assertIn("cp -a /tmp/assembled/reports/survival/. site/reports/survival/", self.publish)
@@ -406,6 +418,175 @@ class ExistingDestinationCopy(unittest.TestCase):
             )
             self.assertEqual(failed.returncode, 1)
             self.assertIn("missing the measured report", failed.stderr)
+
+
+def _git(repo: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
+    result = subprocess.run(["git", *args], cwd=repo, text=True, capture_output=True, check=False)
+    if check and result.returncode != 0:
+        raise AssertionError(f"{args} -> {result.returncode}\n{result.stderr}")
+    return result
+
+
+def _bare_pair(root: Path) -> tuple[Path, Path]:
+    bare = root / "origin.git"
+    local = root / "local"
+    subprocess.check_call(["git", "init", "--bare", "-b", "main", str(bare)], stdout=subprocess.DEVNULL)
+    subprocess.check_call(["git", "init", "-b", "main", str(local)], stdout=subprocess.DEVNULL)
+    _git(local, "config", "user.email", "t@example.com")
+    _git(local, "config", "user.name", "Test")
+    _git(local, "remote", "add", "origin", str(bare))
+    return bare, local
+
+
+def _commit_file(repo: Path, name: str, body: str) -> str:
+    (repo / name).write_text(body + "\n", encoding="utf-8")
+    _git(repo, "add", name)
+    _git(repo, "commit", "-m", body)
+    return _git(repo, "rev-parse", "HEAD").stdout.strip()
+
+
+def _tip(bare: Path) -> str:
+    return _git(bare, "rev-parse", "refs/heads/main").stdout.strip()
+
+
+def _other_repo(root: Path, bare: Path, name: str) -> Path:
+    repo = root / name
+    subprocess.check_call(["git", "init", "-b", "main", str(repo)], stdout=subprocess.DEVNULL)
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "Test")
+    _git(repo, "remote", "add", "origin", str(bare))
+    return repo
+
+
+class PublicationPush(unittest.TestCase):
+    """Bare remotes only. The shipped command is a non-force push."""
+
+    def test_child_of_the_reviewed_tip_publishes(self):
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            bare, local = _bare_pair(Path(tmp))
+            reviewed = _commit_file(local, "a", "control plane")
+            _git(local, "push", "origin", "HEAD:main")
+            child = _commit_file(local, "b", "report")
+            pushed = _git(local, "push", "origin", "HEAD:main")
+            self.assertEqual(pushed.returncode, 0)
+            self.assertEqual(_tip(bare), child)
+            self.assertNotEqual(child, reviewed)
+            self.assertEqual(_git(local, "rev-parse", "HEAD^").stdout.strip(), reviewed)
+
+    def test_remote_advance_is_rejected(self):
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            root = Path(tmp)
+            bare, local = _bare_pair(root)
+            _commit_file(local, "a", "control plane")
+            _git(local, "push", "origin", "HEAD:main")
+            _commit_file(local, "b", "report")
+            other = root / "other"
+            subprocess.check_call(["git", "clone", str(bare), str(other)], stdout=subprocess.DEVNULL)
+            _git(other, "config", "user.email", "t@example.com")
+            _git(other, "config", "user.name", "Test")
+            advanced = _commit_file(other, "c", "someone else")
+            _git(other, "push", "origin", "HEAD:main")
+            rejected = _git(local, "push", "origin", "HEAD:main", check=False)
+            self.assertEqual(rejected.returncode, 1)
+            self.assertEqual(_tip(bare), advanced)
+            self.assertIn("rejected", rejected.stderr)
+
+    def test_divergent_remote_is_rejected(self):
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            root = Path(tmp)
+            bare, local = _bare_pair(root)
+            _commit_file(local, "a", "control plane")
+            _git(local, "push", "origin", "HEAD:main")
+            _commit_file(local, "b", "report")
+            stranger = _other_repo(root, bare, "stranger")
+            diverged = _commit_file(stranger, "z", "divergent history")
+            _git(stranger, "push", "--force", "origin", "HEAD:main")
+            rejected = _git(local, "push", "origin", "HEAD:main", check=False)
+            self.assertEqual(rejected.returncode, 1)
+            self.assertEqual(_tip(bare), diverged)
+
+    def test_rewind_to_an_ancestor_fast_forwards_and_the_gate_still_refuses_it(self):
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            bare, local = _bare_pair(Path(tmp))
+            ancestor = _commit_file(local, "r", "older main")
+            _git(local, "push", "origin", "HEAD:main")
+            reviewed = _commit_file(local, "a", "control plane")
+            _git(local, "push", "origin", "HEAD:main")
+            child = _commit_file(local, "b", "report")
+            _git(bare, "update-ref", "refs/heads/main", ancestor)
+            with self.assertRaises(SystemExit):
+                gate.assert_control_plane("refs/heads/main", reviewed, ancestor)
+            forwarded = _git(local, "push", "origin", "HEAD:main", check=False)
+            self.assertEqual(forwarded.returncode, 0)
+            self.assertEqual(_tip(bare), child)
+            _git(bare, "update-ref", "refs/heads/main", ancestor)
+            leased = _git(
+                local,
+                "push",
+                f"--force-with-lease=refs/heads/main:{reviewed}",
+                "origin",
+                "HEAD:refs/heads/main",
+                check=False,
+            )
+            self.assertEqual(leased.returncode, 1)
+            self.assertEqual(_tip(bare), ancestor)
+
+    def test_commit_not_descended_from_the_control_plane_is_rejected(self):
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            root = Path(tmp)
+            bare, local = _bare_pair(root)
+            reviewed = _commit_file(local, "a", "control plane")
+            _git(local, "push", "origin", "HEAD:main")
+            unrelated = _other_repo(root, bare, "unrelated")
+            _commit_file(unrelated, "u", "not a descendant")
+            rejected = _git(unrelated, "push", "origin", "HEAD:main", check=False)
+            self.assertEqual(rejected.returncode, 1)
+            self.assertEqual(_tip(bare), reviewed)
+            self.assertIn("rejected", rejected.stderr)
+
+    def test_force_with_lease_overwrites_unrelated_history(self):
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            root = Path(tmp)
+            bare, local = _bare_pair(root)
+            reviewed = _commit_file(local, "a", "control plane")
+            _git(local, "push", "origin", "HEAD:main")
+            unrelated = _other_repo(root, bare, "unrelated")
+            foreign = _commit_file(unrelated, "u", "not a descendant")
+            forced = _git(
+                unrelated,
+                "push",
+                f"--force-with-lease=refs/heads/main:{reviewed}",
+                "origin",
+                "HEAD:refs/heads/main",
+                check=False,
+            )
+            self.assertEqual(forced.returncode, 0)
+            self.assertEqual(_tip(bare), foreign)
+            self.assertIn("forced update", forced.stderr)
+            self.assertNotIn("force-with-lease", WORKFLOW.read_text(encoding="utf-8"))
+
+    def test_control_plane_lease_rejects_the_doi_child(self):
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            bare, local = _bare_pair(Path(tmp))
+            reviewed = _commit_file(local, "a", "control plane")
+            _git(local, "push", "origin", "HEAD:main")
+            report = _commit_file(local, "b", "report")
+            _git(local, "push", "origin", "HEAD:main")
+            doi = _commit_file(local, "d", "doi")
+            leased = _git(
+                local,
+                "push",
+                f"--force-with-lease=refs/heads/main:{reviewed}",
+                "origin",
+                "HEAD:refs/heads/main",
+                check=False,
+            )
+            self.assertEqual(leased.returncode, 1)
+            self.assertEqual(_tip(bare), report)
+            self.assertIn("stale info", leased.stderr)
+            published = _git(local, "push", "origin", "HEAD:main", check=False)
+            self.assertEqual(published.returncode, 0)
+            self.assertEqual(_tip(bare), doi)
 
 
 if __name__ == "__main__":

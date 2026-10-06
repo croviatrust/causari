@@ -457,7 +457,7 @@ jobs:
           git fetch origin main
           python3 scripts/recovery_publish_gate.py assert-control-plane --ref "$WORKFLOW_REF" --workflow-sha "$WORKFLOW_SHA" --origin-main "$(git rev-parse origin/main)"
           auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
-          git -c "http.extraheader=$auth" push --ff-only origin HEAD:main
+          git -c "http.extraheader=$auth" push origin HEAD:main
 
   deposit:
     needs: [assemble, publish]
@@ -538,4 +538,4 @@ jobs:
             exit 1
           fi
           auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
-          git -c "http.extraheader=$auth" push --ff-only origin HEAD:main
+          git -c "http.extraheader=$auth" push origin HEAD:main
