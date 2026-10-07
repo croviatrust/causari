@@ -1,0 +1,14 @@
+.github/workflows/publish-shims.yml
+  h_b6bdc81170adbc 147-148
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1de36cea1078d5a7ebba63d7ed9b421411a9eaca",
+  "prompts": {},
+  "humans": {
+    "h_b6bdc81170adbc": {
+      "author": "Crovia Trust <info@croviatrust.com>"
+    }
+  }
+}
