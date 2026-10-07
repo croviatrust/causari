@@ -34,6 +34,15 @@ on:
         description: "Release to publish the launchers for, without the v (e.g. 0.2.0)"
         required: true
         type: string
+      registries:
+        description: "Which registries to publish. npm or pypi skips a registry that already succeeded."
+        required: true
+        type: choice
+        default: both
+        options:
+          - both
+          - npm
+          - pypi
 
 permissions:
   contents: read
@@ -88,6 +97,7 @@ jobs:
 
   npm:
     needs: version
+    if: github.event_name != 'workflow_dispatch' || inputs.registries == 'both' || inputs.registries == 'npm'
     runs-on: ubuntu-latest
     environment: npm
     permissions:
@@ -97,10 +107,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.version.outputs.tag }}
+      # No registry-url. setup-node writes //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
+      # and, when no token exists, exports NODE_AUTH_TOKEN=XXXXX-XXXXX-XXXXX-XXXXX.
+      # npm then sends that placeholder and does not start Trusted Publishing.
+      # The registry answers 404. The default registry is registry.npmjs.org.
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-          registry-url: "https://registry.npmjs.org"
       # Trusted Publishing needs npm >= 11.5.1; the runner image may lag.
       - run: npm install -g npm@latest && npm --version
       - name: the launcher runs the release it will point at
@@ -121,10 +134,22 @@ jobs:
       - name: npm publish
         if: steps.exists.outputs.skip != 'true'
         working-directory: packaging/npm
-        run: npm publish --provenance --access public
+        run: |
+          set -euo pipefail
+          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "NODE_AUTH_TOKEN is set, so npm will not use Trusted Publishing" >&2
+            exit 1
+          fi
+          if [ -n "${NPM_CONFIG_USERCONFIG:-}" ] && grep -q '_authToken' "$NPM_CONFIG_USERCONFIG"; then
+            echo "npmrc sets _authToken, so npm will not use Trusted Publishing" >&2
+            exit 1
+          fi
+          # verbose: a rejected OIDC exchange is otherwise only "need auth"
+          npm publish --provenance --access public --loglevel verbose
 
   pypi-build:
     needs: version
+    if: github.event_name != 'workflow_dispatch' || inputs.registries == 'both' || inputs.registries == 'pypi'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
