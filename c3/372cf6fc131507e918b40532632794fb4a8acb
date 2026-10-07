@@ -1,0 +1,30 @@
+.claude-plugin/marketplace.json
+  h_b6bdc81170adbc 10,17
+CHANGELOG.md
+  h_b6bdc81170adbc 8-9,12,14-16,85-86
+Cargo.lock
+  h_b6bdc81170adbc 170
+Cargo.toml
+  h_b6bdc81170adbc 3
+packaging/npm/package.json
+  h_b6bdc81170adbc 3
+packaging/pypi/pyproject.toml
+  h_b6bdc81170adbc 7
+plugin/.claude-plugin/plugin.json
+  h_b6bdc81170adbc 4
+server.json
+  h_b6bdc81170adbc 11,17
+site/index.html
+  h_b6bdc81170adbc 50,111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c3372cf6fc131507e918b40532632794fb4a8acb",
+  "prompts": {},
+  "humans": {
+    "h_b6bdc81170adbc": {
+      "author": "Crovia Trust <info@croviatrust.com>"
+    }
+  }
+}
