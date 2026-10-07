@@ -1,0 +1,16 @@
+.github/workflows/publish-crate.yml
+  h_b6bdc81170adbc 20-27,34,54,84-90,93-96,101-103,106,109-114,117-119,129-133
+server.json
+  h_b6bdc81170adbc 5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cf99e29ebce3f3459a802095952368c08fc6c2e1",
+  "prompts": {},
+  "humans": {
+    "h_b6bdc81170adbc": {
+      "author": "Crovia Trust <info@croviatrust.com>"
+    }
+  }
+}
