@@ -7,14 +7,14 @@
   },
   "metadata": {
     "description": "Plugins by Crovia Trust. Causari records what an AI agent did in a repository and answers why a line exists.",
-    "version": "0.3.0"
+    "version": "0.4.0"
   },
   "plugins": [
     {
       "name": "causari",
       "source": "./plugin",
       "description": "Every Claude Code edit becomes a Causari event with its prompt, model and diff; ask `why` for any line. Needs the `re` binary from causari.dev.",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "author": { "name": "Crovia Trust", "email": "info@croviatrust.com" },
       "homepage": "https://causari.dev",
       "repository": "https://github.com/croviatrust/causari",

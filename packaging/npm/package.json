@@ -1,6 +1,6 @@
 {
   "name": "causari",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "AI-written code has no author. It has causes. Causari measures how many lines from AI-tagged commits are still alive in any git repo and records the prompt, model and files behind every agent edit.",
   "keywords": [
     "ai",
