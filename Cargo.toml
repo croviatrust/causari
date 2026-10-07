@@ -1,6 +1,6 @@
 [package]
 name = "causari"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2024"
 description = "AI-written code has no author; it has causes. Measures how much AI-tagged code survives in any git repo and records the prompt, model and files behind every agent edit."
 license = "Apache-2.0"

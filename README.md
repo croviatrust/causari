@@ -334,7 +334,7 @@ to install on a mismatch. From v0.2.0, every archive and the sums file carry a
 signed SLSA build-provenance attestation from the release workflow:
 
 ```bash
-gh attestation verify causari-v0.3.0-x86_64-unknown-linux-gnu.tar.gz --repo croviatrust/causari
+gh attestation verify causari-v0.4.0-x86_64-unknown-linux-gnu.tar.gz --repo croviatrust/causari
 ```
 
 By hand:

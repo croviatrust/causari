@@ -5,14 +5,15 @@ release workflow copies it verbatim. Counts, not adjectives.
 
 ## Unreleased
 
+## 0.4.0 — 2026-10-07
+
 ### Method v4
 
-Not released. Published reports stay on the method that produced them.
+Published reports stay on the method that produced them.
 Reports #1 and #2 stay method v2. Reports #3 and #4, and the 0.3.0 binary,
-stay method v3. Report #4 is DOI 10.5281/zenodo.23196011. This source
-computes v4 and does not recompute those reports. The crate version is
-still 0.3.0 until a release is cut; `coverage.method` is the method, not
-the crate version.
+stay method v3. Report #4 is DOI 10.5281/zenodo.23196011. This release
+measures with method v4 and does not recompute those reports.
+`coverage.method` is the method, not the crate version.
 
 - A git-ai note is AI evidence only when `sessions` or `prompts` names a
   non-empty tool. A schema-only note, a human-only note, and an empty or
@@ -81,8 +82,8 @@ the crate version.
   published (0.3.0, the npm one by hand once, both registries now through
   Trusted Publishing from `publish-shims.yml`). Each downloads the release
   archive for the platform, checks it against `SHA256SUMS.txt` and runs
-  it. Listed on the home page, in the README and in `llms.txt`. From the
-  next tag the npm package carries a provenance attestation.
+  it. Listed on the home page, in the README and in `llms.txt`. This tag
+  publishes the npm package with a provenance attestation.
 
 ## 0.3.0 — 2026-09-24
 
