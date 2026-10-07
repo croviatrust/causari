@@ -84,7 +84,11 @@ therefore published by hand, once, from a checkout of the release tag.
 Requirements the workflow already meets: GitHub-hosted runner, `id-token:
 write`, npm CLI ≥ 11.5.1 (it installs `npm@latest` on Node 24),
 `repository.url` in `package.json` equal to the GitHub repository, and no
-`NODE_AUTH_TOKEN` in the publish step. Check with `npm view causari` and
+`NODE_AUTH_TOKEN` in the publish step. `actions/setup-node` must not set
+`registry-url`: that writes `_authToken=${NODE_AUTH_TOKEN}` and, with no
+secret, exports the placeholder `XXXXX-XXXXX-XXXXX-XXXXX`. npm then publishes
+with that placeholder instead of Trusted Publishing, and the registry
+answers 404. Check with `npm view causari` and
 `npm audit signatures` after the first workflow publish.
 
 ### PyPI
