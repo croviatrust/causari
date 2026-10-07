@@ -129,7 +129,7 @@ re audit vercel/next.js     <span class="dim"># any public repository</span></co
       <div class="screen-text">
         <p class="eyebrow">01 · measure · <code translate="no">re audit</code></p>
         <h2>Everyone argues about how much code AI writes. Nobody can check the numbers.</h2>
-        <p><code translate="no">re audit</code> reads plain git history — <code translate="no">Co-Authored-By</code> trailers, bot authors, agent markers — and asks <code translate="no">git blame</code> how many lines from those commits are still at HEAD. No model, no estimate, no survey: anyone re-runs it and gets the same bytes.</p>
+        <p><code translate="no">re audit</code> reads plain git history — <code translate="no">Co-Authored-By</code> trailers, bot authors, agent markers — and asks <code translate="no">git blame</code> how many lines from those commits are still at HEAD. No model, no estimate, no survey. The same bytes require the same commit, method, blame flags and refs/notes/ai. A repository that has moved does not match.</p>
         <p class="muted"><code translate="no">--json</code> gives the exact bytes behind any published row; <code translate="no">--summary</code> writes the same count as Markdown for CI.</p>
       </div>
       <div class="term">
@@ -155,7 +155,7 @@ Baseline <span class="dim">(untagged lines of the same repository)</span>
     <div class="screen-more proof-grid">
       <div class="proof">
         <h3>What it cannot see</h3>
-        <p>Inline completions (Copilot, Cursor Tab, Windsurf, …) leave no git trace. Commits without a trailer are UNKNOWN and excluded from the headline. UNKNOWN is not a finding that a human wrote them. One bulk commit can dominate a line-weighted ratio, so method v2 also reports a capped ratio and the median per commit; repositories under five AI-tagged commits are measured but not aggregated. Method v3 puts the repository's own untagged lines next to the AI-tagged ones, at the same age, and names the oldest line still at HEAD. All of it is written down at <a href="/method">causari.dev/method</a>, with how to reproduce or contest a number.</p>
+        <p>Inline completions (Copilot, Cursor Tab, Windsurf, …) leave no git trace. Commits without a trailer are UNKNOWN and excluded from the headline. UNKNOWN is not a finding that a human wrote them. One bulk commit can dominate a line-weighted ratio, so method v2 also reports a capped ratio and the median per commit; repositories under five AI-tagged commits are measured but not aggregated. Method v3 puts the repository's own untagged lines next to the AI-tagged ones inside matched age windows, and names the oldest line still at HEAD. Method v4 keeps that baseline and stops counting a git-ai note that does not name a tool. Published reports through the 0.3.0 release stay on v3. The survival percentage is persistence of the tagged cohort. It is not quality, productivity, total AI usage, authorship, security, correctness, or a causal effect. All of it is written down at <a href="/method">causari.dev/method</a>, with how to reproduce or contest a number.</p>
 <pre translate="no"><code translate="no">re audit --json   <span class="dim"># "coverage": what was counted, what was not</span></code></pre>
       </div>
     </div>
@@ -167,8 +167,8 @@ Baseline <span class="dim">(untagged lines of the same repository)</span>
     <div class="screen-grid">
       <div class="screen-text">
         <p class="eyebrow">02 · record · <code translate="no">re init</code></p>
-        <h2>Git remembers what changed. The ledger remembers what caused it.</h2>
-        <p>When you need to know <em>why</em> a line exists, the same binary records each agent edit — prompt, model, files read and written — into a local, append-only ledger in <code translate="no">.causari/</code>, gitignored. Ask it like git: <code translate="no">re why</code> names the event, the agent and the prompt behind a line.</p>
+        <h2>Git remembers what changed. The ledger records what the runtime declared.</h2>
+        <p>The same binary can record each agent edit — prompt, model, files read and written — into a local ledger in <code translate="no">.causari/</code>, gitignored. <code translate="no">re why</code> names the ledger event associated with a line. That is what the recorder stored. It is not a proof of who wrote the line, and a miss is not a finding that a human did.</p>
       </div>
       <div class="term">
 <pre translate="no"><code translate="no">re init                     <span class="dim"># .causari/, added to .gitignore</span>
@@ -225,11 +225,11 @@ src/auth.ts:42  ⊢  introduced by event 2d070eb8cf
   written  audit.seal.json
   issuer   urn:crovia:seal-issuer:causari:c4b3b0a67b24
   commit   5990442f31c267cdbaee9039a54e0cbf6a81ef57
-  method   v3 · sequence 0
+  method   v4 · sequence 0
 
 <span class="dim">$</span> re seal verify audit.seal.json
 ✓ signature valid — cs_2026_6X3TIUCUGIMGLH7ZQNXOMRREJ4
-  crovia.seal.v1, audit seal · method v3
+  crovia.seal.v1, audit seal · method v4
   commit   5990442f31c267cdbaee9039a54e0cbf6a81ef57
   audit    216 commits · AI-tagged (metadata matched): 14 commits,
            6267 introduced, 5185 survived
@@ -264,7 +264,7 @@ src/auth.ts:42  ⊢  introduced by event 2d070eb8cf
       <div class="term">
 <pre translate="no"><code translate="no"><span class="dim">$</span> re audit openai/codex --json   <span class="dim"># the bytes behind a row</span>
 {
-  "method": "v3",
+  "method": "v4",
   "total_commits": <span class="dim">…</span>,
   "verified": { "commits": <span class="dim">…</span>, "introduced": <span class="dim">…</span>,
                 "surviving": <span class="dim">…</span>, "survival_rate": <span class="dim">…</span>,
@@ -274,7 +274,7 @@ src/auth.ts:42  ⊢  introduced by event 2d070eb8cf
   "baseline": { "untagged": { <span class="dim">…</span> }, "by_age": [ <span class="dim">…</span> ],
                 "age_matched": { "tagged_rate": <span class="dim">…</span>, "untagged_rate": <span class="dim">…</span>, "gap": <span class="dim">…</span> },
                 "oldest_surviving": { "date": <span class="dim">…</span>, "commits_before": <span class="dim">…</span> } },
-  "coverage": { "method": "v3", "shallow": false,
+  "coverage": { "method": "v4", "shallow": false,
                 "blame_flags": ["-w", "-M", "-C"] },
   "repository": { "head": "<span class="dim">40 hex</span>", "origin": "https://github.com/openai/codex" }
 }

@@ -11,17 +11,15 @@ use crate::store::Store;
 
 /// `re lens path/to/file.rs`
 ///
-/// Render a file with **inline per-line provenance**: each line is annotated
-/// with the short id of the event that last introduced or modified it, the
-/// agent that authored it, and a tiny excerpt of the prompt that caused the
-/// change. Think `git blame` made for prompts, in glorious colour, ready to
-/// be screenshotted.
+/// Annotate each line with the ledger event last associated with it: the
+/// short id, the recorded agent, and an excerpt of the recorded prompt.
+/// The association is the ledger's snapshot diff. It is not authorship.
 ///
 /// Algorithm: walk every event from oldest to newest; for each event, diff its
-/// pre vs post state of the target file and update an in-memory "line → owner"
-/// map. Each insertion claims a new line for that event; each deletion frees
-/// the line; modifications re-attribute. At the end, every line in the current
-/// file has a known owner event.
+/// pre vs post state of the target file and update an in-memory "line → event"
+/// map. Each insertion associates a new line with that event; each deletion
+/// frees the line; modifications re-associate. Lines with no event stay
+/// unassociated.
 pub fn run(args: LensArgs) -> Result<()> {
     let repo = Repo::discover()?;
     let store = Store::new(&repo);

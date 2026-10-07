@@ -95,7 +95,8 @@ impl Repo {
             current = p.parent();
         }
         Err(anyhow!(
-            "not a causari repository (run `re init` first to create one)"
+            "not a causari repository. This command uses the local ledger (`re init` creates it). \
+             It does not audit a remote repository: use `re audit owner/repo`, or a git URL, for that, with no ledger"
         ))
     }
 

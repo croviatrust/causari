@@ -371,7 +371,7 @@ class BaselineTests(unittest.TestCase):
 
     def test_report_page_shows_gap_column_and_baseline_section(self) -> None:
         header = re.search(r'<table class="lb-table" id="repos">.*?</thead>', self.page, re.S).group(0)
-        self.assertIn("<th>Untagged, same age</th><th>Gap</th>", header)
+        self.assertIn("<th>Untagged, matched windows</th><th>Gap</th>", header)
         self.assertIn(">-5.0 pts<", self.page)
         self.assertIn(">70.0 %<", self.page)
         self.assertIn("no shared window", self.page)  # base/lonely
@@ -394,12 +394,12 @@ class BaselineTests(unittest.TestCase):
                 self.assertIn(before, ('"', "'", "\u201c", "\u2018", "`", "\u00ab"), f"forbidden word {word!r} bare")
 
     def test_report_md_has_baseline(self) -> None:
-        self.assertIn("## Baseline: the same repositories' untagged lines, at the same age", self.md)
+        self.assertIn("## Baseline: the same repositories' untagged lines, in the matched age windows", self.md)
         self.assertIn("- Median gap across them: -1.4 pts", self.md)
         self.assertIn("- Gaps below zero: 1 · above zero: 1", self.md)
         self.assertIn("Cleared or rewritten", self.md)
         self.assertIn("| base/cleared · rewritten |", self.md)
-        self.assertIn("| Untagged, same age | Gap |", self.md.replace("|  Untagged", "| Untagged"))
+        self.assertIn("| Untagged, matched windows | Gap |", self.md.replace("|  Untagged", "| Untagged"))
         self.assertIn("| 70.0 % | -5.0 pts |", self.md)
         self.assertIn("| — | — |", self.md)  # zeta/last, no baseline
 

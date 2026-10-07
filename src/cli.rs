@@ -23,10 +23,10 @@ Record (the ledger, in .causari/):
 Ask (queries over the ledger):
   log       Recent events
   show      One event: prompt, model, tokens, cost, evidence
-  why       The event behind a line: `re why path/to/file:42`
-  trace     Everything that led to a line, transitively
-  impact    Everything that flowed from an event
-  lens      A file annotated with per-line provenance
+  why       The ledger event recorded against a line: `re why path/to/file:42`
+  trace     Ledger events linked by declared reads and writes, backward
+  impact    Ledger events linked by declared reads and writes, forward
+  lens      A file annotated from the local ledger
   diff      What one event changed (or a range)
   find      Search prompts, messages and tools
 
@@ -86,7 +86,7 @@ pub enum Command {
     /// Show the diff introduced by an event (or between two events)
     Diff(DiffArgs),
 
-    /// Explain who/what created a specific line: `re why path/to/file:42`
+    /// Ledger event recorded against a line, if one matches: `re why path/to/file:42`
     Why(WhyArgs),
 
     /// Auto-record every filesystem change as a Causari event (passive recorder)
@@ -104,17 +104,18 @@ pub enum Command {
     /// Switch HEAD to an existing session and sync the workspace to its tip
     Switch(SwitchArgs),
 
-    /// Show the FULL causal cone of a line: every event that contributed,
-    /// transitively, via the files it read or wrote.
+    /// Walk declared reads and writes backward from a line.
+    /// This is the ledger graph. It does not establish cause.
     Trace(TraceArgs),
 
     /// Search events by free text in prompt, message, reasoning or tool.
     Find(FindArgs),
 
-    /// Show the DOWNSTREAM causal cone of an event (what flowed from it).
+    /// Walk declared reads and writes forward from an event.
+    /// Later events in this graph read files the event wrote.
     Impact(ImpactArgs),
 
-    /// Render a file with per-line provenance annotations.
+    /// Annotate a file with the ledger event last associated with each line.
     Lens(LensArgs),
 
     /// Distill, inspect and verify signed skills (the experience layer)
@@ -300,7 +301,7 @@ pub struct SwitchArgs {
 
 #[derive(Args, Debug)]
 pub struct TraceArgs {
-    /// Location whose causal cone you want, in the form `path/to/file:line`
+    /// Location to walk in the ledger graph, in the form `path/to/file:line`
     pub spec: String,
 }
 
@@ -322,7 +323,7 @@ pub struct ImpactArgs {
 
 #[derive(Args, Debug)]
 pub struct LensArgs {
-    /// Path to the file you want annotated with per-line provenance
+    /// Path to the file to annotate from the local ledger
     pub file: String,
 }
 

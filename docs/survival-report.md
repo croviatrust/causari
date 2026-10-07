@@ -10,10 +10,15 @@ as siblings.
 ## What it is
 
 Counts of surviving lines from AI-tagged commits in N open-source
-repositories, under the current method (v3; v2 until report #2). For each repository the report states how
-many lines were introduced by commits that carry machine-readable AI
-authorship metadata (`Co-Authored-By` trailers naming an agent, bot author
-identities, aider markers, `Assisted-by:`, git-ai notes) and how many of
+repositories. Reports #1–#2 are method v2; reports #3 and #4, and the
+0.3.0 release, are method v3. Report #4 is DOI 10.5281/zenodo.23196011.
+This source computes method v4 and is not released: v4
+counts a git-ai note only when it names a non-empty tool, and v3 counted
+any parseable note. Reports #3 and #4 are not recomputed. For each repository the
+report states how many lines were introduced by commits that carry
+machine-readable AI authorship metadata (`Co-Authored-By` trailers naming
+an agent, bot author identities, aider markers, `Assisted-by:`, and a
+git-ai note under the method version of that report) and how many of
 those lines `git blame -w -M -C` still attributes to those commits at HEAD.
 Alongside the line-weighted ratio it gives the capped ratio (no commit
 weighs more than the 95th percentile of per-commit introduced counts in its
@@ -27,9 +32,13 @@ and to the command that reproduces it: `re audit <owner/repo> --json`.
 
 ## What it is not
 
-It is not a quality judgement. Deleted lines include removed features,
+It is not a quality judgement, a productivity measure, total AI usage,
+proof that a model wrote the line, a security finding, a correctness
+finding, or a causal effect of AI. Deleted lines include removed features,
 moved code and rewritten prototypes; surviving lines include dead code.
-There is no rank, no colour, no verdict; rows are alphabetical.
+There is no rank, no colour, no verdict; rows are alphabetical. Granularity
+is the commit: a qualifying signal tags the commit's introduced and
+surviving lines, not a line range inside a git-ai note.
 
 It is not a sample of "all AI code". Inline completions (Copilot, Cursor
 Tab, Windsurf) leave no trace in git and are invisible. Untagged agent

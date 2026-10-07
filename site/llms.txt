@@ -2,8 +2,8 @@
 
 > AI-written code has no author. It has causes. Causari records them.
 > Causari measures how many lines from AI-tagged commits are still alive in
-> any git repository (counts, not grades), and records the causal provenance
-> (prompt, model, reads, writes) behind every change an AI agent makes.
+> any git repository (counts, not grades), and keeps a local ledger of what
+> an agent runtime declared (prompt, model, reads, writes).
 > Apache-2.0, local-first, no telemetry, verifiable offline.
 
 Name: this is Causari by Crovia Trust (causari.dev, github.com/croviatrust/causari):
@@ -38,7 +38,7 @@ Local install (single binary, about 5 MB, Linux/macOS/Windows):
 Key commands:
 - `re audit [owner/repo]` — AI code survival from git history alone, with
   the same repository's untagged lines as the baseline (by line age, an
-  age-matched gap, the oldest line still at HEAD; method v3); `--json`
+  age-matched gap, the oldest line still at HEAD; method v4, baseline since v3); `--json`
   gives the exact bytes; `--summary` gives Markdown for CI; `--seal` also
   writes `audit.seal.json`, a crovia.seal.v1 over the audit JSON bound to
   the commit and method version
@@ -50,9 +50,9 @@ Key commands:
 - `re proxy` — local LLM proxy recording prompts, models, tokens, cost
   (Aider and OpenAI/Anthropic-compatible clients); `--seal` issues
   crovia.seal.v1 receipts
-- `re why <file>:<line>` — which recorded event produced this line
-- `re trace <file>:<line>` / `re impact <event-id>` — upstream / downstream
-  causal cone over recorded events
+- `re why <file>:<line>` — the ledger event recorded against this line, if one matches. A miss is not human.
+- `re trace <file>:<line>` / `re impact <event-id>` — the ledger's declared
+  read/write graph, walked backward or forward. Not a causal proof.
 - `re bisect --test "<cmd>"` — first recorded event that breaks a test
 - `re revert <id>` — restore the pre-state of an event, with a preview
 - MCP server: `re mcp` (stdio) exposes causari_record, causari_recall,
@@ -62,16 +62,21 @@ What Causari does not claim: inline completions (Copilot, Cursor Tab) leave
 no git trace and are invisible to `re audit`; the proxy join is a heuristic
 and says so; a survival ratio is a count, not a quality judgement.
 UNKNOWN (no machine-readable AI metadata) is not human. AI-tagged is not
-AI-written: a trailer, a bot author or a git-ai note is metadata, and a
-person can forge it. A seal proves a key signed these bytes; signed is not
-true. Absence of observed egress is not proof that a job made no other
-connection.
+AI-written: a trailer, a bot author, or a git-ai note that names a non-empty
+tool is metadata, and a person can forge it. Method v4 ignores a git-ai note
+with no named tool; method v3 counted any note. Reports #1 and #2 stay
+method v2. Reports #3 and #4 stay method v3 (report #4 is
+10.5281/zenodo.23196011). A seal proves a key signed these bytes; signed is not true. Absence
+of observed egress is not proof that a job made no other connection.
+A survival ratio is not quality, productivity, total AI usage, authorship,
+security, correctness, or a causal effect.
 
 Evidence classes — do not collapse these into one word:
 - `re audit` JSON: `verified` and `probable` are confidence in git metadata.
   `verified` there means a detection rule matched. It is not a cryptographic
   verification and not a ledger `declared`. The untagged baseline is the
-  commits with no such metadata. Method version is `coverage.method` (v3).
+  commits with no such metadata. Method version is `coverage.method` (v4 in
+  this source; reports #3 and #4 are v3, reports #1 and #2 are v2).
 - Ledger events (`re why`, `re show`, MCP `causari_why`): `declared` (the
   runtime said so), `correlated` (a proxy completion overlapped the diff; a
   score, not a fact), `observed` (a change was seen, cause unknown).
