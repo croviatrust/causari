@@ -11,22 +11,20 @@ use crate::store::Store;
 
 /// `re trace path/to/file.rs:42`
 ///
-/// **The causal cone of a line of code.**
+/// **Declared read/write graph, walked backward.**
 ///
-/// `re why` answers a narrow question: "who wrote this exact line?". `re trace`
-/// answers the *deep* question: "what is the entire intellectual ancestry of
-/// this line?". It walks the history transitively:
+/// `re why` names the one ledger event whose snapshot last contained the
+/// line. `re trace` walks outward from that event:
 ///
-/// 1. Find the writer event W of the target line.
-/// 2. For each file F that W read (declared or inferred), find the most recent
-///    earlier event that *wrote* F. That event is an upstream cause.
-/// 3. Repeat for each newly-added upstream event.
-/// 4. The fixed point is the **causal cone**: the smallest set of past events
-///    whose collective work made the target line possible.
+/// 1. Find the ledger event W associated with the target line.
+/// 2. For each file F that W read (declared or inferred from snapshots),
+///    find the most recent earlier event that wrote F.
+/// 3. Repeat for each newly added event.
+/// 4. The fixed point is the set of ledger events reachable by those edges.
 ///
-/// Nothing else does this. Git blame names one author. `re why` names one
-/// event. `re trace` reconstructs the intellectual chain that produced a
-/// piece of code, with the prompts that drove each step.
+/// The walk is not a proof that those events caused the line, and it is
+/// not an intellectual ancestry. Edges exist only where the ledger recorded
+/// a read or a write.
 pub fn run(args: TraceArgs) -> Result<()> {
     let repo = Repo::discover()?;
     let store = Store::new(&repo);
@@ -157,7 +155,7 @@ fn print_cone(
     println!("  {}", line.bright_white());
     println!();
     println!(
-        "{} {} causal contributors found",
+        "{} {} ledger events reachable by declared reads and writes",
         "trace:".green().bold(),
         cone.len().to_string().cyan()
     );

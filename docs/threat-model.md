@@ -40,16 +40,20 @@ the capped ratio, both published. Small samples: measured but not
 aggregated below the sample floor. A repository cleared or rewritten, so
 that no old line survives whoever wrote it: method v3 names the oldest
 surviving line and counts the commits behind it, and puts the untagged
-lines of the same age next to the AI-tagged ones.
+lines from the matched age windows next to the AI-tagged ones.
 
 **Not defended, by design.** A repository author who wants a higher or
 lower number can tag or untag commits: the audit reads metadata, it does
 not detect AI-written code. Untagged agent commits and inline completions
 are invisible; the report says so in every positioning block. A rewrite of
 history changes what is measured; the `repository.head` in the audit JSON
-says which commit was measured, nothing more. Blame heuristics (`-w -M
+says which commit was measured, nothing more. `refs/notes/ai` is not part
+of the commit object: the SHA can stay the same while the note, and
+therefore a v4 classification, changes. Blame heuristics (`-w -M
 -C`) are stated and can misattribute moved code; the method page lists the
-known artefacts.
+known artefacts. Method v3 counted any parseable git-ai note; method v4
+counts one only when it names a non-empty tool. Published v3 reports are
+not recomputed.
 
 **Assumption.** GitHub serves the same history to us and to the reader.
 
@@ -138,4 +142,4 @@ themselves.
 ## Changes to this document
 
 This file changes when a defence is added or a claim is withdrawn; the
-CHANGELOG entry names the section. Last revised 2026-09-24.
+CHANGELOG entry names the section. Last revised 2026-10-04.

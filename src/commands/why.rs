@@ -10,13 +10,12 @@ use crate::store::Store;
 
 /// `re why path/to/file.rs:42`
 ///
-/// Walks the event history backwards from HEAD until it finds the most recent
-/// event whose post-snapshot introduced or modified that line of that file.
-/// Prints the responsible agent, model, prompt and reasoning.
+/// Walks the ledger backwards from HEAD until it finds the most recent
+/// event whose post-snapshot contains that line of that file.
+/// Prints the recorded agent, model, prompt and evidence class.
 ///
-/// This is the "intent-addressable code" primitive: a piece of source no longer
-/// just has authorship (git blame) — it has *intention* (the prompt that asked
-/// for it, the model that produced it, and the context the agent had).
+/// A match is a ledger event. It is not a finding that the named agent
+/// wrote the line, and a miss is not a finding that a human did.
 pub fn run(args: WhyArgs) -> Result<()> {
     let repo = Repo::discover()?;
     let store = Store::new(&repo);
@@ -50,12 +49,11 @@ pub fn run(args: WhyArgs) -> Result<()> {
         }
         None => {
             println!(
-                "{} no recorded event introduced this line ({} events scanned).",
+                "{} no matching ledger event for this line ({} events scanned).",
                 "not found:".yellow().bold(),
                 scanned
             );
-            println!("  This usually means the line predates the first `re record` for this repo,");
-            println!("  or was written without a recorder running (a human edit, a checkout).");
+            println!("  Absence from this ledger is not a finding about who edited the line.");
             Ok(())
         }
     }
@@ -66,11 +64,7 @@ fn print_attribution(id: &str, ev: &Event, file: &str, line_no: usize, line: &st
     println!("{}", header.bold().underline());
     println!("  {}", line.bright_white());
     println!();
-    println!(
-        "{} {}",
-        "introduced by".green().bold(),
-        (&id[..10]).yellow()
-    );
+    println!("{} {}", "ledger event".green().bold(), (&id[..10]).yellow());
     if let Some(a) = &ev.agent {
         println!("  agent:     {}", a.cyan());
     }

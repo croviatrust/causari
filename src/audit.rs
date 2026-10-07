@@ -14,7 +14,7 @@
 //! Every number carries its evidence class. A commit with no machine-readable
 //! authorship signal is UNKNOWN and never enters the headline figures; since
 //! method v3 those commits form the repository's own baseline (`Baseline`),
-//! so a VERIFIED rate is read next to the untagged rate of the same age.
+//! so a VERIFIED rate is read next to the untagged rate in the matched age windows.
 
 use anyhow::{Context, Result};
 use std::collections::{BTreeMap, HashMap};
@@ -242,7 +242,15 @@ fn contains_word(text: &str, word: &str) -> bool {
 
 /// Agent named in a git-ai authorship log (`refs/notes/ai`, schema
 /// `authorship/x.y.z`): the metadata JSON after the `---` divider carries
-/// `sessions.*.agent_id.tool` (v3) or `prompts.*.agent_id.tool` (legacy).
+/// `sessions.*.agent_id.tool` or `prompts.*.agent_id.tool`.
+///
+/// `schema_version` proves only that the object uses a git-ai schema. A
+/// human-only note, an empty tool, and a note with no tool are not AI
+/// evidence: this function returns `None` and detection continues. A
+/// non-empty tool is qualifying metadata. Sessions are scanned before
+/// prompts. Within one object, `serde_json` iterates keys in lexicographic
+/// order, so two named tools yield one deterministic agent. That choice is
+/// not a finding about which tool wrote the commit.
 fn git_ai_agent(notes: &str) -> Option<String> {
     if !notes.contains("schema_version") {
         return None;
@@ -252,17 +260,21 @@ fn git_ai_agent(notes: &str) -> Option<String> {
     for map in ["sessions", "prompts"] {
         if let Some(obj) = v.get(map).and_then(|m| m.as_object()) {
             for rec in obj.values() {
-                let tool = rec
+                let Some(tool) = rec
                     .get("agent_id")
                     .and_then(|a| a.get("tool"))
-                    .and_then(|t| t.as_str());
-                if let Some(t) = tool {
-                    return Some(canonical_agent(t));
+                    .and_then(|t| t.as_str())
+                else {
+                    continue;
+                };
+                if tool.trim().is_empty() {
+                    continue;
                 }
+                return Some(canonical_agent(tool));
             }
         }
     }
-    Some("ai".into())
+    None
 }
 
 /// Classify a commit as AI-tagged (or not) from its metadata alone: the
@@ -270,7 +282,7 @@ fn git_ai_agent(notes: &str) -> Option<String> {
 ///
 /// Detectors are ordered strongest-first; the first match wins. Trailers are
 /// read from the git trailer block only (see [`parse_trailers`]). Signals:
-/// - git-ai note under `refs/notes/ai`         -> named tool, verified (1.0)
+/// - git-ai note naming a non-empty tool       -> that tool, verified (1.0)
 /// - `Drafted-With`, `AI-Agent`, `Assisted-by`… -> named tool, verified (1.0)
 /// - `Co-Authored-By: Claude`                  -> claude-code, verified (1.0)
 /// - `Co-Authored-By: ... Copilot`             -> github-copilot, verified (1.0)
@@ -282,7 +294,7 @@ pub fn detect_ai(commit: &CommitMeta) -> Option<Detection> {
     let author_lower = commit.author_name.to_lowercase();
     let email_lower = commit.author_email.to_lowercase();
 
-    // git-ai authorship log attached as a note: line-level, machine-written.
+    // git-ai note: a named tool is commit-level metadata, not line attribution.
     if let Some(agent) = git_ai_agent(&commit.notes) {
         return Some(Detection {
             agent,
@@ -658,7 +670,11 @@ pub fn parse_blame_owners(porcelain: &str) -> Vec<String> {
 /// gains a figure a reader must not look for in older results. v3 adds the
 /// untagged baseline of the same repository (`baseline`); every v2 figure is
 /// computed exactly as before and can be compared across the two versions.
-pub const METHOD_VERSION: &str = "v3";
+/// v4 keeps that baseline and every other v3 rule except one: a git-ai note
+/// is AI evidence only when it names a non-empty tool. Method v3 counted any
+/// parseable note, including a schema-only or human-only note, as VERIFIED
+/// agent `ai`. Reports published under v3 stay v3.
+pub const METHOD_VERSION: &str = "v4";
 
 /// Below this many VERIFIED commits a ratio is reported but flagged: one
 /// commit can dominate it.
@@ -830,7 +846,8 @@ impl Default for Coverage {
 pub const AGE_EDGES_DAYS: [u64; 5] = [30, 90, 180, 365, 730];
 
 /// One row of the by-age table: VERIFIED lines and untagged lines that
-/// entered the repository in the same age window.
+/// entered the repository in one age window. A window is a bucket of commit
+/// age, not a single timestamp.
 #[derive(Debug, Default, Clone, PartialEq, serde::Serialize)]
 pub struct AgeBucket {
     pub from_days: u64,
@@ -859,8 +876,9 @@ impl AgeBucket {
 }
 
 /// VERIFIED survival against the untagged survival of the same repository,
-/// at the same age. The untagged rate is re-weighted to the age mix of the
-/// VERIFIED lines (direct standardisation over the comparable buckets), so
+/// inside matched age windows. A window is one bucket of commit age, not a
+/// single timestamp. The untagged rate is re-weighted to the age mix of the
+/// VERIFIED lines in the comparable buckets (direct standardisation), so
 /// "AI code is newer" cannot by itself produce a gap.
 #[derive(Debug, Clone, PartialEq, serde::Serialize)]
 pub struct AgeMatched {
@@ -872,9 +890,9 @@ pub struct AgeMatched {
     /// `tagged_rate - untagged_rate`, in rate units (0.05 = five points).
     pub gap: f64,
     pub buckets_used: usize,
-    /// Share of all VERIFIED introduced lines that lie inside the buckets
-    /// used; below 1.0 some VERIFIED lines had no untagged counterpart of
-    /// the same age.
+    /// Share of all VERIFIED introduced lines that lie inside the matched
+    /// windows. Below 1.0, some VERIFIED lines sit in windows that are not
+    /// comparable, and those lines are not in `gap`.
     pub tagged_lines_covered: f64,
 }
 
@@ -1423,6 +1441,124 @@ mod tests {
         assert_eq!(d.agent, "claude-code");
         assert_eq!(classify(Some(&d)), EvidenceClass::Verified);
         assert!(d.evidence[0].contains("refs/notes/ai"));
+    }
+
+    fn noted(notes: &str) -> CommitMeta {
+        let mut c = meta(
+            "1".repeat(40).as_str(),
+            "Dev",
+            "dev@example.com",
+            "add parser",
+        );
+        c.notes = notes.into();
+        c
+    }
+
+    /// schema_version alone is a schema marker, not AI evidence.
+    #[test]
+    fn schema_only_git_ai_note_is_not_ai() {
+        let c = noted("auth.py\n---\n{\"schema_version\":\"authorship/3.0.0\",\"prompts\":{}}");
+        assert!(detect_ai(&c).is_none());
+    }
+
+    /// A human declaration in the note must not create generic AI attribution.
+    #[test]
+    fn human_only_git_ai_note_is_not_ai() {
+        let c = noted(concat!(
+            "auth.py\n  h1 1-2\n---\n",
+            "{\"schema_version\":\"authorship/3.0.0\",\"prompts\":{},",
+            "\"humans\":{\"h1\":{\"author\":\"Ada Human <ada@example.test>\"}}}"
+        ));
+        assert!(detect_ai(&c).is_none());
+    }
+
+    /// A non-empty tool is qualifying metadata, named as that tool.
+    #[test]
+    fn named_tool_git_ai_note_is_ai_metadata() {
+        let c = noted(concat!(
+            "auth.py\n  p_mock 20-30\n---\n",
+            "{\"schema_version\":\"authorship/3.0.0\",",
+            "\"prompts\":{\"p_mock\":{\"agent_id\":{\"tool\":\"mock_ai\"}}}}"
+        ));
+        let d = detect_ai(&c).expect("named tool");
+        assert_eq!(d.agent, "mock_ai");
+        assert_eq!(d.confidence, 1.0);
+        assert_eq!(classify(Some(&d)), EvidenceClass::Verified);
+        assert!(d.evidence[0].contains("refs/notes/ai"));
+        assert!(!d.evidence[0].to_lowercase().contains("sign"));
+    }
+
+    /// An empty or whitespace tool is ignored. A later non-empty tool still counts.
+    #[test]
+    fn empty_or_blank_tool_is_not_ai_and_does_not_hide_a_later_tool() {
+        for notes in [
+            "auth.py\n---\n{\"schema_version\":\"authorship/3.0.0\",\"prompts\":{\"p\":{\"agent_id\":{\"tool\":\"\"}}}}",
+            "auth.py\n---\n{\"schema_version\":\"authorship/3.0.0\",\"prompts\":{\"p\":{\"agent_id\":{\"tool\":\"   \"}}}}",
+        ] {
+            assert!(detect_ai(&noted(notes)).is_none(), "{notes}");
+        }
+        let c = noted(concat!(
+            "auth.py\n---\n{\"schema_version\":\"authorship/3.0.0\",",
+            "\"sessions\":{\"s\":{\"agent_id\":{\"tool\":\"\"}}},",
+            "\"prompts\":{\"p\":{\"agent_id\":{\"tool\":\"mock_ai\"}}}}"
+        ));
+        assert_eq!(detect_ai(&c).map(|d| d.agent), Some("mock_ai".into()));
+    }
+
+    /// A note with no qualifying tool must not hide an independent trailer.
+    #[test]
+    fn schema_only_note_does_not_hide_an_independent_trailer() {
+        let mut c = noted("auth.py\n---\n{\"schema_version\":\"authorship/3.0.0\",\"prompts\":{}}");
+        c.message = "plain\n\nCo-Authored-By: Claude <noreply@anthropic.com>\n".into();
+        let d = detect_ai(&c).expect("trailer");
+        assert_eq!(d.agent, "claude-code");
+        assert!(d.evidence[0].starts_with("trailer:"));
+    }
+
+    /// A note that is not JSON, or that names a tool without schema_version,
+    /// supplies no git-ai signal.
+    #[test]
+    fn malformed_or_unschematized_git_ai_note_is_not_ai() {
+        assert!(detect_ai(&noted("this note mentions schema_version but is not json")).is_none());
+        assert!(
+            detect_ai(&noted(
+                "auth.py\n---\n{\"prompts\":{\"p\":{\"agent_id\":{\"tool\":\"mock_ai\"}}}}"
+            ))
+            .is_none()
+        );
+    }
+
+    /// Two named tools: one deterministic agent, sessions before prompts,
+    /// lexicographic key within a map. Not a proof of authorship.
+    #[test]
+    fn competing_git_ai_tools_follow_session_key_order() {
+        let mock_on_a = noted(concat!(
+            "{\"schema_version\":\"authorship/3.0.0\",\"sessions\":{",
+            "\"z\":{\"agent_id\":{\"tool\":\"other_ai\"}},",
+            "\"a\":{\"agent_id\":{\"tool\":\"mock_ai\"}}}}"
+        ));
+        assert_eq!(
+            detect_ai(&mock_on_a).map(|d| d.agent),
+            Some("mock_ai".into())
+        );
+        let other_on_a = noted(concat!(
+            "{\"schema_version\":\"authorship/3.0.0\",\"sessions\":{",
+            "\"z\":{\"agent_id\":{\"tool\":\"mock_ai\"}},",
+            "\"a\":{\"agent_id\":{\"tool\":\"other_ai\"}}}}"
+        ));
+        assert_eq!(
+            detect_ai(&other_on_a).map(|d| d.agent),
+            Some("other_ai".into())
+        );
+        let sessions_first = noted(concat!(
+            "{\"schema_version\":\"authorship/3.0.0\",",
+            "\"prompts\":{\"p\":{\"agent_id\":{\"tool\":\"mock_ai\"}}},",
+            "\"sessions\":{\"s\":{\"agent_id\":{\"tool\":\"other_ai\"}}}}"
+        ));
+        assert_eq!(
+            detect_ai(&sessions_first).map(|d| d.agent),
+            Some("other_ai".into())
+        );
     }
 
     #[test]
@@ -2248,14 +2384,14 @@ mod tests {
         detections.insert(c.hash.clone(), detection("claude-code", 1.0));
         let owners = vec![c.hash.clone()];
         let report = compute_survival(&[(c, 3)], &detections, &owners, 0);
-        assert_eq!(report.coverage.method, "v3");
+        assert_eq!(report.coverage.method, "v4");
         assert_eq!(report.coverage.blame_flags, vec!["-w", "-M", "-C"]);
         assert_eq!(report.coverage.sample_floor, 5);
         assert!(report.coverage.small_sample);
         assert!(!report.coverage.shallow);
 
         let v = serde_json::to_value(&report).unwrap();
-        assert_eq!(v["coverage"]["method"], "v3");
+        assert_eq!(v["coverage"]["method"], "v4");
         assert_eq!(v["verified"]["survival_rate"], 1.0 / 3.0);
         assert_eq!(v["by_agent"]["claude-code"]["median_survival"], 1.0 / 3.0);
     }
@@ -2267,7 +2403,14 @@ mod tests {
     /// synthetic repositories these tests build.
     fn run_git(dir: &Path, args: &[&str]) {
         let ok = Command::new("git")
-            .args(["-c", "commit.gpgsign=false", "-c", "tag.gpgsign=false"])
+            .args([
+                "-c",
+                "commit.gpgsign=false",
+                "-c",
+                "tag.gpgsign=false",
+                "-c",
+                "trace2.eventTarget=",
+            ])
             .args(args)
             .current_dir(dir)
             .env("GIT_AUTHOR_NAME", "Tarik")
@@ -2451,8 +2594,9 @@ mod tests {
         assert_eq!(report.verified.surviving, report.verified.introduced);
     }
 
-    /// Expected: a person whose author name is Claude, Devin or Jules, and
-    /// whose email is their own, is UNKNOWN. The bot address still matches.
+    /// Expected: a person whose author name is Claude, Devin, Jules, Gemini
+    /// or Cursor, and whose email is their own, is UNKNOWN. The bot address
+    /// still matches.
     /// `Verified` on that address is metadata, not a signature.
     #[test]
     fn human_authors_named_like_agents_are_unknown() {
@@ -2460,6 +2604,8 @@ mod tests {
             ("Claude", "claude.person@example.com"),
             ("Devin", "devin@example.com"),
             ("Jules", "jules@example.com"),
+            ("Gemini", "gemini.person@example.com"),
+            ("Cursor", "cursor.person@example.com"),
         ] {
             let c = meta("a".repeat(40).as_str(), name, email, "hand written");
             assert!(detect_ai(&c).is_none(), "{name} <{email}>");
@@ -2554,6 +2700,90 @@ mod tests {
         assert_eq!(report.verified.introduced, 2);
         assert_eq!(report.verified.surviving, 2);
         assert!(report.by_agent.contains_key("claude-code"));
+    }
+
+    /// The commit object does not include refs/notes/ai. Adding and removing
+    /// a note leaves the SHA unchanged and can change the class.
+    #[test]
+    fn note_mutation_does_not_change_commit_sha() {
+        let tmp = synthetic_repo();
+        let dir = tmp.path();
+        std::fs::write(dir.join("auth.py"), "line\n").unwrap();
+        commit_all(dir, "hand written");
+        let sha = head_hash(dir);
+        let before = audit_repo(dir, &AuditOptions::default()).unwrap();
+        assert_eq!(before.verified.commits, 0);
+
+        let note_path = dir.join("note.txt");
+        std::fs::write(
+            &note_path,
+            concat!(
+                "auth.py\n  p 1\n---\n",
+                "{\"schema_version\":\"authorship/3.0.0\",",
+                "\"prompts\":{\"p\":{\"agent_id\":{\"tool\":\"mock_ai\"}}}}\n"
+            ),
+        )
+        .unwrap();
+        run_git(
+            dir,
+            &[
+                "notes",
+                "--ref=ai",
+                "add",
+                "-f",
+                "-F",
+                note_path.to_str().unwrap(),
+                "HEAD",
+            ],
+        );
+        assert_eq!(head_hash(dir), sha);
+        let mid = audit_repo(dir, &AuditOptions::default()).unwrap();
+        assert_eq!(mid.verified.commits, 1);
+        assert!(mid.by_agent.contains_key("mock_ai"));
+
+        run_git(dir, &["notes", "--ref=ai", "remove", "HEAD"]);
+        assert_eq!(head_hash(dir), sha);
+        let after = audit_repo(dir, &AuditOptions::default()).unwrap();
+        assert_eq!(after.verified.commits, 0);
+    }
+
+    /// A named tool on a line range classifies the commit. Survival then
+    /// counts that commit's introduced lines, not the range. Method
+    /// granularity, not line attribution.
+    #[test]
+    fn named_tool_range_classifies_the_whole_commit() {
+        let tmp = synthetic_repo();
+        let dir = tmp.path();
+        let body: String = (1..=100).map(|i| format!("line {i}\n")).collect();
+        std::fs::write(dir.join("auth.py"), body).unwrap();
+        commit_all(dir, "hundred lines");
+        let note_path = dir.join("note.txt");
+        std::fs::write(
+            &note_path,
+            concat!(
+                "auth.py\n  p_mock 20-30\n---\n",
+                "{\"schema_version\":\"authorship/3.0.0\",",
+                "\"prompts\":{\"p_mock\":{\"agent_id\":{\"tool\":\"mock_ai\"}}}}\n"
+            ),
+        )
+        .unwrap();
+        run_git(
+            dir,
+            &[
+                "notes",
+                "--ref=ai",
+                "add",
+                "-f",
+                "-F",
+                note_path.to_str().unwrap(),
+                "HEAD",
+            ],
+        );
+        let report = audit_repo(dir, &AuditOptions::default()).unwrap();
+        assert_eq!(report.verified.commits, 1);
+        assert_eq!(report.verified.introduced, 100);
+        assert!(report.by_agent.contains_key("mock_ai"));
+        assert!(!report.by_agent.contains_key("ai"));
     }
 
     /// Expected: cherry-pick, squash and amend that drop the trailer leave

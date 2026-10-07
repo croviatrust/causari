@@ -51,6 +51,8 @@ $ re audit
 
 AI-tagged (metadata matched): 14 commits, 6267 introduced, 5185 survived
   survival 82.7% line-weighted · 82.7% capped · median 92.8%
+  Of the lines introduced by metadata-matched commits, this percentage is the share `git blame -w -M -C` still attributes to those commits. It is not the share of the repository and it is not a quality score. Metadata matched does not prove who wrote each line. UNKNOWN and untagged are commits with no such signal; they are not a finding that a human wrote them.
+  Age-matched gap: +2.9 percentage points (AI-tagged 85.6% minus untagged 82.7% in the matched age windows). Positive means the metadata-matched lines have the higher line-weighted survival in those windows, over 1 matched age window holding 75% of the AI-tagged lines. Lines outside those windows are not in this gap.
 Probable AI-assisted: none detected
 By agent (metadata matched only)
   agent                commits introduced  survived  line-wt   capped   median
@@ -62,7 +64,7 @@ Baseline: untagged lines of the same repository
       0-30 d       85.6% (13 commits)      82.7% (142 commits)
      30-90 d                        —       75.8% (23 commits)   (below floor on one side)
     90-180 d         73.9% (1 commit)       62.6% (37 commits)   (below floor on one side)
-  age-matched: AI-tagged 85.6% vs untagged 82.7% of the same age → +2.9 points, over 1 window holding 75% of AI-tagged lines
+  Age-matched gap: +2.9 percentage points (AI-tagged 85.6% minus untagged 82.7% in the matched age windows). Positive means the metadata-matched lines have the higher line-weighted survival in those windows, over 1 matched age window holding 75% of the AI-tagged lines. Lines outside those windows are not in this gap.
 
 Confidence notes
   · JSON field `verified` = metadata matched (trailers, bot author, …), not authorship proved
@@ -71,15 +73,46 @@ Confidence notes
     the untagged baseline (human, inline-completed and untagged-agent code alike)
   · Only lines from AI-tagged commits are measured; inline completions
     (Copilot, Cursor Tab, …) leave no git trace and are invisible here
-  · A measurement, not a grade: method v3 at https://causari.dev/method
+  · A measurement, not a grade: method v4 at https://causari.dev/method
+
+Reading and export
+  · The age-matched gap above is the comparison. An agent row marked below floor is not comparable.
+    Meeting the floor is not a reliability guarantee.
+  · Export: `re audit <target> --json`, `--summary`, `--seal`, `--badge`, `--card`.
+    `re report` reads the local ledger. It does not export this audit.
 ```
+
+The percentage is how many lines `git blame` still attributes to commits this method tagged. It is not code quality, developer productivity, total AI usage, proof a model wrote the line, security, correctness, or a causal effect of AI. An agent row under 5 commits is marked below floor; 5 commits is the comparability floor, not a reliability guarantee.
+
+A git-ai note counts only when it names a non-empty tool (method v4). A schema-only note, a human-only note, and an empty tool do not. Method v3 counted any git-ai note. Survival Reports #1 and #2 stay method v2. Reports #3 and #4, and any audit from the 0.3.0 release, stay method v3. Report #4 is [10.5281/zenodo.23196011](https://doi.org/10.5281/zenodo.23196011). Those reports are not recomputed.
+
+## Fifteen minutes
+
+```bash
+curl -fsSL https://causari.dev/install.sh | sh
+cd /path/to/a/git/repo
+re audit
+```
+
+Read three lines of the output. **AI-tagged (metadata matched)** is the cohort whose commit metadata matched a rule. **Baseline** is every other commit: untagged, not "human". The survival percentage is the line-weighted persistence of the tagged cohort. It does not prove who typed the code. The rules and the limits are at [causari.dev/method](https://causari.dev/method).
+
+The ledger is a second path, local and gitignored, used only if you record:
+
+```text
+git history → re audit → survival counts
+hooks or proxy → .causari/ → re why / trace / lens
+```
+
+A seal signs the audit bytes. It does not connect the two paths.
 
 Everyone argues about how much code AI writes. Nobody can check the numbers.
 `re audit` reads plain git history — `Co-Authored-By` trailers, bot authors,
 agent markers — finds the commits whose metadata matched, and asks `git blame`
 how many of their lines are still at HEAD. Metadata matched is not proof a
-model wrote the line. No model, no estimate, no survey. Anyone re-runs it
-and gets the same bytes.
+model wrote the line. No model, no estimate, no survey. `--json` stores the counts, `repository.head`, the method and the blame flags.
+It does not store `refs/notes/ai`. That ref is not part of the commit, and
+changing it can change the counts while the stored SHA stays the same. A
+repository that has moved has a different commit.
 
 - `--json` the exact bytes behind any published row
 - `--summary` Markdown for CI; `--badge` / `--card` one-colour SVGs
@@ -87,8 +120,8 @@ and gets the same bytes.
 
 **Compared with what**: since method v3 every audit puts the repository's
 own untagged lines next to the AI-tagged ones, by line age, and states the
-age-matched gap: AI-tagged survival against untagged survival of the same
-age in the same repository. It also names the oldest line still at HEAD and
+age-matched gap: AI-tagged survival minus untagged survival inside the
+matched age windows of the same repository, not a comparison of identical timestamps. It also names the oldest line still at HEAD and
 how many commits predate it: a repository that was cleared or rewritten
 shows there, and its ratio is read accordingly.
 

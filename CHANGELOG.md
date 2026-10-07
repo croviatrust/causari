@@ -5,6 +5,36 @@ release workflow copies it verbatim. Counts, not adjectives.
 
 ## Unreleased
 
+### Method v4
+
+Not released. Published reports stay on the method that produced them.
+Reports #1 and #2 stay method v2. Reports #3 and #4, and the 0.3.0 binary,
+stay method v3. Report #4 is DOI 10.5281/zenodo.23196011. This source
+computes v4 and does not recompute those reports. The crate version is
+still 0.3.0 until a release is cut; `coverage.method` is the method, not
+the crate version.
+
+- A git-ai note is AI evidence only when `sessions` or `prompts` names a
+  non-empty tool. A schema-only note, a human-only note, and an empty or
+  whitespace tool are not a signal, and they do not hide a later tool or
+  an independent trailer. Named-tool notes stay. `refs/notes/ai` is not
+  removed. The JSON key `verified` still means a metadata rule matched.
+- The same repository can change number relative to v3. On the Report #3
+  corpus the schema-only fallback was two commits; the aggregate moved
+  −0.0023 percentage points and the median gap did not. Report #3 is not
+  recomputed and its DOI is unchanged. Report #4 is not recomputed either.
+- The first survival percentage is followed by what it measures, and by the
+  age-matched gap in percentage points (metadata-matched rate minus untagged
+  rate in the matched age windows) or by an explicit unavailable. An agent row under
+  the floor of 5 is marked not comparable. Meeting the floor is not a
+  reliability guarantee. `re report` outside a ledger names `re audit`.
+  The Windows installer prints the executable path, `re audit owner/repo`,
+  and a warning when `git` is not on PATH.
+- Commit granularity is unchanged: a qualifying signal tags the commit.
+- `re why`, `re trace`, `re impact`, `re lens` and the `re revert` preview
+  describe the local ledger graph. They do not claim cause or human
+  authorship from absence.
+
 ### PNX
 
 - **Reach record** (PNX draft 0.4 §4a, `crovia.pnx.reach.v1`): the run

@@ -385,7 +385,7 @@ def aggregate_baseline(aggregated: list[dict[str, Any]], seed: int, sample_floor
             "AI-tagged lines of the same repository, over age windows where both cohorts hold at least "
             f"{sample_floor} commits, computed inside each repository; untagged = commits with no machine-readable AI signal (human-written, "
             "inline-completed and untagged-agent code alike); age = commit date to HEAD date. A negative gap "
-            "means AI-tagged lines survive less than untagged lines of the same age in the same repository."
+            "means AI-tagged lines survive less than untagged lines in the matched age windows of the same repository."
         ),
     }
 
@@ -717,14 +717,16 @@ POSITIONING = {
     "is": (
         "This report counts lines. For each repository it states how many lines were introduced by commits "
         "that carry machine-readable AI authorship metadata (trailers such as Co-Authored-By naming an agent, "
-        "bot author identities, aider markers, git-ai notes), and how many of those lines git blame still "
+        "bot author identities, aider markers, and, from method v4, git-ai notes that name a non-empty tool; method v3 counted any git-ai note), and how many of those lines git blame still "
         "attributes to those commits at HEAD, under the method version stated on the page (blame with -w -M -C, "
         "a per-commit weight cap, a sample floor, full clones only; from method v3 the untagged lines of the same "
-        "repository, at the same age, stand next to the AI-tagged ones). Every row is reproducible with one command."
+        "repository, in the matched age windows, stand next to the AI-tagged ones). Every row is reproducible with one command."
     ),
     "is_not": (
-        "It is not a quality judgement: deleted lines include removed features and rewritten prototypes; "
-        "surviving lines include dead code. It is not a sample of all AI-assisted code: inline completions "
+        "It is not a quality judgement, a productivity measure, total AI usage, proof of authorship, "
+        "a security finding, a correctness finding, or a causal effect of AI. Deleted lines include "
+        "removed features and rewritten prototypes; surviving lines include dead code. It is not a "
+        "sample of all AI-assisted code: inline completions "
         "leave no trace in git, untagged agent commits are invisible, and {selection} "
         "The intervals describe the sampled repositories only."
     ),
@@ -773,7 +775,7 @@ def baseline_md(f: dict[str, Any]) -> list[str]:
     b = (f.get("aggregate") or {}).get("baseline")
     if not b or not b.get("repositories"):
         return []
-    lines = ["", "## Baseline: the same repositories' untagged lines, at the same age", "",
+    lines = ["", "## Baseline: the same repositories' untagged lines, in the matched age windows", "",
              b["definition"], ""]
     if b.get("repositories_with_gap"):
         lines.append(f"- Repositories with an age-matched gap: {b['repositories_with_gap']} of {b['repositories']} with a baseline")
@@ -900,7 +902,7 @@ def report_md(f: dict[str, Any]) -> str:
         lines.append("")
     lines += baseline_md(f)
     has_baseline = any(r.get("baseline") for r in f["repositories"])
-    extra_head = " Untagged, same age | Gap |" if has_baseline else ""
+    extra_head = " Untagged, matched windows | Gap |" if has_baseline else ""
     extra_sep = "---:|---:|" if has_baseline else ""
     lines += ["", "## Repositories (alphabetical)", "",
               f"| Repository | Commits | AI-tagged | Introduced | Still at HEAD | Line-weighted | Capped | Median per commit | Largest commit |{extra_head} Reproduce |",
@@ -1252,7 +1254,7 @@ def render_report(f: dict[str, Any]) -> str:
                               "their rows measure the rewrite as much as the code, and the gap is the figure to read.</p>")
         baseline_section = f"""
     <div class="rp-section" id="baseline">
-    <h3>Baseline: the same repositories' untagged lines, at the same age</h3>
+    <h3>Baseline: the same repositories' untagged lines, in the matched age windows</h3>
     <p class="muted">{esc(b['definition'])}</p>
     <p>{esc(gap_line)}{esc(pooled_line)}</p>
     {rewritten_line}
@@ -1353,10 +1355,10 @@ def render_report(f: dict[str, Any]) -> str:
 {strip}
     <div class="rp-section">
     <h3 id="repositories">Repositories</h3>
-    <p class="muted">Alphabetical. VERIFIED commits only; PROBABLE counts are shown but never summed. <em>Capped</em>: no commit weighs more than the cap. <em>Median per commit</em>: the middle commit's own ratio. <em>Largest commit</em>: share of introduced lines from the single largest commit.{' <em>Untagged, same age</em>: the survival of the repository&#39;s own untagged lines, re-weighted to the age mix of its AI-tagged lines; <em>Gap</em>: the AI-tagged ratio minus that, in points (definition in the <a href="#baseline">Baseline</a> section).' if has_baseline else ''} Every number links to the audit bytes of this run; <code translate="no">{esc(m['command'])}</code> reproduces a row. Each repository name links to <a href="/{REPOS_REL}/">its own page</a>: history across reports and a badge.</p>
+    <p class="muted">Alphabetical. VERIFIED commits only; PROBABLE counts are shown but never summed. <em>Capped</em>: no commit weighs more than the cap. <em>Median per commit</em>: the middle commit's own ratio. <em>Largest commit</em>: share of introduced lines from the single largest commit.{' <em>Untagged, matched windows</em>: the survival of the repository&#39;s own untagged lines, re-weighted to the age mix of its AI-tagged lines inside matched age windows; <em>Gap</em>: the AI-tagged ratio minus that, in points (definition in the <a href="#baseline">Baseline</a> section).' if has_baseline else ''} Every number links to the audit bytes of this run; <code translate="no">{esc(m['command'])}</code> reproduces a row. Each repository name links to <a href="/{REPOS_REL}/">its own page</a>: history across reports and a badge.</p>
     <div class="tbl-scroll wide">
       <table class="lb-table" id="repos">
-        <thead><tr><th>Repository</th><th>Commits</th><th>AI-tagged</th><th>Lines introduced</th><th>Still at HEAD</th><th>Line-weighted</th><th>Capped</th><th>Median per commit</th><th>Largest commit</th>{'<th>Untagged, same age</th><th>Gap</th>' if has_baseline else ''}</tr></thead>
+        <thead><tr><th>Repository</th><th>Commits</th><th>AI-tagged</th><th>Lines introduced</th><th>Still at HEAD</th><th>Line-weighted</th><th>Capped</th><th>Median per commit</th><th>Largest commit</th>{'<th>Untagged, matched windows</th><th>Gap</th>' if has_baseline else ''}</tr></thead>
         <tbody>
 {repo_rows(f['repositories'], full=True, baseline=has_baseline)}
         </tbody>
@@ -1739,7 +1741,7 @@ def render_repo_page(e: dict[str, Any]) -> str:
         am = bl.get("age_matched")
         o = bl.get("oldest_surviving")
         if am and am.get("gap") is not None:
-            gap_text = (f"Age-matched: AI-tagged lines {fmt_pct(am['tagged_rate'])} against untagged lines of the same age "
+            gap_text = (f"Age-matched: AI-tagged lines {fmt_pct(am['tagged_rate'])} against untagged lines in the matched age windows "
                         f"{fmt_pct(am['untagged_rate'])}, a gap of {fmt_gap(am['gap'])}, over {am['buckets_used']} age window"
                         f"{'s' if am['buckets_used'] != 1 else ''} holding {fmt_share(am['tagged_lines_covered'])} of the AI-tagged lines.")
         else:
@@ -1760,7 +1762,7 @@ def render_repo_page(e: dict[str, Any]) -> str:
         baseline = f"""
     <div class="rp-section" id="baseline">
     <h3>Baseline: this repository's untagged lines</h3>
-    <p class="muted">Commits with no machine-readable AI signal, human-written, inline-completed or untagged-agent code alike: {fmt_int(u['commits'])} commits, {fmt_int(u['introduced'])} lines introduced, {fmt_int(u['surviving'])} still at HEAD ({fmt_pct(u['survival_rate'])} line-weighted, {fmt_pct(u['median_survival'])} median per commit). Age is the time from a commit to HEAD. Method v3; definition at <a href="/method#v3">causari.dev/method</a>.</p>
+    <p class="muted">Commits with no machine-readable AI signal, human-written, inline-completed or untagged-agent code alike: {fmt_int(u['commits'])} commits, {fmt_int(u['introduced'])} lines introduced, {fmt_int(u['surviving'])} still at HEAD ({fmt_pct(u['survival_rate'])} line-weighted, {fmt_pct(u['median_survival'])} median per commit). Age is the time from a commit to HEAD. The baseline was added in method v3 and is unchanged later; definition at <a href="/method#v3">causari.dev/method</a>.</p>
     <p>{esc(gap_text)}{rewrite_text}</p>
     <div class="tbl-scroll">
       <table class="lb-table" id="by-age">

@@ -95,6 +95,17 @@ if ($userPath -notlike "*$BinDir*") {
 # ---- cleanup ----
 Remove-Item -Recurse -Force $tmp -ErrorAction SilentlyContinue
 
+# ---- git on PATH ----
+$gitCmd = Get-Command git -ErrorAction SilentlyContinue
+if (-not $gitCmd) {
+  Warn 'git was not found on PATH. Causari reads git history; install Git for Windows, then open a new terminal. Until git is on PATH, re audit cannot read a repository.'
+} else {
+  Say "git: $($gitCmd.Source)"
+}
+
 # ---- post ----
 try { & $dst --version } catch { }
-Say 'done. Try: re audit'
+Say "installed $dst"
+Say 'this window may not see the updated user PATH yet. Open a new terminal, then run:'
+Say '  re audit owner/repo'
+Say "until that terminal exists, the full command is: & '$dst' audit owner/repo"

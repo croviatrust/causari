@@ -15,18 +15,13 @@ pub type ImpactedEvent = (String, Vec<(PathBuf, String)>);
 
 /// `re impact <event-id>`
 ///
-/// **The downstream causal cone.**
+/// **Declared read/write graph, walked forward.**
 ///
-/// `re trace` looks backward: what made this code exist? `re impact` looks
-/// forward: what flowed *out* of this action? It walks every later event and
-/// asks "did this event depend on a file produced (directly or transitively)
-/// by the source event?". The fixed point is the blast radius: the smallest
-/// set of subsequent events that would not have happened the way they did,
-/// had the source event been different.
-///
-/// Combined with `re trace`, Causari owns the full bidirectional causal graph
-/// of a codebase's evolution. This enables a question no tool has answered:
-/// *"if I revert event X, what else am I implicitly undoing?"*
+/// `re trace` walks backward from a line. `re impact` walks forward from an
+/// event: a later event is included when it reads a file this event wrote,
+/// directly or through another included event. The result is that set of
+/// ledger events. It is not a finding that those events would not have
+/// happened, or would have happened differently, without the source event.
 pub fn run(args: ImpactArgs) -> Result<()> {
     let repo = Repo::discover()?;
     let store = Store::new(&repo);
@@ -37,7 +32,7 @@ pub fn run(args: ImpactArgs) -> Result<()> {
     let source_ev = store.read_event(&source_id)?;
     println!(
         "{} impact of {}",
-        "blast radius:".magenta().bold(),
+        "later readers:".magenta().bold(),
         (&source_id[..10]).yellow()
     );
     if let Some(m) = &source_ev.message {
@@ -56,14 +51,14 @@ pub fn run(args: ImpactArgs) -> Result<()> {
 
     if impacted.is_empty() {
         println!(
-            "  {} no later event depended on anything this one produced.",
+            "  {} no later ledger event reads a file this one wrote.",
             "clean:".green().bold()
         );
         return Ok(());
     }
 
     println!(
-        "  {} {} downstream event(s) depend on this one",
+        "  {} {} later ledger event(s) read a file this one wrote",
         "→".magenta(),
         impacted.len().to_string().cyan()
     );

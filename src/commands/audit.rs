@@ -111,8 +111,11 @@ fn resolve_target(target: Option<&str>) -> Result<(PathBuf, Option<TempClone>)> 
 /// line-weighted rate and the robust figures; `coverage` says how it was
 /// measured and `repository` names what was measured — the commit at HEAD
 /// and the origin label (credentials stripped, or a digest of the path when
-/// there is no remote). Two audits with the same `repository.head` measured
-/// the same tree, whatever name the repository goes by.
+/// there is no remote). The same `repository.head` is the same commit, not
+/// a promise that a later audit matches: classification also reads
+/// `refs/notes/ai`, which is not part of the commit, plus the method and
+/// the blame flags in `coverage`. A repository that has moved has a
+/// different head.
 fn report_json(dir: &Path, report: &SurvivalReport) -> Result<serde_json::Value> {
     let mut value = serde_json::to_value(report)?;
     value["method"] = serde_json::json!(METHOD_VERSION);
@@ -237,21 +240,21 @@ pub fn run(args: AuditArgs) -> Result<()> {
         return Ok(());
     }
 
+    let head = crate::audit::head_commit(&dir).ok();
     if args.summary {
-        print_summary(&report);
+        print_summary(&report, head.as_deref());
     } else {
-        print_terminal(&report);
-        // The audit reads git metadata only. Recording causes from here on
-        // is a different command; say so once, only for the working repo.
+        print_terminal(&report, head.as_deref());
+        // The ledger is a different store. Say so once, only for a working
+        // tree that does not already have one, so `re report` is not the
+        // next step after this audit.
         if tmp_clone.is_none() && !dir.join(".causari").is_dir() {
             println!();
             println!(
-                "  {} git metadata says who tagged a commit, not why a line exists.",
-                "next:".bright_black()
+                "  {} this audit did not use a ledger. `re report` reads a local ledger and fails in this directory.",
+                "ledger:".bright_black()
             );
-            println!(
-                "        `re init` starts the ledger here; `re hook claude-code` records Claude Code sessions."
-            );
+            println!("         `re init` creates that ledger. It does not export the audit above.");
         }
     }
 
@@ -348,7 +351,120 @@ pub fn run(args: AuditArgs) -> Result<()> {
     Ok(())
 }
 
-fn print_terminal(report: &SurvivalReport) {
+/// Under the first percentage: what the rate is, and what a missing tag is not.
+fn print_survival_reading(report: &SurvivalReport) {
+    if report.verified.commits == 0 {
+        println!(
+            "  No metadata-matched commits. That is not a finding that the repository \
+             contains no AI-written lines. UNKNOWN and untagged are commits with no such \
+             signal; they are not a finding that a human wrote them."
+        );
+        return;
+    }
+    println!("  {}", survival_reading(report));
+}
+
+fn survival_reading(report: &SurvivalReport) -> String {
+    format!(
+        "Of the lines introduced by metadata-matched commits, this percentage is the share \
+         `git blame {}` still attributes to those commits. It is not the share of the \
+         repository and it is not a quality score. Metadata matched does not prove who \
+         wrote each line. UNKNOWN and untagged are commits with no such signal; they are \
+         not a finding that a human wrote them.",
+        report.coverage.blame_flags.join(" ")
+    )
+}
+
+/// `gap` is tagged line-weighted survival minus untagged line-weighted survival,
+/// in rate units. Printed in percentage points, with the direction named.
+fn age_matched_sentence(b: &Baseline, floor: u64) -> String {
+    match &b.age_matched {
+        Some(m) => format!(
+            "Age-matched gap: {:+.1} percentage points (AI-tagged {} minus untagged {} in the matched age windows). \
+             Positive means the metadata-matched lines have the higher line-weighted survival in those windows, \
+             over {} matched age window{} holding {:.0}% of the AI-tagged lines. \
+             Lines outside those windows are not in this gap.",
+            m.gap * 100.0,
+            pct(Some(m.tagged_rate)),
+            pct(Some(m.untagged_rate)),
+            m.buckets_used,
+            plural(m.buckets_used as u64),
+            m.tagged_lines_covered * 100.0,
+        ),
+        None => format!(
+            "Age-matched gap: unavailable. No age window holds at least {floor} commits of both \
+             kinds, so there is no comparison across matched age windows."
+        ),
+    }
+}
+
+fn below_floor_sentence(commits: u64, floor: u64) -> String {
+    format!(
+        "below floor: {commits} commit{} (floor {floor}); not comparable. \
+         Meeting the floor is not a reliability guarantee.",
+        plural(commits),
+    )
+}
+
+fn print_export_footer(report: &SurvivalReport, head: Option<&str>, markdown: bool) {
+    let flags = report.coverage.blame_flags.join(" ");
+    let head_text = match head {
+        Some(h) => format!("commit `{h}`"),
+        None => "the commit in `repository.head`".to_string(),
+    };
+    if markdown {
+        println!();
+        println!(
+            "Read the age-matched gap as the comparison. An agent line marked below floor is not \
+             comparable. Meeting the floor is not a reliability guarantee."
+        );
+        println!();
+        println!(
+            "Export: `re audit <target> --json` (the counts and {head_text}), `--summary` for this \
+             Markdown, `--seal` to sign those JSON bytes for that commit and method {}. \
+             `--badge` and `--card` write SVGs. `re report` is the local ledger, not this audit.",
+            report.coverage.method
+        );
+        println!();
+        println!(
+            "The export stores the counts, {head_text}, method {}, blame `{flags}`, and the coverage flags. \
+             It does not store `refs/notes/ai`. That ref is not part of the commit; adding or removing \
+             it can change the counts while the stored SHA stays the same. A repository that has moved \
+             has a different commit, and this export does not reproduce it.",
+            report.coverage.method
+        );
+        return;
+    }
+    println!();
+    println!("{}", "Reading and export".bright_black().bold());
+    println!(
+        "  · The age-matched gap above is the comparison. An agent row marked below floor is not comparable."
+    );
+    println!("    Meeting the floor is not a reliability guarantee.");
+    println!(
+        "  · Export: `re audit <target> --json` (counts and {head_text}), `--summary` for Markdown,"
+    );
+    println!(
+        "    `--seal` signs those JSON bytes for that commit and method {}. `--badge` and `--card` write SVGs.",
+        report.coverage.method
+    );
+    println!("    `re report` reads the local ledger. It does not export this audit.");
+    println!(
+        "  · Stored in `--json` and in `--seal`: the counts, {head_text}, method {}, blame `{flags}`,",
+        report.coverage.method
+    );
+    println!(
+        "    plus coverage flags (shallow, ignore-revs, sample floor). `refs/notes/ai` is not stored."
+    );
+    println!(
+        "    That ref is not part of the commit. Adding or removing it can change the counts while the SHA stays."
+    );
+    println!(
+        "    A repository that has moved has a different commit, and this export does not reproduce it."
+    );
+}
+
+fn print_terminal(report: &SurvivalReport, head: Option<&str>) {
     println!("{}", "∵ causari · AI code survival".bold());
     println!(
         "{}",
@@ -360,8 +476,16 @@ fn print_terminal(report: &SurvivalReport) {
     );
     println!();
 
-    print_class(LABEL_TAGGED, &report.verified);
-    print_class("Probable AI-assisted", &report.probable);
+    print_class(LABEL_TAGGED, &report.verified, false);
+    print_survival_reading(report);
+    println!(
+        "  {}",
+        age_matched_sentence(&report.baseline, report.coverage.sample_floor)
+    );
+    if let Some(sentence) = dominance_sentence(&report.verified) {
+        println!("  {sentence}");
+    }
+    print_class("Probable AI-assisted", &report.probable, true);
 
     if !report.by_agent.is_empty() {
         println!("{}", LABEL_BY_AGENT.bold());
@@ -383,10 +507,16 @@ fn print_terminal(report: &SurvivalReport) {
             if let Some(sentence) = dominance_sentence(stat) {
                 println!("    {sentence}");
             }
+            if stat.commits < report.coverage.sample_floor {
+                println!(
+                    "    {}",
+                    below_floor_sentence(stat.commits, report.coverage.sample_floor)
+                );
+            }
         }
     }
 
-    print_baseline(&report.baseline);
+    print_baseline(&report.baseline, report.coverage.sample_floor);
 
     println!();
     println!("{}", "Confidence notes".bright_black().bold());
@@ -428,9 +558,10 @@ fn print_terminal(report: &SurvivalReport) {
         "  · A measurement, not a grade: method {} at https://causari.dev/method",
         report.coverage.method
     );
+    print_export_footer(report, head, false);
 }
 
-fn print_summary(report: &SurvivalReport) {
+fn print_summary(report: &SurvivalReport, head: Option<&str>) {
     let v = &report.verified;
 
     // A measurement, not a grade: no colour, no verdict. The reader judges.
@@ -451,6 +582,13 @@ fn print_summary(report: &SurvivalReport) {
 
     if v.commits > 0 {
         println!("{}", tagged_summary_bold(v));
+        println!();
+        println!("{}", survival_reading(report));
+        println!();
+        println!(
+            "{}",
+            age_matched_sentence(&report.baseline, report.coverage.sample_floor)
+        );
         if let Some(sentence) = dominance_sentence(v) {
             println!();
             println!("_{sentence}._");
@@ -458,7 +596,7 @@ fn print_summary(report: &SurvivalReport) {
         if report.coverage.small_sample {
             println!();
             println!(
-                "_Small sample: {} AI-tagged commit{} (floor {}). Read the figures as counts, not rates._",
+                "_Small sample: {} AI-tagged commit{} (floor {}). Read the figures as counts, not rates. Meeting the floor is not a reliability guarantee._",
                 v.commits,
                 plural(v.commits),
                 report.coverage.sample_floor
@@ -466,6 +604,16 @@ fn print_summary(report: &SurvivalReport) {
         }
         println!();
         summary_baseline(&report.baseline);
+    } else {
+        println!(
+            "No metadata-matched commits. That is not a finding that the repository contains no AI-written lines."
+        );
+        println!();
+        println!(
+            "{}",
+            age_matched_sentence(&report.baseline, report.coverage.sample_floor)
+        );
+        println!();
     }
     if report.probable.commits > 0 {
         println!(
@@ -500,9 +648,24 @@ fn print_summary(report: &SurvivalReport) {
             .iter()
             .filter_map(|(agent, stat)| dominance_sentence(stat).map(|s| format!("{agent}: {s}")))
             .collect();
-        if !dominated.is_empty() {
+        let below: Vec<String> = report
+            .by_agent
+            .iter()
+            .filter(|(_, stat)| stat.commits < report.coverage.sample_floor)
+            .map(|(agent, stat)| {
+                format!(
+                    "{agent}: {}",
+                    below_floor_sentence(stat.commits, report.coverage.sample_floor)
+                )
+            })
+            .collect();
+        if !dominated.is_empty() || !below.is_empty() {
             println!();
             for line in dominated {
+                println!("_{line}._  ");
+            }
+            for line in below {
+                let line = line.trim_end_matches('.');
                 println!("_{line}._  ");
             }
         }
@@ -517,13 +680,15 @@ fn print_summary(report: &SurvivalReport) {
          median: median of per-commit rates. \
          Untagged = commits with no AI signal (human, inline-completed and untagged-agent code alike); \
          age = commit date to HEAD date. \
-         Method {}: [causari.dev/method](https://causari.dev/method) · reproduce: `re audit`. \
+         Method {}: [causari.dev/method](https://causari.dev/method). \
+         `--json` stores the commit, method, blame flags and counts. It does not store `refs/notes/ai`. \
          {}</sub>",
         report.coverage.blame_flags.join(" "),
         CAP_CEILING_LINES,
         report.coverage.method,
         SUMMARY_FIELD_NOTE,
     );
+    print_export_footer(report, head, true);
 }
 
 /// The bold line of `re audit --summary`. Metadata matched, not authorship.
@@ -558,21 +723,6 @@ fn summary_baseline(b: &Baseline) {
         b.untagged.commits,
         plural(b.untagged.commits),
     );
-    match &b.age_matched {
-        Some(m) => println!(
-            "**Age-matched: AI-tagged {} vs untagged {} of the same age ({:+.1} points)**, over {} age window{} holding {:.0}% of the AI-tagged lines.",
-            pct(Some(m.tagged_rate)),
-            pct(Some(m.untagged_rate)),
-            m.gap * 100.0,
-            m.buckets_used,
-            plural(m.buckets_used as u64),
-            m.tagged_lines_covered * 100.0,
-        ),
-        None => println!(
-            "No age window holds at least {} commits of both kinds, so there is no age-matched comparison.",
-            crate::audit::SAMPLE_FLOOR
-        ),
-    }
     let rows: Vec<&AgeBucket> = b
         .by_age
         .iter()
@@ -607,7 +757,7 @@ fn summary_baseline(b: &Baseline) {
 }
 
 /// The same repository's untagged lines, by age, next to the AI-tagged ones.
-fn print_baseline(b: &Baseline) {
+fn print_baseline(b: &Baseline, floor: u64) {
     println!();
     println!(
         "{}",
@@ -649,22 +799,7 @@ fn print_baseline(b: &Baseline) {
             );
         }
     }
-    match &b.age_matched {
-        Some(m) => println!(
-            "  age-matched: AI-tagged {} vs untagged {} of the same age → {:+.1} points, \
-             over {} window{} holding {:.0}% of AI-tagged lines",
-            pct(Some(m.tagged_rate)),
-            pct(Some(m.untagged_rate)),
-            m.gap * 100.0,
-            m.buckets_used,
-            plural(m.buckets_used as u64),
-            m.tagged_lines_covered * 100.0,
-        ),
-        None => println!(
-            "  age-matched: no age window holds at least {} commits of both kinds; no comparison",
-            crate::audit::SAMPLE_FLOOR
-        ),
-    }
+    println!("  {}", age_matched_sentence(b, floor));
     if let Some(o) = &b.oldest_surviving
         && o.commits_before > 0
     {
@@ -695,7 +830,7 @@ fn cohort_cell(stat: &SurvivalStat) -> String {
     )
 }
 
-fn print_class(label: &str, stat: &SurvivalStat) {
+fn print_class(label: &str, stat: &SurvivalStat, dominance: bool) {
     if stat.commits == 0 {
         println!("{}: {}", label.bold(), "none detected".bright_black());
         return;
@@ -713,8 +848,10 @@ fn print_class(label: &str, stat: &SurvivalStat) {
         pct(stat.capped_survival_rate()),
         pct(stat.median_survival()),
     );
-    if let Some(sentence) = dominance_sentence(stat) {
-        println!("  {sentence}");
+    if dominance {
+        if let Some(sentence) = dominance_sentence(stat) {
+            println!("  {sentence}");
+        }
     }
 }
 

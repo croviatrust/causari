@@ -16,13 +16,14 @@ pub fn run(args: RevertArgs) -> Result<()> {
     let ev = store.read_event(&full)?;
     let target_snapshot = store.read_snapshot(&ev.pre_snapshot)?;
 
-    // Causality-aware preview: compute the downstream blast radius of this event
-    // BEFORE actually reverting. The user sees what they are implicitly undoing.
+    // Preview of the forward ledger graph before restoring the pre-snapshot.
+    // These events read files this one wrote. Restoring the tree does not
+    // establish that they would not have happened.
     let impacted = compute_impact(&repo, &store, &full)?;
     if !impacted.is_empty() {
         println!(
-            "{} reverting {} will implicitly affect {} later event(s):",
-            "causal preview:".magenta().bold(),
+            "{} restoring before {} touches files read by {} later ledger event(s):",
+            "ledger preview:".magenta().bold(),
             (&full[..10]).yellow(),
             impacted.len().to_string().cyan()
         );
@@ -39,7 +40,7 @@ pub fn run(args: RevertArgs) -> Result<()> {
             println!("   {} (+{} more)", "↓".magenta(), impacted.len() - 5);
         }
         println!(
-            "   {} those events read files this one produced; their reasoning may no longer make sense.",
+            "   {} those events read files this one wrote. Restoring the tree does not rewrite them.",
             "note:".bright_black()
         );
         println!();

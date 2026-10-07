@@ -38,9 +38,9 @@
 </header>
 
 <main id="main" class="article">
-  <p class="eyebrow">method · v3 · this page changes only when the method does</p>
+  <p class="eyebrow">method · v4 · this page changes only when the method does</p>
   <h1>Method</h1>
-  <p class="version">Applies to <code translate="no">re audit</code> from 0.1.5 and to every <a href="/reports/survival/">Survival Report</a>. Sections 1–4 describe v1; section 5 lists exactly what v2 changed and section 6 what v3 added. Every v2 figure is computed by v3 exactly as before.</p>
+  <p class="version">Applies to <code translate="no">re audit</code> in this source. Sections 1–4 are the rules this source computes (method v4). Section 5 is what v2 changed, section 6 what v3 added, and <a href="#v4">section 6b</a> the one rule v4 changed. Published reports stay on the method that produced them. Reports #1 and #2 are method v2. Reports #3 and #4, and any audit produced by the 0.3.0 release, are method v3. Report #4 is <a href="https://doi.org/10.5281/zenodo.23196011">10.5281/zenodo.23196011</a>. This source does not recompute them.</p>
 
   <p class="lede">Causari publishes counts about repositories that are not ours. The only honest way to do
   that is to publish, next to every number, exactly how it was obtained, what it cannot see,
@@ -56,7 +56,7 @@
   <table class="tbl">
     <thead><tr><th>Signal</th><th>Class</th></tr></thead>
     <tbody>
-    <tr><td>git-ai note under <code translate="no">refs/notes/ai</code></td><td>VERIFIED</td></tr>
+    <tr><td>git-ai note under <code translate="no">refs/notes/ai</code> that names a non-empty tool in <code translate="no">sessions</code> or <code translate="no">prompts</code></td><td>VERIFIED · that tool</td></tr>
     <tr><td>Trailers <code translate="no">Drafted-With</code>, <code translate="no">Executed-By</code>, <code translate="no">AI-Model</code>, <code translate="no">AI-Agent</code>, <code translate="no">AI-Tool</code>, <code translate="no">AI-Assisted: yes</code> and the <code translate="no">AI-*</code> family with a positive value</td><td>VERIFIED</td></tr>
     <tr><td><code translate="no">Co-Authored-By</code> naming a known agent identity (Claude, Copilot, aider, Codex, ChatGPT, OpenHands; Devin, Jules, Gemini and Cursor only with a bot identity or vendor domain)</td><td>VERIFIED</td></tr>
     <tr><td>Author identity of a known agent (aider, <code translate="no">noreply@anthropic.com</code>, <code translate="no">devin-ai</code>, <code translate="no">openhands</code>, <code translate="no">cursoragent</code>, <code translate="no">google-labs-jules</code>)</td><td>VERIFIED</td></tr>
@@ -66,7 +66,8 @@
   </table>
   </div>
 
-  <p>VERIFIED and PROBABLE are never summed. Published measurements use VERIFIED only.</p>
+  <p>VERIFIED and PROBABLE are never summed. Published measurements use VERIFIED only.
+  A note that has only <code translate="no">schema_version</code>, only a human declaration, or a tool that is empty or whitespace is not a signal. Detection continues with the other rows. Absence of a qualifying signal is UNKNOWN. UNKNOWN is not human.</p>
 
   <h2 id="survival"><span class="no">2</span>How survival is computed</h2>
   <p><em>Introduced</em> = lines added by each classified commit (<code translate="no">git log --numstat</code>),
@@ -74,6 +75,9 @@
   every tracked file, <code translate="no">git blame --line-porcelain HEAD</code>; a line counts for the commit
   blame attributes it to, capped at that commit's introduced count. The ratio is the sum over all
   classified commits, so it is <strong>line-weighted</strong>.</p>
+  <p>The ratio is the persistence of lines that this method associates with its tagged cohort.
+  It does not, by itself, establish code quality, developer productivity, total AI usage,
+  that a model wrote the line, security, correctness, or a causal benefit or harm of AI.</p>
 
   <h2 id="cannot-see"><span class="no">3</span>What it cannot see</h2>
   <ul>
@@ -82,9 +86,19 @@
     means no metadata, not no AI, and not a finding that a human wrote them.</li>
     <li><strong>Untagged agent commits.</strong> Claude Code's trailer can be disabled; many teams
     strip trailers on squash. Those commits are UNKNOWN. UNKNOWN is not human.</li>
-    <li><strong>Mixed commits.</strong> Granularity is the commit. A human's review edits inside an
-    AI-tagged commit are counted with that commit. AI code committed without a tag is untagged,
-    which is not a finding that a human wrote it.</li>
+    <li><strong>Mixed commits.</strong> Granularity is the commit. A qualifying signal tags the
+    commit, and the survival count is that commit's introduced and surviving lines. A git-ai
+    range over lines 20–30 of a 100-line commit classifies the commit; it does not mean those
+    100 lines were proven AI-authored. A human's review edits inside an AI-tagged commit are
+    counted with that commit. AI code committed without a tag is untagged, which is not a
+    finding that a human wrote it.</li>
+    <li><strong>Several tools in one note.</strong> The audit stores one agent per commit. Sessions
+    are read before prompts. Within one object the lexicographically first key wins. That choice
+    is deterministic and is not a finding that the selected tool wrote the commit. Disagreement
+    is not represented.</li>
+    <li><strong>Notes are not the commit.</strong> <code translate="no">refs/notes/ai</code> is not
+    part of the commit object. The commit SHA can stay the same while a note is added or removed
+    and the classification changes. A note is metadata the repository can rewrite.</li>
     <li><strong>Paraphrase and rewrite.</strong> A line rewritten by a human with the same meaning
     is a death; a line the AI copied from elsewhere is an introduction.</li>
   </ul>
@@ -149,7 +163,7 @@
   over the sampled repositories. Every published number carries the method version that produced
   it.</p>
 
-  <h2 id="v3"><span class="no">6</span>Method v3 (current): the same repository as the baseline</h2>
+  <h2 id="v3"><span class="no">6</span>Method v3: the same repository as the baseline</h2>
   <p>An AI-tagged ratio on its own answers "how much of this code is still there", not "compared
   with what". Method v3 answers the second question with the only baseline that shares the
   repository's conventions, reviewers, formatter passes and rewrites: <strong>the untagged lines
@@ -178,23 +192,54 @@
   </ul>
   <p>The gap is a count from one repository's own history, not a verdict on a tool: the untagged
   cohort includes AI code that carried no tag, and the granularity is still the commit. It is
-  printed in the terminal, in <code translate="no">--summary</code> and in the JSON; the Survival
+  <code translate="no">tagged_rate</code> minus <code translate="no">untagged_rate</code>, printed in
+  percentage points directly under the survival percentage. Positive means the metadata-matched
+  lines have the higher line-weighted survival in those windows. The windows are age buckets, not identical timestamps. When no age window holds at least 5 commits of
+  both kinds, the audit says the gap is unavailable. It is also in
+  <code translate="no">--summary</code> and in the JSON; the Survival
   Report shows it per repository from the first report built with v3. Three repositories measured
   while writing this section: −6.0 points (the cleared one above), −4.7 and +5.4, the last with one
-  commit holding 70 % of its AI-tagged lines.</p>
+  commit holding 70 % of its AI-tagged lines. Five commits is the comparability floor, not a
+  reliability guarantee.</p>
 <pre translate="no"><code translate="no">re audit owner/repo
-<span class="dim"># Baseline: untagged lines of the same repository
+<span class="dim">#   Age-matched gap: -4.7 percentage points (AI-tagged 62.4% minus untagged 67.1% in the matched age windows). Positive means the metadata-matched lines have the higher line-weighted survival in those windows, over 1 matched age window holding …% of the AI-tagged lines. Lines outside those windows are not in this gap.
+# Baseline: untagged lines of the same repository
 #   line age      AI-tagged            untagged
-#   90-180 d      83.2% (33 commits)   96.1% (674 commits)
-#   ...
-#   age-matched: AI-tagged 62.4% vs untagged 67.1% of the same age → -4.7 points</span></code></pre>
+#   90-180 d      83.2% (33 commits)   96.1% (674 commits)</span></code></pre>
+
+  <h2 id="v4"><span class="no">6b</span>Method v4: a git-ai note needs a named tool</h2>
+  <p>Method v4 keeps the v3 baseline and every other v3 rule. It changes one classification.
+  Under v3, any parseable git-ai note under <code translate="no">refs/notes/ai</code> was VERIFIED,
+  and a note with no tool was recorded as agent <code translate="no">ai</code> at confidence 1.0.
+  Under v4 that note is not AI evidence. A non-empty tool in <code translate="no">sessions</code> or
+  <code translate="no">prompts</code> still is, and it is recorded as that tool. An empty tool does
+  not hide a later named tool, and a note with no qualifying tool does not hide an independent
+  trailer. Named-tool notes stay. The ref is not dropped.</p>
+  <p>The same frozen repository can therefore change number between v3 and v4. On the corpus of
+  Survival Report #3 the schema-only fallback was two commits in
+  <code translate="no">cloudflare/workers-sdk</code>. Removing only those changed the aggregate from
+  61.3921% to 61.3898% (−0.0023 percentage points). The published median gap did not move, and
+  no repository left the cohort. Report #3 remains the v3 measurement. It is not recomputed.
+  Report #4 (<a href="https://doi.org/10.5281/zenodo.23196011">10.5281/zenodo.23196011</a>) is also
+  method v3, produced by the 0.3.0 binary, and is not recomputed.</p>
+  <p>Commit granularity is unchanged. A qualifying signal still tags the commit, not the line
+  range inside the note.</p>
 
   <h2 id="reproduce"><span class="no">7</span>Reproduce or contest any number</h2>
 <pre translate="no"><code translate="no">curl -fsSL https://causari.dev/install.sh | sh
-re audit owner/repo --json      <span class="dim"># the exact bytes behind the row</span>
-re audit owner/repo --seal      <span class="dim"># the same bytes, signed and bound to the commit</span>
+re audit owner/repo --json      <span class="dim"># counts, coverage.method, blame flags, repository.head</span>
+re audit owner/repo --summary   <span class="dim"># the same reading, as Markdown</span>
+re audit owner/repo --seal      <span class="dim"># those JSON bytes, signed for that commit and method</span>
 re seal verify audit.seal.json  <span class="dim"># or drop the file on causari.dev/verify</span></code></pre>
-  <p>If your reproduction differs, or a row is wrong, open an issue with the JSON. Corrections
+  <p><code translate="no">--json</code> and the seal store the counts, <code translate="no">repository.head</code>,
+  <code translate="no">coverage.method</code>, <code translate="no">coverage.blame_flags</code>, and the other
+  coverage flags. They do not store <code translate="no">refs/notes/ai</code>. Naming that ref is not the
+  same as keeping its bytes: it is not part of the commit, so adding or removing it can change the
+  class while the stored SHA stays. A repository that has moved has a different commit, and this
+  export does not reproduce the published number.
+  <code translate="no">--badge</code> and <code translate="no">--card</code> write SVGs.
+  <code translate="no">re report</code> reads the local ledger; it does not export an audit.
+  If your reproduction differs, or a row is wrong, open an issue with the JSON. Corrections
   are made in public and recorded in the data history. Maintainers who do not want their
   repository measured add one line to
   <a href="https://github.com/croviatrust/causari/edit/main/.github/survival-optout.txt" rel="noopener"><code translate="no">.github/survival-optout.txt</code></a>;
@@ -233,7 +278,15 @@ re seal verify audit.seal.json  <span class="dim"># or drop the file on causari.
 <span class="dim"># the same list, the same counts, from your own token</span></code></pre>
 
   <h2 id="evidence"><span class="no">9</span>Evidence classes in the ledger</h2>
-  <p>The audit reads git. The ledger (<code translate="no">re init</code>, <code translate="no">re hook</code>,
+  <p>Two paths, not one proof chain:</p>
+<pre translate="no"><code translate="no">git history  →  re audit   →  survival counts
+                 metadata, commit-level, method version on the JSON
+
+hooks / proxy / record  →  .causari/ ledger  →  re why, trace, impact, lens
+                 local, gitignored; declared or correlated, not authorship</code></pre>
+  <p>A seal signs the audit JSON for one commit and one method version. It does not join the
+  ledger to the audit, and it does not make either one a proof of who typed the code.
+  The audit reads git. The ledger (<code translate="no">re init</code>, <code translate="no">re hook</code>,
   <code translate="no">re proxy</code>, <code translate="no">re watch</code>) records agent actions as they happen, and
   every answer it gives names one of two evidence classes.</p>
   <div class="proof-grid">

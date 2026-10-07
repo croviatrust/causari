@@ -17,7 +17,7 @@ use crate::store::Store;
 ///
 /// - `causari_record`  — record an event from inside the agent's loop
 /// - `causari_recall`  — search past skills and ledger events; `proven` and `verified` are recall signals, not proofs
-/// - `causari_why`     — provenance for a specific line of code
+/// - `causari_why`     — ledger event for a line; declared is not authorship
 ///
 /// This is the bridge that turns Causari from a CLI for power users into a
 /// silent companion that *every* agent can use without code changes.
@@ -481,7 +481,7 @@ fn print_install_snippet() -> Result<()> {
 The agent then has three new tools:
   causari_record  - record one of its own actions into the ledger
   causari_recall  - search past skills and events; proven and verified are recall signals, not proofs
-  causari_why     - explain the provenance of a line of code
+  causari_why     - ledger event for a line; declared is not authorship
 
 Tip: have the agent call `causari_record` after every tool call. Causari will
 build a complete, queryable history of the session for you.
