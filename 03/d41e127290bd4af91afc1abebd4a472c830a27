@@ -1,0 +1,18 @@
+CITATION.cff
+  h_b6bdc81170adbc 19-20
+README.md
+  h_b6bdc81170adbc 337
+canon/canon.json
+  h_b6bdc81170adbc 72-75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "03d41e127290bd4af91afc1abebd4a472c830a27",
+  "prompts": {},
+  "humans": {
+    "h_b6bdc81170adbc": {
+      "author": "Crovia Trust <info@croviatrust.com>"
+    }
+  }
+}
