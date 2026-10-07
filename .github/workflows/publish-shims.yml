@@ -144,7 +144,8 @@ jobs:
             echo "npmrc sets _authToken, so npm will not use Trusted Publishing" >&2
             exit 1
           fi
-          npm publish --provenance --access public
+          # verbose: a rejected OIDC exchange is otherwise only "need auth"
+          npm publish --provenance --access public --loglevel verbose
 
   pypi-build:
     needs: version
