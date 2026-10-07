@@ -1,0 +1,541 @@
+name: survival-report-recover
+
+# Assemble Survival Report #4 from the shard artifacts of Actions run
+# 37308519983. This is not a new measurement. publish and deposit default
+# to false. Assemble can read the repository and the other run's artifacts.
+# It cannot push, and it is not granted actions: write.
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Must be 37308519983. Any other value is refused."
+        required: true
+        type: string
+      publish:
+        description: "Push the assembled report to main. Does not deposit."
+        required: false
+        type: boolean
+        default: false
+      deposit:
+        description: "After publish has succeeded, deposit report 2026/04 on Zenodo."
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: survival-report-recover
+  cancel-in-progress: false
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # github.token downloads the 20 shards of another run: actions: read.
+    # upload-artifact for this run uses ACTIONS_RUNTIME_TOKEN, not this scope.
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      report_id: ${{ steps.assemble.outputs.report_id }}
+      report_sha256: ${{ steps.assemble.outputs.report_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 8c7c431f3fd934a0d9c5005d376f131ab89bd0fa
+          persist-credentials: false
+
+      - name: install assembly tools
+        run: python3 -m pip install --quiet pillow 'crovia-tacet>=0.5.0'
+
+      - name: download the 20 shard zips of run 37308519983
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_INPUT: ${{ inputs.source_run_id }}
+        run: |
+          set -euo pipefail
+          [ "$SOURCE_RUN_INPUT" = "37308519983" ]
+          sha="$(gh api repos/croviatrust/causari/actions/runs/37308519983 --jq .head_sha)"
+          [ "$sha" = "8c7c431f3fd934a0d9c5005d376f131ab89bd0fa" ]
+          mkdir -p "$RUNNER_TEMP/zips"
+          python3 - << 'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          raw = subprocess.check_output([
+              "gh", "api", "repos/croviatrust/causari/actions/runs/37308519983/artifacts?per_page=100"
+          ], text=True)
+          arts = json.loads(raw)["artifacts"]
+          want = {f"run-shard-{i}" for i in range(20)}
+          got = {a["name"]: a for a in arts}
+          if set(got) != want or len(arts) != 20:
+              raise SystemExit(f"run artifacts are {sorted(got)}, not exactly shards 0..19")
+          out = Path(os.environ["RUNNER_TEMP"]) / "zips"
+          token = os.environ["GH_TOKEN"]
+          for name, art in sorted(got.items(), key=lambda kv: int(kv[0].rsplit("-", 1)[1])):
+              dest = out / f"{name}.zip"
+              subprocess.check_call([
+                  "curl", "-fL", "--retry", "3",
+                  "-H", f"Authorization: Bearer {token}",
+                  "-H", "Accept: application/vnd.github+json",
+                  "-o", str(dest), art["archive_download_url"],
+              ])
+          PY
+
+      - name: assemble, verify, and stop
+        id: assemble
+        env:
+          RECOVERY_ROOT: ${{ github.workspace }}
+          RECOVERY_ZIPS: ${{ runner.temp }}/zips
+          RECOVERY_RUN: ${{ runner.temp }}/run
+          RECOVERY_SITE: ${{ github.workspace }}/site
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/recover_gate.py" << 'ENDGATE'
+          #!/usr/bin/env python3
+          """Assemble Survival Report #4 from the 20 shard zips of Actions run 37308519983.
+
+          Local and Actions use the same checks. This file does not push, tag, release,
+          or call Zenodo. It refuses to read the v4 worktree.
+          """
+          from __future__ import annotations
+
+          import hashlib, json, os, shutil, subprocess, sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          SOURCE_RUN = "37308519983"
+          SOURCE_SHA = "8c7c431f3fd934a0d9c5005d376f131ab89bd0fa"
+          MEASURED_AT = "2026-10-05T12:17:49Z"
+          REACH_RUN = "survival-report-gh-37308519983"
+          WITNESS_ID = "urn:causari:survival-report:witness:run-37308519983"
+          CANON_SHA = "2bbc49cbb54140937b04b0eb2ca9c50cfd521ba40a86d0d9587050219efc588e"
+          HEAD_MAP_SHA = "1b079771b450752f258d90a0509e79ae76bb2cf48dd73d7aa7ced902a5540973"
+          LIST_SHA = "3d60f34e4e77c1144e8d1633f2ba4224b3165f237c449bf2f7d7b30b652c89cd"
+          PROV_SHA = "c4968e7828876a01bd3e8a04c930aeab2ff37eaea095f7499f45d1933488c902"
+          FAILED = ["fern-api/fern", "llvm/llvm-project", "richlander/dotnet-inspect"]
+          BELOW = ["openai/openai-python", "stackblitz/bolt.new"]
+          HARDENING = Path("/tmp/causari-hardening")
+          DIGESTS = {
+              "run-shard-0": "sha256:8bc2124851ce61a6a2fbeee62e5d8f8222685cc5828802d57d9200358e92a175",
+              "run-shard-1": "sha256:5e0a0ec6eab7c7d67022bee4248110b3c16309498e33cb8941c58c1d9a933450",
+              "run-shard-2": "sha256:493ba25cfa431665be6002b5d8b2e20267c261a8637a9a2af4427e31e4d5877e",
+              "run-shard-3": "sha256:6ef079f62c57ee28714413b5ca83831386f744855c4c95dbf8d27fdc32479f51",
+              "run-shard-4": "sha256:63dd7364be114a22335de64ee96b543a574f43f3790fe8a828faa282b8db9e10",
+              "run-shard-5": "sha256:6a39e66e9d6c59b33aba78b1e1e66d5d6c955c80c3484a953f668c401cb06445",
+              "run-shard-6": "sha256:da204ce179dbe5ce065fe24a98f46270ebbf9f8dc8d9e37ebe00880a5632d93f",
+              "run-shard-7": "sha256:1d3d272ad94d92bf1ebc3b4c252e11586ff79ef71675f6686975a199f05dc07f",
+              "run-shard-8": "sha256:c38a53d8282341500af01319f1d17fb647ae3fea5916e46503adec7d223bf0e4",
+              "run-shard-9": "sha256:0c187f3fc5783f06372cf7c5a06665beb64d8c5dfbf3a5c031e62b78b9ea96cc",
+              "run-shard-10": "sha256:120a14879bc7eff31d469c764c2ddaaad7164ad9b265938a292147decf9967ff",
+              "run-shard-11": "sha256:71e51a3166086a09ebbb0fa79d9d3e290c93209241bbc7d3d355214ff4029f9e",
+              "run-shard-12": "sha256:1614a7ca1e85395fc14877cc58529b3d9ce129b82ebbed641f89ea9ce20c7386",
+              "run-shard-13": "sha256:2c4a9a90089e3cda00117bd96fe5dc9e4399e5fb60ceb9a19ebbc3521344a153",
+              "run-shard-14": "sha256:24b248484ecda4d1a78d7aaa8f24502fc085fdb0d1fb8b431138ca99ecba8823",
+              "run-shard-15": "sha256:daf9fd52d2c9cbca0a6abed6c428b51a9f6cf52796e3b202785aefe714731043",
+              "run-shard-16": "sha256:25c97c666d111b5a6473868480d35324590c03461c64cbbfa51c7af1aa5c6c59",
+              "run-shard-17": "sha256:74bde259d876caa61fde5fc79b04f2d59bf5a0c67d443056e8a9e92a1ea0e2a2",
+              "run-shard-18": "sha256:89cc5084410f44675b62e107b5530fe78a8680e6fd6d1283a958f4ec472e629f",
+              "run-shard-19": "sha256:d484051c26f1757e5cebd3011d514530b915e915d4d8b47002f7b05337df44b9",
+          }
+
+          def die(msg: str) -> None:
+              print(f"recovery: {msg}", file=sys.stderr)
+              raise SystemExit(1)
+
+          def refuse(path: Path) -> None:
+              rp = path.resolve()
+              if rp == HARDENING or HARDENING in rp.parents:
+                  die(f"refusing v4 worktree {rp}")
+
+          def sha256_file(path: Path) -> str:
+              h = hashlib.sha256()
+              h.update(path.read_bytes())
+              return h.hexdigest()
+
+          def canon_report(rep: dict) -> bytes:
+              r = json.loads(json.dumps(rep))
+              reach = r.get("reach") or {}
+              reach.pop("closed_at", None)
+              reach.pop("witness", None)
+              r["reach"] = reach
+              return (json.dumps(r, indent=1, ensure_ascii=False) + "\n").encode()
+
+          def stable_provenance(digests: dict[str, str]) -> dict:
+              return {
+                  "artifact_digests": {k: digests[k] for k in sorted(digests, key=lambda n: int(n.rsplit("-", 1)[1]))},
+                  "deterministic_report_sha256": CANON_SHA,
+                  "failed": FAILED,
+                  "head_map_sha256": HEAD_MAP_SHA,
+                  "list_sha256": LIST_SHA,
+                  "measurement_generated_at": MEASURED_AT,
+                  "method": "v3",
+                  "not_aggregated": BELOW,
+                  "reach_run_id": REACH_RUN,
+                  "report_id": "2026/04",
+                  "schema": "causari.survival_recovery.v1",
+                  "source_run_id": SOURCE_RUN,
+                  "source_sha": SOURCE_SHA,
+                  "tool_version": "0.3.0",
+                  "witness_id": WITNESS_ID,
+              }
+
+          def main() -> None:
+              root = Path(os.environ["RECOVERY_ROOT"]).resolve()
+              refuse(root)
+              head = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
+              if head != SOURCE_SHA:
+                  die(f"checkout is {head}, want {SOURCE_SHA}")
+              if subprocess.check_output(["git", "-C", str(root), "status", "--short"], text=True).strip():
+                  die("checkout is dirty; recovery builds only from the frozen commit")
+              listed_path = root / ".github" / "survival-repos.txt"
+              if sha256_file(listed_path) != LIST_SHA:
+                  die("survival-repos.txt is not the frozen list")
+              listed = [ln.strip() for ln in listed_path.read_text().splitlines() if ln.strip() and not ln.strip().startswith("#")]
+              if len(listed) != 64 or len({r.lower() for r in listed}) != 64:
+                  die("frozen list is not 64 unique repositories")
+
+              zip_dir = Path(os.environ["RECOVERY_ZIPS"]).resolve()
+              refuse(zip_dir)
+              names = [f"run-shard-{i}" for i in range(20)]
+              if set(DIGESTS) != set(names):
+                  die("digest map is not exactly shards 0..19")
+              for name in names:
+                  z = zip_dir / f"{name}.zip"
+                  if not z.is_file():
+                      die(f"missing {name}")
+                  got = "sha256:" + sha256_file(z)
+                  if got != DIGESTS[name]:
+                      die(f"digest mismatch {name}")
+
+              run = Path(os.environ["RECOVERY_RUN"]).resolve()
+              refuse(run)
+              if run.exists():
+                  shutil.rmtree(run)
+              run.mkdir(parents=True)
+              seen = {}
+              for name in names:
+                  import zipfile
+                  with zipfile.ZipFile(zip_dir / f"{name}.zip") as zf:
+                      for info in zf.infolist():
+                          base = Path(info.filename).name
+                          if not base or base.endswith("/"):
+                              continue
+                          if base in seen:
+                              die(f"duplicate file {base} in {name} and {seen[base]}")
+                          seen[base] = name
+                          target = run / base
+                          if target.exists():
+                              die(f"duplicate extract {base}")
+                          target.write_bytes(zf.read(info))
+
+              numbers = []
+              for i in names:
+                  fp = run / f"{i}.json"
+                  if not fp.is_file():
+                      die(f"missing fragment {i}")
+                  frag = json.loads(fp.read_text())
+                  numbers.append(frag.get("shard"))
+                  if frag.get("tool_version") != "0.3.0" or frag.get("method") != "v3" or frag.get("tool") != "causari":
+                      die(f"{i} is not causari 0.3.0 method v3")
+                  if not str(frag.get("generated_at", "")).startswith("2026-10-05T12:17:"):
+                      die(f"{i} generated_at is not the measurement hour")
+              if sorted(numbers) != list(range(20)) or len(set(numbers)) != 20:
+                  die(f"shard numbers are not 0..19 exactly once: {numbers}")
+
+              audits = list(run.glob("*__*.json"))
+              if len(audits) != 61:
+                  die(f"expected 61 audits, found {len(audits)}")
+              lines = []
+              heads = {}
+              for fp in audits:
+                  repo = fp.stem.replace("__", "/", 1)
+                  audit = json.loads(fp.read_text())
+                  origin = (audit.get("repository") or {}).get("origin")
+                  sha = (audit.get("repository") or {}).get("head")
+                  if origin != f"https://github.com/{repo}":
+                      die(f"{fp.name} origin {origin} does not match the file name")
+                  if not isinstance(sha, str) or len(sha) != 40 or any(c not in "0123456789abcdef" for c in sha):
+                      die(f"{repo} has no full HEAD")
+                  if audit.get("method") != "v3" or (audit.get("coverage") or {}).get("method") != "v3":
+                      die(f"{repo} is not method v3")
+                  if (audit.get("coverage") or {}).get("shallow"):
+                      die(f"{repo} is shallow")
+                  if repo not in listed or repo in FAILED:
+                      die(f"{repo} is outside the frozen list or is a recorded failure")
+                  if repo in heads:
+                      die(f"duplicate audit {repo}")
+                  heads[repo] = sha
+                  lines.append(f"{repo}\t{sha}\t{sha256_file(fp)}")
+              if len({h for h in heads.values()}) != len(heads):
+                  die("two repository names share one HEAD")
+              if len({r.lower() for r in list(heads) + FAILED}) != 64:
+                  die("alias collision between audits and failures")
+              head_map = "\n".join(sorted(lines)) + "\n"
+              if hashlib.sha256(head_map.encode()).hexdigest() != HEAD_MAP_SHA:
+                  die("HEAD map does not match the frozen measurement")
+              for name in FAILED:
+                  if name not in listed:
+                      die(f"{name} left the frozen list")
+                  if (run / f"{name.replace('/', '__')}.json").exists():
+                      die(f"{name} has an audit file and would stop being a failure")
+              failed = set()
+              for fp in (run / f"run-shard-{i}.json" for i in range(20)):
+                  failed.update(json.loads(fp.read_text()).get("failed") or [])
+              if failed != set(FAILED):
+                  die(f"failed set is {sorted(failed)}")
+
+              subprocess.check_call(["python3", str(root / "scripts" / "survival_report.py"), "--root", str(root), "merge-shards", "--run", str(run)])
+              merged = json.loads((run / "run.json").read_text())
+              if merged.get("generated_at") != MEASURED_AT:
+                  die(f"generated_at became {merged.get('generated_at')}")
+              if set(merged.get("failed") or []) != set(FAILED):
+                  die("merge dropped or added a failure")
+              if merged.get("tool_version") != "0.3.0" or merged.get("method") != "v3":
+                  die("merged run is not v3 / 0.3.0")
+
+              # Reach signature is recovery metadata. The run id stays the measurement run.
+              logs = [run / f"reach-shard-{i}.jsonl" for i in range(20)]
+              if any(not p.is_file() for p in logs):
+                  die("not every shard uploaded a reach log")
+              (run / "reach.jsonl").write_bytes(b"".join(p.read_bytes() for p in logs))
+              key = run / "witness.key.json"
+              state = run / "witness.state.json"
+              empty = run / "empty"
+              empty.mkdir()
+              subprocess.check_call(["tacet-pnx", "keygen", "--id", WITNESS_ID, "--out", str(key)])
+              subprocess.check_call([
+                  "tacet-pnx", "witness", str(empty), "--run-id", REACH_RUN, "--key", str(key),
+                  "--reach", str(run / "reach.jsonl"),
+                  "--policy", str(root / ".github" / "egress-policy.json"), "--reach-mode", "enforce",
+                  "--sheet", str(run / "reach.sheet.json"), "--state", str(state),
+              ])
+              # concatenate logs if the sheet step needs one file; the workflow cats them first.
+              key.unlink()
+              if state.exists():
+                  state.unlink()
+              subprocess.check_call([
+                  "tacet-pnx", "verify", str(run / "reach.sheet.json"),
+                  "--policy", str(root / ".github" / "egress-policy.json"), "--json",
+              ], stdout=open(run / "reach.verify.json", "w"))
+              sheet = json.loads((run / "reach.sheet.json").read_text())
+              if sheet.get("run_id") != REACH_RUN:
+                  die(f"reach run_id is {sheet.get('run_id')}")
+              if sheet.get("closed_at") == MEASURED_AT:
+                  die("reach closed_at collided with measurement time")
+
+              site = Path(os.environ.get("RECOVERY_SITE") or root / "site")
+              refuse(site)
+              subprocess.check_call(["python3", str(root / "scripts" / "survival_report.py"), "--root", str(root), "--site", str(site), "build", "--run", str(run)])
+              report_path = site / "reports" / "survival" / "2026" / "04" / "report.json"
+              rep = json.loads(report_path.read_text())
+              if rep.get("id") != "2026/04" or rep.get("number") != 4:
+                  die("report id is not 2026/04")
+              if rep.get("generated_at") != MEASURED_AT or rep.get("date") != "2026-10-05":
+                  die("report clock is not the measurement clock")
+              if rep.get("tool") != {"name": "causari", "version": "0.3.0"} or rep["method"]["version"] != "v3":
+                  die("report is not v3 / 0.3.0")
+              if rep.get("doi") is not None:
+                  die("report already has a DOI")
+              if (rep.get("reach") or {}).get("run_id") != REACH_RUN:
+                  die("report reach.run_id drifted")
+              if (rep.get("reach") or {}).get("closed_at") == MEASURED_AT:
+                  die("report confuses recovery close time with measurement time")
+              agg = {r["repo"] for r in rep["repositories"]}
+              below = [r["repo"] for r in rep["not_aggregated"]]
+              if below != BELOW or not set(BELOW).isdisjoint(agg):
+                  die(f"threshold rows changed: {below}")
+              if set(rep["excluded"]["failed"]) != set(FAILED) or rep["excluded"]["duplicates"] or rep["excluded"]["shallow"]:
+                  die("failures, duplicates or shallow rows changed")
+              if len(agg) != 59:
+                  die(f"aggregated {len(agg)}")
+              got_canon = hashlib.sha256(canon_report(rep)).hexdigest()
+              if got_canon != CANON_SHA:
+                  die(f"deterministic report sha256 is {got_canon}")
+              for repo, sha in heads.items():
+                  copy = json.loads((site / "reports" / "survival" / "2026" / "04" / "repos" / f"{repo.replace('/', '__')}.json").read_text())
+                  if copy["repository"]["head"] != sha or copy["repository"]["origin"] != f"https://github.com/{repo}":
+                      die(f"published audit for {repo} is not bound to its measured HEAD")
+
+              stable = stable_provenance(DIGESTS)
+              if hashlib.sha256((json.dumps(stable, indent=1, ensure_ascii=False, sort_keys=True) + "\n").encode()).hexdigest() != PROV_SHA:
+                  die("stable provenance body changed")
+              now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+              if now == MEASURED_AT:
+                  die("recovery clock equals measurement time")
+              prov = dict(stable)
+              prov["recovery_assembled_at"] = now
+              prov["reach_closed_at"] = rep["reach"]["closed_at"]
+              prov["witness_key_hex"] = rep["reach"]["witness"]["key_hex"]
+              dest = site / "reports" / "survival" / "2026" / "04" / "provenance.json"
+              dest.write_text(json.dumps(prov, indent=1, ensure_ascii=False, sort_keys=True) + "\n")
+              out = os.environ.get("GITHUB_OUTPUT")
+              if out:
+                  with open(out, "a") as fh:
+                      fh.write("report_id=2026/04\n")
+                      fh.write(f"report_sha256={CANON_SHA}\n")
+              print(f"recovery: assembled 2026/04 deterministic sha256 {CANON_SHA}")
+
+          if __name__ == "__main__":
+              main()
+          ENDGATE
+          python3 "$RUNNER_TEMP/recover_gate.py"
+
+      - name: upload the assembled report artifact
+        if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: survival-report-4-assembled
+          path: |
+            site/reports/survival
+            site/r
+            site/_redirects
+            site/sitemap.xml
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    needs: assemble
+    if: ${{ inputs.publish == true && needs.assemble.result == 'success' && needs.assemble.outputs.report_id == '2026/04' && needs.assemble.outputs.report_sha256 == '2bbc49cbb54140937b04b0eb2ca9c50cfd521ba40a86d0d9587050219efc588e' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Parent the report on the workflow commit that is executing. That commit
+    # must still be origin/main. The measurement commit stays pinned in
+    # assemble and in the report hash; main is not required to equal it.
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: survival-report-4-assembled
+          path: /tmp/assembled
+
+      - name: verify the downloaded artifact is the measured report
+        run: python3 scripts/recovery_publish_gate.py verify-artifact --root /tmp/assembled
+
+      - name: push the measured report onto the reviewed commit, or stop
+        env:
+          PUSH_TOKEN: ${{ secrets.REPORT_PUSH_TOKEN }}
+          WORKFLOW_SHA: ${{ github.sha }}
+          WORKFLOW_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          python3 scripts/recovery_publish_gate.py assert-ref --ref "$WORKFLOW_REF"
+          if [ -z "${PUSH_TOKEN}" ] || ! login="$(GH_TOKEN="$PUSH_TOKEN" gh api user --jq .login)"; then
+            echo "::error title=Push token rejected::REPORT_PUSH_TOKEN is missing or rejected. The assembled artifact is unchanged."
+            exit 1
+          fi
+          perm="$(GH_TOKEN="$PUSH_TOKEN" gh api "repos/${GITHUB_REPOSITORY}/collaborators/${login}/permission" --jq .permission)"
+          enforce="$(GH_TOKEN="$PUSH_TOKEN" gh api "repos/${GITHUB_REPOSITORY}/branches/main/protection" --jq '.enforce_admins.enabled')"
+          python3 scripts/recovery_publish_gate.py assert-pusher --login "$login" --permission "$perm" --enforce-admins "$enforce"
+          git fetch origin main
+          decision="$(python3 scripts/recovery_publish_gate.py publish-decision --base "$WORKFLOW_SHA")"
+          if [ "$decision" = "already" ]; then
+            echo "measured report is already on main"
+            exit 0
+          fi
+          [ "$decision" = "commit" ]
+          python3 scripts/recovery_publish_gate.py assert-control-plane --ref "$WORKFLOW_REF" --workflow-sha "$WORKFLOW_SHA" --origin-main "$(git rev-parse origin/main)"
+          [ "$(git rev-parse HEAD)" = "$WORKFLOW_SHA" ]
+          # The artifact's common root is site/, so the zip has no site/ prefix.
+          cp -a /tmp/assembled/reports/survival/. site/reports/survival/
+          cp -a /tmp/assembled/r/. site/r/
+          cp -a /tmp/assembled/_redirects site/_redirects
+          cp -a /tmp/assembled/sitemap.xml site/sitemap.xml
+          python3 scripts/recovery_publish_gate.py verify-worktree
+          git config user.name "causari-report[bot]"
+          git config user.email "noreply@causari.dev"
+          git add site/reports/survival site/r site/_redirects site/sitemap.xml
+          git commit -s -m "$(python3 scripts/recovery_publish_gate.py report-subject)"
+          git fetch origin main
+          python3 scripts/recovery_publish_gate.py assert-control-plane --ref "$WORKFLOW_REF" --workflow-sha "$WORKFLOW_SHA" --origin-main "$(git rev-parse origin/main)"
+          auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
+          git -c "http.extraheader=$auth" push origin HEAD:main
+
+  deposit:
+    needs: [assemble, publish]
+    if: ${{ inputs.deposit == true && inputs.publish == true && needs.publish.result == 'success' && needs.assemble.outputs.report_id == '2026/04' && needs.assemble.outputs.report_sha256 == '2bbc49cbb54140937b04b0eb2ca9c50cfd521ba40a86d0d9587050219efc588e' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: deposit the pushed report, or adopt a DOI that already exists
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+          ZENODO_SANDBOX: ${{ vars.ZENODO_SANDBOX }}
+          PUSH_TOKEN: ${{ secrets.REPORT_PUSH_TOKEN }}
+          WORKFLOW_SHA: ${{ github.sha }}
+          WORKFLOW_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          python3 scripts/recovery_publish_gate.py assert-ref --ref "$WORKFLOW_REF"
+          python3 scripts/recovery_publish_gate.py assert-production-sandbox --value "${ZENODO_SANDBOX:-}"
+          git fetch origin main
+          phase="$(python3 scripts/recovery_publish_gate.py deposit-phase --base "$WORKFLOW_SHA")"
+          if [ "$phase" = "skip" ]; then
+            echo "DOI write-back is already on main"
+            exit 0
+          fi
+          [ "$phase" = "proceed" ]
+          tip="$(git rev-parse origin/main)"
+          if [ -z "${PUSH_TOKEN}" ] || ! login="$(GH_TOKEN="$PUSH_TOKEN" gh api user --jq .login)"; then
+            echo "::error title=Deposit refused::push token is missing or rejected. Zenodo was not called."
+            exit 1
+          fi
+          perm="$(GH_TOKEN="$PUSH_TOKEN" gh api "repos/${GITHUB_REPOSITORY}/collaborators/${login}/permission" --jq .permission)"
+          enforce="$(GH_TOKEN="$PUSH_TOKEN" gh api "repos/${GITHUB_REPOSITORY}/branches/main/protection" --jq '.enforce_admins.enabled')"
+          python3 scripts/recovery_publish_gate.py assert-pusher --login "$login" --permission "$perm" --enforce-admins "$enforce"
+          if [ -z "${ZENODO_TOKEN:-}" ]; then
+            echo "::error title=Deposit refused::ZENODO_TOKEN is not set. Zenodo was not called."
+            exit 1
+          fi
+          git fetch origin main
+          [ "$(git rev-parse origin/main)" = "$tip" ]
+          git reset --hard "$tip"
+          python3 scripts/recovery_publish_gate.py verify-worktree
+          git fetch origin main
+          [ "$(git rev-parse origin/main)" = "$tip" ]
+          plan="$(python3 scripts/recovery_publish_gate.py deposit-plan --report-dir site/reports/survival/2026/04 --record-out "$RUNNER_TEMP/adopted.json")"
+          if [ "$plan" = "skip" ]; then
+            echo "DOI already recorded"
+            exit 0
+          fi
+          if [ "$plan" = "adopt" ]; then
+            python3 scripts/recovery_publish_gate.py adopt --report-dir site/reports/survival/2026/04 --site site --record "$RUNNER_TEMP/adopted.json"
+            subject="$(python3 scripts/recovery_publish_gate.py doi-subject --json "$RUNNER_TEMP/adopted.json")"
+          elif [ "$plan" = "create" ]; then
+            python3 scripts/zenodo_deposit.py site/reports/survival/2026/04 | tee /tmp/zenodo.log
+            subject="$(python3 scripts/recovery_publish_gate.py doi-subject --json /tmp/zenodo.log)"
+          else
+            echo "deposit plan refused" >&2
+            exit 1
+          fi
+          git config user.name "causari-report[bot]"
+          git config user.email "noreply@causari.dev"
+          git add site/reports/survival site/r site/_redirects site/sitemap.xml
+          if git diff --cached --quiet; then
+            echo "nothing to write back"
+            exit 0
+          fi
+          git commit -s -m "$subject"
+          git fetch origin main
+          if [ "$(git rev-parse origin/main)" != "$tip" ]; then
+            echo "::error title=Deposit write-back stopped::main moved after Zenodo. Not pushing."
+            exit 1
+          fi
+          auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
+          git -c "http.extraheader=$auth" push origin HEAD:main

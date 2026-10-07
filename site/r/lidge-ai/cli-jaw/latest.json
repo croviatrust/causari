@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/lidge-ai/cli-jaw/",
  "badge": "https://causari.dev/r/lidge-ai/cli-jaw/badge.svg",
  "report": {
-  "number": 3,
-  "id": "2026/03",
-  "date": "2026-09-28",
-  "url": "https://causari.dev/reports/survival/2026/03/"
+  "number": 4,
+  "id": "2026/04",
+  "date": "2026-10-05",
+  "url": "https://causari.dev/reports/survival/2026/04/"
  },
  "method": "v3",
  "tool": {
@@ -16,89 +16,89 @@
   "version": "0.3.0"
  },
  "verified": {
-  "commits": 1359,
-  "introduced": 445333,
-  "surviving": 197637,
-  "survival_rate": 0.4437959908652626,
-  "capped_survival_rate": 0.7520383020265596,
+  "commits": 1361,
+  "introduced": 445819,
+  "surviving": 197939,
+  "survival_rate": 0.4439896011610093,
+  "capped_survival_rate": 0.7516781812688642,
   "median_survival": 0.6818181818181818,
-  "largest_commit_share": 0.47373313902181063
+  "largest_commit_share": 0.4732167090231686
  },
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 4322,
-   "introduced": 623543,
-   "surviving": 440116,
-   "survival_rate": 0.7058310333048402,
-   "median_survival": 0.28860759493670884,
-   "capped_survival_rate": 0.7185287796012311,
-   "cap_lines": 625,
-   "largest_commit_share": 0.015724657321147056
+   "commits": 4341,
+   "introduced": 626810,
+   "surviving": 442920,
+   "survival_rate": 0.7066256122269906,
+   "median_survival": 0.28874824191279885,
+   "capped_survival_rate": 0.719665182950751,
+   "cap_lines": 630,
+   "largest_commit_share": 0.015642698744436113
   },
   "by_age": [
    {
     "from_days": 0,
     "to_days": 30,
     "tagged": {
-     "commits": 96,
-     "introduced": 22998,
-     "surviving": 20962,
-     "survival_rate": 0.9114705626576224
+     "commits": 78,
+     "introduced": 22992,
+     "surviving": 21020,
+     "survival_rate": 0.9142310368823938
     },
     "untagged": {
-     "commits": 951,
-     "introduced": 194093,
-     "surviving": 155948,
-     "survival_rate": 0.8034705012545532
+     "commits": 894,
+     "introduced": 189525,
+     "surviving": 151808,
+     "survival_rate": 0.8009919535681308
     }
    },
    {
     "from_days": 30,
     "to_days": 90,
     "tagged": {
-     "commits": 71,
-     "introduced": 17574,
-     "surviving": 15742,
-     "survival_rate": 0.8957550927506543
+     "commits": 28,
+     "introduced": 3038,
+     "surviving": 2406,
+     "survival_rate": 0.7919684002633312
     },
     "untagged": {
-     "commits": 936,
-     "introduced": 151764,
-     "surviving": 108879,
-     "survival_rate": 0.7174231042935083
+     "commits": 993,
+     "introduced": 158681,
+     "surviving": 115110,
+     "survival_rate": 0.7254176618498749
     }
    },
    {
     "from_days": 90,
     "to_days": 180,
     "tagged": {
-     "commits": 1107,
-     "introduced": 183976,
-     "surviving": 145242,
-     "survival_rate": 0.7894616689133365
+     "commits": 1164,
+     "introduced": 197885,
+     "surviving": 157895,
+     "survival_rate": 0.797912929226571
     },
     "untagged": {
-     "commits": 1966,
-     "introduced": 225651,
-     "surviving": 156085,
-     "survival_rate": 0.6917097641933783
+     "commits": 1974,
+     "introduced": 224410,
+     "surviving": 155110,
+     "survival_rate": 0.691190232164342
     }
    },
    {
     "from_days": 180,
     "to_days": 365,
     "tagged": {
-     "commits": 85,
-     "introduced": 220785,
-     "surviving": 15691,
-     "survival_rate": 0.07106913966075594
+     "commits": 91,
+     "introduced": 221904,
+     "surviving": 16618,
+     "survival_rate": 0.07488823995962218
     },
     "untagged": {
-     "commits": 469,
-     "introduced": 52035,
-     "surviving": 19204,
-     "survival_rate": 0.36905928701835305
+     "commits": 480,
+     "introduced": 54194,
+     "surviving": 20892,
+     "survival_rate": 0.3855039303243902
     }
    },
    {
@@ -135,15 +135,15 @@
    }
   ],
   "age_matched": {
-   "tagged_rate": 0.4437959908652626,
-   "untagged_rate": 0.5385339925051464,
-   "gap": -0.09473800163988383,
+   "tagged_rate": 0.4439896011610093,
+   "untagged_rate": 0.5449325154371677,
+   "gap": -0.10094291427615842,
    "buckets_used": 4,
    "tagged_lines_covered": 1.0
   },
   "oldest_surviving": {
    "date": "2026-02-24",
-   "age_days": 214,
+   "age_days": 221,
    "commits_before": 0,
    "introduced_before": 0,
    "tagged_commits_before": 0,
@@ -152,7 +152,7 @@
   }
  },
  "probable_commits": 0,
- "total_commits": 5681,
+ "total_commits": 5702,
  "aggregated": true,
  "coverage": {
   "method": "v3",
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 1,
+ "reports": 2,
  "reproduce": "re audit lidge-ai/cli-jaw --json",
- "bytes": "https://causari.dev/reports/survival/2026/03/repos/lidge-ai__cli-jaw.json",
+ "bytes": "https://causari.dev/reports/survival/2026/04/repos/lidge-ai__cli-jaw.json",
  "license": "CC-BY-4.0"
 }

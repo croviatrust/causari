@@ -36,6 +36,17 @@
     "sandbox": false,
     "content_sha256": "96043a9b2651c80b15d2ef19c34f76977ed9fbfac5797ca9b708bcd6477b5dc2",
     "published_at": "2026-09-28T16:09:57Z"
+   },
+   "2026/04": {
+    "doi": "10.5281/zenodo.23196011",
+    "concept_doi": "10.5281/zenodo.22863965",
+    "html": "https://zenodo.org/records/23196011",
+    "id": 23196011,
+    "version": "#4",
+    "revision": 1,
+    "sandbox": false,
+    "content_sha256": "8f55c4bdf441df686b5e520063b75f8623123e468474e04f38d622fca5af9389",
+    "published_at": "2026-10-06T19:08:58Z"
    }
   }
  },

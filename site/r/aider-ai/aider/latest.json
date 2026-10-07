@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/aider-ai/aider/",
  "badge": "https://causari.dev/r/aider-ai/aider/badge.svg",
  "report": {
-  "number": 3,
-  "id": "2026/03",
-  "date": "2026-09-28",
-  "url": "https://causari.dev/reports/survival/2026/03/"
+  "number": 4,
+  "id": "2026/04",
+  "date": "2026-10-05",
+  "url": "https://causari.dev/reports/survival/2026/04/"
  },
  "method": "v3",
  "tool": {
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 3,
+ "reports": 4,
  "reproduce": "re audit Aider-AI/aider --json",
- "bytes": "https://causari.dev/reports/survival/2026/03/repos/Aider-AI__aider.json",
+ "bytes": "https://causari.dev/reports/survival/2026/04/repos/Aider-AI__aider.json",
  "license": "CC-BY-4.0"
 }

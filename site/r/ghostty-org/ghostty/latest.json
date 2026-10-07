@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/ghostty-org/ghostty/",
  "badge": "https://causari.dev/r/ghostty-org/ghostty/badge.svg",
  "report": {
-  "number": 3,
-  "id": "2026/03",
-  "date": "2026-09-28",
-  "url": "https://causari.dev/reports/survival/2026/03/"
+  "number": 4,
+  "id": "2026/04",
+  "date": "2026-10-05",
+  "url": "https://causari.dev/reports/survival/2026/04/"
  },
  "method": "v3",
  "tool": {
@@ -16,41 +16,41 @@
   "version": "0.3.0"
  },
  "verified": {
-  "commits": 80,
-  "introduced": 3768,
-  "surviving": 2611,
-  "survival_rate": 0.6929405520169851,
-  "capped_survival_rate": 0.736357355624991,
-  "median_survival": 0.8695652173913043,
-  "largest_commit_share": 0.12393842887473461
+  "commits": 83,
+  "introduced": 4330,
+  "surviving": 3127,
+  "survival_rate": 0.7221709006928406,
+  "capped_survival_rate": 0.7470004282459616,
+  "median_survival": 0.8823076923076922,
+  "largest_commit_share": 0.10785219399538107
  },
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 13420,
-   "introduced": 2241586,
-   "surviving": 531711,
-   "survival_rate": 0.23720303392330253,
-   "median_survival": 0.4107142857142857,
-   "capped_survival_rate": 0.5007785757679185,
+   "commits": 13497,
+   "introduced": 2250803,
+   "surviving": 536551,
+   "survival_rate": 0.23838203521143342,
+   "median_survival": 0.41412213740458015,
+   "capped_survival_rate": 0.5020014136677207,
    "cap_lines": 268,
-   "largest_commit_share": 0.5217346111190916
+   "largest_commit_share": 0.519598116760996
   },
   "by_age": [
    {
     "from_days": 0,
     "to_days": 30,
     "tagged": {
-     "commits": 9,
-     "introduced": 150,
-     "surviving": 137,
-     "survival_rate": 0.9133333333333333
+     "commits": 10,
+     "introduced": 703,
+     "surviving": 646,
+     "survival_rate": 0.918918918918919
     },
     "untagged": {
-     "commits": 211,
-     "introduced": 37150,
-     "surviving": 32746,
-     "survival_rate": 0.8814535666218035
+     "commits": 198,
+     "introduced": 19897,
+     "surviving": 13686,
+     "survival_rate": 0.6878423882997436
     }
    },
    {
@@ -58,31 +58,31 @@
     "to_days": 90,
     "tagged": {
      "commits": 11,
-     "introduced": 1010,
-     "surviving": 860,
-     "survival_rate": 0.8514851485148515
+     "introduced": 744,
+     "surviving": 593,
+     "survival_rate": 0.7970430107526881
     },
     "untagged": {
-     "commits": 813,
-     "introduced": 157311,
-     "surviving": 121824,
-     "survival_rate": 0.7744150123004748
+     "commits": 858,
+     "introduced": 176581,
+     "surviving": 140793,
+     "survival_rate": 0.7973281383614319
     }
    },
    {
     "from_days": 90,
     "to_days": 180,
     "tagged": {
-     "commits": 26,
-     "introduced": 1151,
-     "surviving": 913,
-     "survival_rate": 0.7932232841007819
+     "commits": 28,
+     "introduced": 1426,
+     "surviving": 1187,
+     "survival_rate": 0.832398316970547
     },
     "untagged": {
-     "commits": 480,
-     "introduced": 1201296,
-     "surviving": 23250,
-     "survival_rate": 0.019354097574619412
+     "commits": 441,
+     "introduced": 1203293,
+     "surviving": 25206,
+     "survival_rate": 0.02094751652340702
     }
    },
    {
@@ -95,10 +95,10 @@
      "survival_rate": 0.48112560054907344
     },
     "untagged": {
-     "commits": 2380,
-     "introduced": 212698,
-     "surviving": 141773,
-     "survival_rate": 0.6665459947907362
+     "commits": 2356,
+     "introduced": 208207,
+     "surviving": 139517,
+     "survival_rate": 0.6700879413276211
     }
    },
    {
@@ -111,10 +111,10 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 3352,
-     "introduced": 214434,
-     "surviving": 99329,
-     "survival_rate": 0.46321478869955324
+     "commits": 3367,
+     "introduced": 217759,
+     "surviving": 100615,
+     "survival_rate": 0.46204749287055874
     }
    },
    {
@@ -127,23 +127,23 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 6184,
-     "introduced": 418697,
-     "surviving": 112789,
-     "survival_rate": 0.26938096045589055
+     "commits": 6277,
+     "introduced": 425066,
+     "surviving": 116734,
+     "survival_rate": 0.27462558755581484
     }
    }
   ],
   "age_matched": {
-   "tagged_rate": 0.6929405520169851,
-   "untagged_rate": 0.5063193413310084,
-   "gap": 0.1866212106859767,
+   "tagged_rate": 0.7221709006928406,
+   "untagged_rate": 0.48105187597975696,
+   "gap": 0.24111902471308366,
    "buckets_used": 4,
    "tagged_lines_covered": 1.0
   },
   "oldest_surviving": {
    "date": "2022-03-29",
-   "age_days": 1642,
+   "age_days": 1650,
    "commits_before": 0,
    "introduced_before": 0,
    "tagged_commits_before": 0,
@@ -152,7 +152,7 @@
   }
  },
  "probable_commits": 0,
- "total_commits": 13500,
+ "total_commits": 13580,
  "aggregated": true,
  "coverage": {
   "method": "v3",
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 3,
+ "reports": 4,
  "reproduce": "re audit ghostty-org/ghostty --json",
- "bytes": "https://causari.dev/reports/survival/2026/03/repos/ghostty-org__ghostty.json",
+ "bytes": "https://causari.dev/reports/survival/2026/04/repos/ghostty-org__ghostty.json",
  "license": "CC-BY-4.0"
 }

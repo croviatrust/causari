@@ -5,32 +5,157 @@
  "url": "https://causari.dev/r/github/gh-aw-mcpg/",
  "badge": "https://causari.dev/r/github/gh-aw-mcpg/badge.svg",
  "report": {
-  "number": 2,
-  "id": "2026/02",
-  "date": "2026-09-23",
-  "url": "https://causari.dev/reports/survival/2026/02/"
+  "number": 4,
+  "id": "2026/04",
+  "date": "2026-10-05",
+  "url": "https://causari.dev/reports/survival/2026/04/"
  },
- "method": "v2",
+ "method": "v3",
  "tool": {
   "name": "causari",
-  "version": "0.2.0"
+  "version": "0.3.0"
  },
  "verified": {
-  "commits": 5079,
-  "introduced": 431348,
-  "surviving": 244733,
-  "survival_rate": 0.5673678792993129,
-  "capped_survival_rate": 0.6329496491200365,
-  "median_survival": 0.7021276595744681,
-  "largest_commit_share": 0.029686007585522593
+  "commits": 5220,
+  "introduced": 444689,
+  "surviving": 247618,
+  "survival_rate": 0.556834102035355,
+  "capped_survival_rate": 0.6279403740299208,
+  "median_survival": 0.7071068124474348,
+  "largest_commit_share": 0.028795405328218147
  },
  "interval_95": null,
- "baseline": null,
+ "baseline": {
+  "untagged": {
+   "commits": 455,
+   "introduced": 115419,
+   "surviving": 44436,
+   "survival_rate": 0.38499727081329765,
+   "median_survival": 0.4,
+   "capped_survival_rate": 0.4565720089985669,
+   "cap_lines": 1576,
+   "largest_commit_share": 0.07596669525814641
+  },
+  "by_age": [
+   {
+    "from_days": 0,
+    "to_days": 30,
+    "tagged": {
+     "commits": 484,
+     "introduced": 43808,
+     "surviving": 24569,
+     "survival_rate": 0.5608336376917458
+    },
+    "untagged": {
+     "commits": 21,
+     "introduced": 543,
+     "surviving": 518,
+     "survival_rate": 0.9539594843462247
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
+    "tagged": {
+     "commits": 1013,
+     "introduced": 70167,
+     "surviving": 40209,
+     "survival_rate": 0.5730471589208602
+    },
+    "untagged": {
+     "commits": 17,
+     "introduced": 9261,
+     "surviving": 4473,
+     "survival_rate": 0.48299319727891155
+    }
+   },
+   {
+    "from_days": 90,
+    "to_days": 180,
+    "tagged": {
+     "commits": 2073,
+     "introduced": 127725,
+     "surviving": 67772,
+     "survival_rate": 0.5306087296926991
+    },
+    "untagged": {
+     "commits": 5,
+     "introduced": 7847,
+     "surviving": 2675,
+     "survival_rate": 0.3408946094048681
+    }
+   },
+   {
+    "from_days": 180,
+    "to_days": 365,
+    "tagged": {
+     "commits": 1650,
+     "introduced": 202989,
+     "surviving": 115068,
+     "survival_rate": 0.5668681554172886
+    },
+    "untagged": {
+     "commits": 412,
+     "introduced": 97768,
+     "surviving": 36770,
+     "survival_rate": 0.3760944276245806
+    }
+   },
+   {
+    "from_days": 365,
+    "to_days": 730,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   },
+   {
+    "from_days": 730,
+    "to_days": null,
+    "tagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    },
+    "untagged": {
+     "commits": 0,
+     "introduced": 0,
+     "surviving": 0,
+     "survival_rate": null
+    }
+   }
+  ],
+  "age_matched": {
+   "tagged_rate": 0.556834102035355,
+   "untagged_rate": 0.43977934358401394,
+   "gap": 0.11705475845134106,
+   "buckets_used": 4,
+   "tagged_lines_covered": 1.0
+  },
+  "oldest_surviving": {
+   "date": "2025-12-10",
+   "age_days": 298,
+   "commits_before": 0,
+   "introduced_before": 0,
+   "tagged_commits_before": 0,
+   "tagged_introduced_before": 0,
+   "commits_before_share": 0.0
+  }
+ },
  "probable_commits": 0,
- "total_commits": 5527,
+ "total_commits": 5675,
  "aggregated": true,
  "coverage": {
-  "method": "v2",
+  "method": "v3",
   "blame_flags": [
    "-w",
    "-M",
@@ -41,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 1,
+ "reports": 2,
  "reproduce": "re audit github/gh-aw-mcpg --json",
- "bytes": "https://causari.dev/reports/survival/2026/02/repos/github__gh-aw-mcpg.json",
+ "bytes": "https://causari.dev/reports/survival/2026/04/repos/github__gh-aw-mcpg.json",
  "license": "CC-BY-4.0"
 }
