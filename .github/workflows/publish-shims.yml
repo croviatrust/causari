@@ -111,7 +111,7 @@ jobs:
       # and, when no token exists, exports NODE_AUTH_TOKEN=XXXXX-XXXXX-XXXXX-XXXXX.
       # npm then sends that placeholder and does not start Trusted Publishing.
       # The registry answers 404. The default registry is registry.npmjs.org.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
       # Trusted Publishing needs npm >= 11.5.1; the runner image may lag.

@@ -121,7 +121,7 @@ jobs:
           python-version: "3.12"
       - run: python3 -m unittest discover -s packaging/pypi/tests -t packaging/pypi/tests -v
       - run: python3 -m pip install --upgrade build && python3 -m build --outdir /tmp/pypi-dist packaging/pypi
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "18"
       - run: bash scripts/tests/test_npm_shim.sh
