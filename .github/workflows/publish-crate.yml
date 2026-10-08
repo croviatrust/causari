@@ -17,12 +17,21 @@ on:
         description: "Only run cargo publish --dry-run"
         type: boolean
         default: true
+      mcp_only:
+        description: "Publish server.json for a crate version already on crates.io. Does not run cargo publish."
+        type: boolean
+        default: false
+      version:
+        description: "Crate version server.json must name when mcp_only is true (for example 0.4.0)"
+        type: string
+        required: false
 
 permissions:
   contents: read
 
 jobs:
   verify:
+    if: github.event_name != 'workflow_dispatch' || inputs.mcp_only != true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +51,7 @@ jobs:
 
   publish:
     needs: verify
-    if: github.event_name == 'push' || inputs.dry_run == false
+    if: github.event_name == 'push' || (inputs.dry_run == false && inputs.mcp_only != true)
     runs-on: ubuntu-latest
     environment: crates-io
     permissions:
@@ -72,25 +81,44 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.cred.outputs.mode == 'token' && secrets.CARGO_REGISTRY_TOKEN || steps.auth.outputs.token }}
 
-  # The MCP Registry entry points at the crate, so it can only follow a
-  # successful crates.io publish. Authentication is GitHub OIDC for the
-  # io.github.croviatrust namespace; ownership of the cargo package is proven
-  # by the `mcp-name:` line in README.md as rendered on crates.io.
+  # The registry entry points at the crate. Authentication is GitHub OIDC
+  # for io.github.croviatrust; ownership of the cargo package is the
+  # `mcp-name:` line in README.md as rendered on crates.io. A tag push
+  # publishes server.json from that tag after cargo publish. mcp_only
+  # publishes server.json from this workflow's ref for a version already on
+  # crates.io: the tag is not moved and the crate is not published again.
+  # The registry still validates the document.
   mcp-registry:
     needs: publish
+    if: >-
+      always() &&
+      (
+        (needs.publish.result == 'success' && inputs.mcp_only != true) ||
+        (github.event_name == 'workflow_dispatch' && inputs.mcp_only == true)
+      )
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
+    env:
+      RELEASE_EVENT: ${{ github.event_name }}
+      RELEASE_VERSION: ${{ inputs.version }}
     steps:
       - uses: actions/checkout@v4
-      - name: server.json version matches the tag
+      - name: server.json version matches the release
         run: |
           set -euo pipefail
-          TAG="${GITHUB_REF_NAME#v}"
+          if [ "$RELEASE_EVENT" = "workflow_dispatch" ]; then
+            TAG="$RELEASE_VERSION"
+          else
+            TAG="${GITHUB_REF_NAME#v}"
+          fi
+          printf '%s' "$TAG" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "version must be x.y.z" >&2; exit 1; }
           V="$(jq -r .version server.json)"
           P="$(jq -r '.packages[0].version' server.json)"
-          [ "$V" = "$TAG" ] && [ "$P" = "$TAG" ] || { echo "server.json says $V/$P, tag is $TAG" >&2; exit 1; }
+          [ "$V" = "$TAG" ] && [ "$P" = "$TAG" ] || { echo "server.json says $V/$P, release is $TAG" >&2; exit 1; }
+          DESC="$(jq -r .description server.json)"
+          [ "${#DESC}" -le 100 ] || { echo "description is ${#DESC} characters; the registry allows 100" >&2; exit 1; }
       - name: install mcp-publisher
         run: |
           set -euo pipefail
@@ -100,7 +128,11 @@ jobs:
       - name: wait for crates.io to serve the new version
         run: |
           set -euo pipefail
-          TAG="${GITHUB_REF_NAME#v}"
+          if [ "$RELEASE_EVENT" = "workflow_dispatch" ]; then
+            TAG="$RELEASE_VERSION"
+          else
+            TAG="${GITHUB_REF_NAME#v}"
+          fi
           for i in $(seq 1 30); do
             if curl -fsSL -A "causari-ci (info@croviatrust.com)" "https://crates.io/api/v1/crates/causari/$TAG" >/dev/null 2>&1; then
               exit 0
