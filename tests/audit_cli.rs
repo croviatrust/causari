@@ -304,6 +304,15 @@ fn audit_reading_export_and_unavailable_age_match() {
         serde_json::json!(["-w", "-M", "-C"])
     );
     assert!(exported["baseline"]["age_matched"].is_null());
+    assert!(text.contains("not a measured gap of zero"), "{text}");
+    assert!(
+        text.contains("at least 5 commits of both kinds with introduced lines"),
+        "{text}"
+    );
+    assert!(
+        !text.contains("No AI-tagged lines are included in the measurement"),
+        "a repo with tagged lines must not use the empty-introduction sentence:\n{text}"
+    );
 }
 
 #[test]
@@ -762,5 +771,111 @@ fn ledger_commands_share_the_discover_error() {
     assert!(
         !err.contains("local ledger"),
         "audit does not require the ledger:\n{err}"
+    );
+}
+
+/// Metadata-matched commit that only adds a lockfile: introduced lines stay 0.
+fn repo_with_absent_tagged_rate() -> tempfile::TempDir {
+    let temp = tempfile::tempdir().unwrap();
+    let dir = temp.path();
+    git(dir, &["init", "-q", "-b", "main"]);
+    commit_file(dir, "hand.py", "hand = 1\n", "hand");
+    commit_file(
+        dir,
+        "Cargo.lock",
+        "# lock\n",
+        "lock\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
+    );
+    temp
+}
+
+/// One tagged line, then an untagged commit deletes it.
+fn repo_with_measured_zero() -> tempfile::TempDir {
+    let temp = tempfile::tempdir().unwrap();
+    let dir = temp.path();
+    git(dir, &["init", "-q", "-b", "main"]);
+    commit_file(dir, "hand.py", "hand = 1\n", "hand");
+    commit_file(
+        dir,
+        "doomed.py",
+        "doomed = 1\n",
+        "doomed\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
+    );
+    git(dir, &["rm", "-q", "doomed.py"]);
+    git(dir, &["commit", "-q", "-m", "remove doomed"]);
+    temp
+}
+
+#[test]
+fn absent_rate_measured_zero_and_unavailable_age_gap_stay_distinct() {
+    let absent = repo_with_absent_tagged_rate();
+    let absent_json = json(&re(absent.path(), &["audit", "--json"]));
+    assert_eq!(absent_json["verified"]["commits"], 1);
+    assert_eq!(absent_json["verified"]["introduced"], 0);
+    assert_eq!(absent_json["verified"]["surviving"], 0);
+    assert!(absent_json["verified"]["survival_rate"].is_null());
+    assert!(absent_json["baseline"]["age_matched"].is_null());
+    assert_eq!(absent_json["baseline"]["untagged"]["introduced"], 1);
+    assert_eq!(absent_json["coverage"]["method"], "v4");
+
+    let absent_text = String::from_utf8_lossy(&re(absent.path(), &["audit"]).stdout).into_owned();
+    assert!(absent_text.contains("Rate absent:"), "{absent_text}");
+    assert!(
+        absent_text.contains("The JSON value null is not a measured zero."),
+        "{absent_text}"
+    );
+    assert!(
+        absent_text.contains("no introduced lines are included in this measurement"),
+        "{absent_text}"
+    );
+    assert!(
+        absent_text.contains("not a finding that the commits introduced"),
+        "{absent_text}"
+    );
+    assert!(
+        absent_text.contains("No AI-tagged lines are included in the measurement"),
+        "{absent_text}"
+    );
+    assert!(
+        !absent_text.contains("these metadata-matched commits introduced no lines"),
+        "{absent_text}"
+    );
+    assert!(
+        absent_text.contains("survival absent line-weighted"),
+        "{absent_text}"
+    );
+    assert!(
+        !absent_text.contains("survival 0.0%"),
+        "an absent rate must not be printed as zero:\n{absent_text}"
+    );
+    assert!(!absent_text.contains("at least 5 commits"), "{absent_text}");
+
+    let zero = repo_with_measured_zero();
+    let zero_json = json(&re(zero.path(), &["audit", "--json"]));
+    assert_eq!(zero_json["verified"]["commits"], 1);
+    assert_eq!(zero_json["verified"]["introduced"], 1);
+    assert_eq!(zero_json["verified"]["surviving"], 0);
+    assert_eq!(zero_json["verified"]["survival_rate"], 0.0);
+    assert!(zero_json["baseline"]["age_matched"].is_null());
+    assert_eq!(zero_json["coverage"]["method"], "v4");
+
+    let zero_text = String::from_utf8_lossy(&re(zero.path(), &["audit"]).stdout).into_owned();
+    assert!(zero_text.contains("0.0%"), "{zero_text}");
+    assert!(zero_text.contains("Measured zero:"), "{zero_text}");
+    assert!(
+        zero_text.contains("at least 5 commits of both kinds with introduced lines"),
+        "{zero_text}"
+    );
+    assert!(
+        zero_text.contains("not a measured gap of zero"),
+        "{zero_text}"
+    );
+    assert!(
+        !zero_text.contains("Rate absent:"),
+        "a measured zero must not be called absent:\n{zero_text}"
+    );
+    assert!(
+        !zero_text.contains("No AI-tagged lines are included in the measurement"),
+        "{zero_text}"
     );
 }

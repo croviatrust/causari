@@ -361,7 +361,24 @@ fn print_survival_reading(report: &SurvivalReport) {
         );
         return;
     }
+    if report.verified.introduced == 0 {
+        println!("  {}", absent_rate_sentence());
+        return;
+    }
     println!("  {}", survival_reading(report));
+    if report.verified.survival_rate() == Some(0.0) {
+        println!("  {}", measured_zero_sentence());
+    }
+}
+
+fn absent_rate_sentence() -> &'static str {
+    "Rate absent: no introduced lines are included in this measurement (generated paths, \
+     lockfiles and binaries are excluded). That is not a finding that the commits introduced \
+     no lines. The JSON value null is not a measured zero."
+}
+
+fn measured_zero_sentence() -> &'static str {
+    "Measured zero: lines were introduced and none survive at HEAD. This is 0.0%, not an absent rate."
 }
 
 fn survival_reading(report: &SurvivalReport) -> String {
@@ -391,10 +408,22 @@ fn age_matched_sentence(b: &Baseline, floor: u64) -> String {
             plural(m.buckets_used as u64),
             m.tagged_lines_covered * 100.0,
         ),
-        None => format!(
-            "Age-matched gap: unavailable. No age window holds at least {floor} commits of both \
-             kinds, so there is no comparison across matched age windows."
-        ),
+        None => {
+            let tagged_introduced: u64 =
+                b.by_age.iter().map(|bucket| bucket.tagged.introduced).sum();
+            if tagged_introduced == 0 {
+                "Age-matched gap: unavailable. No AI-tagged lines are included in the measurement, \
+                 so there is no age comparison. This is not a finding that those commits introduced \
+                 no lines, and it is not a measured gap of zero."
+                    .into()
+            } else {
+                format!(
+                    "Age-matched gap: unavailable. No age window holds at least {floor} commits \
+                     of both kinds with introduced lines, so there is no comparison across \
+                     matched age windows. This is not a measured gap of zero."
+                )
+            }
+        }
     }
 }
 
@@ -526,6 +555,12 @@ fn print_terminal(report: &SurvivalReport, head: Option<&str>) {
     println!("  · PROBABLE = weak heuristic; may include human-assisted commits");
     println!("  · UNKNOWN commits are excluded from headline numbers; they form");
     println!("    the untagged baseline (human, inline-completed and untagged-agent code alike)");
+    println!(
+        "  · absent = no introduced lines included in the measurement (generated paths, lockfiles \
+         and binaries are excluded), JSON null. Not a measured zero, and not a claim that the \
+         commits introduced nothing. 0.0% = included lines of which none survive. An age-matched \
+         gap marked unavailable is not a gap of zero."
+    );
     println!("  · line-wt = Σ surviving / Σ introduced; capped = same, with each commit");
     println!(
         "    weighing at most min(p95 of per-commit introduced lines, {} lines);",
@@ -583,7 +618,15 @@ fn print_summary(report: &SurvivalReport, head: Option<&str>) {
     if v.commits > 0 {
         println!("{}", tagged_summary_bold(v));
         println!();
-        println!("{}", survival_reading(report));
+        if v.introduced == 0 {
+            println!("{}", absent_rate_sentence());
+        } else {
+            println!("{}", survival_reading(report));
+            if v.survival_rate() == Some(0.0) {
+                println!();
+                println!("{}", measured_zero_sentence());
+            }
+        }
         println!();
         println!(
             "{}",
@@ -680,6 +723,8 @@ fn print_summary(report: &SurvivalReport, head: Option<&str>) {
          median: median of per-commit rates. \
          Untagged = commits with no AI signal (human, inline-completed and untagged-agent code alike); \
          age = commit date to HEAD date. \
+         `absent` means no introduced lines are included in the measurement (JSON null), not a measured zero and not a claim that the commits introduced nothing. \
+         An unavailable age-matched gap is not a gap of zero. \
          Method {}: [causari.dev/method](https://causari.dev/method). \
          `--json` stores the commit, method, blame flags and counts. It does not store `refs/notes/ai`. \
          {}</sub>",
@@ -869,10 +914,12 @@ fn dominance_sentence(stat: &SurvivalStat) -> Option<String> {
     ))
 }
 
+/// `None` is an absent rate: no introduced lines are included in the measurement,
+/// JSON null. `Some(0.0)` is a measured zero and stays `0.0%`.
 fn pct(rate: Option<f64>) -> String {
     match rate {
         Some(r) => format!("{:.1}%", r * 100.0),
-        None => "n/a".into(),
+        None => "absent".into(),
     }
 }
 
@@ -911,7 +958,7 @@ fn mark_svg(x: f32, y: f32, size: f32, fill: &str) -> String {
 fn generate_badge(report: &SurvivalReport) -> String {
     let v = &report.verified;
     let value = match v.survival_rate() {
-        None => "n/a".to_string(),
+        None => "absent".to_string(),
         Some(r) => format!("{:.1}%", r * 100.0),
     };
     let label = "AI survival";
@@ -938,18 +985,28 @@ fn generate_badge(report: &SurvivalReport) -> String {
 
 fn generate_svg_card(report: &SurvivalReport) -> String {
     let v = &report.verified;
-    let (headline, detail) = match v.survival_rate() {
-        None => (
+    let (headline, detail) = if v.commits == 0 {
+        (
             CARD_EMPTY.to_string(),
             "nothing to measure from git metadata".to_string(),
-        ),
-        Some(r) => (
-            format!("{:.1}% still at HEAD", r * 100.0),
-            format!(
-                "{} of {} lines, {} commits",
-                v.surviving, v.introduced, v.commits
+        )
+    } else {
+        match v.survival_rate() {
+            None => (
+                "absent".to_string(),
+                format!(
+                    "{} commits have no lines included in the measurement; the rate is absent, not zero",
+                    v.commits
+                ),
             ),
-        ),
+            Some(r) => (
+                format!("{:.1}% still at HEAD", r * 100.0),
+                format!(
+                    "{} of {} lines, {} commits",
+                    v.surviving, v.introduced, v.commits
+                ),
+            ),
+        }
     };
     let sample_note = if v.commits > 0 && v.commits < 5 {
         " · small sample"
@@ -991,5 +1048,44 @@ mod wording_tests {
         assert!(line.starts_with("**AI-tagged (metadata matched):"));
         assert!(!line.contains("Verified"));
         assert!(!line.to_lowercase().contains("proven"));
+    }
+
+    #[test]
+    fn absent_rate_is_not_a_measured_zero_and_the_gap_names_its_reason() {
+        assert_eq!(pct(None), "absent");
+        assert_eq!(pct(Some(0.0)), "0.0%");
+
+        let no_lines = Baseline::default();
+        let no_lines_text = age_matched_sentence(&no_lines, 5);
+        assert!(no_lines_text.contains("No AI-tagged lines are included in the measurement"));
+        assert!(no_lines_text.contains("not a finding that those commits introduced"));
+        assert!(no_lines_text.contains("not a measured gap of zero"));
+        assert!(!no_lines_text.contains("at least 5"));
+
+        let mut below_floor = Baseline::default();
+        below_floor.by_age.push(AgeBucket {
+            tagged: {
+                let mut stat = SurvivalStat::default();
+                stat.record(4, 0);
+                stat
+            },
+            ..Default::default()
+        });
+        let below = age_matched_sentence(&below_floor, 5);
+        assert!(below.contains("at least 5 commits"));
+        assert!(below.contains("not a measured gap of zero"));
+        assert!(!below.contains("No AI-tagged lines are included in the measurement"));
+
+        let mut measured = below_floor.clone();
+        measured.age_matched = Some(crate::audit::AgeMatched {
+            tagged_rate: 0.0,
+            untagged_rate: 0.0,
+            gap: 0.0,
+            buckets_used: 1,
+            tagged_lines_covered: 1.0,
+        });
+        let zero_gap = age_matched_sentence(&measured, 5);
+        assert!(zero_gap.starts_with("Age-matched gap: +0.0 percentage points"));
+        assert!(!zero_gap.contains("unavailable"));
     }
 }
