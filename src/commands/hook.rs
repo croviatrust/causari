@@ -208,12 +208,10 @@ fn run_event_inner(kind: &str) -> Result<()> {
         // context. Inject the trust-ranked experience briefing so every new
         // session — regardless of which model is behind it — starts with the
         // lessons this repository has already paid for. Silent when there is
-        // no experience yet: zero noise on fresh repos. Never bumps recall
-        // counters (trust is earned by explicit use, not by injection).
+        // no experience yet: zero noise on fresh repos. A briefing does not
+        // write the legacy recall count and does not change trust.
         "session-start" => {
-            if let Some(md) =
-                crate::commands::brief::render(&repo, &[], SESSION_BRIEF_LIMIT, false)?
-            {
+            if let Some(md) = crate::commands::brief::render(&repo, &[], SESSION_BRIEF_LIMIT)? {
                 print!("{md}");
             }
             Ok(())

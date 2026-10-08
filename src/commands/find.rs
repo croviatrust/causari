@@ -8,7 +8,7 @@ use crate::store::Store;
 
 /// `re find <query>`
 ///
-/// Search signed skills first (trust-ranked), then raw ledger events.
+/// Search signed skills first (ranked by a declared signal), then raw ledger events.
 /// Skills are distilled experience; events are the raw record. Both are
 /// searched across every session via the metadata index / skill library.
 pub fn run(args: FindArgs) -> Result<()> {
@@ -22,7 +22,7 @@ pub fn run(args: FindArgs) -> Result<()> {
         .map(|t| t.to_lowercase())
         .collect();
 
-    // 1. Signed skills — a higher recall rank outranks a raw event. Rank is not a proof.
+    // 1. Signed skills. A declared signal outranks a recording. Rank is not a proof.
     let skills = skill::load_admissible_skills(&repo)?;
     let mut skill_hits: Vec<(usize, String, skill::SkillEnvelope)> = skills
         .into_iter()
@@ -76,6 +76,13 @@ pub fn run(args: FindArgs) -> Result<()> {
     );
 
     let mut shown = 0usize;
+    if skill_hits
+        .iter()
+        .take(limit)
+        .any(|(_, _, env)| !env.is_failed() && env.trust() == Trust::Verified)
+    {
+        println!("  {}", skill::VERIFIED_GLOSS);
+    }
     for (score, id, env) in &skill_hits {
         if shown >= limit {
             break;

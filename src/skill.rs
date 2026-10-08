@@ -19,18 +19,27 @@ use crate::store::Store;
 // files still existing at the tip of the timeline). The signature detects a
 // later edit. It does not prove the approach was correct.
 //
-// Trust is earned, never claimed:
+// Three checks stay separate. Ed25519 verifies that the signed core was not
+// edited after distill. A declared outcome signal is frozen into that core
+// from what the recorder supplied (exit code 0, or every declared write path
+// still present at the tip). Nothing in the file records that a later run
+// was observed to succeed.
 //
-//   ● recorded  — distilled from the ledger, no success signal yet
-//   ◆ verified  — at least one success signal (exit 0, or work survived)
-//   ★ proven    — verified AND recalled 3+ times by agents doing new work
+//   ● recorded  — no declared outcome signal, or a recorded failure
+//   ◆ verified  — a declared outcome signal, and not a recorded failure
+//   ★ proven    — not awarded. There is no observed-success attestation.
 //
+// `stats.uses` is a legacy recall count from older builds. It is outside
+// the signature, it is not an execution, and it does not change trust.
 // The signature makes skills portable: any Causari binary can verify that a
 // skill file was produced by the keypair of this repository and was not
 // edited after signing. Tampered skills are flagged, not trusted.
 
 pub const SKILL_SCHEMA: &str = "causari.skill.v0.1";
-const PROVEN_USES: u64 = 3;
+
+/// One sentence for every surface that shows the word `verified` to an agent.
+/// The 2× rank weight is a sort key on this declared signal, not a rate.
+pub const VERIFIED_GLOSS: &str = "`verified` is a declared signal frozen at distill (a caller-supplied exit code 0, or every declared write path still at the tip). It is not an observed success, and the Ed25519 signature does not certify the content. Where a score is shown, the 2× weight is that declared signal, not measured reliability.";
 
 /// One step of a skill: a single event, reduced to what matters for reuse.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -80,7 +89,11 @@ pub struct SkillCore {
     pub created_at: String,
 }
 
-/// Mutable usage counters, outside the signature.
+/// Mutable counters, outside the signature.
+///
+/// `uses` is a legacy recall count. Older builds incremented it on search
+/// and on an explicit briefing. It is not a count of executions and
+/// [`SkillEnvelope::trust`] ignores it.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct SkillStats {
     pub uses: u64,
@@ -118,6 +131,10 @@ pub struct SkillEnvelope {
 pub enum Trust {
     Recorded,
     Verified,
+    /// Not awarded. The variant stays so the word is still named, and so a
+    /// legacy recall count cannot be mistaken for a rank the code no longer
+    /// constructs.
+    #[allow(dead_code)]
     Proven,
 }
 
@@ -148,15 +165,12 @@ impl SkillEnvelope {
     }
 
     pub fn trust(&self) -> Trust {
-        // Success, survival and popularity are different signals. A file
-        // still existing at the tip says nothing about whether the command
-        // that produced it succeeded, and recall counts measure interest,
-        // not correctness. An explicit failure vetoes both.
-        let verified = !self.skill.verification.failed
+        // The declared signal is not an observed later success, and the
+        // legacy recall count is not an execution. An explicit failure
+        // vetoes the declared signal. `proven` is not awarded.
+        let declared = !self.skill.verification.failed
             && (self.skill.verification.exit_zero || self.skill.verification.survived);
-        if verified && self.stats.uses >= PROVEN_USES {
-            Trust::Proven
-        } else if verified {
+        if declared {
             Trust::Verified
         } else {
             Trust::Recorded
@@ -539,15 +553,6 @@ pub fn find_skill(repo: &Repo, prefix: &str) -> Result<(String, SkillEnvelope)> 
     }
 }
 
-/// Bump usage counters (called by recall). Trust upgrades to ★ proven
-/// automatically once a verified skill has been reused enough.
-pub fn record_use(repo: &Repo, id: &str) -> Result<()> {
-    let (full_id, mut env) = find_skill(repo, id)?;
-    env.stats.uses += 1;
-    env.stats.last_used_at = Some(chrono::Utc::now().to_rfc3339());
-    save_skill(repo, &full_id, &env)
-}
-
 // ---------- distillation ----------
 
 pub struct DistillReport {
@@ -698,10 +703,13 @@ pub fn score_skill(env: &SkillEnvelope, terms: &[String]) -> usize {
     if base == 0 {
         return 0;
     }
-    // A higher recall rank outranks a recording. Rank is not a proof.
+    // 2× is a sort key: a declared signal outranks a recording when the
+    // same words match. It is not a probability and not measured reliability.
+    // The legacy recall count does not enter the score. `proven` is not
+    // awarded, and if a caller still carries that label it does not rank
+    // above `verified`.
     match env.trust() {
-        Trust::Proven => base * 4,
-        Trust::Verified => base * 2,
+        Trust::Verified | Trust::Proven => base * 2,
         Trust::Recorded => base,
     }
 }
@@ -770,29 +778,27 @@ mod tests {
     }
 
     #[test]
-    fn save_load_find_and_record_use() {
+    fn save_load_keeps_a_legacy_counter_outside_the_signature() {
         let (_tmp, repo) = test_repo();
         let key = load_or_create_signing_key(&repo).unwrap();
-        let env = sign_skill(core("fix flaky test"), &key).unwrap();
+        let mut env = sign_skill(core("fix flaky test"), &key).unwrap();
+        env.stats.uses = 7;
         let id = skill_id(&env.skill).unwrap();
         save_skill(&repo, &id, &env).unwrap();
 
-        let all = load_skills(&repo).unwrap();
-        assert_eq!(all.len(), 1);
-        assert_eq!(all[0].0, id);
-
         let (found_id, found) = find_skill(&repo, &id[..8]).unwrap();
         assert_eq!(found_id, id);
-        assert_eq!(found.skill.title, "fix flaky test");
-
-        record_use(&repo, &id[..8]).unwrap();
-        let (_, after) = find_skill(&repo, &id[..8]).unwrap();
-        assert_eq!(after.stats.uses, 1);
-        verify_envelope(&after).expect("use counter must not break the signature");
+        assert_eq!(found.stats.uses, 7);
+        verify_envelope(&found).expect("legacy counter must not break the signature");
+        assert_eq!(
+            found.trust(),
+            Trust::Verified,
+            "a legacy recall count is not an execution and does not award proven"
+        );
     }
 
     #[test]
-    fn trust_ladder_recorded_verified_proven() {
+    fn trust_follows_the_declared_signal_and_ignores_recall_counts() {
         let (_tmp, repo) = test_repo();
         let key = load_or_create_signing_key(&repo).unwrap();
 
@@ -808,10 +814,11 @@ mod tests {
         let mut verified = sign_skill(core("works"), &key).unwrap();
         assert_eq!(verified.trust(), Trust::Verified);
 
-        verified.stats.uses = PROVEN_USES;
-        assert_eq!(verified.trust(), Trust::Proven);
+        verified.stats.uses = 3;
+        assert_eq!(verified.trust(), Trust::Verified);
+        verified.stats.uses = 100;
+        assert_eq!(verified.trust(), Trust::Verified);
 
-        // An unverified skill never becomes proven, no matter the uses.
         let mut still_recorded = env.clone();
         still_recorded.stats.uses = 100;
         assert_eq!(still_recorded.trust(), Trust::Recorded);
@@ -1032,15 +1039,18 @@ mod tests {
         };
         let recorded = sign_skill(recorded_core, &key).unwrap();
         let verified = sign_skill(core("add jwt refresh"), &key).unwrap();
-        let mut proven = sign_skill(core("add jwt refresh"), &key).unwrap();
-        proven.stats.uses = PROVEN_USES;
+        let mut recalled = sign_skill(core("add jwt refresh"), &key).unwrap();
+        recalled.stats.uses = 100;
 
         let s_rec = score_skill(&recorded, &terms);
         let s_ver = score_skill(&verified, &terms);
-        let s_pro = score_skill(&proven, &terms);
+        let s_old = score_skill(&recalled, &terms);
         assert!(s_rec > 0);
-        assert!(s_ver == s_rec * 2);
-        assert!(s_pro == s_rec * 4);
+        assert_eq!(s_ver, s_rec * 2);
+        assert_eq!(
+            s_old, s_ver,
+            "a legacy recall count must not raise the rank"
+        );
     }
 
     #[test]

@@ -147,7 +147,8 @@ pub struct Event {
     /// State of the workspace AFTER the action.
     pub post_snapshot: String,
 
-    /// Shell exit code, when the action was a command.
+    /// Shell exit code supplied by the recorder, when the action was a command.
+    /// Absent when the recorder did not send one. Never narrowed from a wider integer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub exit_code: Option<i32>,
 
@@ -168,6 +169,32 @@ pub struct Event {
 
 fn is_zero(n: &u32) -> bool {
     *n == 0
+}
+
+/// `exit_code` from a recorder payload. Missing and JSON null stay absent.
+/// Any other value must be an integer in the `i32` range. This does not run
+/// a command and does not check that a process exited with the number.
+pub fn declared_exit_code(args: &serde_json::Value) -> Result<Option<i32>> {
+    let Some(v) = args.get("exit_code") else {
+        return Ok(None);
+    };
+    if v.is_null() {
+        return Ok(None);
+    }
+    let Some(n) = v.as_i64() else {
+        return Err(anyhow!(
+            "exit_code must be an integer from {} to {} inclusive; the call records nothing",
+            i32::MIN,
+            i32::MAX
+        ));
+    };
+    i32::try_from(n).map(Some).map_err(|_| {
+        anyhow!(
+            "exit_code {n} is outside the signed 32-bit range {}..={}; the call records nothing",
+            i32::MIN,
+            i32::MAX
+        )
+    })
 }
 
 impl Event {
