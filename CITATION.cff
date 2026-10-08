@@ -16,7 +16,7 @@ authors:
   - name: Crovia Trust
     email: info@croviatrust.com
     website: https://croviatrust.com
-version: 0.4.0
+version: 0.4.1
 date-released: 2026-10-07
 license: Apache-2.0
 repository-code: https://github.com/croviatrust/causari

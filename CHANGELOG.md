@@ -5,6 +5,32 @@ release workflow copies it verbatim. Counts, not adjectives.
 
 ## Unreleased
 
+## 0.4.1 — 2026-10-08
+
+### Corrections
+
+Method stays v4. Published Survival Reports are not recomputed.
+Tags v0.4.0 and v1 stay where they are.
+
+- Recall and brief no longer count as a successful use. A skill is not
+  promoted by searching it. `proven` is not awarded. A `stats.uses`
+  counter already on disk stays outside the signature, is not an
+  execution, and is ignored for trust and ranking. Existing signatures
+  stay verifiable.
+- `verified` is a declared signal frozen at distill: a caller-supplied
+  exit code 0, or every declared write path still at the tip. It is not
+  an observed success. Where a score is shown, the 2× weight is that
+  declared signal, not measured reliability.
+- `exit_code` from `causari_record` and from `re record` on stdin must be
+  an integer from -2147483648 to 2147483647. A wrong type or a value
+  outside that range is an error before any write. A missing field stays
+  absent.
+- Human audit text separates an absent rate (no introduced lines are
+  included in the measurement), a measured zero (`0.0%`), and an
+  age-matched gap that is unavailable. JSON null and the counts are
+  unchanged. An absent rate is not a claim that the commits introduced
+  no lines.
+
 ## 0.4.0 — 2026-10-07
 
 ### Method v4

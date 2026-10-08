@@ -1,7 +1,7 @@
 {
   "name": "causari",
   "displayName": "Causari",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Records the prompt, model and diff behind every Claude Code edit into the repository's Causari ledger, and exposes causari_record / causari_recall / causari_why over MCP.",
   "author": {
     "name": "Crovia Trust",
