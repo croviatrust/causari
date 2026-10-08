@@ -223,13 +223,11 @@ fn handle_in(repo: &Repo, event: &str, v: &Value) -> Result<Value> {
         // Whatever we return as `additional_context` joins the conversation's
         // initial context: the trust-ranked experience briefing, silent on
         // repositories without experience yet (same as Claude Code's
-        // SessionStart; never bumps recall counters).
-        "sessionStart" => {
-            match crate::commands::brief::render(repo, &[], SESSION_BRIEF_LIMIT, false)? {
-                Some(md) => Ok(json!({ "additional_context": md })),
-                None => Ok(json!({})),
-            }
-        }
+        // SessionStart). A briefing does not write the legacy recall count.
+        "sessionStart" => match crate::commands::brief::render(repo, &[], SESSION_BRIEF_LIMIT)? {
+            Some(md) => Ok(json!({ "additional_context": md })),
+            None => Ok(json!({})),
+        },
         "beforeSubmitPrompt" => {
             if let Some(p) = PromptSubmit::parse(v) {
                 let attachments = p

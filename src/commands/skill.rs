@@ -26,7 +26,17 @@ fn trust_colored(t: Trust) -> colored::ColoredString {
     match t {
         Trust::Recorded => format!("{} recorded", t.badge()).bright_black(),
         Trust::Verified => format!("{} verified", t.badge()).green(),
+        // `trust()` does not award this. The arm stays so a future caller
+        // cannot print it without a compile break if the variant is removed.
         Trust::Proven => format!("{} proven", t.badge()).yellow().bold(),
+    }
+}
+
+fn trust_label(env: &skill::SkillEnvelope) -> colored::ColoredString {
+    if env.is_failed() {
+        "✗ failed".red().bold()
+    } else {
+        trust_colored(env.trust())
     }
 }
 
@@ -52,7 +62,7 @@ fn distill() -> Result<()> {
     for (id, env) in &report.created {
         println!(
             "  {} {}  {}",
-            trust_colored(env.trust()),
+            trust_label(env),
             (&id[..10]).yellow(),
             env.skill.title
         );
@@ -81,10 +91,16 @@ fn list() -> Result<()> {
         return Ok(());
     }
     println!("{} {} skill(s)", "skills:".green().bold(), skills.len());
+    if skills
+        .iter()
+        .any(|(_, env)| !env.is_failed() && env.trust() == Trust::Verified)
+    {
+        println!("  {}", skill::VERIFIED_GLOSS);
+    }
     for (id, env) in &skills {
         println!(
-            "  {} {} {}  {}  {} use(s)",
-            trust_colored(env.trust()),
+            "  {} {} {}  {}  {} legacy recall(s)",
+            trust_label(env),
             (&id[..10]).yellow(),
             signer_tag(env).bright_black(),
             env.skill.title,
@@ -100,7 +116,10 @@ fn show(id: &str) -> Result<()> {
     let sig_ok = skill::verify_envelope(&env).is_ok();
 
     println!("{} {}", "skill".yellow().bold(), (&full_id[..16]).yellow());
-    println!("  trust:      {}", trust_colored(env.trust()));
+    println!("  trust:      {}", trust_label(&env));
+    if !env.is_failed() && env.trust() == Trust::Verified {
+        println!("  {}", skill::VERIFIED_GLOSS);
+    }
     println!(
         "  signature:  {}",
         if sig_ok {
@@ -121,11 +140,14 @@ fn show(id: &str) -> Result<()> {
     }
     println!("  created:    {}", env.skill.created_at);
     println!(
-        "  evidence:   exit_zero={} survived={}",
-        env.skill.verification.exit_zero, env.skill.verification.survived
+        "  declared:   exit_zero={} survived={} failed={}",
+        env.skill.verification.exit_zero,
+        env.skill.verification.survived,
+        env.skill.verification.failed
     );
+    println!("  observed:   no later success is recorded");
     println!(
-        "  uses:       {}{}",
+        "  legacy recalls: {} (not executions; ignored for trust){}",
         env.stats.uses,
         env.stats
             .last_used_at

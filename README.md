@@ -287,8 +287,12 @@ These commands exist, work in the demos, and are not yet held to the standard
 above. They are out of the proof and out of the front page until they are.
 
 - `re skill distill / verify / export / import / pull / trust`: signed units
-  of past work; the trust ladder (recorded → verified → proven) currently
-  measures file existence and recall counts, not correctness.
+  of past work. Ed25519 detects a later edit; the signature does not certify
+  the content. `verified` is a declared signal frozen at distill (a
+  caller-supplied exit code 0, or declared write paths still at the tip),
+  not an observed success. A 2× rank weight is that declared signal, not
+  measured reliability. `proven` is not awarded. A legacy recall count is
+  not an execution.
 - `re brief`: a Markdown briefing of past work for a model's context.
 - `re guard`: substring rules over recent changes; gates a build only when
   asked (`--fail-on alert|warning`); `--json` for machines.

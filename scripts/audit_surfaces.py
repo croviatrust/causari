@@ -390,7 +390,8 @@ def check_evidence_invariants(_canon: dict, r: Report) -> None:
         "observed",
         "signed is not",
         "does not prove the numbers",
-        "at least 3 recalls",
+        "`proven` is not awarded",
+        "not an execution",
         "not a cryptographic proof",
     ):
         if phrase not in llms:
@@ -449,13 +450,17 @@ def check_evidence_invariants(_canon: dict, r: Report) -> None:
     why = read("src/commands/mcp.rs")
     if "does not prove who typed the line" not in why:
         r.add("evidence", "high", "src/commands/mcp.rs", "causari_why description omits the limit")
-    if "at least 3 times" not in why or "does not prove the approach" not in why:
-        r.add("evidence", "high", "src/commands/mcp.rs", "causari_recall does not keep proven as a recall count")
+    if "`proven` is not awarded" not in why or "not an execution" not in why:
+        r.add("evidence", "high", "src/commands/mcp.rs", "causari_recall still treats search as a use")
+    if "does not run the command" not in why or "supplied by the recorder" not in why:
+        r.add("evidence", "high", "src/commands/mcp.rs", "exit_code is not described as caller-supplied")
     brief = read("src/commands/brief.rs")
-    if "at least 3 times" not in brief or "None of this proves the approach was correct" not in brief:
+    if "`proven` is not awarded" not in brief or "None of this proves the approach was correct" not in brief:
         r.add("evidence", "high", "src/commands/brief.rs", "briefing promotes the recall ladder")
+    if "not an execution" not in brief:
+        r.add("evidence", "high", "src/commands/brief.rs", "legacy recall count is described as an execution")
     skill = read("plugin/skills/causari/SKILL.md")
-    if "at least 3 times" not in skill or "not a cryptographic proof" not in skill:
+    if "`proven` is not awarded" not in skill or "not a cryptographic proof" not in skill:
         r.add("evidence", "high", "plugin/skills/causari/SKILL.md", "skill text promotes proven to a cryptographic proof")
     pnx = read("docs/pnx.md")
     if "no other connection" not in pnx or "witness saw" not in pnx:

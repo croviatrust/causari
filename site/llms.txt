@@ -84,11 +84,16 @@ Evidence classes — do not collapse these into one word:
 - A seal (`audit.seal.json`, `re seal verify`, https://causari.dev/verify)
   proves a key signed the audit JSON for one commit and one method version.
   It does not prove the numbers are true. Re-run `re audit` and compare bytes.
-- Skills (`re skill`, `re brief`, MCP `causari_recall`): `recorded` has no
-  success signal; `verified` means a success signal (exit 0, or the files
-  still exist); `proven` means that signal and at least 3 recalls. Ed25519
-  signs the skill file so a later edit is detectable. That rank is not a cryptographic proof
-  of correctness, and it is not the audit field `verified`.
+- Skills (`re skill`, `re brief`, MCP `causari_recall`): Ed25519 signs the
+  skill file so a later edit is detectable. That check is not an outcome,
+  and the signature does not certify the content. `verified` is a declared
+  signal frozen at distill (a caller-supplied exit code 0, or every declared
+  write path still at the tip). It is not an observed success. A 2× rank
+  weight is that declared signal, not measured reliability. `recorded` means
+  that signal is absent. `failed` is a caller-supplied non-zero exit with no
+  exit 0. `proven` is not awarded. A legacy recall count is not an execution
+  and does not change trust. That rank is not a cryptographic proof of
+  correctness, and it is not the audit field `verified`.
 
 When to run `re audit`: the question is how many lines from AI-tagged commits
 `git blame` still attributes at HEAD, in a repository you have or can clone.

@@ -15,9 +15,11 @@ use crate::store::Store;
 /// Once registered in an agent runtime (Claude Desktop, Claude Code, Cursor,
 /// Cline, Windsurf, …) the agent can call Causari tools directly:
 ///
-/// - `causari_record`  — record an event from inside the agent's loop
-/// - `causari_recall`  — search past skills and ledger events; `proven` and `verified` are recall signals, not proofs
+/// - `causari_record`  — append a declared action to the local ledger
+/// - `causari_recall`  — search local skills and events; a search does not change trust
 /// - `causari_why`     — ledger event for a line; declared is not authorship
+///
+/// None of the three is `re audit`.
 ///
 /// This is the bridge that turns Causari from a CLI for power users into a
 /// silent companion that *every* agent can use without code changes.
@@ -115,56 +117,82 @@ fn handle_tools_list() -> Result<Value, String> {
         "tools": [
             {
                 "name": "causari_record",
-                "description": "Record an agent action into the Causari ledger. \
-                    Causari will snapshot the workspace, hash it, and store an immutable \
-                    event with the prompt, model, tool, reads, writes and reasoning you provide. \
-                    Call this AFTER you finish each tool call so the action is captured.",
+                "description": "Append one declared action to the local Causari ledger in this \
+                    repository, then snapshot the workspace. Causari stores the fields you send. \
+                    It does not run a command, and it does not audit git history. This is not \
+                    `re audit`.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "message":   { "type": "string", "description": "Short human-readable summary of what was just done." },
-                        "tool":      { "type": "string", "description": "Which tool you used (e.g. edit_file, run_command)." },
-                        "agent":     { "type": "string", "description": "Your agent name." },
-                        "model":     { "type": "string", "description": "Underlying model id." },
-                        "prompt":    { "type": "string", "description": "The user prompt that triggered this action." },
-                        "reasoning": { "type": "string", "description": "Your chain-of-thought, if you can expose it." },
-                        "session":   { "type": "string", "description": "Named session to record onto (one per agent enables safe concurrent recording). Created on first use." },
-                        "reads":     { "type": "array", "items": { "type": "string" }, "description": "Files you read or considered as context." },
-                        "writes":    { "type": "array", "items": { "type": "string" }, "description": "Files you wrote or modified." }
+                        "message":   { "type": "string", "description": "Short summary you supply of what was just done." },
+                        "tool":      { "type": "string", "description": "Tool name you supply (for example edit_file or run_command)." },
+                        "agent":     { "type": "string", "description": "Agent name you supply. It is not checked." },
+                        "model":     { "type": "string", "description": "Model id you supply. It is not checked." },
+                        "prompt":    { "type": "string", "description": "Prompt text you supply." },
+                        "reasoning": { "type": "string", "description": "Reasoning text you supply, if you choose to send it." },
+                        "session":   { "type": "string", "description": "Named local session to append to. Created on first use." },
+                        "reads":     { "type": "array", "items": { "type": "string" }, "description": "Paths you declare as read. Causari does not check that those reads happened." },
+                        "writes":    { "type": "array", "items": { "type": "string" }, "description": "Paths you declare as written. Causari does not check that those writes happened." },
+                        "tokens_in": { "type": "integer", "minimum": 0, "description": "Non-negative token count you supply for the prompt side. Causari does not measure tokens. A value that is not a non-negative integer is not stored." },
+                        "tokens_out": { "type": "integer", "minimum": 0, "description": "Non-negative token count you supply for the completion side. Causari does not measure tokens. A value that is not a non-negative integer is not stored." },
+                        "cost_usd":  { "type": "number", "description": "USD figure you supply. Causari does not price the call. A value that is not a number is not stored." },
+                        "exit_code": { "type": "integer", "minimum": -2147483648, "maximum": 2147483647, "description": "Exit code supplied by the recorder. Causari does not run the command and does not check that the process exited with this number. Accepted only as an integer from -2147483648 to 2147483647 inclusive. Any other value is rejected and the call records nothing." }
                     },
                     "required": ["message"]
+                },
+                "annotations": {
+                    "readOnlyHint": false,
+                    "destructiveHint": false,
+                    "idempotentHint": false,
+                    "openWorldHint": false
                 }
             },
             {
                 "name": "causari_recall",
-                "description": "Search past skills and ledger events before acting. Ed25519 signs \
-                    each skill file so a later edit is detectable; it does not prove the approach \
-                    was correct. Trust is a recall ladder, not the audit field `verified`: \
-                    `proven` means recalled at least 3 times after a success signal, `verified` \
-                    means a success signal (exit 0 or the files still exist), `recorded` means \
-                    neither. None of these proves a model typed the code.",
+                "description": "Search signed skills and ledger events already stored in this \
+                    repository. A search does not record a use and does not change trust. If the \
+                    local search index is missing entries, this call appends those entries; it \
+                    does not modify skill files. Ed25519 detects a later edit of a skill's signed \
+                    core; it is not an outcome and it does not certify the content. `verified` \
+                    is a declared signal frozen at distill (a caller-supplied exit code 0, or \
+                    every declared write path still at the tip). It is not an observed success \
+                    and not the audit field `verified`. A 2× rank weight is that declared signal, \
+                    not measured reliability. `recorded` means that signal is absent. `failed` is a \
+                    caller-supplied non-zero exit with no exit 0. `proven` is not awarded. A \
+                    legacy recall count on the file is not an execution. This is not `re audit`.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "query": { "type": "string", "description": "Free-text description of the task or problem." },
-                        "limit": { "type": "integer", "description": "Max number of results (default 5)." }
+                        "query": { "type": "string", "description": "Free-text description of the task or problem. An empty query does not search." },
+                        "limit": { "type": "integer", "minimum": 0, "description": "Maximum number of skills and of events to return. Default 5." }
                     },
                     "required": ["query"]
+                },
+                "annotations": {
+                    "readOnlyHint": false,
+                    "destructiveHint": false,
+                    "idempotentHint": true,
+                    "openWorldHint": false
                 }
             },
             {
                 "name": "causari_why",
-                "description": "Report the recorded event for a source line: agent, model, \
-                    prompt and evidence class (declared, correlated, or observed). Declared is \
-                    what a runtime said; it does not prove who typed the line. A line with no \
-                    recorded event is unknown, not human.",
+                "description": "Report the local ledger event recorded against one source line: \
+                    agent, model, prompt and evidence class (declared, correlated, or observed). \
+                    Declared is what a runtime said; it does not prove who typed the line. A line \
+                    with no recorded event is unknown, not human. This reads the ledger and the \
+                    file. It is not `re audit`.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "file": { "type": "string", "description": "Path to the file (relative to repo root)." },
-                        "line": { "type": "integer", "description": "1-indexed line number." }
+                        "file": { "type": "string", "description": "Path relative to the repository root." },
+                        "line": { "type": "integer", "minimum": 1, "description": "1-indexed line number in that file." }
                     },
                     "required": ["file", "line"]
+                },
+                "annotations": {
+                    "readOnlyHint": true,
+                    "openWorldHint": false
                 }
             }
         ]
@@ -195,6 +223,8 @@ fn handle_tools_call(params: &Value) -> Result<Value, String> {
 // ---------- tool implementations ----------
 
 fn tool_record(args: &Value) -> Result<String> {
+    // Reject before any snapshot or event write. `try_from` does not narrow.
+    let exit_code = crate::object::declared_exit_code(args)?;
     let repo = Repo::discover()?;
     let store = Store::new(&repo);
 
@@ -236,10 +266,7 @@ fn tool_record(args: &Value) -> Result<String> {
         cost_usd: args.get("cost_usd").and_then(|v| v.as_f64()),
         pre_snapshot: pre_snapshot_id,
         post_snapshot: post_snapshot_id,
-        exit_code: args
-            .get("exit_code")
-            .and_then(|v| v.as_i64())
-            .map(|n| n as i32),
+        exit_code,
         created_at: Utc::now().to_rfc3339(),
         evidence: Some(crate::object::Evidence::declared("mcp")),
         redactions: 0,
@@ -254,7 +281,11 @@ fn tool_record(args: &Value) -> Result<String> {
 
 fn tool_recall(args: &Value) -> Result<String> {
     let repo = Repo::discover()?;
-    let store = Store::new(&repo);
+    recall_in(&repo, args)
+}
+
+fn recall_in(repo: &Repo, args: &Value) -> Result<String> {
+    let store = Store::new(repo);
     let query = args
         .get("query")
         .and_then(|v| v.as_str())
@@ -272,10 +303,8 @@ fn tool_recall(args: &Value) -> Result<String> {
     let terms: Vec<String> = query.split_whitespace().map(String::from).collect();
     let mut out = String::new();
 
-    // 1. SKILLS first — distilled, signed experience outranks raw events.
-    //    Every recall bumps the skill's use counter, which is how a verified
-    //    skill earns the ★ proven trust level over time.
-    let skills = crate::skill::load_admissible_skills(&repo)?;
+    // Skills first. A search reads them and does not write their counters.
+    let skills = crate::skill::load_admissible_skills(repo)?;
     let mut skill_hits: Vec<(usize, &String, &crate::skill::SkillEnvelope)> = skills
         .iter()
         .map(|(id, env)| (crate::skill::score_skill(env, &terms), id, env))
@@ -285,10 +314,18 @@ fn tool_recall(args: &Value) -> Result<String> {
 
     if !skill_hits.is_empty() {
         out.push_str(&format!(
-            "# {} skill(s) match {:?} (signed, trust-ranked)\n",
+            "# {} skill(s) match {:?} (ranked by the declared signal, not by the signature)\n",
             skill_hits.len(),
             query
         ));
+        if skill_hits
+            .iter()
+            .take(limit)
+            .any(|(_, _, env)| !env.is_failed() && env.trust() == crate::skill::Trust::Verified)
+        {
+            out.push_str(crate::skill::VERIFIED_GLOSS);
+            out.push('\n');
+        }
         for (score, id, env) in skill_hits.iter().take(limit) {
             let trust = env.trust();
             let (badge, label) = if env.is_failed() {
@@ -319,19 +356,22 @@ fn tool_recall(args: &Value) -> Result<String> {
                 ));
             }
             out.push_str(&format!(
-                "- evidence: exit_zero={} survived={} failed={} uses={}\n",
+                "- declared: exit_zero={} survived={} failed={}\n",
                 env.skill.verification.exit_zero,
                 env.skill.verification.survived,
-                env.skill.verification.failed,
+                env.skill.verification.failed
+            ));
+            out.push_str("- observed success: none recorded\n");
+            out.push_str(&format!(
+                "- legacy recalls: {} (not executions; ignored for trust)\n",
                 env.stats.uses
             ));
-            let _ = crate::skill::record_use(&repo, id);
         }
         out.push('\n');
     }
 
     // 2. Raw events from the metadata index (all sessions, one read).
-    let indexed = crate::index::ensure(&repo, &store)?;
+    let indexed = crate::index::ensure(repo, &store)?;
     let mut hits: Vec<(usize, String, crate::index::IndexEntry)> = indexed
         .into_iter()
         .map(|(id, entry)| {
@@ -480,8 +520,8 @@ fn print_install_snippet() -> Result<()> {
 
 The agent then has three new tools:
   causari_record  - record one of its own actions into the ledger
-  causari_recall  - search past skills and events; proven and verified are recall signals, not proofs
-  causari_why     - ledger event for a line; declared is not authorship
+  causari_recall  - search local skills and events; a search does not change trust; not re audit
+  causari_why     - ledger event for a line; declared is not authorship; not re audit
 
 Tip: have the agent call `causari_record` after every tool call. Causari will
 build a complete, queryable history of the session for you.
@@ -496,25 +536,203 @@ mod wording_tests {
     use super::*;
 
     #[test]
-    fn recall_description_keeps_proven_as_a_recall_count() {
+    fn tool_descriptions_match_what_the_handlers_do() {
         let list = handle_tools_list().expect("tools");
         let tools = list["tools"].as_array().expect("array");
-        let recall = tools
-            .iter()
-            .find(|t| t["name"] == "causari_recall")
-            .expect("causari_recall");
-        let desc = recall["description"].as_str().expect("description");
-        assert!(desc.contains("at least 3 times"));
-        assert!(desc.contains("success signal"));
-        assert!(desc.contains("does not prove the approach"));
+        let tool = |name: &str| {
+            tools
+                .iter()
+                .find(|t| t["name"] == name)
+                .unwrap_or_else(|| panic!("missing {name}"))
+        };
+
+        let record = tool("causari_record");
+        let props = &record["inputSchema"]["properties"];
+        for key in [
+            "message",
+            "tool",
+            "agent",
+            "model",
+            "prompt",
+            "reasoning",
+            "session",
+            "reads",
+            "writes",
+            "tokens_in",
+            "tokens_out",
+            "cost_usd",
+            "exit_code",
+        ] {
+            assert!(props.get(key).is_some(), "schema omits {key}");
+        }
+        let exit_code = props["exit_code"]["description"].as_str().unwrap();
+        assert!(exit_code.contains("supplied by the recorder"));
+        assert!(exit_code.contains("does not run the command"));
+        assert!(exit_code.contains("records nothing"));
+        assert_eq!(props["exit_code"]["minimum"], i32::MIN);
+        assert_eq!(props["exit_code"]["maximum"], i32::MAX);
+        assert_eq!(props["tokens_in"]["type"], "integer");
+        assert_eq!(props["tokens_in"]["minimum"], 0);
+        assert_eq!(props["tokens_out"]["type"], "integer");
+        assert_eq!(props["tokens_out"]["minimum"], 0);
+        assert_eq!(props["cost_usd"]["type"], "number");
+        let record_desc = record["description"].as_str().unwrap();
+        assert!(record_desc.contains("not `re audit`"));
+        assert_eq!(record["annotations"]["readOnlyHint"], false);
+        assert_eq!(record["annotations"]["destructiveHint"], false);
+        assert_eq!(record["annotations"]["idempotentHint"], false);
+        assert_eq!(record["annotations"]["openWorldHint"], false);
+
+        let recall = tool("causari_recall");
+        let desc = recall["description"].as_str().unwrap();
+        assert!(desc.contains("`proven` is not awarded"));
+        assert!(desc.contains("does not change trust"));
+        assert!(desc.contains("not an execution"));
         assert!(desc.contains("not the audit field `verified`"));
-        assert!(desc.contains("None of these proves a model typed the code"));
-        assert!(desc.contains("recall ladder"));
-        let why = tools
-            .iter()
-            .find(|t| t["name"] == "causari_why")
-            .expect("causari_why");
-        let why_desc = why["description"].as_str().expect("description");
+        assert!(desc.contains("not `re audit`"));
+        assert!(desc.contains("does not certify the content"));
+        assert!(desc.contains("not measured reliability"));
+        assert!(!desc.contains("at least 3"));
+        assert_eq!(recall["annotations"]["readOnlyHint"], false);
+        assert_eq!(recall["annotations"]["destructiveHint"], false);
+        assert_eq!(recall["annotations"]["idempotentHint"], true);
+        assert_eq!(recall["annotations"]["openWorldHint"], false);
+
+        let why = tool("causari_why");
+        let why_desc = why["description"].as_str().unwrap();
         assert!(why_desc.contains("does not prove who typed the line"));
+        assert!(why_desc.contains("not `re audit`"));
+        assert_eq!(why["annotations"]["readOnlyHint"], true);
+        assert_eq!(why["annotations"]["openWorldHint"], false);
+        assert!(why["annotations"].get("destructiveHint").is_none());
+    }
+
+    #[test]
+    fn repeated_recalls_do_not_promote_and_match_disk() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = Repo::init(tmp.path()).unwrap();
+        let key = crate::skill::load_or_create_signing_key(&repo).unwrap();
+
+        let declared = skill_core("paint the note blue", true, true, false);
+        let mut promoted = crate::skill::sign_skill(declared, &key).unwrap();
+        promoted.stats.uses = 7;
+        let promoted_id = crate::skill::skill_id(&promoted.skill).unwrap();
+        crate::skill::save_skill(&repo, &promoted_id, &promoted).unwrap();
+
+        let failed = skill_core("break the note on purpose", false, false, true);
+        let mut failed_env = crate::skill::sign_skill(failed, &key).unwrap();
+        failed_env.stats.uses = 1;
+        let failed_id = crate::skill::skill_id(&failed_env.skill).unwrap();
+        crate::skill::save_skill(&repo, &failed_id, &failed_env).unwrap();
+
+        let args = json!({"query": "paint the note blue", "limit": 1});
+        let first = recall_in(&repo, &args).unwrap();
+        let second = recall_in(&repo, &args).unwrap();
+        let third = recall_in(&repo, &args).unwrap();
+        assert_eq!(first, second);
+        assert_eq!(second, third);
+        assert!(first.contains("◆ verified"));
+        assert!(first.contains("does not certify the content"));
+        assert!(first.contains("not measured reliability"));
+        assert!(!first.contains("★ proven"));
+        assert!(first.contains("legacy recalls: 7"));
+        assert!(first.contains("observed success: none recorded"));
+        let (_, after) = crate::skill::find_skill(&repo, &promoted_id).unwrap();
+        assert_eq!(after.stats.uses, 7);
+        crate::skill::verify_envelope(&after).unwrap();
+        assert_eq!(after.trust(), crate::skill::Trust::Verified);
+
+        let failed_text = recall_in(
+            &repo,
+            &json!({"query": "break the note on purpose", "limit": 1}),
+        )
+        .unwrap();
+        assert!(failed_text.contains("FAILED — do not repeat this approach"));
+        assert!(failed_text.contains("failed=true"));
+        let (_, failed_after) = crate::skill::find_skill(&repo, &failed_id).unwrap();
+        assert_eq!(failed_after.stats.uses, 1);
+        crate::skill::verify_envelope(&failed_after).unwrap();
+        assert_eq!(failed_after.trust(), crate::skill::Trust::Recorded);
+    }
+
+    #[test]
+    fn exit_code_outside_i32_is_rejected_and_not_narrowed() {
+        assert_eq!(
+            crate::object::declared_exit_code(&json!({"exit_code": i32::MAX})).unwrap(),
+            Some(i32::MAX)
+        );
+        assert_eq!(
+            crate::object::declared_exit_code(&json!({"exit_code": i32::MIN})).unwrap(),
+            Some(i32::MIN)
+        );
+        assert_eq!(crate::object::declared_exit_code(&json!({})).unwrap(), None);
+        assert_eq!(
+            crate::object::declared_exit_code(&json!({"exit_code": null})).unwrap(),
+            None
+        );
+
+        let too_high = tool_record(&json!({
+            "message": "x",
+            "exit_code": i32::MAX as i64 + 1
+        }))
+        .unwrap_err()
+        .to_string();
+        assert!(
+            too_high.contains("outside the signed 32-bit range"),
+            "{too_high}"
+        );
+        assert!(
+            !too_high.contains("not a causari repository"),
+            "rejection must happen before any repository write: {too_high}"
+        );
+
+        let too_low = crate::object::declared_exit_code(&json!({"exit_code": i32::MIN as i64 - 1}))
+            .unwrap_err()
+            .to_string();
+        assert!(
+            too_low.contains("outside the signed 32-bit range"),
+            "{too_low}"
+        );
+
+        let fraction = crate::object::declared_exit_code(&json!({"exit_code": 1.5}))
+            .unwrap_err()
+            .to_string();
+        assert!(fraction.contains("must be an integer"), "{fraction}");
+
+        // A non-negative integer token and a numeric cost are read without a narrowing cast.
+        let args = json!({"tokens_in": 3_u64, "tokens_out": 4_u64, "cost_usd": 0.5});
+        assert_eq!(args.get("tokens_in").and_then(|v| v.as_u64()), Some(3));
+        assert_eq!(args.get("tokens_out").and_then(|v| v.as_u64()), Some(4));
+        assert_eq!(args.get("cost_usd").and_then(|v| v.as_f64()), Some(0.5));
+        assert_eq!(
+            json!({"tokens_in": 1.5})
+                .get("tokens_in")
+                .and_then(|v| v.as_u64()),
+            None
+        );
+    }
+
+    fn skill_core(
+        title: &str,
+        exit_zero: bool,
+        survived: bool,
+        failed: bool,
+    ) -> crate::skill::SkillCore {
+        crate::skill::SkillCore {
+            schema: crate::skill::SKILL_SCHEMA.into(),
+            title: title.into(),
+            trigger: title.into(),
+            steps: vec![],
+            agent: Some("fixture".into()),
+            model: None,
+            source_events: vec!["e1".into()],
+            files: vec![],
+            verification: crate::skill::Verification {
+                exit_zero,
+                survived,
+                failed,
+            },
+            created_at: "2026-01-01T00:00:00Z".into(),
+        }
     }
 }
