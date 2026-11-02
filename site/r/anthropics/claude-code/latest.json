@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/anthropics/claude-code/",
  "badge": "https://causari.dev/r/anthropics/claude-code/badge.svg",
  "report": {
-  "number": 7,
-  "id": "2026/07",
-  "date": "2026-10-26",
-  "url": "https://causari.dev/reports/survival/2026/07/"
+  "number": 8,
+  "id": "2026/08",
+  "date": "2026-11-02",
+  "url": "https://causari.dev/reports/survival/2026/08/"
  },
  "method": "v6",
  "tool": {
@@ -16,30 +16,46 @@
   "version": "0.5.0"
  },
  "verified": {
-  "commits": 78,
-  "introduced": 31739,
-  "surviving": 29670,
-  "survival_rate": 0.934812060871483,
-  "capped_survival_rate": 0.7558202706489514,
-  "median_survival": 0.5807142857142857,
-  "largest_commit_share": 0.6922398311225937
+  "commits": 80,
+  "introduced": 31832,
+  "surviving": 1629,
+  "survival_rate": 0.05117491832118623,
+  "capped_survival_rate": 0.18825594749416896,
+  "median_survival": 0.016913594879696577,
+  "largest_commit_share": 0.6902173913043478
  },
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 725,
-   "introduced": 85048,
-   "surviving": 69359,
-   "survival_rate": 0.8155277020035745,
-   "median_survival": 0.9291979949874687,
-   "capped_survival_rate": 0.7192603011182253,
+   "commits": 735,
+   "introduced": 86889,
+   "surviving": 62936,
+   "survival_rate": 0.7243264394802564,
+   "median_survival": 0.9060085985715276,
+   "capped_survival_rate": 0.6796805270515283,
    "cap_lines": 305,
-   "largest_commit_share": 0.11053757877904243
+   "largest_commit_share": 0.10819551381647849
   },
   "by_age": [
    {
     "from_days": 0,
     "to_days": 30,
+    "tagged": {
+     "commits": 2,
+     "introduced": 93,
+     "surviving": 84,
+     "survival_rate": 0.9032258064516129
+    },
+    "untagged": {
+     "commits": 51,
+     "introduced": 10146,
+     "surviving": 8491,
+     "survival_rate": 0.8368815296668638
+    }
+   },
+   {
+    "from_days": 30,
+    "to_days": 90,
     "tagged": {
      "commits": 7,
      "introduced": 482,
@@ -47,26 +63,10 @@
      "survival_rate": 0.9356846473029046
     },
     "untagged": {
-     "commits": 57,
-     "introduced": 13102,
-     "surviving": 11041,
-     "survival_rate": 0.8426957716379179
-    }
-   },
-   {
-    "from_days": 30,
-    "to_days": 90,
-    "tagged": {
-     "commits": 0,
-     "introduced": 0,
-     "surviving": 0,
-     "survival_rate": null
-    },
-    "untagged": {
-     "commits": 153,
-     "introduced": 48715,
-     "surviving": 39149,
-     "survival_rate": 0.8036333778097096
+     "commits": 168,
+     "introduced": 53424,
+     "surviving": 42981,
+     "survival_rate": 0.804526055705301
     }
    },
    {
@@ -79,42 +79,42 @@
      "survival_rate": 0.0
     },
     "untagged": {
-     "commits": 101,
-     "introduced": 15072,
-     "surviving": 12507,
-     "survival_rate": 0.8298168789808917
+     "commits": 96,
+     "introduced": 15028,
+     "surviving": 5734,
+     "survival_rate": 0.38155443172744213
     }
    },
    {
     "from_days": 180,
     "to_days": 365,
     "tagged": {
-     "commits": 20,
-     "introduced": 25789,
-     "surviving": 25571,
-     "survival_rate": 0.9915467835123503
+     "commits": 17,
+     "introduced": 25654,
+     "surviving": 143,
+     "survival_rate": 0.005574179465190614
     },
     "untagged": {
-     "commits": 241,
-     "introduced": 4995,
-     "surviving": 4085,
-     "survival_rate": 0.8178178178178178
+     "commits": 235,
+     "introduced": 4907,
+     "surviving": 3587,
+     "survival_rate": 0.7309965355614428
     }
    },
    {
     "from_days": 365,
     "to_days": 730,
     "tagged": {
-     "commits": 50,
-     "introduced": 5467,
-     "surviving": 3648,
-     "survival_rate": 0.6672763855862447
+     "commits": 53,
+     "introduced": 5602,
+     "surviving": 951,
+     "survival_rate": 0.1697607997143877
     },
     "untagged": {
-     "commits": 173,
-     "introduced": 3164,
-     "surviving": 2577,
-     "survival_rate": 0.8144753476611883
+     "commits": 185,
+     "introduced": 3384,
+     "surviving": 2143,
+     "survival_rate": 0.633274231678487
     }
    },
    {
@@ -135,15 +135,15 @@
    }
   ],
   "age_matched": {
-   "tagged_rate": 0.9348415149032705,
-   "untagged_rate": 0.81761988125581,
-   "gap": 0.11722163364746052,
+   "tagged_rate": 0.04867981599344634,
+   "untagged_rate": 0.7148644819461243,
+   "gap": -0.666184665952678,
    "buckets_used": 3,
-   "tagged_lines_covered": 0.9999684930212042
+   "tagged_lines_covered": 0.9970469967328475
   },
   "oldest_surviving": {
    "date": "2025-02-22",
-   "age_days": 610,
+   "age_days": 617,
    "commits_before": 0,
    "introduced_before": 0,
    "tagged_commits_before": 0,
@@ -152,7 +152,7 @@
   }
  },
  "probable_commits": 0,
- "total_commits": 803,
+ "total_commits": 815,
  "aggregated": true,
  "coverage": {
   "method": "v6",
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 6,
+ "reports": 7,
  "reproduce": "re audit anthropics/claude-code --json",
- "bytes": "https://causari.dev/reports/survival/2026/07/repos/anthropics__claude-code.json",
+ "bytes": "https://causari.dev/reports/survival/2026/08/repos/anthropics__claude-code.json",
  "license": "CC-BY-4.0"
 }

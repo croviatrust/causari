@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/flutter/website/",
  "badge": "https://causari.dev/r/flutter/website/badge.svg",
  "report": {
-  "number": 7,
-  "id": "2026/07",
-  "date": "2026-10-26",
-  "url": "https://causari.dev/reports/survival/2026/07/"
+  "number": 8,
+  "id": "2026/08",
+  "date": "2026-11-02",
+  "url": "https://causari.dev/reports/survival/2026/08/"
  },
  "method": "v6",
  "tool": {
@@ -16,73 +16,73 @@
   "version": "0.5.0"
  },
  "verified": {
-  "commits": 154,
-  "introduced": 50374,
-  "surviving": 43676,
-  "survival_rate": 0.8670345813316394,
-  "capped_survival_rate": 0.7895767961174789,
-  "median_survival": 0.8995850263681162,
-  "largest_commit_share": 0.6507325207448287
+  "commits": 157,
+  "introduced": 50618,
+  "surviving": 43858,
+  "survival_rate": 0.8664506697222332,
+  "capped_survival_rate": 0.7899948040594568,
+  "median_survival": 0.8888888888888888,
+  "largest_commit_share": 0.6475957169386384
  },
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 8433,
-   "introduced": 836526,
-   "surviving": 459881,
-   "survival_rate": 0.5497509939918186,
+   "commits": 8443,
+   "introduced": 837603,
+   "surviving": 459658,
+   "survival_rate": 0.5487778816456006,
    "median_survival": 0.0,
-   "capped_survival_rate": 0.42621176481513817,
+   "capped_survival_rate": 0.4249577907352398,
    "cap_lines": 332,
-   "largest_commit_share": 0.05693905509213103
+   "largest_commit_share": 0.056865842171052394
   },
   "by_age": [
    {
     "from_days": 0,
     "to_days": 30,
     "tagged": {
-     "commits": 5,
-     "introduced": 538,
-     "surviving": 441,
-     "survival_rate": 0.8197026022304833
+     "commits": 8,
+     "introduced": 782,
+     "surviving": 653,
+     "survival_rate": 0.8350383631713555
     },
     "untagged": {
-     "commits": 43,
-     "introduced": 8291,
-     "surviving": 7916,
-     "survival_rate": 0.9547702327825353
+     "commits": 50,
+     "introduced": 9333,
+     "surviving": 8726,
+     "survival_rate": 0.9349619629272474
     }
    },
    {
     "from_days": 30,
     "to_days": 90,
     "tagged": {
-     "commits": 30,
-     "introduced": 7689,
-     "surviving": 7198,
-     "survival_rate": 0.9361425412927559
+     "commits": 28,
+     "introduced": 7662,
+     "surviving": 7171,
+     "survival_rate": 0.935917515009136
     },
     "untagged": {
-     "commits": 164,
-     "introduced": 20717,
-     "surviving": 18455,
-     "survival_rate": 0.890814307090795
+     "commits": 161,
+     "introduced": 20292,
+     "surviving": 17941,
+     "survival_rate": 0.8841415336093041
     }
    },
    {
     "from_days": 90,
     "to_days": 180,
     "tagged": {
-     "commits": 25,
-     "introduced": 33808,
-     "surviving": 29906,
-     "survival_rate": 0.8845835305253195
+     "commits": 26,
+     "introduced": 33814,
+     "surviving": 29917,
+     "survival_rate": 0.884751877920388
     },
     "untagged": {
-     "commits": 181,
-     "introduced": 60517,
-     "surviving": 55805,
-     "survival_rate": 0.9221375811755375
+     "commits": 177,
+     "introduced": 60341,
+     "surviving": 55529,
+     "survival_rate": 0.9202532274904294
     }
    },
    {
@@ -90,31 +90,31 @@
     "to_days": 365,
     "tagged": {
      "commits": 87,
-     "introduced": 7864,
-     "surviving": 5917,
-     "survival_rate": 0.7524160732451679
+     "introduced": 7587,
+     "surviving": 5903,
+     "survival_rate": 0.7780413865823118
     },
     "untagged": {
-     "commits": 365,
-     "introduced": 48309,
-     "surviving": 28143,
-     "survival_rate": 0.5825622554803452
+     "commits": 368,
+     "introduced": 34819,
+     "surviving": 19617,
+     "survival_rate": 0.5633992934891869
     }
    },
    {
     "from_days": 365,
     "to_days": 730,
     "tagged": {
-     "commits": 7,
-     "introduced": 475,
+     "commits": 8,
+     "introduced": 773,
      "surviving": 214,
-     "survival_rate": 0.45052631578947366
+     "survival_rate": 0.276843467011643
     },
     "untagged": {
-     "commits": 751,
-     "introduced": 68133,
-     "surviving": 43427,
-     "survival_rate": 0.6373857014956041
+     "commits": 757,
+     "introduced": 82226,
+     "surviving": 51723,
+     "survival_rate": 0.629034611923236
     }
    },
    {
@@ -127,32 +127,32 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 6929,
-     "introduced": 630559,
-     "surviving": 306135,
-     "survival_rate": 0.4854977884702304
+     "commits": 6930,
+     "introduced": 630592,
+     "surviving": 306122,
+     "survival_rate": 0.4854517659596062
     }
    }
   ],
   "age_matched": {
-   "tagged_rate": 0.8670345813316394,
-   "untagged_rate": 0.8620080343460624,
-   "gap": 0.0050265469855769185,
+   "tagged_rate": 0.8664506697222332,
+   "untagged_rate": 0.8570790927062328,
+   "gap": 0.009371577016000332,
    "buckets_used": 5,
    "tagged_lines_covered": 1.0
   },
   "oldest_surviving": {
    "date": "2015-09-09",
-   "age_days": 4064,
+   "age_days": 4067,
    "commits_before": 1,
    "introduced_before": 58,
    "tagged_commits_before": 0,
    "tagged_introduced_before": 0,
-   "commits_before_share": 0.0001164551065564225
+   "commits_before_share": 0.00011627906976744187
   }
  },
  "probable_commits": 0,
- "total_commits": 8587,
+ "total_commits": 8600,
  "aggregated": true,
  "coverage": {
   "method": "v6",
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 6,
+ "reports": 7,
  "reproduce": "re audit flutter/website --json",
- "bytes": "https://causari.dev/reports/survival/2026/07/repos/flutter__website.json",
+ "bytes": "https://causari.dev/reports/survival/2026/08/repos/flutter__website.json",
  "license": "CC-BY-4.0"
 }

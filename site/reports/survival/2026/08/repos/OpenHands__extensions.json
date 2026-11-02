@@ -1,0 +1,5298 @@
+{
+  "baseline": {
+    "age_matched": {
+      "buckets_used": 4,
+      "gap": -0.02393495708319182,
+      "tagged_lines_covered": 1.0,
+      "tagged_rate": 0.7656508090589552,
+      "untagged_rate": 0.789585766142147
+    },
+    "by_age": [
+      {
+        "comparable": true,
+        "from_days": 0,
+        "tagged": {
+          "below_floor": false,
+          "cap_lines": 5552,
+          "capped_survival_rate": 0.7951307433728801,
+          "commits": 48,
+          "introduced": 41198,
+          "largest_commit_share": 0.2765182775862906,
+          "median_survival": 0.8842018196856907,
+          "survival_rate": 0.798242633137531,
+          "surviving": 32886
+        },
+        "to_days": 30,
+        "untagged": {
+          "below_floor": false,
+          "cap_lines": 415,
+          "capped_survival_rate": 0.8819701451677908,
+          "commits": 30,
+          "introduced": 3489,
+          "largest_commit_share": 0.35224992834623103,
+          "median_survival": 0.9759499536607971,
+          "survival_rate": 0.8629979936944683,
+          "surviving": 3011
+        }
+      },
+      {
+        "comparable": true,
+        "from_days": 30,
+        "tagged": {
+          "below_floor": false,
+          "cap_lines": 1684,
+          "capped_survival_rate": 0.7774139032313727,
+          "commits": 93,
+          "introduced": 30045,
+          "largest_commit_share": 0.10337826593443168,
+          "median_survival": 0.8464614575111813,
+          "survival_rate": 0.7838242636045931,
+          "surviving": 23550
+        },
+        "to_days": 90,
+        "untagged": {
+          "below_floor": false,
+          "cap_lines": 2637,
+          "capped_survival_rate": 0.8446841986963363,
+          "commits": 19,
+          "introduced": 8898,
+          "largest_commit_share": 0.29635873229939314,
+          "median_survival": 0.9942857142857142,
+          "survival_rate": 0.8446841986963363,
+          "surviving": 7516
+        }
+      },
+      {
+        "comparable": true,
+        "from_days": 90,
+        "tagged": {
+          "below_floor": false,
+          "cap_lines": 1533,
+          "capped_survival_rate": 0.7543738420310248,
+          "commits": 87,
+          "introduced": 21584,
+          "largest_commit_share": 0.13408080059303187,
+          "median_survival": 0.6939571150097466,
+          "survival_rate": 0.7514362490733877,
+          "surviving": 16219
+        },
+        "to_days": 180,
+        "untagged": {
+          "below_floor": false,
+          "cap_lines": 2221,
+          "capped_survival_rate": 0.7658171986692881,
+          "commits": 22,
+          "introduced": 8970,
+          "largest_commit_share": 0.3560758082497213,
+          "median_survival": 0.9663007757715019,
+          "survival_rate": 0.7110367892976589,
+          "surviving": 6378
+        }
+      },
+      {
+        "comparable": true,
+        "from_days": 180,
+        "tagged": {
+          "below_floor": false,
+          "cap_lines": 1627,
+          "capped_survival_rate": 0.7146668095277928,
+          "commits": 123,
+          "introduced": 34914,
+          "largest_commit_share": 0.08583949132153292,
+          "median_survival": 0.8426966292134831,
+          "survival_rate": 0.7203414103225068,
+          "surviving": 25150
+        },
+        "to_days": 365,
+        "untagged": {
+          "below_floor": false,
+          "cap_lines": 1422,
+          "capped_survival_rate": 0.7032614507217965,
+          "commits": 28,
+          "introduced": 5627,
+          "largest_commit_share": 0.25555358094899594,
+          "median_survival": 0.5,
+          "survival_rate": 0.7041052070374978,
+          "surviving": 3962
+        }
+      },
+      {
+        "comparable": false,
+        "from_days": 365,
+        "tagged": {
+          "below_floor": true,
+          "cap_lines": null,
+          "capped_survival_rate": null,
+          "commits": 0,
+          "introduced": 0,
+          "largest_commit_share": null,
+          "median_survival": null,
+          "survival_rate": null,
+          "surviving": 0
+        },
+        "to_days": 730,
+        "untagged": {
+          "below_floor": true,
+          "cap_lines": null,
+          "capped_survival_rate": null,
+          "commits": 0,
+          "introduced": 0,
+          "largest_commit_share": null,
+          "median_survival": null,
+          "survival_rate": null,
+          "surviving": 0
+        }
+      },
+      {
+        "comparable": false,
+        "from_days": 730,
+        "tagged": {
+          "below_floor": true,
+          "cap_lines": null,
+          "capped_survival_rate": null,
+          "commits": 0,
+          "introduced": 0,
+          "largest_commit_share": null,
+          "median_survival": null,
+          "survival_rate": null,
+          "surviving": 0
+        },
+        "to_days": null,
+        "untagged": {
+          "below_floor": true,
+          "cap_lines": null,
+          "capped_survival_rate": null,
+          "commits": 0,
+          "introduced": 0,
+          "largest_commit_share": null,
+          "median_survival": null,
+          "survival_rate": null,
+          "surviving": 0
+        }
+      }
+    ],
+    "oldest_surviving": {
+      "age_days": 342,
+      "commits_before": 0,
+      "date": "2025-11-24",
+      "introduced_before": 0,
+      "tagged_commits_before": 0,
+      "tagged_introduced_before": 0
+    },
+    "untagged": {
+      "below_floor": false,
+      "cap_lines": 2155,
+      "capped_survival_rate": 0.7919529432392067,
+      "commits": 99,
+      "introduced": 26984,
+      "largest_commit_share": 0.11836643937147939,
+      "median_survival": 0.9508196721311475,
+      "survival_rate": 0.7733101096946339,
+      "surviving": 20867
+    }
+  },
+  "by_agent": {
+    "claude-code": {
+      "below_floor": false,
+      "cap_lines": 5552,
+      "capped_survival_rate": 0.9880153403643337,
+      "commits": 12,
+      "introduced": 6258,
+      "largest_commit_share": 0.8871844039629274,
+      "median_survival": 0.9448818897637795,
+      "survival_rate": 0.9880153403643337,
+      "surviving": 6183
+    },
+    "cursor": {
+      "below_floor": true,
+      "cap_lines": 484,
+      "capped_survival_rate": 0.9278846153846154,
+      "commits": 2,
+      "introduced": 624,
+      "largest_commit_share": 0.7756410256410257,
+      "median_survival": 0.953512396694215,
+      "survival_rate": 0.9278846153846154,
+      "surviving": 579
+    },
+    "gemini": {
+      "below_floor": false,
+      "cap_lines": 1,
+      "capped_survival_rate": 0.4,
+      "commits": 15,
+      "introduced": 15,
+      "largest_commit_share": 0.06666666666666667,
+      "median_survival": 0.0,
+      "survival_rate": 0.4,
+      "surviving": 6
+    },
+    "openhands": {
+      "below_floor": false,
+      "cap_lines": 2071,
+      "capped_survival_rate": 0.7552409822139148,
+      "commits": 322,
+      "introduced": 120844,
+      "largest_commit_share": 0.09427029889775247,
+      "median_survival": 0.8036215867753373,
+      "survival_rate": 0.7533431531561352,
+      "surviving": 91037
+    }
+  },
+  "commits": [
+    {
+      "class": "unknown",
+      "committed_at": 1763994627,
+      "hash": "9ca75cc3cb1003faea374cad1e51445361d96e1c",
+      "introduced": 21,
+      "owned_at_head": 21,
+      "surviving": 21
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1764011490,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "d7e9be549d38c1a25bece91fa0ea0df44464e572",
+      "introduced": 1266,
+      "owned_at_head": 700,
+      "surviving": 700
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1764012401,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "4456d5d3b47b10b36fe0ad6ed4451ef3dcbe4956",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1764088139,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "1a3f465c244b75832be8d4883b30a59613599629",
+      "introduced": 200,
+      "owned_at_head": 10,
+      "surviving": 10
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1764088287,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "18d98c7a800f0cb7b472e4db0127cd3dcd7e1bdb",
+      "introduced": 8,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1764088875,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "fc8c25c6f12dd516bc2c9a0ad19ec69881c91d1a",
+      "introduced": 34,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1764089829,
+      "hash": "2bdc196e593b04ef4850871e294842edead6a7f9",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1764089833,
+      "hash": "c36c80003ce6654505a9ef56121b6219c38da541",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1764089888,
+      "hash": "d309d8eca9b33540b02455351b7aeff94c3c38aa",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1764099067,
+      "hash": "6cbb2a89f5e921fab662806b1a413c52b658e88a",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1764615243,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "f74593875ea4f873e544a0ce766a4d64534eecaa",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1764615809,
+      "hash": "7c0f9f002591bed21a383b017a92a139104aec46",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1764866411,
+      "evidence": [
+        "author: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "ae64ceb0ffd0a3d1d6f0b04ba1d330872b690c3c",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1765809063,
+      "hash": "6faafd357f667e6da43f364dd05a9586558b3b9f",
+      "introduced": 4,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1766105887,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "a777d98dc67463ec34ba9079499a94c88629156f",
+      "introduced": 17,
+      "owned_at_head": 16,
+      "surviving": 16
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1766769241,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "1794aa392dc140693176f1c90000c71b370ff80a",
+      "introduced": 97,
+      "owned_at_head": 93,
+      "surviving": 93
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1766777912,
+      "hash": "f8264dcb7cd084fa05bd2124acffcfe357d21e1b",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1767117727,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "79e1ac4eab76eac30ea1c0c932788314a6260688",
+      "introduced": 194,
+      "owned_at_head": 33,
+      "surviving": 33
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1767117830,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "b09c1875c30b021e14f3b2a10db90fbfe466dffc",
+      "introduced": 15,
+      "owned_at_head": 15,
+      "surviving": 15
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1767903803,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "fb9c61ad1d4a5247091ba76cdd6e4eada7f9dd89",
+      "introduced": 305,
+      "owned_at_head": 7,
+      "surviving": 7
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1767906691,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "06a422bafadf2063e9f82fc673cffceb47f7a5c1",
+      "introduced": 41,
+      "owned_at_head": 5,
+      "surviving": 5
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767906958,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "234848b43ab5994b57e363dc39da4983cee1a9a8",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767906968,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "630b73820ed3a397b31a77dfd2c848f18494b853",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767906978,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "f96015132a8713c4d7ff7aa1d490e85ee2189b00",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767906988,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "2e4a445d200099891d277844d84cd5bf841f5db1",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767906996,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "0c73dd428354f63cfdb2d36b962a403cc78b4859",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767907007,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "6f3a0c55ec63d5f3b1d51d29fb0341139f03cb01",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767907021,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "26b50267ef89c49fa8f7a8481cd8e43d3d85efb5",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767907032,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "2528ea183cf7dbfad47b18b7ce79e6453a1981a8",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767907041,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "94acc67c4cc5a3c38dba4548ada164d3c8d2565a",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767907050,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "1ff6d818091b5a9dd6b518f209d979f838012e2e",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767907100,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "574c5de673a9a3966cb852d038581d1e15108a80",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767907178,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "7a000a2a3d5b403e36ab4c2f1ee3cd8cacbe0b03",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767907186,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "0cca65a6b2149fc8975b42c33b1b38eef533ba40",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767907195,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "4f75eb37731f60216e7c2672f7ffdce68be783e6",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "gemini",
+      "class": "verified",
+      "committed_at": 1767907203,
+      "evidence": [
+        "trailer: Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>"
+      ],
+      "hash": "9cb46a867b10e32bb441f3b59c3f3b285e29a6a2",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1767907312,
+      "hash": "467f980bee975ffc992a97fcaaebdb140dbfb9ca",
+      "introduced": 3,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1767907340,
+      "hash": "d61aef10f2b5db3924ff7eef27c7fc3a24de7eaf",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1767907476,
+      "hash": "8f012cc0e5e741dd3f308e661991ebddd8b3791f",
+      "introduced": 3,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1767913726,
+      "hash": "8d236424d2bab4943958113397ed57e5c53e8581",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1767914075,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "096ee876ac5fdb4eccd25444ac50559f7ca6d43e",
+      "introduced": 37,
+      "owned_at_head": 33,
+      "surviving": 33
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1767914352,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "2035010b2a4e3f60aa3b899eb9ef444f7dc5ae64",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1767914583,
+      "hash": "36df60408dc419b3c8de2702d3d8f4f5af67f3a6",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1767985119,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "d60396e2a1b1a3c0b56c91c920873e344e1bc3f7",
+      "introduced": 1627,
+      "owned_at_head": 1370,
+      "surviving": 1370
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1767985722,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "19c28db20de65b5044c0590991e36bad3ca1e9bf",
+      "introduced": 219,
+      "owned_at_head": 218,
+      "surviving": 218
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1768322958,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "ddc8302c2b88c85c3c55e719438887a6068db5ef",
+      "introduced": 107,
+      "owned_at_head": 103,
+      "surviving": 103
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1768511545,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "0b286d00da42653e507d1bdcf0abb46095370ff6",
+      "introduced": 25,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1768594492,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "59f5a183824ead628c114bfd97bfdf535e1bce4f",
+      "introduced": 204,
+      "owned_at_head": 84,
+      "surviving": 84
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1769006381,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "5b44b7afc7e4bf8aa0e696966a154eaff532cb61",
+      "introduced": 103,
+      "owned_at_head": 103,
+      "surviving": 103
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1769054782,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "4d217a3451464ebcc0a4b2e15d83d319d010d862",
+      "introduced": 2254,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1769117003,
+      "hash": "335e3adc4a727a352b152fbbfe94d76b4c74cc98",
+      "introduced": 5,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1769182133,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "f5b98247c9994b9f6bb631763ccd90b7b141bdda",
+      "introduced": 32,
+      "owned_at_head": 17,
+      "surviving": 17
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1769442431,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "96af1c9a71a5f756f5d7efa3a614beddafea5b95",
+      "introduced": 140,
+      "owned_at_head": 96,
+      "surviving": 96
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1770228725,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "be2e447dd409d0b982100a0470ddfb08c9764f00",
+      "introduced": 2149,
+      "owned_at_head": 1534,
+      "surviving": 1534
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1770408156,
+      "hash": "49937783599764d83ad085446f5351a31f86650c",
+      "introduced": 306,
+      "owned_at_head": 285,
+      "surviving": 285
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1770646384,
+      "hash": "70833c8db52973663df987e117a220a65dd3ef4f",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1770739473,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "e738eca9b600e70189cae8e2fb88cc4e8418fae1",
+      "introduced": 394,
+      "owned_at_head": 341,
+      "surviving": 341
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1770781407,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "a247a15469388ed2e0123070239bf15df1f81a37",
+      "introduced": 3,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1770805692,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "671c3903ec35974e1acbf4ebbb294c341703462d",
+      "introduced": 20,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1770809365,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "ef042107e163f19736d6fa68a55b173f3f28071f",
+      "introduced": 68,
+      "owned_at_head": 72,
+      "surviving": 68
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1770817238,
+      "hash": "a1d7f96e521f9f2579b51f1aa6a9d30838d16121",
+      "introduced": 25,
+      "owned_at_head": 23,
+      "surviving": 23
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1770922878,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "ca13358e0f640f17c0b270f1c72eb892d9c051e4",
+      "introduced": 121,
+      "owned_at_head": 70,
+      "surviving": 70
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1770923414,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "52c9a2f3fd6644f2ca08163aa0565a0cfd6b5376",
+      "introduced": 45,
+      "owned_at_head": 44,
+      "surviving": 44
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1771099808,
+      "hash": "cb4039b86ddaac9e617ae840b277c34a7a4b773e",
+      "introduced": 215,
+      "owned_at_head": 215,
+      "surviving": 215
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1771100468,
+      "hash": "50fa4f36443d06f19fbe9dd090070a73d7cabf88",
+      "introduced": 106,
+      "owned_at_head": 94,
+      "surviving": 94
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1771102944,
+      "hash": "ef0fa09419779a3ba5c1592ebe2cc16ec0392c97",
+      "introduced": 365,
+      "owned_at_head": 113,
+      "surviving": 113
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1771103962,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "11f0a2e2c8f21cb9615b09286d0e964c981d664f",
+      "introduced": 553,
+      "owned_at_head": 553,
+      "surviving": 553
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1771261114,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "75f7c5cfe1e6071c1a12ba86e2596d6d41fb11f6",
+      "introduced": 89,
+      "owned_at_head": 85,
+      "surviving": 85
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1771448612,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "13962ea581b2f902c3c2e882aba9eed587b1fba3",
+      "introduced": 50,
+      "owned_at_head": 5,
+      "surviving": 5
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1771449297,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "e1c0cb48d4c6a3572e9b22825b93f0cb30bdc4e3",
+      "introduced": 78,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1771449376,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "b1a69eb41573dce52c836045dd3810d26ed8be00",
+      "introduced": 882,
+      "owned_at_head": 356,
+      "surviving": 356
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1771511845,
+      "hash": "25a6c289947c9f5d7e74007b371f92dda00b5194",
+      "introduced": 12,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1771513850,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "69e55ae5d4ad6399c8f94c125bd9f52b621e3d27",
+      "introduced": 2112,
+      "owned_at_head": 1879,
+      "surviving": 1879
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1771544078,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "13c898f29b4dd46194b8e2e6ae6a7f7bcba17638",
+      "introduced": 236,
+      "owned_at_head": 125,
+      "surviving": 125
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1771974186,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "88cb4c1d9b8eb61433c1d27782f985137cc62153",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1772051450,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "a20257e99d9c2a94308aa2b4529f7aac3997d88e",
+      "introduced": 178,
+      "owned_at_head": 150,
+      "surviving": 150
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1772196373,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "2de9a09c6a92807f0aef017895b2f46567db0247",
+      "introduced": 1270,
+      "owned_at_head": 1269,
+      "surviving": 1269
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1772214917,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "69c72372dbb7c7a6690835318db4c919d093e842",
+      "introduced": 26,
+      "owned_at_head": 24,
+      "surviving": 24
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1772475027,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "224001083fd1996d6bf4cd71e395581d3a38f1ff",
+      "introduced": 284,
+      "owned_at_head": 277,
+      "surviving": 277
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1772475989,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "3d32686de31cf4814b19dca9c4a6cf0ce88317df",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1772742285,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "444a4c3d1645bc50ebea656be1f5414233d245f8",
+      "introduced": 6,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1772746063,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "406f82a045a7513ebbf07d8e486a34154ed4e3cf",
+      "introduced": 263,
+      "owned_at_head": 259,
+      "surviving": 259
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1772822162,
+      "hash": "cebd78b17103945baa5946ad5c7f0c3d4ec96050",
+      "introduced": 1248,
+      "owned_at_head": 1384,
+      "surviving": 1248
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1772835064,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "71d965a6e5553ca15adea1a44e95d172514f5670",
+      "introduced": 1087,
+      "owned_at_head": 1071,
+      "surviving": 1071
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1772852093,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "dea40451146250364e248220f2015f75df2b41cb",
+      "introduced": 455,
+      "owned_at_head": 293,
+      "surviving": 293
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1772909142,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "c21b0f9ea47298e3d5af035a13254b6d727c40ec",
+      "introduced": 21,
+      "owned_at_head": 11,
+      "surviving": 11
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1772991065,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "e1c0496636c36a35e3e238f87f81dce6bbe767a2",
+      "introduced": 133,
+      "owned_at_head": 114,
+      "surviving": 114
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1773044153,
+      "hash": "a3394e8a667d600a7950dcf34a50735c77fcc741",
+      "introduced": 1422,
+      "owned_at_head": 78,
+      "surviving": 78
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1773166169,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "d81ea058e1c68fbd337a5e5660f3cb1e39c2267e",
+      "introduced": 1278,
+      "owned_at_head": 892,
+      "surviving": 892
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1773329046,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "3005068aecea5134b03b229ab59163cff9c23d8f",
+      "introduced": 287,
+      "owned_at_head": 285,
+      "surviving": 285
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1773438336,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "73052767a1f761dc87afbef19899bff23a28a37e",
+      "introduced": 20,
+      "owned_at_head": 7,
+      "surviving": 7
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1773694511,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "70badf89c0fff87ad1e88272a4cf5bf4c590380b",
+      "introduced": 42,
+      "owned_at_head": 39,
+      "surviving": 39
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1773749145,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "2fb00d7fad77459b04cce1bf2b98c6b816152a34",
+      "introduced": 49,
+      "owned_at_head": 45,
+      "surviving": 45
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1774084800,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "acd65e6ce0df928078fa1b98f3cd448f3efcb886",
+      "introduced": 2,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1774138383,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "fdd6c7373bdf1c20cfdedb7261ffdbf49d5a76e5",
+      "introduced": 1131,
+      "owned_at_head": 286,
+      "surviving": 286
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1775067032,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "2e41da681b82df78600ff923f457b51327c69dac",
+      "introduced": 215,
+      "owned_at_head": 216,
+      "surviving": 215
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1775129229,
+      "hash": "4bfae2ce959dc2e3baaa366c426c91a078008ff3",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1775141584,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "05f05d55d47c05595cbf3f41ebe2fdbec0e0b477",
+      "introduced": 2997,
+      "owned_at_head": 2988,
+      "surviving": 2988
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1775187709,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "df1828e9880d434306f50c69f7c37f99c5f5bd68",
+      "introduced": 10,
+      "owned_at_head": 10,
+      "surviving": 10
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1775234282,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "506c685a9096687ccdc5f3a8254e78a58dcbb9c3",
+      "introduced": 36,
+      "owned_at_head": 25,
+      "surviving": 25
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1775245315,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "95c9abf8951e4c620ab80b0e738b4bae4c8db426",
+      "introduced": 12,
+      "owned_at_head": 12,
+      "surviving": 12
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1775336141,
+      "hash": "507dd9ffdb2ad6dbcefcaa84a401f2692c316062",
+      "introduced": 8,
+      "owned_at_head": 7,
+      "surviving": 7
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1775487521,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "ef5a6c2abc02087f2d9c03adb74c28818df44469",
+      "introduced": 302,
+      "owned_at_head": 299,
+      "surviving": 299
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1775514397,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "db07e3b8ad35b66807811bb3f106d69828331571",
+      "introduced": 38,
+      "owned_at_head": 36,
+      "surviving": 36
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1775575114,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "b107f2c86be36e50fe1a7f88ac4cebc5014b9290",
+      "introduced": 920,
+      "owned_at_head": 835,
+      "surviving": 835
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1775663843,
+      "hash": "eb2947b31c50eca9cd67065c291cb6acdd963c71",
+      "introduced": 1438,
+      "owned_at_head": 1450,
+      "surviving": 1438
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1775690129,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "9c5daaea76fb81eb529b533403878b512b6d5de6",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1775692195,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "9e5bb49dbe61bdb364c89c10c7307c38139e9532",
+      "introduced": 5,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776172849,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "e9ca9409af6b04148929c76a3155c7c0ef4204d3",
+      "introduced": 272,
+      "owned_at_head": 265,
+      "surviving": 265
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776183541,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "99af8a983c9407e12df0fe3c8542ef8a3326d6e7",
+      "introduced": 345,
+      "owned_at_head": 262,
+      "surviving": 262
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776188739,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "bfdd3d001e6d885b4a4b973fb70328387bca0237",
+      "introduced": 677,
+      "owned_at_head": 285,
+      "surviving": 285
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776214508,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "8da3fb7169bccc43443fcbba5382eb7f994a4ada",
+      "introduced": 155,
+      "owned_at_head": 39,
+      "surviving": 39
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776217503,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "3175a1b77279bbc7514082bfa18e143939481d91",
+      "introduced": 1083,
+      "owned_at_head": 915,
+      "surviving": 915
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776263541,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "921a279847c0a5dc97ca90a761f09cc5780ab737",
+      "introduced": 108,
+      "owned_at_head": 108,
+      "surviving": 108
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776264909,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "c4f3c3e44a07c90c192b7aa96e8a1b8f1d3566fd",
+      "introduced": 26,
+      "owned_at_head": 22,
+      "surviving": 22
+    },
+    {
+      "agent": "claude-code",
+      "class": "verified",
+      "committed_at": 1776266372,
+      "evidence": [
+        "trailer: Co-authored-by: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
+      ],
+      "hash": "1bcd14cd4563682e31f82e27dca009ced86f6bec",
+      "introduced": 31,
+      "owned_at_head": 29,
+      "surviving": 29
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776287844,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "b7b2688261b6c9551cd10435f14eb40a4dbf68a6",
+      "introduced": 685,
+      "owned_at_head": 139,
+      "surviving": 139
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776459084,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "fae914d4ada9e85ae0686dd7c0a50781d229679b",
+      "introduced": 235,
+      "owned_at_head": 186,
+      "surviving": 186
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776708156,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "f1fe4638e73aa98a4076a1464177bb4c8b7dacba",
+      "introduced": 46,
+      "owned_at_head": 41,
+      "surviving": 41
+    },
+    {
+      "agent": "claude-code",
+      "class": "verified",
+      "committed_at": 1776710845,
+      "evidence": [
+        "trailer: Co-authored-by: Claude Sonnet 4.6 <noreply@anthropic.com>"
+      ],
+      "hash": "b13063bea5234104723daf4b2079fbf12808fa8d",
+      "introduced": 3,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1776759149,
+      "hash": "ac567f2964ab9188c987ce9b5da79007005c0250",
+      "introduced": 436,
+      "owned_at_head": 432,
+      "surviving": 432
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776788822,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "2fc3c44a6f7474ac2a7db152b79b012706c9a3a0",
+      "introduced": 9,
+      "owned_at_head": 6,
+      "surviving": 6
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776789491,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "d93335cad3759165968b538f93a5a157d373e139",
+      "introduced": 232,
+      "owned_at_head": 218,
+      "surviving": 218
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776799319,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "708033c848763baefa8ab895307df920b6ede3cf",
+      "introduced": 2,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1776813630,
+      "hash": "b73d2a1400293bcfe8b4e9ece64ed09bfc8d0d37",
+      "introduced": 2,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776949125,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "9bfc3e5c9fe35423c0ceb3f47f8e447f9a5efd4b",
+      "introduced": 780,
+      "owned_at_head": 105,
+      "surviving": 105
+    },
+    {
+      "agent": "claude-code",
+      "class": "verified",
+      "committed_at": 1776952826,
+      "evidence": [
+        "trailer: Co-authored-by: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
+      ],
+      "hash": "ac45ccf63025d93f836590b38a020b4676e0305b",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "claude-code",
+      "class": "verified",
+      "committed_at": 1776955106,
+      "evidence": [
+        "trailer: Co-authored-by: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
+      ],
+      "hash": "a9d7f18d346a2db39a6ef6091e55947082fccc05",
+      "introduced": 11,
+      "owned_at_head": 9,
+      "surviving": 9
+    },
+    {
+      "agent": "claude-code",
+      "class": "verified",
+      "committed_at": 1776955746,
+      "evidence": [
+        "trailer: Co-authored-by: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
+      ],
+      "hash": "b230253055a324d544ffd02c3d6972844f8b3842",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776956859,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "9cd0fc07ea6a5722ee03b2e54a801f33224f3f08",
+      "introduced": 14,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776958348,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "02ed9ebf990d6e4822d7a745457d5ce41655292a",
+      "introduced": 314,
+      "owned_at_head": 288,
+      "surviving": 288
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776960408,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "43c9f3763907e0c093d65994dc0dc3d7a4a44797",
+      "introduced": 4,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776965458,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "e42bffe02c611127aa11350fcc213f2b50ef1ad6",
+      "introduced": 67,
+      "owned_at_head": 66,
+      "surviving": 66
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776970447,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "914eae7e03a71202702fd0f5fcc3315d6c20be59",
+      "introduced": 9,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776970483,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "e732290b3b73c68003cad64e01da3e7f24c2c5d8",
+      "introduced": 5,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1776975579,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "22211a04023f0b9c90b56c294c8527ccea5fcf61",
+      "introduced": 930,
+      "owned_at_head": 894,
+      "surviving": 894
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777129649,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "3ef520c17855e3ea6300fca37535173c7ef7489f",
+      "introduced": 401,
+      "owned_at_head": 399,
+      "surviving": 399
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777133248,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "e73de6bc2c135f87dc3859790eaa5bdd266089ce",
+      "introduced": 7,
+      "owned_at_head": 7,
+      "surviving": 7
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777139308,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "14ee385a0bcdc70f4a5b3d9f070c9bee587c702c",
+      "introduced": 26,
+      "owned_at_head": 30,
+      "surviving": 26
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777321449,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "f47f7b1c702a0a5f89812458637af042afb1cb9c",
+      "introduced": 18,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777323143,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "760e5b3d2427f7038d6923e3451c7cab5cf6736e",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777389512,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "0d8b3b750a6d1cdd1de0832521b4ca0c85d85d2c",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777465785,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "48ba5d01cd6d58c0ff12540102fdcaf44dc04cd0",
+      "introduced": 38,
+      "owned_at_head": 36,
+      "surviving": 36
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777482105,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "2fe184d7e3349a852e8c59ce86c1673f7c3ab9e5",
+      "introduced": 409,
+      "owned_at_head": 336,
+      "surviving": 336
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777483979,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "af8d6b293d0021d21e9d4f65e37484a4b4793547",
+      "introduced": 493,
+      "owned_at_head": 449,
+      "surviving": 449
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777484238,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "fd8389191ca66206f5eeaa113c2310cc90fce6c8",
+      "introduced": 64,
+      "owned_at_head": 61,
+      "surviving": 61
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777502148,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "42ac049dbcc2f1af0d15b1fad5126d7a51122a96",
+      "introduced": 29,
+      "owned_at_head": 26,
+      "surviving": 26
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777822562,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "790dc5b29f546f6917f0b6c791ce9be2499045c2",
+      "introduced": 30,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777823322,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "d97b97412640024fb3b81f51381c9ad57ec9dd51",
+      "introduced": 255,
+      "owned_at_head": 225,
+      "surviving": 225
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777906688,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "d834884fa99b81a1b0839a257ce4c6acbe1b3ae8",
+      "introduced": 2249,
+      "owned_at_head": 2240,
+      "surviving": 2240
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1777993784,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "21c5422a90ef31971d91f8a7a11a7b5279ee77c6",
+      "introduced": 35,
+      "owned_at_head": 30,
+      "surviving": 30
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1778033884,
+      "hash": "75e39288f6c2366b75cf290441da06e187395f63",
+      "introduced": 15,
+      "owned_at_head": 17,
+      "surviving": 15
+    },
+    {
+      "agent": "claude-code",
+      "class": "verified",
+      "committed_at": 1778687033,
+      "evidence": [
+        "trailer: Co-authored-by: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
+      ],
+      "hash": "59aa94a71c6651eb3f7acf7de52e47611b8f4c79",
+      "introduced": 6,
+      "owned_at_head": 6,
+      "surviving": 6
+    },
+    {
+      "agent": "claude-code",
+      "class": "verified",
+      "committed_at": 1778837021,
+      "evidence": [
+        "trailer: Co-authored-by: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
+      ],
+      "hash": "0275b6b1dde7ae4fdf1a3180fafe47418c5b3cfd",
+      "introduced": 408,
+      "owned_at_head": 396,
+      "surviving": 396
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1778952665,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "7782172ec796216cea2091e3f20c4d2a8a67da31",
+      "introduced": 27,
+      "owned_at_head": 19,
+      "surviving": 19
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779035018,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "4310d8635acdfaac84c79838785f7e2397329164",
+      "introduced": 21,
+      "owned_at_head": 5,
+      "surviving": 5
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779122557,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "3bba8e3bd8a134ad190347549d9aead98b081980",
+      "introduced": 1853,
+      "owned_at_head": 862,
+      "surviving": 862
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779180250,
+      "evidence": [
+        "trailer: Co-authored-by: OpenHands <openhands@all-hands.dev>"
+      ],
+      "hash": "f8870918c072438f810f7a4859e143cc9028f5a4",
+      "introduced": 6,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779231117,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "c3f896acc55d8ee8717ab40f236960e71c2d477d",
+      "introduced": 2,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779232676,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "71fc82455857c52864d905e9f5e5ba6da47821cf",
+      "introduced": 26,
+      "owned_at_head": 14,
+      "surviving": 14
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779233177,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "7b33f64ffccf95f7ccd2ec640aeae84ab1cc2c75",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779242767,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "d2c9fec2fe8edf603cf0ec69c7fae796fd932246",
+      "introduced": 483,
+      "owned_at_head": 471,
+      "surviving": 471
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779292132,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "d0634188c8f0b7701c4524c0d99cfec3e3d7cb09",
+      "introduced": 22,
+      "owned_at_head": 19,
+      "surviving": 19
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779306287,
+      "hash": "d0ca55653388096ced829b68807f4b92876557b0",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779308212,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "2ba66ef2820f61b351808f7ca68f0db3f76e3c18",
+      "introduced": 9,
+      "owned_at_head": 9,
+      "surviving": 9
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779318195,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "5c9fa471771a3b3060d9bae5e8b6284a50e28680",
+      "introduced": 12,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779375491,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "bf5fabd308b6f86aa7812c75312a121663077fda",
+      "introduced": 2,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779403333,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "b3c782bb7a89c4dc27b3ff1ff969e8be020e24ea",
+      "introduced": 358,
+      "owned_at_head": 346,
+      "surviving": 346
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779471185,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "19a5613a8b65bc02e3a78f1fe1a0546a94984a12",
+      "introduced": 1458,
+      "owned_at_head": 1232,
+      "surviving": 1232
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779488539,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "503e5a88a577f0610f8afd5a1cb35982c9716c56",
+      "introduced": 1956,
+      "owned_at_head": 1443,
+      "surviving": 1443
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779507356,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "3125e1176f2fe47fbb3a31ba37a3bbdb0b7952b4",
+      "introduced": 26,
+      "owned_at_head": 9,
+      "surviving": 9
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779543609,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "b8c1869ec9dea4467bb27d5754dc695d14e27889",
+      "introduced": 115,
+      "owned_at_head": 77,
+      "surviving": 77
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779737261,
+      "hash": "c4d8d9727405d26fe9013f7ac4ca477cb61a37f6",
+      "introduced": 3194,
+      "owned_at_head": 833,
+      "surviving": 833
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1779898072,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "39711065f53166c52608462f60a4c8507253ce56",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780068987,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "d7c9542fe930fb614ae0c6986dc33a5db327d9d4",
+      "introduced": 38,
+      "owned_at_head": 32,
+      "surviving": 32
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780254978,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "09503a604b0a08851722a3742e9555b81c54730f",
+      "introduced": 79,
+      "owned_at_head": 63,
+      "surviving": 63
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780331377,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "71af09e862a9e7b44fd5a2dfba8e2c465a1e9d18",
+      "introduced": 187,
+      "owned_at_head": 182,
+      "surviving": 182
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780362365,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "2b25ca9183527dac339d10d947ddc244e9d41f56",
+      "introduced": 2152,
+      "owned_at_head": 2150,
+      "surviving": 2150
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780421494,
+      "evidence": [
+        "trailer: Co-authored-by: OpenHands Bot <contact@all-hands.dev>"
+      ],
+      "hash": "986cb2e9ec99f2d71e845197897d2ab221decd9d",
+      "introduced": 9,
+      "owned_at_head": 8,
+      "surviving": 8
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780435803,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "62594156a187722344736bc2ff5edfb12c0cc75c",
+      "introduced": 19,
+      "owned_at_head": 13,
+      "surviving": 13
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780447372,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "a47c38120197824f4df1edf959e60216512d6534",
+      "introduced": 49,
+      "owned_at_head": 48,
+      "surviving": 48
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780471354,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "899fdaf6ce4b5d0f1deef9bb8fcef2440f884492",
+      "introduced": 129,
+      "owned_at_head": 127,
+      "surviving": 127
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780494309,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "26f124c727f77d77d32fbaf41366732ff0f68471",
+      "introduced": 22,
+      "owned_at_head": 16,
+      "surviving": 16
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780498583,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "660bb7c1d356619be67c4db01d358dcf5b1574b9",
+      "introduced": 204,
+      "owned_at_head": 157,
+      "surviving": 157
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780591224,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "d916b3599246360bfef12ddf7a7f7568369a8b3c",
+      "introduced": 1533,
+      "owned_at_head": 753,
+      "surviving": 753
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780599593,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "5dd68ff47a197a7f8e7cdd7a32a6dcb3702cbd7f",
+      "introduced": 160,
+      "owned_at_head": 145,
+      "surviving": 145
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780676783,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "171a9973f50893e4d93c4896339ed40ea29530fa",
+      "introduced": 6,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1780679996,
+      "hash": "28d545c82a037d19db89e56ef8b610d6a9e8ce2f",
+      "introduced": 182,
+      "owned_at_head": 171,
+      "surviving": 171
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1780681496,
+      "hash": "f6a3d13f6449eb5b5953b2c8f0d1fe43642e0c06",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780681767,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "4321ca834d25c60f16ad94ff054f42c63a13a0ca",
+      "introduced": 3,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1780684892,
+      "hash": "eae4738b31b2292a14391638d4df321f0cc1f1ac",
+      "introduced": 16,
+      "owned_at_head": 16,
+      "surviving": 16
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780684953,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "fdb217a0ea572fc74b65582ccd63802ab1cec1e2",
+      "introduced": 3,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780765550,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "0057d0126cbdca656b8ea57fff6ac1ad3a776d0c",
+      "introduced": 154,
+      "owned_at_head": 154,
+      "surviving": 154
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780867844,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "3299ef182099688f6f89193926b38935fd4c1337",
+      "introduced": 924,
+      "owned_at_head": 889,
+      "surviving": 889
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780868043,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "081cf7699966c03d5dfffc04a116926fe3cba2ff",
+      "introduced": 3,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "claude-code",
+      "class": "verified",
+      "committed_at": 1780935707,
+      "evidence": [
+        "trailer: Co-authored-by: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
+      ],
+      "hash": "ecb181896c190111f9a243d233cb664597fa0526",
+      "introduced": 5,
+      "owned_at_head": 5,
+      "surviving": 5
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1780941140,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "e56c5ef4715aff78f5c944e9da623b8f3a8ac193",
+      "introduced": 283,
+      "owned_at_head": 279,
+      "surviving": 279
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1780954422,
+      "hash": "3fbc4b8993cfc90d1eab73ea9592747722881733",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1780954905,
+      "hash": "05215de0342d8b74dedccfb6cc3560e47d5d4e1b",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781012026,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "6001ad82d121bb4ac9ff5b266017f06817c8173c",
+      "introduced": 16,
+      "owned_at_head": 12,
+      "surviving": 12
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781012693,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "2a2d875bc7237b2f6935c4e79400925254be83e3",
+      "introduced": 26,
+      "owned_at_head": 13,
+      "surviving": 13
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781027485,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "3f8a900770f2b8d473218c62e5938df49c363602",
+      "introduced": 25,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781027564,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "f60dee40278df8d5ccbe6e19afc36e2af16bb936",
+      "introduced": 25,
+      "owned_at_head": 25,
+      "surviving": 25
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781027630,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "e7d200fdabc6801dd9df810c2037444a8aebb136",
+      "introduced": 2,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781098881,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "53b22e3b8b4408f3ac93f79ddda261fe4f6e0637",
+      "introduced": 3,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781187759,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "b755c886eba32ba52d718a07a016d57067f85597",
+      "introduced": 911,
+      "owned_at_head": 436,
+      "surviving": 436
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781194246,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "8b632f69141ac672bd4947c2205cbfeef255eba3",
+      "introduced": 3,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781196565,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "4cc912203323cb6a9970f493ccb5a610f5a2da19",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781199332,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "8c4366c890497db9eb476908a828b96b788496e6",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781228541,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "58bc66110b2a12b3bcd80513b8b8aa1e9c13c185",
+      "introduced": 396,
+      "owned_at_head": 232,
+      "surviving": 232
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781228768,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "219b1a3b5d1a181385e17e674eef1ebd3089231c",
+      "introduced": 3,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781274427,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "e1d7ba310a941804022c79a786de0a28c618680d",
+      "introduced": 332,
+      "owned_at_head": 284,
+      "surviving": 284
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781278406,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "aba201ddbd8a50ab4bdee560d56616a159c2767a",
+      "introduced": 10,
+      "owned_at_head": 9,
+      "surviving": 9
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781278525,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "ee7480edafd0fa92b1134b844bb554ad357f2380",
+      "introduced": 3,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781545599,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "e15748cf0e13dccb73fef1a403a4b2e6212fdc46",
+      "introduced": 188,
+      "owned_at_head": 167,
+      "surviving": 167
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781809576,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "af767ddf7f127a8745df67a72f42d0a4cea69192",
+      "introduced": 485,
+      "owned_at_head": 409,
+      "surviving": 409
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1781887276,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "bb34a76d5230ba287cda4ea2883b5d008111575c",
+      "introduced": 197,
+      "owned_at_head": 190,
+      "surviving": 190
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782080417,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "c72f462e8714cd008eefc68906a21ab7f33eef62",
+      "introduced": 6,
+      "owned_at_head": 6,
+      "surviving": 6
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782080450,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "67494e5cdd65c3e1893616f0f5df1e490a099e25",
+      "introduced": 2,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782134265,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "c9c99413ba5537e0471533a9bcd55e218ac4ae58",
+      "introduced": 83,
+      "owned_at_head": 82,
+      "surviving": 82
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782223347,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "14b7acdbfd6fb4fbd309024b26fb01460ee52484",
+      "introduced": 2894,
+      "owned_at_head": 1938,
+      "surviving": 1938
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782226558,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "3c9353849df6a681260e504236bcf598f1ba3ac1",
+      "introduced": 32,
+      "owned_at_head": 20,
+      "surviving": 20
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782250365,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "b99ddea109822ea201e18bb7b766ac82a00883af",
+      "introduced": 5,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782314728,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "6059badd20012a7d23a37bb9117ff305cd619a87",
+      "introduced": 286,
+      "owned_at_head": 222,
+      "surviving": 222
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782336881,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "3d80d8d92bd82a302ff58c4b5334b19fd1adf0ea",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1782400880,
+      "hash": "e7ffdde7d643c1288939fb3da4a19f89764e78d2",
+      "introduced": 104,
+      "owned_at_head": 71,
+      "surviving": 71
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782585643,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "b0092a35c2a6c4fc3b326f7997b8a4ee8a9bf89b",
+      "introduced": 75,
+      "owned_at_head": 66,
+      "surviving": 66
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782614206,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "fc52b1bd8ab463f89a4677a1d3208cdab3fd8bca",
+      "introduced": 673,
+      "owned_at_head": 527,
+      "surviving": 527
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782614484,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "5a4b60aed5a7b65eca055e2446e2ba3de7bad9df",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782614708,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "49fddbcb9d0a22084d07e1b8c9e951abbc0a70aa",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782614897,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "c020fae5cb3ec42fbdd0d8e753b3d47006ed9282",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782644974,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "4479797ede9b97d0b38977e083be8500361f4947",
+      "introduced": 8,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782696815,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "e6e24dd114d7b4e5a29e1775efe5cbb03f6d06c1",
+      "introduced": 29,
+      "owned_at_head": 29,
+      "surviving": 29
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782697824,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "9cc4c6da07d0227722f2093e699b4dc1d8953d33",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1782700840,
+      "hash": "6e46834290cf90864361b6900061550377bd16b9",
+      "introduced": 128,
+      "owned_at_head": 127,
+      "surviving": 127
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782792062,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "f2733f3268653efbde0df673a135dcfe04488369",
+      "introduced": 16,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782792273,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "c1392e8b2ebbfbda5cd70628334c05684f5a1b75",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782824448,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "d63156eed3398ef2be117dfea140bf35c4f8a824",
+      "introduced": 39,
+      "owned_at_head": 36,
+      "surviving": 36
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1782946196,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "599cc4dc95bf1f489dedaf9f722331b0cd71c52e",
+      "introduced": 822,
+      "owned_at_head": 749,
+      "surviving": 749
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1783027071,
+      "hash": "7b0de54473eafa875286522fd518be167c83c268",
+      "introduced": 120,
+      "owned_at_head": 79,
+      "surviving": 79
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1783278523,
+      "hash": "b04266e78976f04738bed13bc358237cc52f9d78",
+      "introduced": 39,
+      "owned_at_head": 37,
+      "surviving": 37
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1783350315,
+      "hash": "2a1bb45e9ffbd55ef26acf3bc805eb73ffed812c",
+      "introduced": 20,
+      "owned_at_head": 20,
+      "surviving": 20
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1783360835,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "20e1b9fd2867d719e38fb502be2350c0e2b74445",
+      "introduced": 839,
+      "owned_at_head": 561,
+      "surviving": 561
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1783604469,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "56c74634e85700e298910ed3f58d0b4a27ba3c04",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1783714233,
+      "hash": "59ed7a38c8a3600bb9cee5ea481d6418ea8dd1d1",
+      "introduced": 272,
+      "owned_at_head": 264,
+      "surviving": 264
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1783719493,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "ae671cfb445443f37203088f8e969dfa5fd9fc4d",
+      "introduced": 124,
+      "owned_at_head": 57,
+      "surviving": 57
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1783844675,
+      "hash": "da671c7981790a17bc7f7ebdce46292885536059",
+      "introduced": 1305,
+      "owned_at_head": 1257,
+      "surviving": 1257
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1783844891,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "279ece7e6e678dc1edee98da75a2cf05df2dbfa3",
+      "introduced": 5,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1783912967,
+      "hash": "fc09aeff8aa92c19741fcc17d3d497540c39f942",
+      "introduced": 155,
+      "owned_at_head": 151,
+      "surviving": 151
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1783939853,
+      "hash": "de28dbb326505af966529eb8a65a87be5bf8ab1f",
+      "introduced": 27,
+      "owned_at_head": 26,
+      "surviving": 26
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1784130758,
+      "evidence": [
+        "trailer: Co-authored-by: jpelletier1 <joe@openhands.dev>"
+      ],
+      "hash": "0729756a18f27c129b194ce2b6502b7755eb756f",
+      "introduced": 74,
+      "owned_at_head": 42,
+      "surviving": 42
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1784564551,
+      "hash": "9b2dd52e1fbe416536618e8f965d9b75a14be72c",
+      "introduced": 437,
+      "owned_at_head": 436,
+      "surviving": 436
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1784631089,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "9def413cc05fa8287ed236d846af85f977baea45",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1784649841,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "ce324178a5a1b0eccf054fa37d1c9dd030644f03",
+      "introduced": 20,
+      "owned_at_head": 15,
+      "surviving": 15
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1785319990,
+      "hash": "ee80646b3fbb023f805f3cbfd6f2c4be7c3935ff",
+      "introduced": 6,
+      "owned_at_head": 5,
+      "surviving": 5
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1785335355,
+      "hash": "f887f192d05da5f50df7aa449d82ff2d9c28904d",
+      "introduced": 2221,
+      "owned_at_head": 2153,
+      "surviving": 2153
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1785399102,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "6bd749aa3e9c006109d0399d4e7690f29a357916",
+      "introduced": 144,
+      "owned_at_head": 140,
+      "surviving": 140
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1785410805,
+      "hash": "142047f02550c4c391f3901e03719bbeea126321",
+      "introduced": 98,
+      "owned_at_head": 96,
+      "surviving": 96
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1785549571,
+      "hash": "f3e8bf794abcd0f8f79c9cb3b4c6ad4a10bb045a",
+      "introduced": 627,
+      "owned_at_head": 620,
+      "surviving": 620
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1785755459,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "779561f7ff5f951dae99ddc67d6c29b8c9ea45a4",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1785791403,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "071d10e6ade9dc6124c152b3bb2255bbcf5c25c3",
+      "introduced": 527,
+      "owned_at_head": 522,
+      "surviving": 522
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1785791676,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "b4df5c07be15a7fd865b9f6a8c3cf6c1cff769fd",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1785809217,
+      "hash": "339a5f5d8c049c67689a958b03e01f08424db522",
+      "introduced": 471,
+      "owned_at_head": 423,
+      "surviving": 423
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1785863900,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "d19c071d2d7bc92482df75223c5fc6aa3f3b99de",
+      "introduced": 8,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1785868223,
+      "hash": "b6351ab3ad12c432f1d574a9f98aef3dd810e62a",
+      "introduced": 525,
+      "owned_at_head": 519,
+      "surviving": 519
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1785868353,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "709f230e75005851cc08ffe3b374b17498b3e2ef",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1786114717,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "2cfd75e2396ad5111f0e1670a5534a79bbf97a3e",
+      "introduced": 2,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1786319830,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "48c06a4eaff2ad54ec201238d80fafadcce9e607",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1786352502,
+      "hash": "e13c1aa648bf67e9f94a6a9324c8560c350d0f55",
+      "introduced": 4,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1786395140,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "91f27d40bbb3e3dae6a6fd750cc3a055fe7746e9",
+      "introduced": 7,
+      "owned_at_head": 6,
+      "surviving": 6
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1786602434,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "bc6017d82a00d4f3ad96b7ed491c0fc4453ca6ca",
+      "introduced": 84,
+      "owned_at_head": 84,
+      "surviving": 84
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1786669643,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "a559a581047428e48ca061bb3b586587000fe1ba",
+      "introduced": 194,
+      "owned_at_head": 143,
+      "surviving": 143
+    },
+    {
+      "agent": "claude-code",
+      "class": "verified",
+      "committed_at": 1786759331,
+      "evidence": [
+        "trailer: Co-authored-by: Claude Opus 5 (1M context) <noreply@anthropic.com>"
+      ],
+      "hash": "75924ab2dd9b1efe7eecff6aaa8034cca099354e",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1786985609,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "c8909d680176dd81f3d337df9b93d5c90ed60d07",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1786985710,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "fc175a35039a999536f590ac72a15218c82b0895",
+      "introduced": 679,
+      "owned_at_head": 23,
+      "surviving": 23
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1786987716,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "c791d8089e753247f49de8ef472e565a8ab496fd",
+      "introduced": 103,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1786995438,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "66d185f22fc90c4cc0a9126511bd0f0129b98e3a",
+      "introduced": 143,
+      "owned_at_head": 79,
+      "surviving": 79
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787003164,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "df1419cfca40e04e98ff1d95be2936c64943e206",
+      "introduced": 2,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787082614,
+      "evidence": [
+        "trailer: Co-authored-by: VascoSch92 <vasco@openhands.dev>"
+      ],
+      "hash": "cde6638193631cdee1ead469fbe44f46e5487647",
+      "introduced": 2071,
+      "owned_at_head": 1160,
+      "surviving": 1160
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787147173,
+      "hash": "3a87201687fc5bc99a930d3522b3be0873c20341",
+      "introduced": 250,
+      "owned_at_head": 212,
+      "surviving": 212
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787149126,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "ac013fb45a2084e0dd11ea67bbb56d5c58d8d554",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787231449,
+      "hash": "cf2409c0578e56883f3c5f86b95874b41258ceb1",
+      "introduced": 104,
+      "owned_at_head": 58,
+      "surviving": 58
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787241418,
+      "hash": "1aa23f22eac9735aa107d513b81b9d25d64b8c25",
+      "introduced": 2637,
+      "owned_at_head": 2119,
+      "surviving": 2119
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787242446,
+      "hash": "263243b3ee11240e74c3d6b7a0958b5d4495268a",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787245127,
+      "hash": "a570d1349e81a67b67b9f412d8893e02563d9c29",
+      "introduced": 2155,
+      "owned_at_head": 1799,
+      "surviving": 1799
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787245331,
+      "hash": "b4e3c6683cdaaa74288c741087ee76e06f43c51a",
+      "introduced": 2569,
+      "owned_at_head": 2230,
+      "surviving": 2230
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787246654,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "782734485ad7625241650acfb2fd5e5eb455f44e",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787335243,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "51c0e3e6ebe9d64aa18325ff0b2bfdd9fa814c93",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787501337,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "eade5383e1d3e135607c24b368bfe447569453b3",
+      "introduced": 104,
+      "owned_at_head": 36,
+      "surviving": 36
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787501946,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "633105af5949515b21ec7c54ff338847bc042aed",
+      "introduced": 24,
+      "owned_at_head": 21,
+      "surviving": 21
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787532287,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "7e96ad37739740ebbe16aca3f519afab0a5ff6d8",
+      "introduced": 28,
+      "owned_at_head": 18,
+      "surviving": 18
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787590687,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "967c7ec28349ddd870f8a057d1623a054e1dee9a",
+      "introduced": 362,
+      "owned_at_head": 306,
+      "surviving": 306
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787591863,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "d6dd790a606d9329ac7505f3caf4bb50118a8dff",
+      "introduced": 81,
+      "owned_at_head": 72,
+      "surviving": 72
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787591897,
+      "evidence": [
+        "author: OpenHands Bot <contact@all-hands.dev>"
+      ],
+      "hash": "1b2918a9c3866ddd2e75943be52b08636b195cd9",
+      "introduced": 27,
+      "owned_at_head": 27,
+      "surviving": 27
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787618033,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "20917cbfdb97e36d770da9f16518a1d9b366a0a7",
+      "introduced": 1527,
+      "owned_at_head": 847,
+      "surviving": 847
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787618042,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "806dfe52084f0af9a7b2f3de1e4ab406c9abecad",
+      "introduced": 5,
+      "owned_at_head": 5,
+      "surviving": 5
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787797466,
+      "hash": "370ee2caf7a8c6a323f3ca5011dc7a340dd20acd",
+      "introduced": 34,
+      "owned_at_head": 15,
+      "surviving": 15
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787830562,
+      "hash": "4c118a99c3e9e29299b994c07c3d6a960f4e69b4",
+      "introduced": 88,
+      "owned_at_head": 76,
+      "surviving": 76
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787840170,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "ecb7c8970d735e024de0790655ca5efc89288b13",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1787944129,
+      "evidence": [
+        "trailer: Co-authored-by: jpelletier1 <joe@openhands.dev>"
+      ],
+      "hash": "87959a7da3e75445647e77b2fbf5bf5b66fb037b",
+      "introduced": 27,
+      "owned_at_head": 26,
+      "surviving": 26
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788433713,
+      "hash": "aa3fe65442769967f10d43b8d272f3d8baac665a",
+      "introduced": 13,
+      "owned_at_head": 13,
+      "surviving": 13
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1788535778,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "5c91727660154ae1978336764ca27e8853be3eed",
+      "introduced": 1173,
+      "owned_at_head": 1113,
+      "surviving": 1113
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1788541765,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "8d3919bc317d30e572f9dda98e5f7cb2fa85a7fb",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1788653483,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "39fc25a91749fe248db391315c2c4eb2c74655a6",
+      "introduced": 20,
+      "owned_at_head": 19,
+      "surviving": 19
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789015278,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "56671df91e40aa0b131a0c78230078e60b4e954b",
+      "introduced": 2,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789103465,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "e43710b9afc49fe19466ead9bc4fe89354f21d93",
+      "introduced": 323,
+      "owned_at_head": 237,
+      "surviving": 237
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789156001,
+      "evidence": [
+        "trailer: Co-authored-by: jpelletier1 <joe@openhands.dev>"
+      ],
+      "hash": "ce629756ccf8ef15c7514ac8cd34e3bda674b507",
+      "introduced": 2279,
+      "owned_at_head": 2274,
+      "surviving": 2274
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789167361,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "1bad294d4b9648b14ad335f516edf6f0a6622305",
+      "introduced": 82,
+      "owned_at_head": 77,
+      "surviving": 77
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789347544,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "f0117aafb03fd08e6cc5e14cb517d83395c90042",
+      "introduced": 4,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789390369,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "0491d61b58d14c2799d7b0557028bec4e3292b41",
+      "introduced": 406,
+      "owned_at_head": 308,
+      "surviving": 308
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789402440,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "ceaddf00a3b777865ad06b57d2bd7d241572cf31",
+      "introduced": 365,
+      "owned_at_head": 141,
+      "surviving": 141
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789414802,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "7751d9394116abb6d443f4aef2acdbdb32d850a2",
+      "introduced": 3106,
+      "owned_at_head": 2618,
+      "surviving": 2618
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789501597,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "4d93d296b5243c7e2e1811b609106c37363b2f02",
+      "introduced": 3,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789502878,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "6242eacba016bf85009d8e3f5b8aa131295e278c",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789567488,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "48cee2ea76d640fc15089840ee6f67ecae3fcad2",
+      "introduced": 365,
+      "owned_at_head": 497,
+      "surviving": 365
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789570543,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "5c27984bbf914cb611598fcef53daae5ef8672ea",
+      "introduced": 373,
+      "owned_at_head": 359,
+      "surviving": 359
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789570553,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "8058f12f7d46f5e711d0890072b25890bb7c3e20",
+      "introduced": 501,
+      "owned_at_head": 464,
+      "surviving": 464
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789570562,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "72cc24501b3c15a5687ec9544aa8b9a907105893",
+      "introduced": 182,
+      "owned_at_head": 55,
+      "surviving": 55
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789570571,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "ee187dfb84efe78b9da763e58eb156fc8dfe78eb",
+      "introduced": 331,
+      "owned_at_head": 433,
+      "surviving": 331
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789590165,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "0014634447419892928ac9a90a96c689d4ca7630",
+      "introduced": 9,
+      "owned_at_head": 9,
+      "surviving": 9
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789591864,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "9f61b2bdd1f2a4f930d9d2c57fdcd882134c057e",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789617093,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "b3f5e9f98c0727b135379a2ad4c10697a5617c59",
+      "introduced": 40,
+      "owned_at_head": 30,
+      "surviving": 30
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789617211,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "3b31849893dbd665e7bfd92afc313524cccef7f6",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789958048,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "0d17c630b9a842cbbf23d01b2a8d8ad5a3088939",
+      "introduced": 239,
+      "owned_at_head": 81,
+      "surviving": 81
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789959100,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "f761809704f3edb2f25e737991277e1bb1ac3e88",
+      "introduced": 4,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789991435,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "4ba43c48c28bee992ce4072e0eaf000112b384ac",
+      "introduced": 30,
+      "owned_at_head": 26,
+      "surviving": 26
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789994141,
+      "evidence": [
+        "trailer: Co-authored-by: Vasco Schiavo <vasco@openhands.dev>"
+      ],
+      "hash": "b7dc7f34100809dd0227727ec5109f93eb4137fa",
+      "introduced": 2,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789994182,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "da666039a6b7c67d0aea452a20943229e8773136",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789998573,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "49d0e9a5603255df9c5d40cfc2d01e4670c1b6dd",
+      "introduced": 170,
+      "owned_at_head": 15,
+      "surviving": 15
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789999447,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "aafc665345fa13d5f37910d15654e1322d17b264",
+      "introduced": 556,
+      "owned_at_head": 503,
+      "surviving": 503
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1789999657,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "492e2be06d08600a4f315dfbc36a1ee2133c994c",
+      "introduced": 748,
+      "owned_at_head": 935,
+      "surviving": 748
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790000162,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "6fb1e72cd38722a6754c603067146bee8ba5cf8f",
+      "introduced": 105,
+      "owned_at_head": 89,
+      "surviving": 89
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790007426,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "51aacb91b4ce7cb65fa0387b39c231035b757709",
+      "introduced": 15,
+      "owned_at_head": 14,
+      "surviving": 14
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790016492,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "9a22e78fc0b8b6d09928d96ff9082214af4bbc1e",
+      "introduced": 416,
+      "owned_at_head": 384,
+      "surviving": 384
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790016867,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "b74979fdf1af7ffca7269da66b9564a439189995",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790045075,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "804c84b590d53a6d16991c68bbe10aa2c5222748",
+      "introduced": 6,
+      "owned_at_head": 6,
+      "surviving": 6
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790045934,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "7d85301c7d1497cfb2f1540525889ec9a147c325",
+      "introduced": 107,
+      "owned_at_head": 35,
+      "surviving": 35
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790046677,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "7fcfe243c9f6cd0f6bc47e9a6a29758a192d92f2",
+      "introduced": 14,
+      "owned_at_head": 14,
+      "surviving": 14
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790048691,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "bb100a9af67d784f83c475c0142d197b2b555c2a",
+      "introduced": 46,
+      "owned_at_head": 40,
+      "surviving": 40
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790079272,
+      "hash": "91b4f772752aea15219574030b6e98e804bf6ff3",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790079276,
+      "hash": "1994d644a0d3aacf86690c5d282dbba86a937846",
+      "introduced": 3,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790079279,
+      "hash": "b76c79747edaa76d634b4d24ef2dff3f88076567",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790079282,
+      "hash": "726bc7bb86040e5f3c8d01744ff651cc05e975b7",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790079286,
+      "hash": "75b924252561314b2c9a54310479a27dfc23f19e",
+      "introduced": 2,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790079289,
+      "hash": "a3b66d82892850f2d690f240b0cc3e355756e339",
+      "introduced": 9,
+      "owned_at_head": 9,
+      "surviving": 9
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790085894,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "47a8aa806d3ad2416ca3ee08c946558553413c83",
+      "introduced": 1269,
+      "owned_at_head": 1307,
+      "surviving": 1269
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790115995,
+      "evidence": [
+        "author: aivong-openhands <ai.vong@openhands.dev>"
+      ],
+      "hash": "25377f209c089d3ec34b73d323c9e50bf49c4333",
+      "introduced": 54,
+      "owned_at_head": 54,
+      "surviving": 54
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790127317,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "246fb9939f26b517eb1be46071b79e01788a1783",
+      "introduced": 211,
+      "owned_at_head": 114,
+      "surviving": 114
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790138456,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "76bbae25b6bb4ab6dd1623617e4d373c199df58f",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790277008,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "f02d3aa135a43744ce6b0b20936d450b8a140616",
+      "introduced": 697,
+      "owned_at_head": 413,
+      "surviving": 413
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790323238,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "77b5355c09c69c4a4c3b3e2d9e1f2f10dc82a3ff",
+      "introduced": 12,
+      "owned_at_head": 12,
+      "surviving": 12
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790369535,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "84459c5a175fc87a3f00825d0ed60580fd532a41",
+      "introduced": 1684,
+      "owned_at_head": 1431,
+      "surviving": 1431
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790369788,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "c7e3a7dea40d728d95a50c3c5a24c4475b264c86",
+      "introduced": 984,
+      "owned_at_head": 807,
+      "surviving": 807
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790369983,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "f41c2faa9e6336a3eabac3d3147ec7356c3b0578",
+      "introduced": 919,
+      "owned_at_head": 502,
+      "surviving": 502
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790431814,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "976f3c9cb61b137d113cd48d6b264e06aa4af54a",
+      "introduced": 139,
+      "owned_at_head": 133,
+      "surviving": 133
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790512198,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "bea7a20c59c44ec4dacddac3fc0efe58b9c73880",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790642938,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "81ce346fc6d9193d658d55a09f6e9541ae29d539",
+      "introduced": 419,
+      "owned_at_head": 363,
+      "surviving": 363
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790642964,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "0bc61e87ab104b6ca959704e02c9326be0019c41",
+      "introduced": 376,
+      "owned_at_head": 203,
+      "surviving": 203
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790675305,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "622be87e32d52785315fa25c96994e6a6c04bae1",
+      "introduced": 265,
+      "owned_at_head": 239,
+      "surviving": 239
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790680162,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "0f3df17b84315035cfc278317e760728039b4937",
+      "introduced": 3,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790688853,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "41593ce535a9ae81de68a7c0e1ed124d1880312f",
+      "introduced": 445,
+      "owned_at_head": 309,
+      "surviving": 309
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790689622,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "9c140e285eede6d26de9b0bca9658329378e96a1",
+      "introduced": 119,
+      "owned_at_head": 76,
+      "surviving": 76
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790730224,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "ed1986f2d43c1ea4cb2b556714e89a7087dbbdc2",
+      "introduced": 19,
+      "owned_at_head": 14,
+      "surviving": 14
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790736874,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "9495f4c59dd5fea2cee9e87ab37a6abda649627b",
+      "introduced": 77,
+      "owned_at_head": 77,
+      "surviving": 77
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790784504,
+      "hash": "a3135ba7fd7e867098f84fbc5c29b105c01a4e85",
+      "introduced": 31,
+      "owned_at_head": 35,
+      "surviving": 31
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790799121,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "b05c59cad23a5567a7f6937ed3c5e71e0c92eed3",
+      "introduced": 185,
+      "owned_at_head": 184,
+      "surviving": 184
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790800354,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "bea9b34fbb77fa420900c6a5fc903b7bf098aec0",
+      "introduced": 349,
+      "owned_at_head": 245,
+      "surviving": 245
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790858205,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "fc008b122b4c56581a16280d38725d4c0996866a",
+      "introduced": 1152,
+      "owned_at_head": 1147,
+      "surviving": 1147
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790868457,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "c4551cf7446fbc17d85e1af9c9181a5ce1564798",
+      "introduced": 99,
+      "owned_at_head": 93,
+      "surviving": 93
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790902814,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "f9a2aaf5bdff680044e806ac0dc9135a91042f30",
+      "introduced": 55,
+      "owned_at_head": 54,
+      "surviving": 54
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790911182,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "6ffd7e114d9c4c7586e7a6e7f0b62bd3b37c27c1",
+      "introduced": 2430,
+      "owned_at_head": 2060,
+      "surviving": 2060
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790911713,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "9ed334f0ce7aa98111fc64209d5df3bfd10375e3",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790967965,
+      "hash": "7a7d4dd2a928f2f01b7be63f80f105c471808a99",
+      "introduced": 85,
+      "owned_at_head": 51,
+      "surviving": 51
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1790972536,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "62f34e3a7577fbb947687363fa0df485061d0b3d",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791122534,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "3450e1ad258a9897c5af71c0abcba06826496730",
+      "introduced": 20,
+      "owned_at_head": 20,
+      "surviving": 20
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791123456,
+      "hash": "8b0593361bcea2b0af7db23ea2f9b1213b6c8cc9",
+      "introduced": 51,
+      "owned_at_head": 43,
+      "surviving": 43
+    },
+    {
+      "agent": "claude-code",
+      "class": "verified",
+      "committed_at": 1791123842,
+      "evidence": [
+        "trailer: Co-authored-by: Claude Fable 5.1 <noreply@anthropic.com>"
+      ],
+      "hash": "3bfeaf0917f53a503d6de48e29ebcd77034809dd",
+      "introduced": 113,
+      "owned_at_head": 64,
+      "surviving": 64
+    },
+    {
+      "agent": "claude-code",
+      "class": "verified",
+      "committed_at": 1791125147,
+      "evidence": [
+        "trailer: Co-authored-by: Claude Fable 5.1 <noreply@anthropic.com>"
+      ],
+      "hash": "15250b87792c56613e339e8ca4879d1cb6ed5ab4",
+      "introduced": 127,
+      "owned_at_head": 120,
+      "surviving": 120
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791134702,
+      "hash": "8a7bab940582cb0d7e8bde64a10f4d82d49d337c",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791141644,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "c8bfeaabc3230efdf2128e272c4002ed624570c0",
+      "introduced": 73,
+      "owned_at_head": 19,
+      "surviving": 19
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791144326,
+      "evidence": [
+        "author: OpenHands Bot <contact@all-hands.dev>"
+      ],
+      "hash": "ac034d94ef2e629de00c6c7eeca2387aceb2e23d",
+      "introduced": 246,
+      "owned_at_head": 114,
+      "surviving": 114
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791144484,
+      "evidence": [
+        "author: OpenHands Bot <contact@all-hands.dev>"
+      ],
+      "hash": "038dbfa13b5549d3ddf957d52a3e2097c2b4c616",
+      "introduced": 322,
+      "owned_at_head": 184,
+      "surviving": 184
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791146817,
+      "hash": "8bef908d31ffea21f5e8812d17482add18a89b1a",
+      "introduced": 26,
+      "owned_at_head": 25,
+      "surviving": 25
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791147222,
+      "hash": "98e5f6541d012415d748ac54adc1b212c1145d03",
+      "introduced": 50,
+      "owned_at_head": 50,
+      "surviving": 50
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791147803,
+      "hash": "a46bd3c16d0b2895394b6731fffc788ef3bab8d9",
+      "introduced": 31,
+      "owned_at_head": 27,
+      "surviving": 27
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791149488,
+      "hash": "8596f6d469bb845c566a12aa73da12d92747cc9a",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791162821,
+      "hash": "a242ccc95e1868e0ca8030773bac8dcf11af1252",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791163074,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "3ed88619ff2b4bccdf95a88f1dbc6e7182bf365d",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791203773,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "788d246c3fbfc9015e034c92bda002ed6d32765b",
+      "introduced": 7,
+      "owned_at_head": 7,
+      "surviving": 7
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791207192,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "b2c641f4ee3fe7794b1aba2d237f376406e47a7e",
+      "introduced": 256,
+      "owned_at_head": 256,
+      "surviving": 256
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791212726,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "eb6d2f9b3c2eb282c655d56b501194a40b83eabb",
+      "introduced": 76,
+      "owned_at_head": 75,
+      "surviving": 75
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791212857,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "ba3f165139cd3705c5d56a4ca26293d11a464c7b",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791228793,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "9d710e05e5cd547a59580eac059ca6ffce269e8d",
+      "introduced": 1949,
+      "owned_at_head": 1760,
+      "surviving": 1760
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791228822,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "f95fd9a505cc5b50764476bf36b1b2d560db3930",
+      "introduced": 4,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791234164,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "25aa536a3c3203ba3ffabf4e13809d7613de7b73",
+      "introduced": 193,
+      "owned_at_head": 171,
+      "surviving": 171
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791245647,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "cfbd87cfe05b8b2ca6f758ded5560984eeb053da",
+      "introduced": 127,
+      "owned_at_head": 102,
+      "surviving": 102
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791297770,
+      "hash": "6929761ed58af9ca7cbb4c6778c64eb0d0f2d78d",
+      "introduced": 2,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791325027,
+      "hash": "d008b81c44ae4d56d319e3b8f28ca35fc40aacbc",
+      "introduced": 398,
+      "owned_at_head": 399,
+      "surviving": 398
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791566945,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "642df1af9444afdc50024ab5eaaa36f5f93ffd09",
+      "introduced": 2142,
+      "owned_at_head": 1872,
+      "surviving": 1872
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791801759,
+      "hash": "737ff7a72882c571a60a50717f63a023ea19c607",
+      "introduced": 1229,
+      "owned_at_head": 984,
+      "surviving": 984
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1791805228,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "f1919e4e3e02c0bab65c2417761aee775f1ffbaa",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792135056,
+      "hash": "7cec6d351ac54aee5af6c358bd2c0d4da840a5e4",
+      "introduced": 60,
+      "owned_at_head": 60,
+      "surviving": 60
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792149368,
+      "hash": "5aeba9b5c279bd54cac1ae4946bb867685490c55",
+      "introduced": 198,
+      "owned_at_head": 148,
+      "surviving": 148
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792251281,
+      "hash": "d05780951082d4d83f785cb1d4c7f2be6d1c14a5",
+      "introduced": 61,
+      "owned_at_head": 58,
+      "surviving": 58
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792416186,
+      "hash": "87f109e700afc4616bd722ee16cd9f3cae97090b",
+      "introduced": 16,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1792416785,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "25fab14cac53f1795302a92dc099554c5f46c7d7",
+      "introduced": 1209,
+      "owned_at_head": 1069,
+      "surviving": 1069
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1792417499,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "7dfa38b44d3a64b31b7cdfa370ced3618c1ef79a",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792418982,
+      "hash": "cc7d059f3b0cdb1f1d83e41d25f06e76887e905b",
+      "introduced": 73,
+      "owned_at_head": 73,
+      "surviving": 73
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1792506382,
+      "evidence": [
+        "author: Alona <alona@openhands.dev>"
+      ],
+      "hash": "47f679e6d4c8c244f8ff818acac97f47187f683f",
+      "introduced": 27,
+      "owned_at_head": 24,
+      "surviving": 24
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792520968,
+      "hash": "5f0bc702a65b2165e4406227d845b87efd5d445a",
+      "introduced": 4,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1792521130,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "666e51ef16fc7a4c1286f841a7bff7af54f0bebf",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792582135,
+      "hash": "42baa7e9837206a9fa4c4219d3cef462effebd83",
+      "introduced": 44,
+      "owned_at_head": 40,
+      "surviving": 40
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1792595085,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "4180e918b1ca2bdb12a5732cb94b8f36062a2167",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792602953,
+      "hash": "0c8e31a5797c24de6f9befadc4a44c5202f75fba",
+      "introduced": 3,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792603005,
+      "hash": "de07f242831ef9f2c1e88069063d3984f8bfb445",
+      "introduced": 26,
+      "owned_at_head": 23,
+      "surviving": 23
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1792622628,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "91953d8fcf9c42dd160170a8443f7d522d645a33",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1792664194,
+      "evidence": [
+        "author: Alona <alona@openhands.dev>"
+      ],
+      "hash": "afb59307703c68162a61cea088620b75f6221a45",
+      "introduced": 48,
+      "owned_at_head": 40,
+      "surviving": 40
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1792675937,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "55b5148d51b3937cc871e92fd5284cf5dc061876",
+      "introduced": 12,
+      "owned_at_head": 11,
+      "surviving": 11
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1792682124,
+      "evidence": [
+        "author: Alona <alona@openhands.dev>"
+      ],
+      "hash": "07f8a83e0db96bb9f32e96065ab07626dd3cf597",
+      "introduced": 73,
+      "owned_at_head": 73,
+      "surviving": 73
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1792695522,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "16eae3734de471e506310c21cdd9c34a4209208e",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1792713149,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "af0a4b816b0b711c79771b91a950726c0c6ed896",
+      "introduced": 684,
+      "owned_at_head": 550,
+      "surviving": 550
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1792715044,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "a9056dbaa98aae1033d98466049cb057e343e1a0",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792725427,
+      "hash": "a440a4f752f74aefcfa798fc9fbdf7f5bf6b8075",
+      "introduced": 415,
+      "owned_at_head": 411,
+      "surviving": 411
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792730769,
+      "hash": "c05d420173fe21c14dcc076f59506c1227be6194",
+      "introduced": 29,
+      "owned_at_head": 29,
+      "surviving": 29
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792739232,
+      "hash": "26047067ecd0230d6ce4e15016cbdf786798cba5",
+      "introduced": 8,
+      "owned_at_head": 8,
+      "surviving": 8
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1792871261,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "1ea389f96e44a7f1db8969b25ec460d02e8fcf09",
+      "introduced": 11392,
+      "owned_at_head": 11340,
+      "surviving": 11340
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1792956796,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "bcb411d8481f2d563f48eace0e1dd9a795bd5534",
+      "introduced": 65,
+      "owned_at_head": 65,
+      "surviving": 65
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1793012131,
+      "hash": "99060443e193bf7de1918af1fb17bd212fba7b4c",
+      "introduced": 130,
+      "owned_at_head": 120,
+      "surviving": 120
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1793012167,
+      "hash": "7a4db02d53b28cc291d92f84b61c4f95790b2e69",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1793017026,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "a0d3c08b207440c5675f29b838bcde2d69e25150",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1793040658,
+      "hash": "1f0c09d7f2818103ac232fe5b22e20c9335abbe7",
+      "introduced": 292,
+      "owned_at_head": 241,
+      "surviving": 241
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1793049850,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "464ff916a7806ff424a3b7df33307c9855313310",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1793050029,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "90ee3d839639e11fbe8c0275cc4db1b6dab0c144",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1793109776,
+      "hash": "fe1d7a88605383fc911cd0385db67738497422ca",
+      "introduced": 241,
+      "owned_at_head": 201,
+      "surviving": 201
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1793115025,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "f79208b601ff4b2ea750816502cdf73403fc3fae",
+      "introduced": 6867,
+      "owned_at_head": 21,
+      "surviving": 21
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1793123970,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "ba0eecf0fa0dd0d8e333a3050aea98605e384db4",
+      "introduced": 228,
+      "owned_at_head": 213,
+      "surviving": 213
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1793139071,
+      "evidence": [
+        "trailer: Co-authored-by: Cursor <cursoragent@cursor.com>"
+      ],
+      "hash": "f7b18a554b212b8e626f9801ce5ee2e3e79b763f",
+      "introduced": 484,
+      "owned_at_head": 439,
+      "surviving": 439
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1793196943,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "6ce33661b9b7aab4367e493c53962dd5da114ec8",
+      "introduced": 2830,
+      "owned_at_head": 2794,
+      "surviving": 2794
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1793200203,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "21981f63bc10a52d3f81432e084b7093689ac47b",
+      "introduced": 165,
+      "owned_at_head": 144,
+      "surviving": 144
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1793270892,
+      "hash": "ddc748e91a3ff4abaf8a53b610427a97297cfed9",
+      "introduced": 6,
+      "owned_at_head": 6,
+      "surviving": 6
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1793288818,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "100fb5aaab55342d85ef604074aa8b9d701c639b",
+      "introduced": 5087,
+      "owned_at_head": 5023,
+      "surviving": 5023
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1793289662,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "594a016231e1b56a14fec02153db415e4f118f58",
+      "introduced": 40,
+      "owned_at_head": 32,
+      "surviving": 32
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1793292159,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "927559c99b64f4106acc7fda882edfd1a3448be8",
+      "introduced": 4,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "claude-code",
+      "class": "verified",
+      "committed_at": 1793295664,
+      "evidence": [
+        "trailer: Co-authored-by: Claude Opus 5.5 <noreply@anthropic.com>"
+      ],
+      "hash": "941f314d96580dada4cb0a7cf581f451e4b86bcf",
+      "introduced": 5552,
+      "owned_at_head": 5552,
+      "surviving": 5552
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1793370375,
+      "evidence": [
+        "author: Alona <alona@openhands.dev>"
+      ],
+      "hash": "9fb69c4166fd97c069e67109e5e14210ace74aa9",
+      "introduced": 581,
+      "owned_at_head": 577,
+      "surviving": 577
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1793371561,
+      "evidence": [
+        "trailer: Co-authored-by: openhands <openhands@all-hands.dev>"
+      ],
+      "hash": "dce5895b2ae3dba9375673c1442cb475e1a8509a",
+      "introduced": 6,
+      "owned_at_head": 6,
+      "surviving": 6
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1793373792,
+      "hash": "cb7518c10fb03ef548615dc01b323034112adf87",
+      "introduced": 3,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1793373799,
+      "hash": "8b8a5848a923d26b8e4a8b442217526419f922f7",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "agent": "openhands",
+      "class": "verified",
+      "committed_at": 1793389555,
+      "evidence": [
+        "trailer: Co-authored-by: openhands-release-bot[bot] <290150379+openhands-release-bot[bot]@users.noreply.github.com>"
+      ],
+      "hash": "6fb2b67680b9a5b41452a148e5705f99c7df1a75",
+      "introduced": 4,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1793555273,
+      "evidence": [
+        "trailer: Co-authored-by: Cursor <cursoragent@cursor.com>"
+      ],
+      "hash": "21c88f56f02c7ebd4c3cac6ad3b7895290637348",
+      "introduced": 140,
+      "owned_at_head": 140,
+      "surviving": 140
+    }
+  ],
+  "coverage": {
+    "binary_files": 1,
+    "blame_flags": [
+      "-w",
+      "-M",
+      "-C"
+    ],
+    "copy_capped_lines": 468,
+    "ignore_revs_file": false,
+    "ignore_revs_sha256": null,
+    "method": "v6",
+    "notes_oid": null,
+    "numstat_flags": [
+      "-M",
+      "-z"
+    ],
+    "sample_floor": 5,
+    "shallow": false,
+    "small_sample": false
+  },
+  "method": "v6",
+  "probable": {
+    "below_floor": true,
+    "cap_lines": null,
+    "capped_survival_rate": null,
+    "commits": 0,
+    "introduced": 0,
+    "largest_commit_share": null,
+    "median_survival": null,
+    "survival_rate": null,
+    "surviving": 0
+  },
+  "repository": {
+    "head": "21c88f56f02c7ebd4c3cac6ad3b7895290637348",
+    "origin": "https://github.com/OpenHands/extensions",
+    "root_commit": "9ca75cc3cb1003faea374cad1e51445361d96e1c",
+    "root_commits": [
+      "9ca75cc3cb1003faea374cad1e51445361d96e1c"
+    ]
+  },
+  "total_commits": 450,
+  "verified": {
+    "below_floor": false,
+    "cap_lines": 1956,
+    "capped_survival_rate": 0.7616841592145269,
+    "commits": 351,
+    "introduced": 127741,
+    "largest_commit_share": 0.08918045106895985,
+    "median_survival": 0.8191518847006651,
+    "survival_rate": 0.7656508090589552,
+    "surviving": 97805
+  }
+}

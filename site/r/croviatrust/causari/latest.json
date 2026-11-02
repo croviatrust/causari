@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/croviatrust/causari/",
  "badge": "https://causari.dev/r/croviatrust/causari/badge.svg",
  "report": {
-  "number": 7,
-  "id": "2026/07",
-  "date": "2026-10-26",
-  "url": "https://causari.dev/reports/survival/2026/07/"
+  "number": 8,
+  "id": "2026/08",
+  "date": "2026-11-02",
+  "url": "https://causari.dev/reports/survival/2026/08/"
  },
  "method": "v6",
  "tool": {
@@ -27,14 +27,14 @@
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 287,
-   "introduced": 284560,
-   "surviving": 221854,
-   "survival_rate": 0.7796387405116671,
+   "commits": 289,
+   "introduced": 8157201,
+   "surviving": 8080817,
+   "survival_rate": 0.990636003697837,
    "median_survival": 0.9051546391752577,
-   "capped_survival_rate": 0.815786094014717,
-   "cap_lines": 1866,
-   "largest_commit_share": 0.15270241776778185
+   "capped_survival_rate": 0.8138488440213567,
+   "cap_lines": 2340,
+   "largest_commit_share": 0.9651110718002412
   },
   "by_age": [
    {
@@ -47,10 +47,10 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 100,
-     "introduced": 220966,
-     "surviving": 166845,
-     "survival_rate": 0.7550709158875121
+     "commits": 79,
+     "introduced": 8060726,
+     "surviving": 8006864,
+     "survival_rate": 0.993317971607024
     }
    },
    {
@@ -63,10 +63,10 @@
      "survival_rate": 0.7753023551877785
     },
     "untagged": {
-     "commits": 137,
-     "introduced": 46356,
-     "surviving": 43649,
-     "survival_rate": 0.9416041073431702
+     "commits": 160,
+     "introduced": 79237,
+     "surviving": 62593,
+     "survival_rate": 0.7899466158486566
     }
    },
    {
@@ -136,14 +136,14 @@
   ],
   "age_matched": {
    "tagged_rate": 0.7753023551877785,
-   "untagged_rate": 0.9416041073431703,
-   "gap": -0.1663017521553919,
+   "untagged_rate": 0.7899466158486566,
+   "gap": -0.014644260660878095,
    "buckets_used": 1,
    "tagged_lines_covered": 0.7520344662517952
   },
   "oldest_surviving": {
    "date": "2026-05-25",
-   "age_days": 149,
+   "age_days": 153,
    "commits_before": 0,
    "introduced_before": 0,
    "tagged_commits_before": 0,
@@ -152,7 +152,7 @@
   }
  },
  "probable_commits": 0,
- "total_commits": 301,
+ "total_commits": 303,
  "aggregated": true,
  "coverage": {
   "method": "v6",
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 7,
+ "reports": 8,
  "reproduce": "re audit croviatrust/causari --json",
- "bytes": "https://causari.dev/reports/survival/2026/07/repos/croviatrust__causari.json",
+ "bytes": "https://causari.dev/reports/survival/2026/08/repos/croviatrust__causari.json",
  "license": "CC-BY-4.0"
 }

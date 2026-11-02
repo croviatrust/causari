@@ -1,0 +1,2741 @@
+{
+  "baseline": {
+    "age_matched": {
+      "buckets_used": 1,
+      "gap": -0.014644260660878095,
+      "tagged_lines_covered": 0.7520344662517952,
+      "tagged_rate": 0.7753023551877785,
+      "untagged_rate": 0.7899466158486566
+    },
+    "by_age": [
+      {
+        "comparable": false,
+        "from_days": 0,
+        "tagged": {
+          "below_floor": true,
+          "cap_lines": null,
+          "capped_survival_rate": null,
+          "commits": 0,
+          "introduced": 0,
+          "largest_commit_share": null,
+          "median_survival": null,
+          "survival_rate": null,
+          "surviving": 0
+        },
+        "to_days": 30,
+        "untagged": {
+          "below_floor": false,
+          "cap_lines": 10000,
+          "capped_survival_rate": 0.8254160615172127,
+          "commits": 79,
+          "introduced": 8060726,
+          "largest_commit_share": 0.9766620277131365,
+          "median_survival": 0.937007874015748,
+          "survival_rate": 0.993317971607024,
+          "surviving": 8006864
+        }
+      },
+      {
+        "comparable": true,
+        "from_days": 30,
+        "tagged": {
+          "below_floor": false,
+          "cap_lines": 1097,
+          "capped_survival_rate": 0.7753023551877785,
+          "commits": 13,
+          "introduced": 4713,
+          "largest_commit_share": 0.23276044981964777,
+          "median_survival": 0.9239130434782609,
+          "survival_rate": 0.7753023551877785,
+          "surviving": 3654
+        },
+        "to_days": 90,
+        "untagged": {
+          "below_floor": false,
+          "cap_lines": 1219,
+          "capped_survival_rate": 0.8562418936679437,
+          "commits": 160,
+          "introduced": 79237,
+          "largest_commit_share": 0.29643979454042935,
+          "median_survival": 0.936491935483871,
+          "survival_rate": 0.7899466158486566,
+          "surviving": 62593
+        }
+      },
+      {
+        "comparable": false,
+        "from_days": 90,
+        "tagged": {
+          "below_floor": true,
+          "cap_lines": 1554,
+          "capped_survival_rate": 0.7432432432432432,
+          "commits": 1,
+          "introduced": 1554,
+          "largest_commit_share": 1.0,
+          "median_survival": 0.7432432432432432,
+          "survival_rate": 0.7432432432432432,
+          "surviving": 1155
+        },
+        "to_days": 180,
+        "untagged": {
+          "below_floor": false,
+          "cap_lines": 1499,
+          "capped_survival_rate": 0.6479122791878391,
+          "commits": 50,
+          "introduced": 17238,
+          "largest_commit_share": 0.2702749738948834,
+          "median_survival": 0.6559748427672956,
+          "survival_rate": 0.6590091657964962,
+          "surviving": 11360
+        }
+      },
+      {
+        "comparable": false,
+        "from_days": 180,
+        "tagged": {
+          "below_floor": true,
+          "cap_lines": null,
+          "capped_survival_rate": null,
+          "commits": 0,
+          "introduced": 0,
+          "largest_commit_share": null,
+          "median_survival": null,
+          "survival_rate": null,
+          "surviving": 0
+        },
+        "to_days": 365,
+        "untagged": {
+          "below_floor": true,
+          "cap_lines": null,
+          "capped_survival_rate": null,
+          "commits": 0,
+          "introduced": 0,
+          "largest_commit_share": null,
+          "median_survival": null,
+          "survival_rate": null,
+          "surviving": 0
+        }
+      },
+      {
+        "comparable": false,
+        "from_days": 365,
+        "tagged": {
+          "below_floor": true,
+          "cap_lines": null,
+          "capped_survival_rate": null,
+          "commits": 0,
+          "introduced": 0,
+          "largest_commit_share": null,
+          "median_survival": null,
+          "survival_rate": null,
+          "surviving": 0
+        },
+        "to_days": 730,
+        "untagged": {
+          "below_floor": true,
+          "cap_lines": null,
+          "capped_survival_rate": null,
+          "commits": 0,
+          "introduced": 0,
+          "largest_commit_share": null,
+          "median_survival": null,
+          "survival_rate": null,
+          "surviving": 0
+        }
+      },
+      {
+        "comparable": false,
+        "from_days": 730,
+        "tagged": {
+          "below_floor": true,
+          "cap_lines": null,
+          "capped_survival_rate": null,
+          "commits": 0,
+          "introduced": 0,
+          "largest_commit_share": null,
+          "median_survival": null,
+          "survival_rate": null,
+          "surviving": 0
+        },
+        "to_days": null,
+        "untagged": {
+          "below_floor": true,
+          "cap_lines": null,
+          "capped_survival_rate": null,
+          "commits": 0,
+          "introduced": 0,
+          "largest_commit_share": null,
+          "median_survival": null,
+          "survival_rate": null,
+          "surviving": 0
+        }
+      }
+    ],
+    "oldest_surviving": {
+      "age_days": 153,
+      "commits_before": 0,
+      "date": "2026-05-25",
+      "introduced_before": 0,
+      "tagged_commits_before": 0,
+      "tagged_introduced_before": 0
+    },
+    "untagged": {
+      "below_floor": false,
+      "cap_lines": 2340,
+      "capped_survival_rate": 0.8138488440213567,
+      "commits": 289,
+      "introduced": 8157201,
+      "largest_commit_share": 0.9651110718002412,
+      "median_survival": 0.9051546391752577,
+      "survival_rate": 0.990636003697837,
+      "surviving": 8080817
+    }
+  },
+  "by_agent": {
+    "cursor": {
+      "below_floor": false,
+      "cap_lines": 1554,
+      "capped_survival_rate": 0.7673528003829584,
+      "commits": 14,
+      "introduced": 6267,
+      "largest_commit_share": 0.24796553374820487,
+      "median_survival": 0.9029238048116767,
+      "survival_rate": 0.7673528003829584,
+      "surviving": 4809
+    }
+  },
+  "commits": [
+    {
+      "class": "unknown",
+      "committed_at": 1779737422,
+      "hash": "0413f2bbc10f45582ed9db059184743a379e2748",
+      "introduced": 4659,
+      "owned_at_head": 3491,
+      "surviving": 3491
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779737674,
+      "hash": "f6c71d059096f4a233b73747da87e40d42344fa4",
+      "introduced": 25,
+      "owned_at_head": 23,
+      "surviving": 23
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779738076,
+      "hash": "2b99954647483e2ba1061b38a7c9907e9851df33",
+      "introduced": 2,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779738080,
+      "hash": "755162f8fe47d4c808698d71d23cd8b9b2b5d8f2",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779738084,
+      "hash": "4dca8338bd14886da13bd87480c1de7b783f4ac0",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779738087,
+      "hash": "16fc5f825cea01a088de3ba9fcb12f1a7cbf2766",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779738728,
+      "hash": "d8881a3472932360629f8a813398e865113fef42",
+      "introduced": 1730,
+      "owned_at_head": 154,
+      "surviving": 154
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779739825,
+      "hash": "92f5e1b4c4204b61f50acfbe95bd6f3aaec22c4e",
+      "introduced": 156,
+      "owned_at_head": 37,
+      "surviving": 37
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779740077,
+      "hash": "060e1fd3c563b9adb9c6e1bb20769080270c039f",
+      "introduced": 3,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779858484,
+      "hash": "706ae0ff04336dafade5b8c8095809ad6f448738",
+      "introduced": 378,
+      "owned_at_head": 292,
+      "surviving": 292
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779858878,
+      "hash": "e7cdb0b596f855e51f2c266ceb362e986d07572b",
+      "introduced": 220,
+      "owned_at_head": 151,
+      "surviving": 151
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779859647,
+      "hash": "673a02c07a6885acb0b0dc0433b0aa27b1c8a225",
+      "introduced": 162,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779860025,
+      "hash": "5412feae5334766e3d306b47d8e79ddfa19132b4",
+      "introduced": 214,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779989630,
+      "hash": "f94892f5423d3d0f520e758e3e4566565beb60c6",
+      "introduced": 18,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779991046,
+      "hash": "97cfc2419d93abc1ddc7f36b62daa5a9bd95287e",
+      "introduced": 140,
+      "owned_at_head": 87,
+      "surviving": 87
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779991443,
+      "hash": "7b3c41fe29fab9aa0e692a05309f8af9a274c2ae",
+      "introduced": 70,
+      "owned_at_head": 47,
+      "surviving": 47
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779992292,
+      "hash": "4c8060d0c039ae3e8e4f129f997b4595fc0612f4",
+      "introduced": 155,
+      "owned_at_head": 121,
+      "surviving": 121
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779992463,
+      "hash": "8d6f3df9d586ec90dce5089fe930f85fb2cd3771",
+      "introduced": 3,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779993084,
+      "hash": "a7c74df9c747099364ef0edce23fb462a8681597",
+      "introduced": 221,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779993191,
+      "hash": "93eb5e0d8d84d335271dadc196064aded22bc263",
+      "introduced": 38,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779993870,
+      "hash": "dfe5d1cd581ebb21f08413a24e632e39ac2fb00f",
+      "introduced": 33,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779994324,
+      "hash": "c9c2f1ee42b928afa4d8663bdf47df3b9b8855fe",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1779995930,
+      "hash": "5817792a5bac54df61811370ce25688da8fc82e8",
+      "introduced": 62,
+      "owned_at_head": 53,
+      "surviving": 53
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1780070893,
+      "hash": "73798f73c46308df73c240c5aeb1f13048678a15",
+      "introduced": 29,
+      "owned_at_head": 20,
+      "surviving": 20
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1780301128,
+      "hash": "b5037eb2e7f15fed832212d0b79938194ab87542",
+      "introduced": 243,
+      "owned_at_head": 10,
+      "surviving": 10
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1780301309,
+      "hash": "a8cb9728e4286873a4edfd0a871e7103fc58b984",
+      "introduced": 18,
+      "owned_at_head": 18,
+      "surviving": 18
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1780599492,
+      "hash": "608fd2f657d5123be23fd4a6478e6afc3268c4e9",
+      "introduced": 265,
+      "owned_at_head": 171,
+      "surviving": 171
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1781023500,
+      "hash": "fa40ea322bbcbeaf17d6c26ac02770805c8ed243",
+      "introduced": 1052,
+      "owned_at_head": 779,
+      "surviving": 779
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1781113097,
+      "hash": "f87f244a2a41a92feb11b048d8e2f541ffc9016e",
+      "introduced": 20,
+      "owned_at_head": 20,
+      "surviving": 20
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1781113315,
+      "hash": "29655deefcec01fe4eef4460d9372ad325a04165",
+      "introduced": 22,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1781114815,
+      "evidence": [
+        "trailer: Co-authored-by: Cursor <cursoragent@cursor.com>"
+      ],
+      "hash": "c46265071e78f717c0bfbb9370249b81087f3d1b",
+      "introduced": 1554,
+      "owned_at_head": 1155,
+      "surviving": 1155
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1781118129,
+      "hash": "d5d72868e724a67f357575b64ffdc4e294dc5e3a",
+      "introduced": 1499,
+      "owned_at_head": 1515,
+      "surviving": 1499
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1781118129,
+      "hash": "f02da5a089f4979a2246c3399ed33f1673f8c03c",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1781120173,
+      "hash": "dad44b64a75f2f9abef9415a0441c4d7987189f1",
+      "introduced": 1223,
+      "owned_at_head": 1026,
+      "surviving": 1026
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1781196127,
+      "hash": "1ce72270cc65dbb4b39f0b7692f9bd3537f7dbc2",
+      "introduced": 564,
+      "owned_at_head": 526,
+      "surviving": 526
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1781196664,
+      "hash": "bf51d4d1bd925f69e58faa5204e466ff8e45ebf8",
+      "introduced": 6,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1781376476,
+      "hash": "ded332b75abaaa23de6780f839758e944e13e5be",
+      "introduced": 559,
+      "owned_at_head": 11,
+      "surviving": 11
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1781377969,
+      "hash": "fa8786a5965b26345bcf116b300b94cef11e05c9",
+      "introduced": 80,
+      "owned_at_head": 5,
+      "surviving": 5
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1783016401,
+      "hash": "31cf99c40994fd2772e57e0794ddb06ad3be4296",
+      "introduced": 1222,
+      "owned_at_head": 1121,
+      "surviving": 1121
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1783860349,
+      "hash": "23436dee5ac2e0454beeeae14b7f7033a7467227",
+      "introduced": 346,
+      "owned_at_head": 197,
+      "surviving": 197
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1783861244,
+      "hash": "da06f8aa7ddc52594c7901d1d4dfc2a78962ed27",
+      "introduced": 7,
+      "owned_at_head": 9,
+      "surviving": 7
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1784561281,
+      "hash": "b27b77ac65e751ec4efb9bc1e30e18a3777845a8",
+      "introduced": 430,
+      "owned_at_head": 430,
+      "surviving": 430
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1784561565,
+      "hash": "7a003af442f5cf319e17b496672c69571af6f4a0",
+      "introduced": 86,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1784561997,
+      "hash": "efb46e240e78e6b87a84cc4feb9425ed2b6b0b74",
+      "introduced": 40,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1784566117,
+      "hash": "9a1c2eef76e8257aac0c81a07af763726a0b067f",
+      "introduced": 837,
+      "owned_at_head": 772,
+      "surviving": 772
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1784569571,
+      "hash": "ff779dfcefe4d5b1238d9699cd3a2d4a55665694",
+      "introduced": 52,
+      "owned_at_head": 47,
+      "surviving": 47
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1784648956,
+      "hash": "618fe8cebaf691d3b62d752c93124329c51c2363",
+      "introduced": 5,
+      "owned_at_head": 5,
+      "surviving": 5
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1784649612,
+      "hash": "c7d6e09a7b7ede0c4350b665632ff2d389e80fe9",
+      "introduced": 24,
+      "owned_at_head": 24,
+      "surviving": 24
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1784650438,
+      "hash": "a713a03344c0c78de444baec9645aea042482a71",
+      "introduced": 139,
+      "owned_at_head": 56,
+      "surviving": 56
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1784651122,
+      "hash": "1bf523e4b1a3d451a485e37a67ef95eeed7f57cb",
+      "introduced": 177,
+      "owned_at_head": 147,
+      "surviving": 147
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1784651488,
+      "hash": "9af810dabc055408184aa7098eeabe07d243cb21",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1786044149,
+      "hash": "7d0a83708d9c96b5d47e8b2d6aac5c6a60731c0c",
+      "introduced": 127,
+      "owned_at_head": 96,
+      "surviving": 96
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1786123031,
+      "hash": "20e044ebf8418ebf2a7984f80aa10c5eb095b3c5",
+      "introduced": 171,
+      "owned_at_head": 120,
+      "surviving": 120
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1786651088,
+      "hash": "101e758fee5688f9050681e6babf7c07e2bb78ae",
+      "introduced": 164,
+      "owned_at_head": 50,
+      "surviving": 50
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787386255,
+      "hash": "a5fc07f798bf59dfa2cf216ba2f52f29fe9dbccf",
+      "introduced": 105,
+      "owned_at_head": 73,
+      "surviving": 73
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787387595,
+      "hash": "613f73d6bfd34a2e39d679546c981fab483dfd3a",
+      "introduced": 2,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787388626,
+      "hash": "2f14566f94c5ec677f846b5b61d5ece113f382da",
+      "introduced": 206,
+      "owned_at_head": 197,
+      "surviving": 197
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787678796,
+      "hash": "fdf59a3fdf8bac09ef56e0cf3fafc5d1926b7ba2",
+      "introduced": 277,
+      "owned_at_head": 9,
+      "surviving": 9
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787679130,
+      "hash": "dfad9929dc0d4ddd27c76fc62134edbb971e6122",
+      "introduced": 4,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787680192,
+      "hash": "5cfe28407ca15b39263efd761766296498d22a96",
+      "introduced": 20,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1787680453,
+      "hash": "e15f0b6c9afbfc95e7b22129b019617978375cea",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788069509,
+      "hash": "1a6b0c40a12efa1ff8a02f030ce5a0bd77b95c51",
+      "introduced": 454,
+      "owned_at_head": 11,
+      "surviving": 11
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788070078,
+      "hash": "1bbb53bbcf71302fa9be7d29ce2bfd176362076f",
+      "introduced": 74,
+      "owned_at_head": 15,
+      "surviving": 15
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788070666,
+      "hash": "6659d15e89741708b10cbff190f0c3eb18ff9b06",
+      "introduced": 121,
+      "owned_at_head": 115,
+      "surviving": 115
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788071230,
+      "hash": "624a4080c5e4f51392a934bddf0228c6fbdb743c",
+      "introduced": 153,
+      "owned_at_head": 83,
+      "surviving": 83
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788071398,
+      "hash": "7703319a361cfeb80908b598cfcc9ceb6b6ff68b",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788071924,
+      "hash": "a1505f22773954179bd7cc5c928474073b3d1110",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788072073,
+      "hash": "087f5c21fe6216e2ab86674cab037f655272c9db",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788072117,
+      "hash": "239bca57c8e2cb3655eb9677d8ffc6d6bc8bd7a8",
+      "introduced": 26,
+      "owned_at_head": 7,
+      "surviving": 7
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788072273,
+      "hash": "7631f781f91524d4fabba8e04dec3a80df76fd21",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788078189,
+      "hash": "b8741f818c22237bb06db777ab1c355f9c3d5fa3",
+      "introduced": 240,
+      "owned_at_head": 214,
+      "surviving": 214
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788078889,
+      "hash": "58e6076d3b691e668745d319d9ab9c09cf492da2",
+      "introduced": 3,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788079318,
+      "hash": "9eb0826f02ccb7a20637deef98cd65a3cb705ab4",
+      "introduced": 172,
+      "owned_at_head": 15,
+      "surviving": 15
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788079991,
+      "hash": "e8616fd1fe6d9b21a05becb68739fa8ae2720c8d",
+      "introduced": 150,
+      "owned_at_head": 13,
+      "surviving": 13
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788194179,
+      "hash": "6ee581bce60f65d9ebd5f4f75a3d5a4ace733211",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788194310,
+      "hash": "70dd48a090488e4d687bb1d0e078883180926766",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788194648,
+      "hash": "c697611e7e674ff1c0eda53da4a0edd3de706815",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788194715,
+      "hash": "b3d325dbb681f91607f517e5f7de6dc5be8caa7b",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788194905,
+      "hash": "3ba293fdb13024e26ae93b5dd79010c159eaba14",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788685906,
+      "hash": "81fb7d9183135161702c62aebeda00cdc7e2c1cf",
+      "introduced": 82,
+      "owned_at_head": 50,
+      "surviving": 50
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788798217,
+      "hash": "abfdff856e462fd76d07bf813ffec13c893b1abe",
+      "introduced": 180,
+      "owned_at_head": 147,
+      "surviving": 147
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1788897180,
+      "hash": "3857e58931bbf5732e9e5cbbbef048f4b8dec078",
+      "introduced": 550,
+      "owned_at_head": 492,
+      "surviving": 492
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789898221,
+      "hash": "630e47286a45b9b5b1a6404069801e6d147c5de0",
+      "introduced": 475,
+      "owned_at_head": 399,
+      "surviving": 399
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789898221,
+      "hash": "ca07717fcca5089b1ab004666f5d1aec0215aa0a",
+      "introduced": 11,
+      "owned_at_head": 11,
+      "surviving": 11
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789898623,
+      "hash": "3f0484456ba939740e6308b7986a1613f71bbdfd",
+      "introduced": 206,
+      "owned_at_head": 171,
+      "surviving": 171
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789899446,
+      "hash": "a5fe19041d7d64e068583e16b2f08064b6d27594",
+      "introduced": 477,
+      "owned_at_head": 439,
+      "surviving": 439
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789900041,
+      "hash": "db7180e894e9b9339192937d07a1b197d5cd95b3",
+      "introduced": 197,
+      "owned_at_head": 162,
+      "surviving": 162
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789900041,
+      "hash": "0be8e96fd662daa94a57ad4a9e4ab82736553bed",
+      "introduced": 42,
+      "owned_at_head": 46,
+      "surviving": 42
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789901076,
+      "hash": "9b8b2a835952346287ef90635be33694621300aa",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789901196,
+      "hash": "d5c6518490e912f9014b266ad175243c8d0fd90d",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789901393,
+      "hash": "24c0cc851597fa4101126632ded6497f09e57370",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789901451,
+      "hash": "6ff93eec7eb5cafd4ea045f4ef7cadf6d3c6519f",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789902532,
+      "hash": "5f8a0aa21134ae9a0e7b679cdf64b197c4a1e6f0",
+      "introduced": 27,
+      "owned_at_head": 26,
+      "surviving": 26
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789902545,
+      "hash": "55b758b972e2f5f04d422713be31e31f44bfe95b",
+      "introduced": 128,
+      "owned_at_head": 121,
+      "surviving": 121
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1789916141,
+      "evidence": [
+        "author: Cursor Agent <cursoragent@cursor.com>"
+      ],
+      "hash": "09ece0cbc3fa8a35d3ad0d4a2a5609d30583ed70",
+      "introduced": 1097,
+      "owned_at_head": 1030,
+      "surviving": 1030
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1789916628,
+      "evidence": [
+        "author: Cursor Agent <cursoragent@cursor.com>"
+      ],
+      "hash": "ee42baccd60e7f58df4a62e875a6d639019ee901",
+      "introduced": 345,
+      "owned_at_head": 102,
+      "surviving": 102
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1789917105,
+      "evidence": [
+        "author: Cursor Agent <cursoragent@cursor.com>"
+      ],
+      "hash": "aec4aab0d3d6d94b9183a0c88b59657de8374868",
+      "introduced": 331,
+      "owned_at_head": 171,
+      "surviving": 171
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1789917317,
+      "evidence": [
+        "author: Cursor Agent <cursoragent@cursor.com>"
+      ],
+      "hash": "7f5ef55821735f4ad8035fc0927fb9740ee873b9",
+      "introduced": 196,
+      "owned_at_head": 131,
+      "surviving": 131
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1789917551,
+      "evidence": [
+        "author: Cursor Agent <cursoragent@cursor.com>"
+      ],
+      "hash": "ac1b11cdbe28c15e13270330fd7b814f9a92aaed",
+      "introduced": 132,
+      "owned_at_head": 130,
+      "surviving": 130
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1789918094,
+      "evidence": [
+        "author: Cursor Agent <cursoragent@cursor.com>"
+      ],
+      "hash": "923acb810f29300329fe5c434b1d2f6b10990245",
+      "introduced": 703,
+      "owned_at_head": 620,
+      "surviving": 620
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789918522,
+      "hash": "3b3523158b091639f07545b59538196362636d4c",
+      "introduced": 192,
+      "owned_at_head": 199,
+      "surviving": 192
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789918629,
+      "hash": "c7cbc592019c18e2e9a4c224af7bc3b07316a88c",
+      "introduced": 220,
+      "owned_at_head": 193,
+      "surviving": 193
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789918721,
+      "hash": "a4c7178581dd47e57b1dd75283f9db1a9e890bc8",
+      "introduced": 817,
+      "owned_at_head": 791,
+      "surviving": 791
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789918754,
+      "hash": "9577288e746c13c96692cd3d4703402bc9db2f34",
+      "introduced": 397,
+      "owned_at_head": 338,
+      "surviving": 338
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789918770,
+      "hash": "89afad28c46d9437021b6219b90e2c9ba45f422f",
+      "introduced": 55,
+      "owned_at_head": 54,
+      "surviving": 54
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789918852,
+      "hash": "c67cf1fbb1be172d56ca0d73c665118653afeb27",
+      "introduced": 158,
+      "owned_at_head": 140,
+      "surviving": 140
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789918901,
+      "hash": "b5024cf9c0572fdc08dc6503157d0b2abf7221fd",
+      "introduced": 96,
+      "owned_at_head": 95,
+      "surviving": 95
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789919092,
+      "hash": "545b56eb631d163233298e11c953d6c062a281c6",
+      "introduced": 392,
+      "owned_at_head": 372,
+      "surviving": 372
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789919110,
+      "hash": "736e72168f39187c3e4ce588c770cc2418d6e987",
+      "introduced": 301,
+      "owned_at_head": 276,
+      "surviving": 276
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789919365,
+      "hash": "0988414b0ed86b5abe02de95cf81969cb4614ed6",
+      "introduced": 194,
+      "owned_at_head": 207,
+      "surviving": 194
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789919611,
+      "hash": "dab827121a039882643d33c677e5da963ab4c6dc",
+      "introduced": 395,
+      "owned_at_head": 355,
+      "surviving": 355
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789919725,
+      "hash": "2668bcd5498dede44dcee848426ec8902f2fefea",
+      "introduced": 198,
+      "owned_at_head": 198,
+      "surviving": 198
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789919797,
+      "hash": "af449412a138e42be914a3663501451444b2bdd4",
+      "introduced": 40,
+      "owned_at_head": 37,
+      "surviving": 37
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1789919816,
+      "evidence": [
+        "author: Cursor Agent <cursoragent@cursor.com>"
+      ],
+      "hash": "ce5cdde0bc2b3d27609ac1bfdf2dbbf517913c16",
+      "introduced": 942,
+      "owned_at_head": 579,
+      "surviving": 579
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789919837,
+      "hash": "ee971458660b33cfff0b0940a45f7de766a92170",
+      "introduced": 7,
+      "owned_at_head": 6,
+      "surviving": 6
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1789919867,
+      "evidence": [
+        "author: Cursor Agent <cursoragent@cursor.com>"
+      ],
+      "hash": "2257e166fd5844c3335ae594e7403f44d80d700a",
+      "introduced": 4,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789919937,
+      "hash": "500a073ef23657cbba5e8bf8aa33170eca96b8b1",
+      "introduced": 12,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789919978,
+      "hash": "72091130c8ed2b7e8b41df845f37cced49f9e700",
+      "introduced": 5,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789920033,
+      "hash": "3df8a7be9f9381fcf57d41660878fcf9af650227",
+      "introduced": 309,
+      "owned_at_head": 295,
+      "surviving": 295
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1789920160,
+      "evidence": [
+        "author: Cursor Agent <cursoragent@cursor.com>"
+      ],
+      "hash": "f3353d13045e18812c298cc9f56716f93c0126d0",
+      "introduced": 240,
+      "owned_at_head": 226,
+      "surviving": 226
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789920218,
+      "hash": "bff471eaf68944f45552d4c4627ae31d1a4b43c0",
+      "introduced": 69,
+      "owned_at_head": 67,
+      "surviving": 67
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789920305,
+      "hash": "253b2240a9987e536b7cab0dcee845a5a7485de6",
+      "introduced": 262,
+      "owned_at_head": 255,
+      "surviving": 255
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1789920406,
+      "evidence": [
+        "author: Cursor Agent <cursoragent@cursor.com>"
+      ],
+      "hash": "668eef3ea0abebe3aa481ff414a0e7ee5d9812ec",
+      "introduced": 138,
+      "owned_at_head": 132,
+      "surviving": 132
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1789920838,
+      "evidence": [
+        "author: Cursor Agent <cursoragent@cursor.com>"
+      ],
+      "hash": "2840973cb64ee995af7dd75e0cc11fa634e65ef5",
+      "introduced": 552,
+      "owned_at_head": 510,
+      "surviving": 510
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1789920896,
+      "evidence": [
+        "author: Cursor Agent <cursoragent@cursor.com>"
+      ],
+      "hash": "0f38633f7a11ae9748a490c521ed92837819d553",
+      "introduced": 3,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "agent": "cursor",
+      "class": "verified",
+      "committed_at": 1789921108,
+      "evidence": [
+        "author: Cursor Agent <cursoragent@cursor.com>"
+      ],
+      "hash": "0ac1b2d83d5931a3275bf309a7fe279dded2a23b",
+      "introduced": 30,
+      "owned_at_head": 16,
+      "surviving": 16
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789922030,
+      "hash": "2b98be645848c8a032a3b14fab32e07d15c5395f",
+      "introduced": 134,
+      "owned_at_head": 116,
+      "surviving": 116
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789922837,
+      "hash": "0bb5f0a209dcc7ec1ed070d244af0bc8f4b8bb42",
+      "introduced": 251,
+      "owned_at_head": 238,
+      "surviving": 238
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789922886,
+      "hash": "90886cd5ebba5468fc1ac237c3b3e2d55f6ea5e5",
+      "introduced": 32,
+      "owned_at_head": 26,
+      "surviving": 26
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789923043,
+      "hash": "fa5e80548f6ee90ea896cc122ec539389494b422",
+      "introduced": 1071,
+      "owned_at_head": 1017,
+      "surviving": 1017
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789923145,
+      "hash": "5f80d01c28517123e183e470fd99c0a287904a58",
+      "introduced": 284,
+      "owned_at_head": 284,
+      "surviving": 284
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789923205,
+      "hash": "43fc3a27a453e371a1fce60f71e91966131b077c",
+      "introduced": 182,
+      "owned_at_head": 162,
+      "surviving": 162
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789923260,
+      "hash": "78a01cdea9ccff65de2aa8deb64186e7045ff3cb",
+      "introduced": 158,
+      "owned_at_head": 135,
+      "surviving": 135
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789923278,
+      "hash": "ead4fffd4f427fddaf53712400c87beb44ef2e84",
+      "introduced": 1255,
+      "owned_at_head": 1230,
+      "surviving": 1230
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789923295,
+      "hash": "15898c3209b6dfb584c54d2c2da91bfcfd840707",
+      "introduced": 48,
+      "owned_at_head": 45,
+      "surviving": 45
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789923296,
+      "hash": "22e1d999879f87b3e5c6173836a7044cd4307e37",
+      "introduced": 3890,
+      "owned_at_head": 3913,
+      "surviving": 3890
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789924432,
+      "hash": "83a07e35f0dc09791523d099befba97930502d86",
+      "introduced": 154,
+      "owned_at_head": 150,
+      "surviving": 150
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789924441,
+      "hash": "57b1623ecaa437ddf78f6a828c3fdab6c9f622ac",
+      "introduced": 3,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789924475,
+      "hash": "aeadcfc7354cd29dc9fc9b2559542f595cdf140f",
+      "introduced": 3,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789926432,
+      "hash": "9d59540ac3de6c9633558de316c6a4f7869d8c41",
+      "introduced": 16,
+      "owned_at_head": 16,
+      "surviving": 16
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789927262,
+      "hash": "dbdcf0efa23e3dda46bf293564aa32b1f4c7e5db",
+      "introduced": 5,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789929615,
+      "hash": "372cc1ee1ee597de3d1c860c038f8bfc8ce245b3",
+      "introduced": 117,
+      "owned_at_head": 101,
+      "surviving": 101
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789929656,
+      "hash": "acc493e5dc1b3db67bdd6d2330a448526b05f07e",
+      "introduced": 2745,
+      "owned_at_head": 20017,
+      "surviving": 2745
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789929708,
+      "hash": "84fbd1256b742890f1e696dcfebde16b99dafe65",
+      "introduced": 93,
+      "owned_at_head": 87,
+      "surviving": 87
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789929743,
+      "hash": "57afe734a9c4e45c692d1d097b8db912a4f8ed28",
+      "introduced": 157,
+      "owned_at_head": 135,
+      "surviving": 135
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789929790,
+      "hash": "6df56ea12514e4067374c73ee6140b0cad1ce5c2",
+      "introduced": 516,
+      "owned_at_head": 526,
+      "surviving": 516
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789929838,
+      "hash": "4f45697edd214a6715a1d3fc5fc0adea4de86abd",
+      "introduced": 64,
+      "owned_at_head": 62,
+      "surviving": 62
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789929935,
+      "hash": "f6e0ee55e8e4226afff513c55d9ae53e0d05d51b",
+      "introduced": 390,
+      "owned_at_head": 440,
+      "surviving": 390
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789929985,
+      "hash": "f2e7a6577e43463e270212cb8b5496bb1e2c204b",
+      "introduced": 4,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789930188,
+      "hash": "72357e2e756fcc7c2248cb72742237ece6c35417",
+      "introduced": 713,
+      "owned_at_head": 847,
+      "surviving": 713
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789930244,
+      "hash": "71d68cb764f1e04c3fa1347fb6dd6bea5de4d298",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789930286,
+      "hash": "a0d7d95ded08e08c291715f2de8b831f1efc354e",
+      "introduced": 319,
+      "owned_at_head": 303,
+      "surviving": 303
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789930286,
+      "hash": "4e4ca069cec78435d9ae949da794d401eee2cff7",
+      "introduced": 544,
+      "owned_at_head": 529,
+      "surviving": 529
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789930601,
+      "hash": "3a7c366cae8b7f3ee1df89e6f66a6605ef45984e",
+      "introduced": 310,
+      "owned_at_head": 308,
+      "surviving": 308
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789930616,
+      "hash": "f740e9322375bd909bd242910cfe82f830e55d40",
+      "introduced": 853,
+      "owned_at_head": 892,
+      "surviving": 853
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789930715,
+      "hash": "82ccfd3bb3c11606e1e66a2a64d3a22ec805adba",
+      "introduced": 66,
+      "owned_at_head": 66,
+      "surviving": 66
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789930846,
+      "hash": "1aa24592a4c19ee8c4a5e1afabd7ef50abcd2f21",
+      "introduced": 76,
+      "owned_at_head": 41,
+      "surviving": 41
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789930889,
+      "hash": "473f897c3d9c5449664dbfaeee63c17bac674e0e",
+      "introduced": 212,
+      "owned_at_head": 199,
+      "surviving": 199
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789931922,
+      "hash": "7d0faa2fd0ce965edeacc828b095bdf9747a048b",
+      "introduced": 124,
+      "owned_at_head": 93,
+      "surviving": 93
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789932740,
+      "hash": "988d6eb557e6511d971587d405485fa9c69dfd1d",
+      "introduced": 33,
+      "owned_at_head": 25,
+      "surviving": 25
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789933488,
+      "hash": "905e0f60083b6a6ba789e00820c6168bd65fe36f",
+      "introduced": 13102,
+      "owned_at_head": 13607,
+      "surviving": 13102
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789934450,
+      "hash": "f912be3b3940c187827cfa801cfe315feb27dae9",
+      "introduced": 20,
+      "owned_at_head": 20,
+      "surviving": 20
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789934558,
+      "hash": "27c9a888059187557e694ee1a3a210bb9152610b",
+      "introduced": 18,
+      "owned_at_head": 15,
+      "surviving": 15
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789934863,
+      "hash": "93c7e1d6a2847802727d1b4ca36df474d47f424a",
+      "introduced": 24,
+      "owned_at_head": 20,
+      "surviving": 20
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789935556,
+      "hash": "d46d3f2bce0cc4e05ed3153983a5cf7596163c3b",
+      "introduced": 17,
+      "owned_at_head": 13,
+      "surviving": 13
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789935715,
+      "hash": "51439f76705e8bc979849b81e443dc44d28ac6d8",
+      "introduced": 50,
+      "owned_at_head": 58,
+      "surviving": 50
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789935818,
+      "hash": "516a7a7a9fbc8ae6146ccdba800b12629f47af17",
+      "introduced": 31,
+      "owned_at_head": 31,
+      "surviving": 31
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789935914,
+      "hash": "18dad1fe7b4c5b72299aef433cb9d12d73e6cf9d",
+      "introduced": 10,
+      "owned_at_head": 10,
+      "surviving": 10
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789937285,
+      "hash": "dedcb5e0b7a301f6aa7080387ec77605939ac8fc",
+      "introduced": 254,
+      "owned_at_head": 229,
+      "surviving": 229
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789939669,
+      "hash": "746a6970e509ac09c44a5ac2b9c6a9238347a9aa",
+      "introduced": 256,
+      "owned_at_head": 242,
+      "surviving": 242
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789939705,
+      "hash": "6a085d6bdbeace89a63859f2e9009a9c84da2404",
+      "introduced": 142,
+      "owned_at_head": 105,
+      "surviving": 105
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789939705,
+      "hash": "d7e054f1869b3ed709d1368d51b44f0a06052273",
+      "introduced": 59,
+      "owned_at_head": 58,
+      "surviving": 58
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789939705,
+      "hash": "4f6522082227fe2befd3445082d548d33ef9c2c2",
+      "introduced": 83,
+      "owned_at_head": 71,
+      "surviving": 71
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789939705,
+      "hash": "cb0a1a6571de880d0f0bc42d4e730d3dab0ab8ba",
+      "introduced": 93,
+      "owned_at_head": 275,
+      "surviving": 93
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1789940217,
+      "hash": "eb48ea59430c28b7d16510f98caa2e2efe198411",
+      "introduced": 9,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790009134,
+      "hash": "a07de2a8a4412919de70e3d57d27fee065dc45ac",
+      "introduced": 39,
+      "owned_at_head": 38,
+      "surviving": 38
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790009842,
+      "hash": "53c674ee11f0ad42229dec2e628e2c25a33ded1d",
+      "introduced": 24,
+      "owned_at_head": 157,
+      "surviving": 24
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790011070,
+      "hash": "e8f050e39eb0f187efe0f3f2cfeb9c29522f0d4b",
+      "introduced": 727,
+      "owned_at_head": 724,
+      "surviving": 724
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790011314,
+      "hash": "c954fac571b0b969ccd791b0383e92904bd41609",
+      "introduced": 747,
+      "owned_at_head": 745,
+      "surviving": 745
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790011329,
+      "hash": "9559401358d25aaee5bdbe33183b53bec39b27d8",
+      "introduced": 7,
+      "owned_at_head": 7,
+      "surviving": 7
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790011468,
+      "hash": "d8a6458dbd21c00987bd7317ceb1c7c5ac61366e",
+      "introduced": 283,
+      "owned_at_head": 276,
+      "surviving": 276
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790011524,
+      "hash": "ef510250da9888370b8187e7b1f99e56068183bd",
+      "introduced": 46,
+      "owned_at_head": 34,
+      "surviving": 34
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790011709,
+      "hash": "d95733a4a6156ce309c7357b8177970b3fd27870",
+      "introduced": 1103,
+      "owned_at_head": 1054,
+      "surviving": 1054
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790011844,
+      "hash": "587a2c0359c107c84b2c8f2f058f3f217c399766",
+      "introduced": 317,
+      "owned_at_head": 327,
+      "surviving": 317
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790011850,
+      "hash": "f3750ca1ff4a7dfade03b19a5c788bab9ba5419a",
+      "introduced": 970,
+      "owned_at_head": 932,
+      "surviving": 932
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790011967,
+      "hash": "f3a1e618944165f6e1d23a646b37d4da2bb3eb6b",
+      "introduced": 52,
+      "owned_at_head": 51,
+      "surviving": 51
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790012110,
+      "hash": "f05632a0478d7bad1702d7b7beab2df43db41501",
+      "introduced": 267,
+      "owned_at_head": 244,
+      "surviving": 244
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790012240,
+      "hash": "72f84daec00920cf2b248914341c3385d16efd53",
+      "introduced": 387,
+      "owned_at_head": 377,
+      "surviving": 377
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790012240,
+      "hash": "c57aeaa06046e8a89be01deefea68e796358c1b2",
+      "introduced": 160,
+      "owned_at_head": 178,
+      "surviving": 160
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790012240,
+      "hash": "6cca634692dc970cf956cbe3aba711049bb35ca7",
+      "introduced": 29,
+      "owned_at_head": 24,
+      "surviving": 24
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790012286,
+      "hash": "b1c1c41a78f4fd1f3b44ba1acf91a157934f561f",
+      "introduced": 89,
+      "owned_at_head": 49,
+      "surviving": 49
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790012286,
+      "hash": "f54e9d29e48e7b3f9b93dd4828c37387ba911621",
+      "introduced": 103,
+      "owned_at_head": 99,
+      "surviving": 99
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790012401,
+      "hash": "564b6b234e7702734dddecb6a0a71262c2a6ea8e",
+      "introduced": 7,
+      "owned_at_head": 6,
+      "surviving": 6
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790012401,
+      "hash": "9ebbb69ec2d5a7ddb3711e5a0e09c8d379104556",
+      "introduced": 77,
+      "owned_at_head": 45,
+      "surviving": 45
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790012472,
+      "hash": "e7454421a1bdd4b7a5c770a2edca0e8e5909af71",
+      "introduced": 188,
+      "owned_at_head": 181,
+      "surviving": 181
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790012709,
+      "hash": "23ebf9dc0458a016d53264c4aa62b60751ddd05d",
+      "introduced": 5,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790012894,
+      "hash": "cb42071d2a41b0079fa9f5a4cd9baf2dc91260cc",
+      "introduced": 2723,
+      "owned_at_head": 3973,
+      "surviving": 2723
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790012944,
+      "hash": "ed6265a24d9d41d3aa1d56bc9d5bbb3752c9eeb8",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790012992,
+      "hash": "d19bf27dc04565eef568fef0d8b483d48386ef41",
+      "introduced": 18,
+      "owned_at_head": 76,
+      "surviving": 18
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790013122,
+      "hash": "268436ae7a67ec63eba86c15011e1d886241bb17",
+      "introduced": 6,
+      "owned_at_head": 6,
+      "surviving": 6
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790014163,
+      "hash": "bba2751e090fd56bd50562cdf121dc136c7f43fe",
+      "introduced": 19,
+      "owned_at_head": 78,
+      "surviving": 19
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790184670,
+      "hash": "0481c30cd3ad895d58e85d9e0a54d39461bdecf7",
+      "introduced": 15,
+      "owned_at_head": 15,
+      "surviving": 15
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790187249,
+      "hash": "9e5b763fbac392032851b4482d4b88d439aba7d4",
+      "introduced": 81,
+      "owned_at_head": 65,
+      "surviving": 65
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790187838,
+      "hash": "7049ebedcddc8b98c1720fb8400d3b674564b891",
+      "introduced": 12,
+      "owned_at_head": 12,
+      "surviving": 12
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790194392,
+      "hash": "e69a31b13874f1fa194d8da218e4ada0eb11f29f",
+      "introduced": 1219,
+      "owned_at_head": 709,
+      "surviving": 709
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790201005,
+      "hash": "086b65bf3d4b9f801a9131815b5f0964abe36fc6",
+      "introduced": 38,
+      "owned_at_head": 35,
+      "surviving": 35
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790214747,
+      "hash": "68834df7d0ffb0e5a0d1061c963e49b27bfc4adb",
+      "introduced": 23489,
+      "owned_at_head": 15153,
+      "surviving": 15153
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790219904,
+      "hash": "7e4a167705dcd8685017d651b98f7288f7a3d01a",
+      "introduced": 67,
+      "owned_at_head": 67,
+      "surviving": 67
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790271666,
+      "hash": "80791317b2e2a821887f41e160f178b30f9dc646",
+      "introduced": 240,
+      "owned_at_head": 221,
+      "surviving": 221
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790272113,
+      "hash": "614bb9ef198b799fa0ef4a225eabec04050fb869",
+      "introduced": 315,
+      "owned_at_head": 311,
+      "surviving": 311
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790272123,
+      "hash": "37f411d61da356f166385bd69201b22d237a4a4c",
+      "introduced": 4938,
+      "owned_at_head": 134,
+      "surviving": 134
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790272229,
+      "hash": "498396b2b5dba6f6adab0d80cb63b2c9f4618139",
+      "introduced": 30,
+      "owned_at_head": 22,
+      "surviving": 22
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790272296,
+      "hash": "610f381136434358599af98b493b44accb3b05b7",
+      "introduced": 33,
+      "owned_at_head": 28,
+      "surviving": 28
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790273100,
+      "hash": "f8121507e8d90a2e2973c1c02c427b507f8c0ab9",
+      "introduced": 1007,
+      "owned_at_head": 965,
+      "surviving": 965
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790273442,
+      "hash": "965452249ae4c82e5fc41d11643767eb4342d385",
+      "introduced": 45,
+      "owned_at_head": 43,
+      "surviving": 43
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790275822,
+      "hash": "7fb149cbd24ec0217c6ecbe8ad1725ce2f38e531",
+      "introduced": 8,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790277863,
+      "hash": "8080a19544b123189f220046c91b7f8dc98a7a47",
+      "introduced": 640,
+      "owned_at_head": 573,
+      "surviving": 573
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790278220,
+      "hash": "6757bb951ea319bb036e394ac32fc7304773e483",
+      "introduced": 143,
+      "owned_at_head": 114,
+      "surviving": 114
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790278645,
+      "hash": "0d3626df99bd19014e37b194ff2f74c0763ed5d2",
+      "introduced": 490,
+      "owned_at_head": 416,
+      "surviving": 416
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790279050,
+      "hash": "52578ea58c63118e6ffe93fde0e00927c4c3da60",
+      "introduced": 18,
+      "owned_at_head": 18,
+      "surviving": 18
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790279122,
+      "hash": "76e138974f7c43097f0b0fd3c24e5d6193820b2c",
+      "introduced": 20,
+      "owned_at_head": 9,
+      "surviving": 9
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790279524,
+      "hash": "f1b28b15c559150b39229c5cac8161491c4d1d44",
+      "introduced": 21,
+      "owned_at_head": 21,
+      "surviving": 21
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790280365,
+      "hash": "02748655737a46bc46bbfa789734904869dafbbf",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790431438,
+      "hash": "f957350d95ee69ef687e643c6f27113e3c62f50e",
+      "introduced": 11,
+      "owned_at_head": 7,
+      "surviving": 7
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790510202,
+      "hash": "664752eaf2d64aee511485e79af2b906b6949c99",
+      "introduced": 412,
+      "owned_at_head": 394,
+      "surviving": 394
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790611695,
+      "hash": "807e88e586fb484f7dbe3e461d6d6de6714aae94",
+      "introduced": 37205,
+      "owned_at_head": 39128,
+      "surviving": 37205
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790611797,
+      "hash": "0be4178d3a061434d583b47ba3bf5a0fa53f5eba",
+      "introduced": 36,
+      "owned_at_head": 28,
+      "surviving": 28
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790618349,
+      "hash": "7cf8081696271b7083f2fa263e798de8e1ba22a9",
+      "introduced": 127,
+      "owned_at_head": 119,
+      "surviving": 119
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790618349,
+      "hash": "a1ad27bc5e14a2cc74e81f3790a354040316bf90",
+      "introduced": 53,
+      "owned_at_head": 49,
+      "surviving": 49
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790618541,
+      "hash": "4809f5240f917ec3ae1f3e5e978730f3fc8b2c5c",
+      "introduced": 126,
+      "owned_at_head": 52,
+      "surviving": 52
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790619028,
+      "hash": "1789069057e0aed5a993253c6747367f56557a5d",
+      "introduced": 331,
+      "owned_at_head": 298,
+      "surviving": 298
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790621682,
+      "hash": "e53bc1b4699756b3cc89a0e261eb1ebdbb93f6f5",
+      "introduced": 1866,
+      "owned_at_head": 1394,
+      "surviving": 1394
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790621682,
+      "hash": "569ef1dbe906689d78fcff972caa4e172b833c61",
+      "introduced": 1106,
+      "owned_at_head": 1099,
+      "surviving": 1099
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790621682,
+      "hash": "08dfa1102ff830a3d8a2823fa0bdce49ce2599ec",
+      "introduced": 349,
+      "owned_at_head": 331,
+      "surviving": 331
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790621682,
+      "hash": "08917d629cf3048a7d186b16aea35035f12199fa",
+      "introduced": 292,
+      "owned_at_head": 247,
+      "surviving": 247
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790621682,
+      "hash": "d8f350bd7c9a25c1367f4647a9e1adf73cfa6b61",
+      "introduced": 73,
+      "owned_at_head": 73,
+      "surviving": 73
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790622909,
+      "hash": "b8bb84d626d3ce80e795f244d0166393da6e5335",
+      "introduced": 177,
+      "owned_at_head": 99,
+      "surviving": 99
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790622921,
+      "hash": "5d5a7523d421a2ff85484a907c2d3f52e6e5eab4",
+      "introduced": 524,
+      "owned_at_head": 524,
+      "surviving": 524
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790623360,
+      "hash": "4bc0e316ebe254a8d12d055bff86f2eb59c775cf",
+      "introduced": 445,
+      "owned_at_head": 425,
+      "surviving": 425
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790623455,
+      "hash": "92b03046cdf520024189317b07a35d997fbdb9a8",
+      "introduced": 90,
+      "owned_at_head": 88,
+      "surviving": 88
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790706605,
+      "hash": "28ed9a02c103d25b817be080b8c3f28684a6e8bf",
+      "introduced": 4,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790963478,
+      "hash": "0b91419dfd2f3c7a20fa97f00205a636ebc68501",
+      "introduced": 263,
+      "owned_at_head": 222,
+      "surviving": 222
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790971519,
+      "hash": "e15f78caae6009271f9ccdf60fddfbe6d6d6ff96",
+      "introduced": 56,
+      "owned_at_head": 31,
+      "surviving": 31
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790971520,
+      "hash": "6efcdc3a8b3dac8986f99f3d288598dd419ebc65",
+      "introduced": 37,
+      "owned_at_head": 35,
+      "surviving": 35
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1790971522,
+      "hash": "a11e2139955311f935d3443c022e274697af85ff",
+      "introduced": 55,
+      "owned_at_head": 55,
+      "surviving": 55
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791006439,
+      "hash": "cc086e0e25ef543e34e52bea301671cab989ceb6",
+      "introduced": 13,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791011361,
+      "hash": "ad04b47bfe5db7f9214279962b864f609186c0e4",
+      "introduced": 1,
+      "owned_at_head": 1,
+      "surviving": 1
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791102978,
+      "hash": "d3385175c7f0fa1996d73a02f82486b7d87aa739",
+      "introduced": 217,
+      "owned_at_head": 211,
+      "surviving": 211
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791103398,
+      "hash": "fb91217685477ea271dab9e90d3e6a69daf53fa0",
+      "introduced": 327,
+      "owned_at_head": 321,
+      "surviving": 321
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791104645,
+      "hash": "0e2189bbb04128e214812c1af0ad084ce019ec10",
+      "introduced": 753,
+      "owned_at_head": 633,
+      "surviving": 633
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791105406,
+      "hash": "d3e01b69b1f6d8c7e8a27c27bb1a7143a224b8c7",
+      "introduced": 81,
+      "owned_at_head": 51,
+      "surviving": 51
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791107723,
+      "hash": "8c7c431f3fd934a0d9c5005d376f131ab89bd0fa",
+      "introduced": 317,
+      "owned_at_head": 252,
+      "surviving": 252
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791222930,
+      "hash": "c72eebbc59f88c45bb533ba001c17a473866d7c4",
+      "introduced": 68,
+      "owned_at_head": 66,
+      "surviving": 66
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791222930,
+      "hash": "47658edfa7c830e3b22f387987a3db9dce188cca",
+      "introduced": 544,
+      "owned_at_head": 464,
+      "surviving": 464
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791223625,
+      "hash": "897ddbc73bd41519bf10cc571ec9393bc1af0491",
+      "introduced": 347,
+      "owned_at_head": 60,
+      "surviving": 60
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791225911,
+      "hash": "8f839937a5d503115b8d075a0c1c303c3bb47c3a",
+      "introduced": 841,
+      "owned_at_head": 815,
+      "surviving": 815
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791226206,
+      "hash": "83a53dc401f02fa45cf301c68f2e583dae2da6c1",
+      "introduced": 166,
+      "owned_at_head": 164,
+      "surviving": 164
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791227427,
+      "hash": "83d0ed6c4720efaac0078fcaca2fd790fb0096c8",
+      "introduced": 485,
+      "owned_at_head": 439,
+      "surviving": 439
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791227593,
+      "hash": "8228359f08a11068316c812f40d26080dbcfed72",
+      "introduced": 100,
+      "owned_at_head": 88,
+      "surviving": 88
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791310165,
+      "hash": "77c52a72806a12108f55b2b3a23e0abc58717794",
+      "introduced": 12792,
+      "owned_at_head": 12790,
+      "surviving": 12790
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791311675,
+      "hash": "371235c8ec376f50ee7ea909f6611ebcf9fc9f3b",
+      "introduced": 185,
+      "owned_at_head": 185,
+      "surviving": 185
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791313617,
+      "hash": "c366eb06db95d0395ca618561c533804b71d1407",
+      "introduced": 43453,
+      "owned_at_head": 26521,
+      "surviving": 26521
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791313739,
+      "hash": "cd25b49deb0c15901fa1debf80033010ccf1f21b",
+      "introduced": 36,
+      "owned_at_head": 24,
+      "surviving": 24
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791397385,
+      "hash": "954d616c5fd4628169ffd3788f1332fadc11cd7c",
+      "introduced": 1362,
+      "owned_at_head": 1275,
+      "surviving": 1275
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791398962,
+      "hash": "c3372cf6fc131507e918b40532632794fb4a8acb",
+      "introduced": 18,
+      "owned_at_head": 8,
+      "surviving": 8
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791399317,
+      "hash": "03d41e127290bd4af91afc1abebd4a472c830a27",
+      "introduced": 7,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791404275,
+      "hash": "a6a524d43224e6bf518afcae15aa769171706c4d",
+      "introduced": 31,
+      "owned_at_head": 30,
+      "surviving": 30
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791404330,
+      "hash": "cf99e29ebce3f3459a802095952368c08fc6c2e1",
+      "introduced": 40,
+      "owned_at_head": 36,
+      "surviving": 36
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791404535,
+      "hash": "1de36cea1078d5a7ebba63d7ed9b421411a9eaca",
+      "introduced": 2,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791404867,
+      "hash": "f03c3eb604350ce71d8682a690936d7fe1125ca0",
+      "introduced": 4,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791486163,
+      "hash": "02fd41606b5346103c524d6937c66e7b2780428a",
+      "introduced": 649,
+      "owned_at_head": 636,
+      "surviving": 636
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791486169,
+      "hash": "455e34936199667b628995a277a4c092e7675181",
+      "introduced": 227,
+      "owned_at_head": 210,
+      "surviving": 210
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791488605,
+      "hash": "3eb426b1204e3c9072a9030e795f9c1bbab1eaee",
+      "introduced": 38,
+      "owned_at_head": 26,
+      "surviving": 26
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791488992,
+      "hash": "d4c4949ae25af754c7b30e5665467d66a48b9525",
+      "introduced": 1,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791827333,
+      "hash": "eabb65c250a87a80d0724dc89e5265288460c3a4",
+      "introduced": 38214,
+      "owned_at_head": 23418,
+      "surviving": 23418
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1791827608,
+      "hash": "af7fafebfb141c34fad00d69b4b70d3353c0bef4",
+      "introduced": 36,
+      "owned_at_head": 24,
+      "surviving": 24
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792001357,
+      "hash": "25ed678ec4a56c978ac5953306ecf01a3b454160",
+      "introduced": 302,
+      "owned_at_head": 289,
+      "surviving": 289
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792002403,
+      "hash": "d18b0f01d2b5e0e07ae662bcad055dba9f126217",
+      "introduced": 45,
+      "owned_at_head": 37,
+      "surviving": 37
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792421155,
+      "hash": "8aca7ad0545e6e7d996dce38572655544909ec88",
+      "introduced": 37868,
+      "owned_at_head": 23390,
+      "surviving": 23390
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792421261,
+      "hash": "7fbf3d7ccaac0d5bc4dc105c1ade1d9f339f182d",
+      "introduced": 36,
+      "owned_at_head": 24,
+      "surviving": 24
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792519813,
+      "hash": "a2bf8cb88cececff4ccdc1d8b6a747295b17ccb7",
+      "introduced": 2340,
+      "owned_at_head": 2104,
+      "surviving": 2104
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792521239,
+      "hash": "0bc4748d61dcf3c66c7b7a6a6fff992ff0742c89",
+      "introduced": 524,
+      "owned_at_head": 522,
+      "surviving": 522
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792604002,
+      "hash": "c541756c1181685e2b9ada9ce8eac6e08b34b7ee",
+      "introduced": 192,
+      "owned_at_head": 137,
+      "surviving": 137
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792605410,
+      "hash": "81603c5732b9950b9a55393df1a812bade5d82a7",
+      "introduced": 43,
+      "owned_at_head": 30,
+      "surviving": 30
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792605729,
+      "hash": "ab4d957900ca79e931d048f69cbe0c2e898e1a1e",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792605881,
+      "hash": "3979bc523c764def4702a9d3a8df69b16ad32819",
+      "introduced": 4,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792606131,
+      "hash": "f246f6a8826c61ba5c348b4a7f6667e837dc0e5d",
+      "introduced": 58,
+      "owned_at_head": 58,
+      "surviving": 58
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792606297,
+      "hash": "6ffcab5b0648080035d1b0fe5da0ceca57a72c86",
+      "introduced": 0,
+      "owned_at_head": 0,
+      "surviving": 0
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792609165,
+      "hash": "2643d59191496828c01903bb996e42d219c9c941",
+      "introduced": 60,
+      "owned_at_head": 54,
+      "surviving": 54
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792609289,
+      "hash": "187d3e4e9fc111477357ff80d8cdb722369c8c23",
+      "introduced": 3,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792609291,
+      "hash": "59e6c6de84ef83ca0bd9267a806c988ae17a050d",
+      "introduced": 3,
+      "owned_at_head": 3,
+      "surviving": 3
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792609294,
+      "hash": "8e511889b2eeb87b6a769e35f19b1e96b732087e",
+      "introduced": 2,
+      "owned_at_head": 2,
+      "surviving": 2
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792609552,
+      "hash": "d5911be40f9463eaf72e2deb36aba922f98f6b4b",
+      "introduced": 327,
+      "owned_at_head": 327,
+      "surviving": 327
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792609844,
+      "hash": "d953c615bc104695eebdeacdc158a2a96373ae66",
+      "introduced": 328,
+      "owned_at_head": 327,
+      "surviving": 327
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792610056,
+      "hash": "eed35cce269d5e7fd4a4793f072773e8ed12932d",
+      "introduced": 286,
+      "owned_at_head": 286,
+      "surviving": 286
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792610131,
+      "hash": "42e9d2b223377d542357743f9200417c4c1aa41e",
+      "introduced": 5,
+      "owned_at_head": 5,
+      "surviving": 5
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792610882,
+      "hash": "2844a020ba731f17e1cd9f26597fc7eb2eaa9083",
+      "introduced": 58,
+      "owned_at_head": 50,
+      "surviving": 50
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792611829,
+      "hash": "b52e8e295e8923576c66716107c3e428f75ed75b",
+      "introduced": 178,
+      "owned_at_head": 175,
+      "surviving": 175
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792615566,
+      "hash": "3801f6754c947a63ba7f84f3b4b860b5b66e9386",
+      "introduced": 314,
+      "owned_at_head": 278,
+      "surviving": 278
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792617814,
+      "hash": "ef505a1910d668c40bd03e5956ad68cc9bbfb87d",
+      "introduced": 123,
+      "owned_at_head": 121,
+      "surviving": 121
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1792619541,
+      "hash": "39f0444d4025ceb0b6bd58db085f12d5044fe867",
+      "introduced": 4,
+      "owned_at_head": 4,
+      "surviving": 4
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1793030559,
+      "hash": "5456f68501826058ef952343bce4dfb962b3fba3",
+      "introduced": 7872605,
+      "owned_at_head": 7867071,
+      "surviving": 7867071
+    },
+    {
+      "class": "unknown",
+      "committed_at": 1793031009,
+      "hash": "7eb1dbcc84520897a16050aa7b177e31ee5d8fb4",
+      "introduced": 36,
+      "owned_at_head": 33,
+      "surviving": 33
+    }
+  ],
+  "coverage": {
+    "binary_files": 10,
+    "blame_flags": [
+      "-w",
+      "-M",
+      "-C"
+    ],
+    "copy_capped_lines": 0,
+    "ignore_revs_file": false,
+    "ignore_revs_sha256": null,
+    "method": "v6",
+    "notes_oid": "10af0c7fc06ee65dc4c04007409f2dbb063fa84a",
+    "numstat_flags": [
+      "-M",
+      "-z"
+    ],
+    "sample_floor": 5,
+    "shallow": false,
+    "small_sample": false
+  },
+  "method": "v6",
+  "probable": {
+    "below_floor": true,
+    "cap_lines": null,
+    "capped_survival_rate": null,
+    "commits": 0,
+    "introduced": 0,
+    "largest_commit_share": null,
+    "median_survival": null,
+    "survival_rate": null,
+    "surviving": 0
+  },
+  "repository": {
+    "head": "7eb1dbcc84520897a16050aa7b177e31ee5d8fb4",
+    "origin": "https://github.com/croviatrust/causari",
+    "root_commit": "0413f2bbc10f45582ed9db059184743a379e2748",
+    "root_commits": [
+      "0413f2bbc10f45582ed9db059184743a379e2748"
+    ]
+  },
+  "total_commits": 303,
+  "verified": {
+    "below_floor": false,
+    "cap_lines": 1554,
+    "capped_survival_rate": 0.7673528003829584,
+    "commits": 14,
+    "introduced": 6267,
+    "largest_commit_share": 0.24796553374820487,
+    "median_survival": 0.9029238048116767,
+    "survival_rate": 0.7673528003829584,
+    "surviving": 4809
+  }
+}
