@@ -80,6 +80,17 @@
     "sandbox": false,
     "content_sha256": "35f13573aa99a711157956a260673a64ed573b906393806957007f14fc9b6dfa",
     "published_at": "2026-10-26T16:10:09Z"
+   },
+   "2026/08": {
+    "doi": "10.5281/zenodo.23892452",
+    "concept_doi": "10.5281/zenodo.22863965",
+    "html": "https://zenodo.org/records/23892452",
+    "id": 23892452,
+    "version": "#8",
+    "revision": 1,
+    "sandbox": false,
+    "content_sha256": "a2b66ac045e4e8302b26ddba082f060c30d38cc1fd562bccb413f6c203674b05",
+    "published_at": "2026-11-02T18:26:21Z"
    }
   }
  },
