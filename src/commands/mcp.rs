@@ -19,7 +19,7 @@ use crate::store::Store;
 /// - `causari_recall`  — search local skills and events; a search does not change trust
 /// - `causari_why`     — ledger event for a line; declared is not authorship
 ///
-/// None of the three is `re audit`.
+/// - `causari_handoff` — deliver an exact Git commit and recover its receipt
 ///
 /// This is the bridge that turns Causari from a CLI for power users into a
 /// silent companion that *every* agent can use without code changes.
@@ -63,7 +63,7 @@ pub fn run(args: McpArgs) -> Result<()> {
 
         // Notifications (no id) are not answered.
         let is_notification = id.is_none();
-        if is_notification && method.starts_with("notifications/") {
+        if is_notification && (method.starts_with("notifications/") || method == "tools/call") {
             continue;
         }
 
@@ -196,6 +196,44 @@ fn handle_tools_list() -> Result<Value, String> {
                 }
             },
             {
+                "name": "causari_handoff",
+                "description": "Deliver an exact Git commit to a named slot in this local Git repository. \
+                    Supply the previous accepted commit or null for a new slot. The slot only advances \
+                    by fast-forward. Repeat the same slot, expected and next after a timeout to recover \
+                    its original receipt, even after a later delivery. On stale, inspect current before \
+                    making a new proposal. This updates a private Git ref and leaves branches, the index \
+                    and the working tree untouched.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "slot": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,63}$"},
+                        "expected": {"type": ["string", "null"], "description": "Full previous commit ID, or null to open a new slot."},
+                        "next": {"type": "string", "description": "Full local Git commit ID to deliver."}
+                    },
+                    "required": ["slot", "expected", "next"],
+                    "additionalProperties": false
+                },
+                "outputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "status": {"enum": ["accepted", "replayed", "stale", "not_fast_forward"]},
+                        "slot": {"type": "string"},
+                        "expected": {"type": ["string", "null"]},
+                        "next": {"type": "string"},
+                        "current": {"type": ["string", "null"]},
+                        "receipt": {"type": ["string", "null"]}
+                    },
+                    "required": ["status", "slot", "expected", "next", "current", "receipt"],
+                    "additionalProperties": false
+                },
+                "annotations": {
+                    "readOnlyHint": false,
+                    "destructiveHint": false,
+                    "idempotentHint": true,
+                    "openWorldHint": false
+                }
+            },
+            {
                 "name": "causari_audit",
                 "description": format!(
                     "Run `re audit --json` (method {}, git metadata only, no ledger \
@@ -227,6 +265,27 @@ fn handle_tools_call(params: &Value) -> Result<Value, String> {
         .and_then(|v| v.as_str())
         .ok_or_else(|| "missing tool name".to_string())?;
     let args = params.get("arguments").cloned().unwrap_or(json!({}));
+
+    if name == "causari_handoff" {
+        let result = (|| -> Result<_> {
+            anyhow::ensure!(
+                args.get("expected").is_some(),
+                "expected is required; use null to open a slot"
+            );
+            let outcome = super::handoff::deliver(serde_json::from_value(args)?)?;
+            Ok(serde_json::to_value(outcome)?)
+        })();
+        return Ok(match result {
+            Ok(outcome) => json!({
+                "content": [{"type": "text", "text": outcome.to_string()}],
+                "structuredContent": outcome
+            }),
+            Err(error) => json!({
+                "content": [{"type": "text", "text": format!("{error:#}")}],
+                "isError": true
+            }),
+        });
+    }
 
     let text = match name {
         "causari_record" => tool_record(&args).map_err(|e| e.to_string())?,
@@ -566,10 +625,12 @@ fn print_install_snippet() -> Result<()> {
 # Cursor / Windsurf: same shape, the editor will surface the tools automatically.
 # Cline (VS Code):   add the same entry to its `cline_mcp_settings.json`.
 
-The agent then has three new tools:
+The agent can discover these tools:
   causari_record  - record one of its own actions into the ledger
   causari_recall  - search local skills and events; a search does not change trust; not re audit
   causari_why     - ledger event for a line; declared is not authorship; not re audit
+  causari_audit   - measure code survival using Git metadata
+  causari_handoff - deliver a Git commit to a slot and recover its receipt after a timeout
 
 Tip: have the agent call `causari_record` after every tool call. Causari will
 build a complete, queryable history of the session for you.

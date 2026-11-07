@@ -300,7 +300,7 @@ above. They are out of the proof and out of the front page until they are.
   with cost extrapolated from a static price table; `re churn --json`, and
   `--fail-below <percent>` when a team wants a floor of its own choosing.
 - `re mcp`: stdio MCP server with `causari_record`, `causari_recall`,
-  `causari_why`; `re mcp --install` prints the client config.
+  `causari_why`, `causari_audit` and `causari_handoff`; `re mcp --install` prints the client config.
 
 ## Install
 
@@ -359,8 +359,9 @@ Publishing (`.github/workflows/publish-crate.yml`): no long-lived token exists.
 
 ### As an MCP server
 
-`re mcp` speaks MCP over stdio and exposes `causari_record`, `causari_recall`
-and `causari_why`; `re mcp --install` prints the configuration block for
+`re mcp` speaks MCP over stdio and exposes `causari_record`, `causari_recall`,
+`causari_why`, `causari_audit` and `causari_handoff`.
+`re mcp --install` prints the configuration block for
 Claude Desktop, Cursor, Windsurf and Cline. The server is listed in the
 [MCP Registry](https://registry.modelcontextprotocol.io) from
 [`server.json`](server.json):
@@ -368,6 +369,13 @@ Claude Desktop, Cursor, Windsurf and Cline. The server is listed in the
 - MCP Registry name: mcp-name: io.github.croviatrust/causari
 - One-click for Cursor: [Add causari to Cursor](https://cursor.com/en/install-mcp?name=causari&config=eyJjb21tYW5kIjoicmUiLCJhcmdzIjpbIm1jcCJdfQ%3D%3D)
   (registers `re mcp`; the binary must be on `PATH`)
+
+### Hand off a commit between agents
+
+Use [`re handoff`](docs/handoff.md) or the `causari_handoff` MCP tool to
+deliver an exact Git commit to a named slot shared by local worktrees.
+If the caller loses the response, the same request recovers the original
+receipt, including after another agent advances the slot.
 
 ### In Cursor
 

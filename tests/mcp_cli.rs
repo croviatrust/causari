@@ -1,7 +1,7 @@
 //! `re mcp` end to end, through the binary and the stdio transport an agent
 //! runtime uses: newline-delimited JSON-RPC on stdin and stdout. The in-process
 //! tests check the wording of the tool list; this one checks that a client
-//! which only has the process gets the handshake, the list, and the four
+//! which only has the process gets the handshake, the list, and the five
 //! tools, and that the answers keep the distinctions the descriptions promise.
 use std::{
     fs,
@@ -147,7 +147,7 @@ impl Server {
 }
 
 #[test]
-fn handshake_list_and_four_tools_over_stdio() {
+fn handshake_list_and_tools_over_stdio() {
     let temp = fixture();
     let dir = temp.path();
     let mut s = Server::start(dir);
@@ -167,7 +167,7 @@ fn handshake_list_and_four_tools_over_stdio() {
     let ping = s.result("ping", json!({}));
     assert!(ping.is_object());
 
-    // tools/list: exactly the four tools the docs name, each with a schema.
+    // tools/list: exactly the five tools the docs name, each with a schema.
     let list = s.result("tools/list", json!({}));
     let mut names: Vec<&str> = list["tools"]
         .as_array()
@@ -180,6 +180,7 @@ fn handshake_list_and_four_tools_over_stdio() {
         names,
         [
             "causari_audit",
+            "causari_handoff",
             "causari_recall",
             "causari_record",
             "causari_why"
@@ -319,4 +320,41 @@ fn bad_input_is_an_error_and_records_nothing() {
     assert!(ping.is_object());
 
     s.stop();
+}
+
+#[test]
+fn handoff_over_stdio_recovers_a_receipt_after_restart() {
+    let temp = fixture();
+    let dir = temp.path();
+    let head = Command::new("git")
+        .args(["rev-parse", "HEAD"])
+        .current_dir(dir)
+        .output()
+        .unwrap();
+    assert!(head.status.success());
+    let head = String::from_utf8(head.stdout).unwrap();
+    let args = json!({"name": "causari_handoff", "arguments": {
+        "slot": "test", "expected": null, "next": head.trim()
+    }});
+    let mut first = Server::start(dir);
+    first.send(&json!({"jsonrpc": "2.0", "method": "tools/call", "params": args}));
+    let accepted = first.result("tools/call", args.clone());
+    assert_eq!(accepted["structuredContent"]["status"], "accepted");
+    first.stop();
+
+    let mut second = Server::start(dir);
+    let replayed = second.result("tools/call", args);
+    assert_eq!(replayed["structuredContent"]["status"], "replayed");
+    assert_eq!(
+        replayed["structuredContent"]["receipt"],
+        accepted["structuredContent"]["receipt"]
+    );
+    let bad = second.result(
+        "tools/call",
+        json!({"name": "causari_handoff", "arguments": {
+            "slot": "test", "next": head.trim()
+        }}),
+    );
+    assert_eq!(bad["isError"], true);
+    second.stop();
 }

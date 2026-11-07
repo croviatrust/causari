@@ -66,6 +66,7 @@ fn run(cli: Cli) -> Result<()> {
         Command::Skill(args) => commands::skill::run(args),
         Command::Brief(args) => commands::brief::run(args),
         Command::Proof(args) => commands::proof::run(args),
+        Command::Handoff(args) => commands::handoff::run(args),
         Command::Mcp(args) => commands::mcp::run(args),
         Command::Guard(args) => commands::guard::run(args),
         Command::Churn(args) => commands::churn::run(args),

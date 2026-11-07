@@ -18,7 +18,7 @@ Record (the ledger, in .causari/):
   watch     Record every file change as an event (passive recorder)
   hook      Install agent-side hooks (`re hook claude-code`, `re hook cursor`)
   proxy     Local LLM proxy: prompt, completion, tokens, cost per exchange
-  mcp       Run as an MCP server (causari_record / recall / why)
+  mcp       Run as an MCP server for agent tools
 
 Ask (queries over the ledger):
   log       Recent events
@@ -36,6 +36,7 @@ Move (sessions and time):
   fork      Start a new session from here
   sessions  List sessions
   switch    Switch to a session and sync the workspace
+  handoff   Deliver an exact Git commit to a shared slot with a retry receipt
 
 Prove (offline-verifiable receipts):
   seal      Issue, list and verify Crovia Seals
@@ -131,6 +132,9 @@ pub enum Command {
 
     /// Run Causari as an MCP server (Claude Code, Cursor, Cline, Windsurf, …)
     Mcp(McpArgs),
+
+    /// Deliver an exact Git commit to a local handoff slot
+    Handoff(HandoffArgs),
 
     /// Scan recent events for risky patterns (watchdog)
     Guard(GuardArgs),
@@ -734,6 +738,15 @@ pub enum SkillTrustCommand {
 pub struct ProofArgs {
     #[arg(trailing_var_arg = true, allow_hyphen_values = true, hide = true)]
     pub rest: Vec<String>,
+}
+
+#[derive(Args, Debug)]
+pub struct HandoffArgs {
+    pub slot: String,
+    pub next: String,
+    /// Previous accepted commit. Omit only when opening a new slot.
+    #[arg(long)]
+    pub expect: Option<String>,
 }
 
 #[derive(Args, Debug)]
