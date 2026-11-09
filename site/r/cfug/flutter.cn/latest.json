@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/cfug/flutter.cn/",
  "badge": "https://causari.dev/r/cfug/flutter.cn/badge.svg",
  "report": {
-  "number": 8,
-  "id": "2026/08",
-  "date": "2026-11-02",
-  "url": "https://causari.dev/reports/survival/2026/08/"
+  "number": 9,
+  "id": "2026/09",
+  "date": "2026-11-09",
+  "url": "https://causari.dev/reports/survival/2026/09/"
  },
  "method": "v6",
  "tool": {
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 6,
+ "reports": 7,
  "reproduce": "re audit cfug/flutter.cn --json",
- "bytes": "https://causari.dev/reports/survival/2026/08/repos/cfug__flutter.cn.json",
+ "bytes": "https://causari.dev/reports/survival/2026/09/repos/cfug__flutter.cn.json",
  "license": "CC-BY-4.0"
 }

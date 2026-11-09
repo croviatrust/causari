@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/openai/openai-agents-python/",
  "badge": "https://causari.dev/r/openai/openai-agents-python/badge.svg",
  "report": {
-  "number": 8,
-  "id": "2026/08",
-  "date": "2026-11-02",
-  "url": "https://causari.dev/reports/survival/2026/08/"
+  "number": 9,
+  "id": "2026/09",
+  "date": "2026-11-09",
+  "url": "https://causari.dev/reports/survival/2026/09/"
  },
  "method": "v6",
  "tool": {
@@ -18,23 +18,23 @@
  "verified": {
   "commits": 6,
   "introduced": 97483,
-  "surviving": 88543,
-  "survival_rate": 0.9082917021429378,
-  "capped_survival_rate": 0.8965165815436795,
-  "median_survival": 0.8670682964448961,
+  "surviving": 88563,
+  "survival_rate": 0.9084968661202466,
+  "capped_survival_rate": 0.8966757418437312,
+  "median_survival": 0.8671745279871657,
   "largest_commit_share": 0.9656452919996307
  },
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 2424,
-   "introduced": 735526,
-   "surviving": 491657,
-   "survival_rate": 0.6684427199038511,
-   "median_survival": 0.7777777777777778,
-   "capped_survival_rate": 0.6331566287466024,
-   "cap_lines": 1186,
-   "largest_commit_share": 0.056651974233405754
+   "commits": 2456,
+   "introduced": 737222,
+   "surviving": 492587,
+   "survival_rate": 0.6681664410448955,
+   "median_survival": 0.7741935483870968,
+   "capped_survival_rate": 0.6332364507162443,
+   "cap_lines": 1184,
+   "largest_commit_share": 0.05652164476914688
   },
   "by_age": [
    {
@@ -47,10 +47,10 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 114,
-     "introduced": 21732,
-     "surviving": 18837,
-     "survival_rate": 0.8667863059083379
+     "commits": 94,
+     "introduced": 10891,
+     "surviving": 9775,
+     "survival_rate": 0.8975300707005784
     }
    },
    {
@@ -63,10 +63,10 @@
      "survival_rate": 0.8612035077109162
     },
     "untagged": {
-     "commits": 571,
-     "introduced": 267263,
-     "surviving": 210532,
-     "survival_rate": 0.7877334311146699
+     "commits": 428,
+     "introduced": 134706,
+     "surviving": 105815,
+     "survival_rate": 0.7855255148248779
     }
    },
    {
@@ -79,10 +79,10 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 445,
-     "introduced": 98825,
-     "surviving": 64289,
-     "survival_rate": 0.6505337718188717
+     "commits": 499,
+     "introduced": 226018,
+     "surviving": 168127,
+     "survival_rate": 0.7438655328336681
     }
    },
    {
@@ -91,14 +91,14 @@
     "tagged": {
      "commits": 2,
      "introduced": 94176,
-     "surviving": 85695,
-     "survival_rate": 0.9099452089704383
+     "surviving": 85715,
+     "survival_rate": 0.9101575773020727
     },
     "untagged": {
-     "commits": 574,
-     "introduced": 194056,
-     "surviving": 114883,
-     "survival_rate": 0.5920095230242817
+     "commits": 703,
+     "introduced": 206875,
+     "surviving": 122963,
+     "survival_rate": 0.594383081570997
     }
    },
    {
@@ -111,10 +111,10 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 720,
-     "introduced": 153650,
-     "surviving": 83116,
-     "survival_rate": 0.5409437032216076
+     "commits": 732,
+     "introduced": 158732,
+     "surviving": 85907,
+     "survival_rate": 0.5412078219892649
     }
    },
    {
@@ -137,7 +137,7 @@
   "age_matched": null,
   "oldest_surviving": {
    "date": "2025-03-11",
-   "age_days": 598,
+   "age_days": 607,
    "commits_before": 0,
    "introduced_before": 0,
    "tagged_commits_before": 0,
@@ -146,7 +146,7 @@
   }
  },
  "probable_commits": 0,
- "total_commits": 2430,
+ "total_commits": 2462,
  "aggregated": true,
  "coverage": {
   "method": "v6",
@@ -160,8 +160,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 7,
+ "reports": 8,
  "reproduce": "re audit openai/openai-agents-python --json",
- "bytes": "https://causari.dev/reports/survival/2026/08/repos/openai__openai-agents-python.json",
+ "bytes": "https://causari.dev/reports/survival/2026/09/repos/openai__openai-agents-python.json",
  "license": "CC-BY-4.0"
 }

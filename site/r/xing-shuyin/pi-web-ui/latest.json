@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/xing-shuyin/pi-web-ui/",
  "badge": "https://causari.dev/r/xing-shuyin/pi-web-ui/badge.svg",
  "report": {
-  "number": 8,
-  "id": "2026/08",
-  "date": "2026-11-02",
-  "url": "https://causari.dev/reports/survival/2026/08/"
+  "number": 9,
+  "id": "2026/09",
+  "date": "2026-11-09",
+  "url": "https://causari.dev/reports/survival/2026/09/"
  },
  "method": "v6",
  "tool": {
@@ -16,41 +16,41 @@
   "version": "0.5.0"
  },
  "verified": {
-  "commits": 34,
-  "introduced": 3052,
-  "surviving": 2575,
-  "survival_rate": 0.8437090432503277,
-  "capped_survival_rate": 0.8354753812801167,
-  "median_survival": 0.9236596736596736,
-  "largest_commit_share": 0.11959370904325033
+  "commits": 36,
+  "introduced": 4149,
+  "surviving": 3199,
+  "survival_rate": 0.7710291636538925,
+  "capped_survival_rate": 0.743720673665625,
+  "median_survival": 0.7620967741935484,
+  "largest_commit_share": 0.25138587611472646
  },
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 1239,
-   "introduced": 2449218,
-   "surviving": 852667,
-   "survival_rate": 0.34813846705356566,
-   "median_survival": 0.7965856481481481,
-   "capped_survival_rate": 0.7396732308067661,
-   "cap_lines": 3555,
-   "largest_commit_share": 0.5466634656449528
+   "commits": 1330,
+   "introduced": 2683371,
+   "surviving": 985964,
+   "survival_rate": 0.367434842218985,
+   "median_survival": 0.6494146324715899,
+   "capped_survival_rate": 0.6847525675284266,
+   "cap_lines": 4432,
+   "largest_commit_share": 0.498961194706211
   },
   "by_age": [
    {
     "from_days": 0,
     "to_days": 30,
     "tagged": {
-     "commits": 3,
-     "introduced": 593,
-     "surviving": 567,
-     "survival_rate": 0.9561551433389545
+     "commits": 5,
+     "introduced": 1690,
+     "surviving": 1509,
+     "survival_rate": 0.8928994082840237
     },
     "untagged": {
-     "commits": 336,
-     "introduced": 1883131,
-     "surviving": 440462,
-     "survival_rate": 0.2338987569106982
+     "commits": 373,
+     "introduced": 2051213,
+     "surviving": 575137,
+     "survival_rate": 0.28038872608549187
     }
    },
    {
@@ -59,14 +59,14 @@
     "tagged": {
      "commits": 31,
      "introduced": 2459,
-     "surviving": 2008,
-     "survival_rate": 0.8165921106140708
+     "surviving": 1690,
+     "survival_rate": 0.6872712484749899
     },
     "untagged": {
-     "commits": 898,
-     "introduced": 554788,
-     "surviving": 401470,
-     "survival_rate": 0.723645789022113
+     "commits": 867,
+     "introduced": 603666,
+     "surviving": 391663,
+     "survival_rate": 0.6488074531280542
     }
    },
    {
@@ -79,10 +79,10 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 5,
-     "introduced": 11299,
-     "surviving": 10735,
-     "survival_rate": 0.9500840782370121
+     "commits": 90,
+     "introduced": 28492,
+     "surviving": 19164,
+     "survival_rate": 0.6726098553980064
     }
    },
    {
@@ -135,15 +135,15 @@
    }
   ],
   "age_matched": {
-   "tagged_rate": 0.8165921106140708,
-   "untagged_rate": 0.723645789022113,
-   "gap": 0.09294632159195781,
-   "buckets_used": 1,
-   "tagged_lines_covered": 0.8057011795543906
+   "tagged_rate": 0.7710291636538925,
+   "untagged_rate": 0.4987405337012211,
+   "gap": 0.2722886299526714,
+   "buckets_used": 2,
+   "tagged_lines_covered": 1.0
   },
   "oldest_surviving": {
    "date": "2026-08-04",
-   "age_days": 90,
+   "age_days": 97,
    "commits_before": 0,
    "introduced_before": 0,
    "tagged_commits_before": 0,
@@ -152,7 +152,7 @@
   }
  },
  "probable_commits": 0,
- "total_commits": 1273,
+ "total_commits": 1366,
  "aggregated": true,
  "coverage": {
   "method": "v6",
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 6,
+ "reports": 7,
  "reproduce": "re audit xing-shuyin/pi-web-ui --json",
- "bytes": "https://causari.dev/reports/survival/2026/08/repos/xing-shuyin__pi-web-ui.json",
+ "bytes": "https://causari.dev/reports/survival/2026/09/repos/xing-shuyin__pi-web-ui.json",
  "license": "CC-BY-4.0"
 }

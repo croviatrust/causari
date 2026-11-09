@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/vllm-project/llm-compressor/",
  "badge": "https://causari.dev/r/vllm-project/llm-compressor/badge.svg",
  "report": {
-  "number": 8,
-  "id": "2026/08",
-  "date": "2026-11-02",
-  "url": "https://causari.dev/reports/survival/2026/08/"
+  "number": 9,
+  "id": "2026/09",
+  "date": "2026-11-09",
+  "url": "https://causari.dev/reports/survival/2026/09/"
  },
  "method": "v6",
  "tool": {
@@ -18,55 +18,55 @@
  "verified": {
   "commits": 173,
   "introduced": 28275,
-  "surviving": 24022,
-  "survival_rate": 0.8495844385499558,
-  "capped_survival_rate": 0.7712689903957526,
-  "median_survival": 0.8629343629343629,
+  "surviving": 22965,
+  "survival_rate": 0.8122015915119364,
+  "capped_survival_rate": 0.748876573249538,
+  "median_survival": 0.8571428571428571,
   "largest_commit_share": 0.18539345711759506
  },
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 3141,
-   "introduced": 931738,
-   "surviving": 68592,
-   "survival_rate": 0.07361726150484364,
+   "commits": 3167,
+   "introduced": 936936,
+   "surviving": 70988,
+   "survival_rate": 0.07576611422765268,
    "median_survival": 0.0,
-   "capped_survival_rate": 0.16585430433535478,
+   "capped_survival_rate": 0.1683596595532936,
    "cap_lines": 867,
-   "largest_commit_share": 0.19766071578061645
+   "largest_commit_share": 0.19656411964104273
   },
   "by_age": [
    {
     "from_days": 0,
     "to_days": 30,
     "tagged": {
-     "commits": 16,
-     "introduced": 11015,
-     "surviving": 10435,
-     "survival_rate": 0.9473445301861099
+     "commits": 14,
+     "introduced": 9118,
+     "surviving": 7525,
+     "survival_rate": 0.8252906339109454
     },
     "untagged": {
-     "commits": 64,
-     "introduced": 9258,
-     "surviving": 8570,
-     "survival_rate": 0.9256858932814863
+     "commits": 83,
+     "introduced": 13373,
+     "surviving": 11301,
+     "survival_rate": 0.8450609436925147
     }
    },
    {
     "from_days": 30,
     "to_days": 90,
     "tagged": {
-     "commits": 45,
-     "introduced": 8098,
-     "surviving": 7390,
-     "survival_rate": 0.9125710051864658
+     "commits": 44,
+     "introduced": 9811,
+     "surviving": 9068,
+     "survival_rate": 0.9242686780144735
     },
     "untagged": {
-     "commits": 106,
-     "introduced": 11592,
-     "surviving": 9075,
-     "survival_rate": 0.7828674948240165
+     "commits": 110,
+     "introduced": 12545,
+     "surviving": 9884,
+     "survival_rate": 0.7878836189717019
     }
    },
    {
@@ -74,47 +74,47 @@
     "to_days": 180,
     "tagged": {
      "commits": 42,
-     "introduced": 4499,
-     "surviving": 2945,
-     "survival_rate": 0.6545899088686374
+     "introduced": 4042,
+     "surviving": 3077,
+     "survival_rate": 0.7612568035625927
     },
     "untagged": {
-     "commits": 126,
-     "introduced": 16343,
-     "surviving": 13174,
-     "survival_rate": 0.806094352322095
+     "commits": 118,
+     "introduced": 14793,
+     "surviving": 10895,
+     "survival_rate": 0.7364969918204556
     }
    },
    {
     "from_days": 180,
     "to_days": 365,
     "tagged": {
-     "commits": 51,
-     "introduced": 4026,
-     "surviving": 2978,
-     "survival_rate": 0.739692001987084
+     "commits": 53,
+     "introduced": 4648,
+     "surviving": 3014,
+     "survival_rate": 0.6484509466437177
     },
     "untagged": {
-     "commits": 281,
-     "introduced": 28716,
-     "surviving": 16609,
-     "survival_rate": 0.5783883549240841
+     "commits": 286,
+     "introduced": 28107,
+     "surviving": 15816,
+     "survival_rate": 0.5627067990180382
     }
    },
    {
     "from_days": 365,
     "to_days": 730,
     "tagged": {
-     "commits": 19,
-     "introduced": 637,
-     "surviving": 274,
-     "survival_rate": 0.4301412872841444
+     "commits": 20,
+     "introduced": 656,
+     "surviving": 281,
+     "survival_rate": 0.42835365853658536
     },
     "untagged": {
-     "commits": 547,
-     "introduced": 45992,
-     "surviving": 14030,
-     "survival_rate": 0.30505305270481825
+     "commits": 543,
+     "introduced": 46525,
+     "surviving": 15630,
+     "survival_rate": 0.3359484148307362
     }
    },
    {
@@ -127,23 +127,23 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 2017,
-     "introduced": 819837,
-     "surviving": 7134,
-     "survival_rate": 0.008701729734081287
+     "commits": 2027,
+     "introduced": 821593,
+     "surviving": 7462,
+     "survival_rate": 0.009082355862330862
     }
    }
   ],
   "age_matched": {
-   "tagged_rate": 0.8495844385499558,
-   "untagged_rate": 0.8023207741883253,
-   "gap": 0.04726366436163054,
+   "tagged_rate": 0.8122015915119364,
+   "untagged_rate": 0.7514750158522655,
+   "gap": 0.06072657565967088,
    "buckets_used": 5,
    "tagged_lines_covered": 1.0
   },
   "oldest_surviving": {
    "date": "2019-07-26",
-   "age_days": 2653,
+   "age_days": 2660,
    "commits_before": 0,
    "introduced_before": 0,
    "tagged_commits_before": 0,
@@ -152,7 +152,7 @@
   }
  },
  "probable_commits": 6,
- "total_commits": 3320,
+ "total_commits": 3346,
  "aggregated": true,
  "coverage": {
   "method": "v6",
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 7,
+ "reports": 8,
  "reproduce": "re audit vllm-project/llm-compressor --json",
- "bytes": "https://causari.dev/reports/survival/2026/08/repos/vllm-project__llm-compressor.json",
+ "bytes": "https://causari.dev/reports/survival/2026/09/repos/vllm-project__llm-compressor.json",
  "license": "CC-BY-4.0"
 }

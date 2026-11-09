@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/google-gemini/gemini-cli/",
  "badge": "https://causari.dev/r/google-gemini/gemini-cli/badge.svg",
  "report": {
-  "number": 8,
-  "id": "2026/08",
-  "date": "2026-11-02",
-  "url": "https://causari.dev/reports/survival/2026/08/"
+  "number": 9,
+  "id": "2026/09",
+  "date": "2026-11-09",
+  "url": "https://causari.dev/reports/survival/2026/09/"
  },
  "method": "v6",
  "tool": {
@@ -16,25 +16,25 @@
   "version": "0.5.0"
  },
  "verified": {
-  "commits": 352,
-  "introduced": 74805,
-  "surviving": 47950,
-  "survival_rate": 0.6409999331595482,
-  "capped_survival_rate": 0.6271343373988607,
-  "median_survival": 0.6451612903225806,
-  "largest_commit_share": 0.04023795200855558
+  "commits": 353,
+  "introduced": 75767,
+  "surviving": 49052,
+  "survival_rate": 0.6474058627106788,
+  "capped_survival_rate": 0.6344397799478626,
+  "median_survival": 0.6478789745168989,
+  "largest_commit_share": 0.03972705795399052
  },
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 6215,
-   "introduced": 1966785,
-   "surviving": 1557832,
-   "survival_rate": 0.7920703076340322,
-   "median_survival": 0.5681818181818182,
-   "capped_survival_rate": 0.6325497957157208,
-   "cap_lines": 819,
-   "largest_commit_share": 0.42372094560412044
+   "commits": 6245,
+   "introduced": 1980413,
+   "surviving": 1569916,
+   "survival_rate": 0.7927215181883779,
+   "median_survival": 0.5714285714285714,
+   "capped_survival_rate": 0.635253498916913,
+   "cap_lines": 824,
+   "largest_commit_share": 0.42080515528831614
   },
   "by_age": [
    {
@@ -42,79 +42,79 @@
     "to_days": 30,
     "tagged": {
      "commits": 3,
-     "introduced": 1236,
-     "surviving": 926,
-     "survival_rate": 0.7491909385113269
+     "introduced": 1318,
+     "surviving": 1282,
+     "survival_rate": 0.9726858877086495
     },
     "untagged": {
-     "commits": 113,
-     "introduced": 36819,
-     "surviving": 28941,
-     "survival_rate": 0.786034384421087
+     "commits": 124,
+     "introduced": 42217,
+     "surviving": 33938,
+     "survival_rate": 0.8038941658573561
     }
    },
    {
     "from_days": 30,
     "to_days": 90,
     "tagged": {
-     "commits": 6,
-     "introduced": 4253,
-     "surviving": 3628,
-     "survival_rate": 0.8530449094756642
+     "commits": 7,
+     "introduced": 5133,
+     "surviving": 4287,
+     "survival_rate": 0.8351841028638223
     },
     "untagged": {
-     "commits": 116,
-     "introduced": 35014,
-     "surviving": 29308,
-     "survival_rate": 0.8370366139258583
+     "commits": 112,
+     "introduced": 36695,
+     "surviving": 29726,
+     "survival_rate": 0.8100831175909524
     }
    },
    {
     "from_days": 90,
     "to_days": 180,
     "tagged": {
-     "commits": 18,
-     "introduced": 4632,
-     "surviving": 3270,
-     "survival_rate": 0.7059585492227979
+     "commits": 12,
+     "introduced": 3512,
+     "surviving": 2539,
+     "survival_rate": 0.7229498861047836
     },
     "untagged": {
-     "commits": 291,
-     "introduced": 63540,
-     "surviving": 49612,
-     "survival_rate": 0.7807994963802329
+     "commits": 235,
+     "introduced": 49145,
+     "surviving": 38227,
+     "survival_rate": 0.777841082510937
     }
    },
    {
     "from_days": 180,
     "to_days": 365,
     "tagged": {
-     "commits": 142,
-     "introduced": 40676,
-     "surviving": 28241,
-     "survival_rate": 0.6942914740879143
+     "commits": 136,
+     "introduced": 39468,
+     "surviving": 27713,
+     "survival_rate": 0.7021637782507347
     },
     "untagged": {
-     "commits": 2765,
-     "introduced": 1405175,
-     "surviving": 1240123,
-     "survival_rate": 0.8825398971658335
+     "commits": 2748,
+     "introduced": 1406768,
+     "surviving": 1242473,
+     "survival_rate": 0.8832110198696587
     }
    },
    {
     "from_days": 365,
     "to_days": 730,
     "tagged": {
-     "commits": 183,
-     "introduced": 24008,
-     "surviving": 11885,
-     "survival_rate": 0.4950433188937021
+     "commits": 195,
+     "introduced": 26336,
+     "surviving": 13231,
+     "survival_rate": 0.502392162818955
     },
     "untagged": {
-     "commits": 2930,
-     "introduced": 426237,
-     "surviving": 209848,
-     "survival_rate": 0.49232703871320416
+     "commits": 3026,
+     "introduced": 445588,
+     "surviving": 225552,
+     "survival_rate": 0.5061895742255177
     }
    },
    {
@@ -135,15 +135,15 @@
    }
   ],
   "age_matched": {
-   "tagged_rate": 0.6391822642689177,
-   "untagged_rate": 0.7461642864359168,
-   "gap": -0.10698202216699915,
+   "tagged_rate": 0.6416473021800159,
+   "untagged_rate": 0.7398288181626574,
+   "gap": -0.09818151598264158,
    "buckets_used": 4,
-   "tagged_lines_covered": 0.9834770403047924
+   "tagged_lines_covered": 0.9826045639922394
   },
   "oldest_surviving": {
    "date": "2025-04-17",
-   "age_days": 561,
+   "age_days": 568,
    "commits_before": 0,
    "introduced_before": 0,
    "tagged_commits_before": 0,
@@ -152,7 +152,7 @@
   }
  },
  "probable_commits": 0,
- "total_commits": 6567,
+ "total_commits": 6598,
  "aggregated": true,
  "coverage": {
   "method": "v6",
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 7,
+ "reports": 8,
  "reproduce": "re audit google-gemini/gemini-cli --json",
- "bytes": "https://causari.dev/reports/survival/2026/08/repos/google-gemini__gemini-cli.json",
+ "bytes": "https://causari.dev/reports/survival/2026/09/repos/google-gemini__gemini-cli.json",
  "license": "CC-BY-4.0"
 }

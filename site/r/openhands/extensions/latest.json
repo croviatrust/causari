@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/openhands/extensions/",
  "badge": "https://causari.dev/r/openhands/extensions/badge.svg",
  "report": {
-  "number": 8,
-  "id": "2026/08",
-  "date": "2026-11-02",
-  "url": "https://causari.dev/reports/survival/2026/08/"
+  "number": 9,
+  "id": "2026/09",
+  "date": "2026-11-09",
+  "url": "https://causari.dev/reports/survival/2026/09/"
  },
  "method": "v6",
  "tool": {
@@ -16,73 +16,73 @@
   "version": "0.5.0"
  },
  "verified": {
-  "commits": 351,
-  "introduced": 127741,
-  "surviving": 97805,
-  "survival_rate": 0.7656508090589552,
-  "capped_survival_rate": 0.7616841592145269,
-  "median_survival": 0.8191518847006651,
-  "largest_commit_share": 0.08918045106895985
+  "commits": 364,
+  "introduced": 128588,
+  "surviving": 98334,
+  "survival_rate": 0.7647214359038168,
+  "capped_survival_rate": 0.7605351461338173,
+  "median_survival": 0.804093567251462,
+  "largest_commit_share": 0.08859302578778736
  },
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 99,
-   "introduced": 26984,
-   "surviving": 20867,
-   "survival_rate": 0.7733101096946339,
-   "median_survival": 0.9508196721311475,
-   "capped_survival_rate": 0.7919529432392067,
+   "commits": 102,
+   "introduced": 27152,
+   "surviving": 20927,
+   "survival_rate": 0.7707351208014143,
+   "median_survival": 0.9354664942900237,
+   "capped_survival_rate": 0.7890024827453986,
    "cap_lines": 2155,
-   "largest_commit_share": 0.11836643937147939
+   "largest_commit_share": 0.11763406010606954
   },
   "by_age": [
    {
     "from_days": 0,
     "to_days": 30,
     "tagged": {
-     "commits": 48,
-     "introduced": 41198,
-     "surviving": 32886,
-     "survival_rate": 0.798242633137531
+     "commits": 44,
+     "introduced": 36378,
+     "surviving": 28802,
+     "survival_rate": 0.7917422618065864
     },
     "untagged": {
-     "commits": 30,
-     "introduced": 3489,
-     "surviving": 3011,
-     "survival_rate": 0.8629979936944683
+     "commits": 23,
+     "introduced": 3008,
+     "surviving": 2447,
+     "survival_rate": 0.8134973404255319
     }
    },
    {
     "from_days": 30,
     "to_days": 90,
     "tagged": {
-     "commits": 93,
-     "introduced": 30045,
-     "surviving": 23550,
-     "survival_rate": 0.7838242636045931
+     "commits": 103,
+     "introduced": 35160,
+     "surviving": 27641,
+     "survival_rate": 0.7861490329920364
     },
     "untagged": {
-     "commits": 19,
-     "introduced": 8898,
-     "surviving": 7516,
-     "survival_rate": 0.8446841986963363
+     "commits": 26,
+     "introduced": 8547,
+     "surviving": 7168,
+     "survival_rate": 0.8386568386568387
     }
    },
    {
     "from_days": 90,
     "to_days": 180,
     "tagged": {
-     "commits": 87,
-     "introduced": 21584,
-     "surviving": 16219,
-     "survival_rate": 0.7514362490733877
+     "commits": 94,
+     "introduced": 22136,
+     "surviving": 16747,
+     "survival_rate": 0.7565504156125767
     },
     "untagged": {
-     "commits": 22,
-     "introduced": 8970,
-     "surviving": 6378,
-     "survival_rate": 0.7110367892976589
+     "commits": 24,
+     "introduced": 9955,
+     "surviving": 7337,
+     "survival_rate": 0.7370165745856354
     }
    },
    {
@@ -91,14 +91,14 @@
     "tagged": {
      "commits": 123,
      "introduced": 34914,
-     "surviving": 25150,
-     "survival_rate": 0.7203414103225068
+     "surviving": 25144,
+     "survival_rate": 0.7201695594890302
     },
     "untagged": {
-     "commits": 28,
-     "introduced": 5627,
-     "surviving": 3962,
-     "survival_rate": 0.7041052070374978
+     "commits": 29,
+     "introduced": 5642,
+     "surviving": 3975,
+     "survival_rate": 0.7045373980857852
     }
    },
    {
@@ -135,15 +135,15 @@
    }
   ],
   "age_matched": {
-   "tagged_rate": 0.7656508090589552,
-   "untagged_rate": 0.789585766142147,
-   "gap": -0.02393495708319182,
+   "tagged_rate": 0.7647214359038168,
+   "untagged_rate": 0.777626203914589,
+   "gap": -0.012904768010772227,
    "buckets_used": 4,
    "tagged_lines_covered": 1.0
   },
   "oldest_surviving": {
    "date": "2025-11-24",
-   "age_days": 342,
+   "age_days": 350,
    "commits_before": 0,
    "introduced_before": 0,
    "tagged_commits_before": 0,
@@ -152,7 +152,7 @@
   }
  },
  "probable_commits": 0,
- "total_commits": 450,
+ "total_commits": 466,
  "aggregated": true,
  "coverage": {
   "method": "v6",
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 6,
+ "reports": 7,
  "reproduce": "re audit OpenHands/extensions --json",
- "bytes": "https://causari.dev/reports/survival/2026/08/repos/OpenHands__extensions.json",
+ "bytes": "https://causari.dev/reports/survival/2026/09/repos/OpenHands__extensions.json",
  "license": "CC-BY-4.0"
 }

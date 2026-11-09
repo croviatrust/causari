@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/crewaiinc/crewai/",
  "badge": "https://causari.dev/r/crewaiinc/crewai/badge.svg",
  "report": {
-  "number": 8,
-  "id": "2026/08",
-  "date": "2026-11-02",
-  "url": "https://causari.dev/reports/survival/2026/08/"
+  "number": 9,
+  "id": "2026/09",
+  "date": "2026-11-09",
+  "url": "https://causari.dev/reports/survival/2026/09/"
  },
  "method": "v6",
  "tool": {
@@ -16,89 +16,89 @@
   "version": "0.5.0"
  },
  "verified": {
-  "commits": 281,
-  "introduced": 3376278,
-  "surviving": 177167,
-  "survival_rate": 0.05247405575014854,
-  "capped_survival_rate": 0.7930443181592456,
-  "median_survival": 0.8928571428571429,
-  "largest_commit_share": 0.9585428095672217
+  "commits": 311,
+  "introduced": 3400174,
+  "surviving": 199584,
+  "survival_rate": 0.058698172505289435,
+  "capped_survival_rate": 0.8103727395960757,
+  "median_survival": 0.8936170212765957,
+  "largest_commit_share": 0.9518062899133986
  },
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 2749,
-   "introduced": 10578099,
-   "surviving": 6544795,
-   "survival_rate": 0.6187118309253865,
+   "commits": 2766,
+   "introduced": 11489167,
+   "surviving": 7370309,
+   "survival_rate": 0.6415007284688263,
    "median_survival": 0.6,
-   "capped_survival_rate": 0.6299326948454123,
-   "cap_lines": 3123,
-   "largest_commit_share": 0.05703359365420951
+   "capped_survival_rate": 0.633008414649498,
+   "cap_lines": 3251,
+   "largest_commit_share": 0.05251094356971223
   },
   "by_age": [
    {
     "from_days": 0,
     "to_days": 30,
     "tagged": {
-     "commits": 82,
-     "introduced": 27932,
-     "surviving": 25103,
-     "survival_rate": 0.8987183159100673
+     "commits": 107,
+     "introduced": 50733,
+     "surviving": 46631,
+     "survival_rate": 0.9191453294699702
     },
     "untagged": {
-     "commits": 118,
-     "introduced": 2068503,
-     "surviving": 1864715,
-     "survival_rate": 0.9014804426196142
+     "commits": 112,
+     "introduced": 2263283,
+     "surviving": 2033491,
+     "survival_rate": 0.8984696125053738
     }
    },
    {
     "from_days": 30,
     "to_days": 90,
     "tagged": {
-     "commits": 79,
-     "introduced": 30268,
-     "surviving": 25425,
-     "survival_rate": 0.839996035416942
+     "commits": 73,
+     "introduced": 27872,
+     "surviving": 23461,
+     "survival_rate": 0.8417408151549942
     },
     "untagged": {
-     "commits": 144,
-     "introduced": 2398909,
-     "surviving": 2180350,
-     "survival_rate": 0.9088923339734855
+     "commits": 147,
+     "introduced": 2439981,
+     "surviving": 2216874,
+     "survival_rate": 0.9085619929007643
     }
    },
    {
     "from_days": 90,
     "to_days": 180,
     "tagged": {
-     "commits": 34,
-     "introduced": 3264258,
-     "surviving": 82546,
-     "survival_rate": 0.02528782957719641
+     "commits": 44,
+     "introduced": 3266964,
+     "surviving": 84641,
+     "survival_rate": 0.025908152033508786
     },
     "untagged": {
-     "commits": 291,
-     "introduced": 2736774,
-     "surviving": 1758149,
-     "survival_rate": 0.6424165824434169
+     "commits": 287,
+     "introduced": 3403049,
+     "surviving": 2372568,
+     "survival_rate": 0.6971889032452956
     }
    },
    {
     "from_days": 180,
     "to_days": 365,
     "tagged": {
-     "commits": 32,
-     "introduced": 40739,
-     "surviving": 35292,
-     "survival_rate": 0.8662951962492943
+     "commits": 33,
+     "introduced": 41524,
+     "surviving": 36055,
+     "survival_rate": 0.8682930353530488
     },
     "untagged": {
-     "commits": 559,
-     "introduced": 489732,
-     "surviving": 382420,
-     "survival_rate": 0.7808760709939314
+     "commits": 566,
+     "introduced": 479354,
+     "surviving": 376050,
+     "survival_rate": 0.7844932972291876
     }
    },
    {
@@ -107,14 +107,14 @@
     "tagged": {
      "commits": 51,
      "introduced": 12857,
-     "surviving": 8801,
-     "survival_rate": 0.6845298281092013
+     "surviving": 8796,
+     "survival_rate": 0.6841409348992766
     },
     "untagged": {
-     "commits": 763,
-     "introduced": 455269,
-     "surviving": 307986,
-     "survival_rate": 0.6764923594622081
+     "commits": 774,
+     "introduced": 474004,
+     "surviving": 319605,
+     "survival_rate": 0.6742664618863976
     }
    },
    {
@@ -127,32 +127,32 @@
      "survival_rate": 0.0
     },
     "untagged": {
-     "commits": 874,
-     "introduced": 2428912,
-     "surviving": 51175,
-     "survival_rate": 0.02106910419150632
+     "commits": 880,
+     "introduced": 2429496,
+     "surviving": 51721,
+     "survival_rate": 0.021288777590084528
     }
    }
   ],
   "age_matched": {
-   "tagged_rate": 0.052477537385361726,
-   "untagged_rate": 0.6487496189288948,
-   "gap": -0.5962720815435331,
+   "tagged_rate": 0.05870203973587847,
+   "untagged_rate": 0.7029047163616664,
+   "gap": -0.6442026766257879,
    "buckets_used": 5,
-   "tagged_lines_covered": 0.9999336547523634
+   "tagged_lines_covered": 0.9999341210185125
   },
   "oldest_surviving": {
    "date": "2023-10-29",
-   "age_days": 1098,
+   "age_days": 1106,
    "commits_before": 1,
    "introduced_before": 1,
    "tagged_commits_before": 0,
    "tagged_introduced_before": 0,
-   "commits_before_share": 0.00033003300330033004
+   "commits_before_share": 0.00032499187520311994
   }
  },
  "probable_commits": 0,
- "total_commits": 3030,
+ "total_commits": 3077,
  "aggregated": true,
  "coverage": {
   "method": "v6",
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 7,
+ "reports": 8,
  "reproduce": "re audit crewAIInc/crewAI --json",
- "bytes": "https://causari.dev/reports/survival/2026/08/repos/crewAIInc__crewAI.json",
+ "bytes": "https://causari.dev/reports/survival/2026/09/repos/crewAIInc__crewAI.json",
  "license": "CC-BY-4.0"
 }

@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/jdubois/boot-ui/",
  "badge": "https://causari.dev/r/jdubois/boot-ui/badge.svg",
  "report": {
-  "number": 8,
-  "id": "2026/08",
-  "date": "2026-11-02",
-  "url": "https://causari.dev/reports/survival/2026/08/"
+  "number": 9,
+  "id": "2026/09",
+  "date": "2026-11-09",
+  "url": "https://causari.dev/reports/survival/2026/09/"
  },
  "method": "v6",
  "tool": {
@@ -16,73 +16,73 @@
   "version": "0.5.0"
  },
  "verified": {
-  "commits": 1647,
-  "introduced": 1075202,
-  "surviving": 771797,
-  "survival_rate": 0.7178158150747488,
-  "capped_survival_rate": 0.7990838456296167,
-  "median_survival": 0.8289198606271777,
-  "largest_commit_share": 0.1103271757306999
+  "commits": 1682,
+  "introduced": 1103186,
+  "surviving": 796663,
+  "survival_rate": 0.7221474891813348,
+  "capped_survival_rate": 0.8011291733784808,
+  "median_survival": 0.8325041459369817,
+  "largest_commit_share": 0.10752855819417578
  },
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 475,
-   "introduced": 99478,
-   "surviving": 73058,
-   "survival_rate": 0.7344136391966063,
-   "median_survival": 0.5,
-   "capped_survival_rate": 0.7163622308557653,
+   "commits": 479,
+   "introduced": 115424,
+   "surviving": 88546,
+   "survival_rate": 0.7671368172996951,
+   "median_survival": 0.4805194805194805,
+   "capped_survival_rate": 0.7190251423586269,
    "cap_lines": 802,
-   "largest_commit_share": 0.09734815738153159
+   "largest_commit_share": 0.13765767951205987
   },
   "by_age": [
    {
     "from_days": 0,
     "to_days": 30,
     "tagged": {
-     "commits": 398,
-     "introduced": 423228,
-     "surviving": 242734,
-     "survival_rate": 0.5735301067037153
+     "commits": 149,
+     "introduced": 81704,
+     "surviving": 64676,
+     "survival_rate": 0.7915891510819544
     },
     "untagged": {
-     "commits": 84,
-     "introduced": 7181,
-     "surviving": 5814,
-     "survival_rate": 0.8096365408717449
+     "commits": 52,
+     "introduced": 20612,
+     "surviving": 19579,
+     "survival_rate": 0.9498835629730255
     }
    },
    {
     "from_days": 30,
     "to_days": 90,
     "tagged": {
-     "commits": 610,
-     "introduced": 354868,
-     "surviving": 304218,
-     "survival_rate": 0.8572708725497932
+     "commits": 830,
+     "introduced": 706089,
+     "surviving": 492819,
+     "survival_rate": 0.6979559234034236
     },
     "untagged": {
-     "commits": 174,
-     "introduced": 52479,
-     "surviving": 40742,
-     "survival_rate": 0.776348634691972
+     "commits": 168,
+     "introduced": 38193,
+     "surviving": 28675,
+     "survival_rate": 0.7507920299531328
     }
    },
    {
     "from_days": 90,
     "to_days": 180,
     "tagged": {
-     "commits": 639,
-     "introduced": 297106,
-     "surviving": 224845,
-     "survival_rate": 0.7567837741412156
+     "commits": 703,
+     "introduced": 315393,
+     "surviving": 239168,
+     "survival_rate": 0.7583174008300755
     },
     "untagged": {
-     "commits": 217,
-     "introduced": 39818,
-     "surviving": 26502,
-     "survival_rate": 0.6655783816364458
+     "commits": 259,
+     "introduced": 56619,
+     "surviving": 40292,
+     "survival_rate": 0.7116339038132076
     }
    },
    {
@@ -135,15 +135,15 @@
    }
   ],
   "age_matched": {
-   "tagged_rate": 0.7178158150747488,
-   "untagged_rate": 0.7588429633412284,
-   "gap": -0.041027148266479574,
+   "tagged_rate": 0.7221474891813348,
+   "untagged_rate": 0.7543420892687946,
+   "gap": -0.03219460008745989,
    "buckets_used": 3,
    "tagged_lines_covered": 1.0
   },
   "oldest_surviving": {
    "date": "2026-05-25",
-   "age_days": 160,
+   "age_days": 167,
    "commits_before": 0,
    "introduced_before": 0,
    "tagged_commits_before": 0,
@@ -152,7 +152,7 @@
   }
  },
  "probable_commits": 0,
- "total_commits": 2122,
+ "total_commits": 2161,
  "aggregated": true,
  "coverage": {
   "method": "v6",
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 6,
+ "reports": 7,
  "reproduce": "re audit jdubois/boot-ui --json",
- "bytes": "https://causari.dev/reports/survival/2026/08/repos/jdubois__boot-ui.json",
+ "bytes": "https://causari.dev/reports/survival/2026/09/repos/jdubois__boot-ui.json",
  "license": "CC-BY-4.0"
 }
