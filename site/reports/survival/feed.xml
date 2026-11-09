@@ -17,7 +17,7 @@
     <id>https://causari.dev/reports/survival/2026/09/</id>
     <published>2026-11-09T00:00:00Z</published>
     <updated>2026-11-09T13:55:10Z</updated>
-    <summary>15,826,982 of 27,960,795 lines introduced by 57,538 AI-tagged commits in 55 open-source repositories are still at HEAD (56.6 %). 95 % interval over the sampled repositories: 43.6 % to 68.8 %. Counts, not grades. CC-BY-4.0.</summary>
+    <summary>15,826,982 of 27,960,795 lines introduced by 57,538 AI-tagged commits in 55 open-source repositories are still at HEAD (56.6 %). 95 % interval over the sampled repositories: 43.6 % to 68.8 %. Counts, not grades. CC-BY-4.0. DOI 10.5281/zenodo.24091343.</summary>
   </entry>
   <entry>
     <title>Survival Report #8 · 2026-11-02</title>

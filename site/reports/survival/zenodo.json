@@ -91,6 +91,17 @@
     "sandbox": false,
     "content_sha256": "a2b66ac045e4e8302b26ddba082f060c30d38cc1fd562bccb413f6c203674b05",
     "published_at": "2026-11-02T18:26:21Z"
+   },
+   "2026/09": {
+    "doi": "10.5281/zenodo.24091343",
+    "concept_doi": "10.5281/zenodo.22863965",
+    "html": "https://zenodo.org/records/24091343",
+    "id": 24091343,
+    "version": "#9",
+    "revision": 1,
+    "sandbox": false,
+    "content_sha256": "56051fbce6f32a82349d36c95ecf9debb8ec4921d9377eb27c19aac514561e4b",
+    "published_at": "2026-11-09T18:57:54Z"
    }
   }
  },
