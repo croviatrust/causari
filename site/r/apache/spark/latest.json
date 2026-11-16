@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/apache/spark/",
  "badge": "https://causari.dev/r/apache/spark/badge.svg",
  "report": {
-  "number": 9,
-  "id": "2026/09",
-  "date": "2026-11-09",
-  "url": "https://causari.dev/reports/survival/2026/09/"
+  "number": 10,
+  "id": "2026/10",
+  "date": "2026-11-16",
+  "url": "https://causari.dev/reports/survival/2026/10/"
  },
  "method": "v6",
  "tool": {
@@ -27,14 +27,14 @@
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 49314,
-   "introduced": 15102711,
-   "surviving": 4224349,
-   "survival_rate": 0.2797079941475408,
-   "median_survival": 0.5454545454545454,
-   "capped_survival_rate": 0.5638057895051448,
-   "cap_lines": 528,
-   "largest_commit_share": 0.49659998128812766
+   "commits": 49487,
+   "introduced": 15180716,
+   "surviving": 4274492,
+   "survival_rate": 0.281573807190649,
+   "median_survival": 0.5476190476190477,
+   "capped_survival_rate": 0.565158006054714,
+   "cap_lines": 531,
+   "largest_commit_share": 0.4940482385679305
   },
   "by_age": [
    {
@@ -47,10 +47,10 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 517,
-     "introduced": 166350,
-     "surviving": 133691,
-     "survival_rate": 0.803672978659453
+     "commits": 586,
+     "introduced": 217378,
+     "surviving": 177197,
+     "survival_rate": 0.8151560875525582
     }
    },
    {
@@ -63,10 +63,10 @@
      "survival_rate": 0.9162946428571429
     },
     "untagged": {
-     "commits": 864,
-     "introduced": 210880,
-     "surviving": 174000,
-     "survival_rate": 0.825113808801214
+     "commits": 874,
+     "introduced": 214003,
+     "surviving": 172284,
+     "survival_rate": 0.8050541347551202
     }
    },
    {
@@ -79,10 +79,10 @@
      "survival_rate": 0.8061674008810573
     },
     "untagged": {
-     "commits": 1459,
-     "introduced": 367458,
-     "surviving": 293189,
-     "survival_rate": 0.797884384065662
+     "commits": 1475,
+     "introduced": 372586,
+     "surviving": 286819,
+     "survival_rate": 0.7698061655564085
     }
    },
    {
@@ -95,10 +95,10 @@
      "survival_rate": 0.72265625
     },
     "untagged": {
-     "commits": 2078,
-     "introduced": 407541,
-     "surviving": 287442,
-     "survival_rate": 0.7053081775821328
+     "commits": 2061,
+     "introduced": 406014,
+     "surviving": 289234,
+     "survival_rate": 0.7123744501421133
     }
    },
    {
@@ -111,10 +111,10 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 3305,
-     "introduced": 629304,
-     "surviving": 438706,
-     "survival_rate": 0.6971288916008797
+     "commits": 3336,
+     "introduced": 639533,
+     "surviving": 444174,
+     "survival_rate": 0.6945286638844281
     }
    },
    {
@@ -127,23 +127,23 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 41091,
-     "introduced": 13321178,
-     "surviving": 2897321,
-     "survival_rate": 0.21749735646502133
+     "commits": 41155,
+     "introduced": 13331202,
+     "surviving": 2904784,
+     "survival_rate": 0.21789363029680295
     }
    }
   ],
   "age_matched": {
    "tagged_rate": 0.9162946428571429,
-   "untagged_rate": 0.8251138088012139,
-   "gap": 0.09118083405592903,
+   "untagged_rate": 0.8050541347551202,
+   "gap": 0.11124050810202268,
    "buckets_used": 1,
    "tagged_lines_covered": 0.649746192893401
   },
   "oldest_surviving": {
    "date": "2010-03-29",
-   "age_days": 6068,
+   "age_days": 6075,
    "commits_before": 0,
    "introduced_before": 0,
    "tagged_commits_before": 0,
@@ -151,8 +151,8 @@
    "commits_before_share": 0.0
   }
  },
- "probable_commits": 17,
- "total_commits": 49350,
+ "probable_commits": 22,
+ "total_commits": 49528,
  "aggregated": true,
  "coverage": {
   "method": "v6",
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 7,
+ "reports": 8,
  "reproduce": "re audit apache/spark --json",
- "bytes": "https://causari.dev/reports/survival/2026/09/repos/apache__spark.json",
+ "bytes": "https://causari.dev/reports/survival/2026/10/repos/apache__spark.json",
  "license": "CC-BY-4.0"
 }
