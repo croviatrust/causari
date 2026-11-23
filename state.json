@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generation": 4,
+  "generation": 5,
   "recent": [
     {
       "id": "1795435861041-ecaf3226",
@@ -57,6 +57,27 @@
         }
       ],
       "next": "How can we make the audit output robust against re-indentation and document dump noise without changing the core blame logic?"
+    },
+    {
+      "id": "1795439777156-860ac9d2",
+      "repo": "croviatrust/causari",
+      "focus": "Improve the resident's own strategy using the recorded outcomes of previous experiments.",
+      "started": "2026-11-23T13:16:17.160Z",
+      "finished": "2026-11-23T13:22:13.856Z",
+      "status": "stopped",
+      "localEvidence": "stopped",
+      "reason": "The audit logic relies on `git blame` without `-w -M -C`, which fails when AI lines are re-indented in human commits, and the survival calculation excludes text files by default while including large binary/doc dumps (e.g., crewAI's 3.2M line copy-paste), skewing the 'survival' metric to near-zero for repos with heavy documentation churn rather than genuine AI degradation.",
+      "error": "",
+      "findings": [
+        {
+          "path": "src/audit.rs",
+          "repository": "self",
+          "sha": "57adbe6870672273f089d28e2056bebbae0f16b9",
+          "note": "The code at offset 12000 shows `is_generated_path` excludes text files by default but includes large binary/doc dumps, and the blame logic does not strip whitespace inconsistencies before counting lines.",
+          "confidence": "unverified observation"
+        }
+      ],
+      "next": "How to normalize text content (strip trailing newlines, collapse multiple spaces/tabs) in `src/audit.rs` before line-counting to ensure reproducible survival metrics across environments?"
     }
   ],
   "outcomes": {},
@@ -80,7 +101,7 @@
       "rejected": 0
     },
     "Improve the resident's own strategy using the recorded outcomes of previous experiments.": {
-      "attempts": 1,
+      "attempts": 2,
       "verified": 0,
       "merged": 0,
       "rejected": 0
@@ -89,7 +110,55 @@
   "hypotheses": [],
   "pendingResearch": {
     "focus": "Improve the resident's own strategy using the recorded outcomes of previous experiments.",
-    "question": "How can we make the audit output robust against re-indentation and document dump noise without changing the core blame logic?",
-    "attempts": 1
-  }
+    "question": "How to normalize text content (strip trailing newlines, collapse multiple spaces/tabs) in `src/audit.rs` before line-counting to ensure reproducible survival metrics across environments?",
+    "attempts": 2
+  },
+  "fleet": {
+    "version": 1,
+    "parent": "crovia",
+    "members": [
+      {
+        "id": "scout",
+        "role": "research",
+        "mission": "Find external evidence and define the next specialization",
+        "parent": "crovia",
+        "born": 5,
+        "attempts": 1,
+        "verified": 0,
+        "lastSeen": 5
+      },
+      {
+        "id": "critic",
+        "role": "review",
+        "mission": "Challenge the proposed experiment independently",
+        "parent": "crovia",
+        "born": 5,
+        "attempts": 1,
+        "verified": 0,
+        "lastSeen": 5
+      },
+      {
+        "id": "specialist-06b68998038abd2f",
+        "role": "engineering",
+        "mission": "Implement a deterministic text normalization layer in `src/audit.rs` to strip whitespace inconsistencies and document dumps before line-counting, ensuring the `SurvivalReport` remains reproducible across environments.",
+        "parent": "crovia",
+        "born": 5,
+        "attempts": 1,
+        "verified": 0,
+        "lastSeen": 5
+      }
+    ],
+    "last": {
+      "episode": "1795439777156-860ac9d2",
+      "status": "stopped",
+      "membersUsed": [
+        "scout",
+        "specialist-06b68998038abd2f",
+        "critic"
+      ],
+      "modelCalls": 7,
+      "note": "Verified means source-case execution; business value and transfer remain unmeasured."
+    }
+  },
+  "capabilities": []
 }

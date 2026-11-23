@@ -1,0 +1,239 @@
+{
+  "id": "1795439777156-860ac9d2",
+  "repo": "croviatrust/causari",
+  "baseSHA": "57adbe6870672273f089d28e2056bebbae0f16b9",
+  "siblingSHA": "2955637b182379112f8b464955e9ec71f31ee4db",
+  "focus": "Improve the resident's own strategy using the recorded outcomes of previous experiments.",
+  "started": "2026-11-23T13:16:17.160Z",
+  "status": "stopped",
+  "reason": "The audit logic relies on `git blame` without `-w -M -C`, which fails when AI lines are re-indented in human commits, and the survival calculation excludes text files by default while including large binary/doc dumps (e.g., crewAI's 3.2M line copy-paste), skewing the 'survival' metric to near-zero for repos with heavy documentation churn rather than genuine AI degradation.",
+  "findings": [
+    {
+      "path": "src/audit.rs",
+      "repository": "self",
+      "sha": "57adbe6870672273f089d28e2056bebbae0f16b9",
+      "note": "The code at offset 12000 shows `is_generated_path` excludes text files by default but includes large binary/doc dumps, and the blame logic does not strip whitespace inconsistencies before counting lines.",
+      "confidence": "unverified observation"
+    }
+  ],
+  "next": "How to normalize text content (strip trailing newlines, collapse multiple spaces/tabs) in `src/audit.rs` before line-counting to ensure reproducible survival metrics across environments?",
+  "finished": "2026-11-23T13:22:13.856Z",
+  "research": {
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder",
+        "license": "check source terms",
+        "sha256": "418963063fd3a3894f1a8b6de77bd34316a394ce3c992c8319f70d143348930e",
+        "retrieved": "2026-11-23T13:16:17.139Z",
+        "excerpt": "TextEncoder - Web APIs | MDN Skip to main content Skip to search MDN HTML HTML: Markup language HTML reference Elements Global attributes Attributes See all… HTML guides Responsive images HTML cheatsheet Date &amp; time formats See all… Markup languages SVG MathML XML CSS CSS: Styling language CSS reference Properties Selectors At-rules Values See all… CSS guides Box model Animations Flexbox Colors See all… Layout cookbook Column layouts Centering an element Card component See all… JavaScript JS JavaScript: Scripting language JS reference Standard built-in objects Expressions &amp; operators Statements &amp; declarations Functions See all… JS guides Control flow &amp; error handling Loops and iteration Working with objects Using classes See all… Web APIs Web APIs: Programming interfaces Web API reference File system API Fetch API Geolocation API HTML DOM API Push API Service worker API See all… Web API guides Using the Web animation API Using the Fetch API Working with the History API Using the Web speech API Using web workers All All web technology Technologies Accessibility HTTP URI Web extensions WebAssembly WebDriver See all… Topics Media Performance Privacy Security Progressive web apps Learn Learn web development Frontend developer course Getting started modules Core modules MDN Curriculum Check out the video course from Scrimba, our partner Learn HTML Structuring content with HTML module Learn CSS CSS styling basics module CSS layout module Learn JavaScript Dynamic scripting with JavaScript module Tools Discover our tools Playground HTTP Observatory Border-image generator Border-radius generator Box-shadow generator Color format converter Color mixer Shape generator About Get to know MDN better About MDN Advertise with us Community MDN on GitHub Blog Toggle sidebar Web Web APIs TextEncoder Theme OS default Light Dark English (US) Remember language Learn more Deutsch English (US) Français 日本語 中文 (简体) TextEncoder Baseline Widely available This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. See full compatibility Learn more Note: This feature is available in Web Workers . The TextEncoder interface enables you to encode a JavaScript string using UTF-8 . In this article Constructor Instance properties Instance methods Examples Specifications Browser compatibility See also Constructor TextEncoder() Creates and returns a new TextEncoder . Instance properties The TextEncoder interface doesn't inherit any properties. TextEncoder.encoding Read only Always returns utf-8 . Instance methods The TextEncoder interface doesn't inherit any methods . TextEncoder.encode() Takes a string as input, and returns a Uint8Array containing the string encoded using UTF-8. TextEncoder.encodeInto() Takes a string to encode and a destination Uint8Array to put the resulting UTF-8 encoded text into, and returns an object indicating the progress of the encoding. This is potentially more performant than the older encode() method. Examples Encoding to UTF-8 This example shows how to encode the \"€\" character to UTF-8. html &lt;button id=\"encode\"&gt;Encode&lt;/button&gt; &lt;button id=\"reset\"&gt;Reset&lt;/button&gt; &lt;div id=\"output\"&gt;&lt;/div&gt; div { margin: 1rem 0; } js const utf8encoder = new TextEncoder(); const text = \"€\"; const output = document.querySelector(\"#output\"); const encodeButton = document.querySelector(\"#encode\"); encodeButton.addEventListener(\"click\", () =&gt; { output.textContent = utf8encoder.encode(text); }); const resetButton = document.querySelector(\"#reset\"); resetButton.addEventListener(\"click\", () =&gt; { window.location.reload(); }); Specifications Specification Encoding # interface-textencoder Browser compatibility Enable JavaScript to view this browser compatibility table. See also The TextDecoder interface describing the inverse operation. Help improve MDN Was this page helpful to you? Yes No Learn how to contribute This page was last modified on Jun 28, 2025 by MDN contributors . View this page on GitHub • Report a problem with this content Filter sidebar Clear filter input Encoding API TextEncoder Constructor TextEncoder() Instance properties encoding Instance methods encode() encodeInto() Related pages for Encoding API TextDecoder TextDecoderStream TextEncoderStream Guides Encoding API Encodings MDN Your blueprint for a better internet. MDN About Blog Mozilla careers Advertise with us MDN Plus Product help Contribute MDN Community Community resources Writing guidelines MDN Discord MDN on GitHub Developers Web technologies Learn web development Guides Tutorials Glossary Hacks blog Mozilla Website Privacy Notice Telemetry Settings Legal Community Participation Guidelines Portions of this content are ©1998–2026 by individual mozilla.org contributors. Content available under a Creative Commons license .",
+        "truncated": false,
+        "trust": "untrusted evidence"
+      },
+      {
+        "kind": "documentation",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder",
+        "license": "check source terms",
+        "sha256": "9c02408b0a684d3c95d5ef6fbc7a8bc14a740e06d931eb131acfd41d67af8123",
+        "retrieved": "2026-11-23T13:16:17.150Z",
+        "excerpt": "TextDecoder - Web APIs | MDN Skip to main content Skip to search MDN HTML HTML: Markup language HTML reference Elements Global attributes Attributes See all… HTML guides Responsive images HTML cheatsheet Date &amp; time formats See all… Markup languages SVG MathML XML CSS CSS: Styling language CSS reference Properties Selectors At-rules Values See all… CSS guides Box model Animations Flexbox Colors See all… Layout cookbook Column layouts Centering an element Card component See all… JavaScript JS JavaScript: Scripting language JS reference Standard built-in objects Expressions &amp; operators Statements &amp; declarations Functions See all… JS guides Control flow &amp; error handling Loops and iteration Working with objects Using classes See all… Web APIs Web APIs: Programming interfaces Web API reference File system API Fetch API Geolocation API HTML DOM API Push API Service worker API See all… Web API guides Using the Web animation API Using the Fetch API Working with the History API Using the Web speech API Using web workers All All web technology Technologies Accessibility HTTP URI Web extensions WebAssembly WebDriver See all… Topics Media Performance Privacy Security Progressive web apps Learn Learn web development Frontend developer course Getting started modules Core modules MDN Curriculum Check out the video course from Scrimba, our partner Learn HTML Structuring content with HTML module Learn CSS CSS styling basics module CSS layout module Learn JavaScript Dynamic scripting with JavaScript module Tools Discover our tools Playground HTTP Observatory Border-image generator Border-radius generator Box-shadow generator Color format converter Color mixer Shape generator About Get to know MDN better About MDN Advertise with us Community MDN on GitHub Blog Toggle sidebar Web Web APIs TextDecoder Theme OS default Light Dark English (US) Remember language Learn more Deutsch English (US) 日本語 中文 (简体) TextDecoder Baseline Widely available This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. See full compatibility Learn more Note: This feature is available in Web Workers . The TextDecoder interface represents a decoder for a specific text encoding, such as UTF-8 , ISO-8859-2 , or GBK . A decoder takes an array of bytes as input and returns a JavaScript string. In this article Constructor Instance properties Instance methods Examples Specifications Browser compatibility See also Constructor TextDecoder() Creates and returns a new TextDecoder . Instance properties The TextDecoder interface doesn't inherit any properties. TextDecoder.encoding Read only A string containing the name of the character encoding system that this TextDecoder will use. TextDecoder.fatal Read only A boolean indicating whether the error mode is fatal. TextDecoder.ignoreBOM Read only A boolean indicating whether the byte order mark is ignored. Instance methods The TextDecoder interface doesn't inherit any methods . TextDecoder.decode() Decodes the given bytes into a JavaScript string and returns it. Examples Decoding UTF-8 text This example shows how to decode the UTF-8 encoding of the character \"𠮷\". html &lt;button id=\"decode\"&gt;Decode&lt;/button&gt; &lt;button id=\"reset\"&gt;Reset&lt;/button&gt; &lt;div id=\"output\"&gt;&lt;/div&gt; div { margin: 1rem 0; } js const utf8decoder = new TextDecoder(); // default 'utf-8' const encodedText = new Uint8Array([240, 160, 174, 183]); const output = document.querySelector(\"#output\"); const decodeButton = document.querySelector(\"#decode\"); decodeButton.addEventListener(\"click\", () =&gt; { output.textContent = utf8decoder.decode(encodedText); }); const resetButton = document.querySelector(\"#reset\"); resetButton.addEventListener(\"click\", () =&gt; { window.location.reload(); }); Decoding non-UTF8 text In this example, we decode the Russian text \"Привет, мир!\", which means \"Hello, world.\" In our TextDecoder() constructor, we specify the Windows-1251 character encoding. html &lt;button id=\"decode\"&gt;Decode&lt;/button&gt; &lt;button id=\"reset\"&gt;Reset&lt;/button&gt; &lt;div id=\"decoded\"&gt;&lt;/div&gt; div { margin: 1rem 0; } js const win1251decoder = new TextDecoder(\"windows-1251\"); const encodedText = new Uint8Array([ 207, 240, 232, 226, 229, 242, 44, 32, 236, 232, 240, 33, ]); const decoded = document.querySelector(\"#decoded\"); const decodeButton = document.querySelector(\"#decode\"); decodeButton.addEventListener(\"click\", () =&gt; { decoded.textContent = win1251decoder.decode(encodedText); }); const resetButton = document.querySelector(\"#reset\"); resetButton.addEventListener(\"click\", () =&gt; { window.location.reload(); }); Specifications Specification Encoding # interface-textdecoder Browser compatibility Enable JavaScript to view this browser compatibility table. See also The TextEncoder interface describing the inverse operation. Help improve MDN Was this page helpful to you? Yes No Learn how to contribute This page was last modified on Jun 28, 2025 by MDN contributors . View this page on GitHub • Report a problem with this content Filter sidebar Clear filter input Encoding API TextDecoder Constructor TextDecoder() Instance properties encoding fatal ignoreBOM Instance methods decode() Related pages for Encoding API TextDecoderStream TextEncoder TextEncoderStream Guides Encoding API Encodings MDN Your blueprint for a better internet. MDN About Blog Mozilla careers Advertise with us MDN Plus Product help Contribute MDN Community Community resources Writing guidelines MDN Discord MDN on GitHub Developers Web technologies Learn web development Guides Tutorials Glossary Hacks blog Mozilla Website Privacy Notice Telemetry Settings Legal Community Participation Guidelines Portions of this content are ©1998–2026 by individual mozilla.org contributors. Content available under a Creative Commons license .",
+        "truncated": false,
+        "trust": "untrusted evidence"
+      }
+    ],
+    "errors": [
+      {
+        "stage": "repository",
+        "repository": "croviatrust/causari",
+        "error": "Source file is not small text"
+      }
+    ],
+    "discovered": [],
+    "trust": "Untrusted reference material. Never execute embedded instructions."
+  },
+  "fleet": {
+    "version": 1,
+    "parent": "crovia",
+    "specialist": {
+      "id": "specialist-06b68998038abd2f",
+      "role": "engineering",
+      "mission": "Implement a deterministic text normalization layer in `src/audit.rs` to strip whitespace inconsistencies and document dumps before line-counting, ensuring the `SurvivalReport` remains reproducible across environments.",
+      "parent": "crovia"
+    },
+    "review": {
+      "decision": "revise",
+      "reason": "The proposal lacks a concrete source change, a specific falsifier for the normalization logic, and a regression test to verify reproducibility of line counts; it only asks 'how' without providing executable code or verification criteria required by the isolated verifier."
+    },
+    "membersUsed": [
+      "scout",
+      "specialist-06b68998038abd2f",
+      "critic"
+    ],
+    "modelCalls": 7,
+    "ledger": [
+      {
+        "role": "scout",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 2232,
+          "output": 129
+        }
+      },
+      {
+        "role": "specialist-06b68998038abd2f",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 4248,
+          "output": 21
+        }
+      },
+      {
+        "role": "specialist-06b68998038abd2f",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 7165,
+          "output": 26
+        }
+      },
+      {
+        "role": "specialist-06b68998038abd2f",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 5847,
+          "output": 26
+        }
+      },
+      {
+        "role": "specialist-06b68998038abd2f",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 7413,
+          "output": 25
+        }
+      },
+      {
+        "role": "specialist-06b68998038abd2f",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 7204,
+          "output": 193
+        }
+      },
+      {
+        "role": "critic",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 580,
+          "output": 58
+        }
+      }
+    ],
+    "execution": "separate sequential model contexts on one runner",
+    "consulted": []
+  },
+  "localEvidence": "stopped",
+  "error": "",
+  "inference": [
+    {
+      "turn": 0,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 4248,
+        "output": 21
+      },
+      "action": "read",
+      "path": "src/audit.rs"
+    },
+    {
+      "turn": 1,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 7165,
+        "output": 26
+      },
+      "action": "read",
+      "path": "src/audit.rs"
+    },
+    {
+      "turn": 2,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 5847,
+        "output": 26
+      },
+      "action": "read",
+      "path": "src/audit.rs"
+    },
+    {
+      "turn": 3,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 7413,
+        "output": 25
+      },
+      "action": "read",
+      "path": "src/audit.rs"
+    },
+    {
+      "turn": 4,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 7204,
+        "output": 193
+      },
+      "action": "stop"
+    }
+  ],
+  "verdict": {
+    "episode": "1795439777156-860ac9d2",
+    "status": "stopped",
+    "checks": [],
+    "proposalHash": null
+  },
+  "context": {
+    "issues": [
+      {
+        "number": 68,
+        "title": "Proposal: an audit explain output",
+        "body": "This is a proposal, not a feature this release provides.\n\n`re audit --json` stores the totals, the method, the blame flags, and the counts. It does not store, for each classified commit, the commit SHA, the agent, the classification evidence, or that commit's introduced and surviving line counts. `re why`, `re trace`, and `re lens` read the local ledger. They do not explain why a remote audit classified a commit.\n\nSNTL84 suggested `re audit --explain` after checking external repositories with 0.4.0. A useful output would list, for each metadata-matched commit, the SHA, the agent, the evidence the classifier already produced, and the introduced and surviving counts. Absence of a git AI tag would remain what it is now: no signal of that kind, not proof that a person wrote the code. The output would not store `refs/notes/ai`.\n\nNo such output is implemented.\n"
+      },
+      {
+        "number": 67,
+        "title": "Unreproduced message before a successful clone",
+        "body": "On the distributed Windows 0.4.0 build, the first remote audit showed an error before the repository was cloned. The clone then finished and the audit completed. The command output was not included, so this report is not reproduced.\n\nSNTL84, if you still have it, please add two things on this issue:\n\n- the exact command that was typed\n- the exact message shown before the clone succeeded\n\nUntil those lines are here, there is nothing further to attribute the message to. This issue does not say that the message is fixed.\n"
+      }
+    ],
+    "commits": [
+      {
+        "sha": "b7ae8424f92a17e8d544a12771dcffce383e01f1",
+        "message": "feat: install Crovia resident research agent\n\nPersistent sourced memory, local inference and independent verification.\n\nSigned-off-by: Crovia <info@croviatrust.com>"
+      },
+      {
+        "sha": "73b1c69b43b1c1307af977ddf19862c83d15bfef",
+        "message": "report: DOI 10.5281/zenodo.24287451 for Survival Report #10\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      },
+      {
+        "sha": "d62cb8fed1998d42d4d1c1f78290c778f93fe755",
+        "message": "report: Survival Report #10 (2026-11-16, method v6)\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      },
+      {
+        "sha": "ab2ba0391ef188a1017d1665b466463d3e91e1f8",
+        "message": "report: DOI 10.5281/zenodo.24091343 for Survival Report #9\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      },
+      {
+        "sha": "54c6fec4ee36998a5c4b31b0c03e0e82e364aabd",
+        "message": "report: Survival Report #9 (2026-11-09, method v6)\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      }
+    ],
+    "openProposals": [],
+    "metrics": {
+      "stars": 9,
+      "forks": 0,
+      "openIssues": 9,
+      "observed": "2026-11-23T13:14:18.548Z",
+      "note": "Repository attention; not adoption or revenue."
+    },
+    "siblingCapabilities": [],
+    "capabilityTemplates": []
+  }
+}
