@@ -8,8 +8,13 @@ import { json, writeJSON, profile, validateProposal, applyProposal, digest } fro
 
 export function snapshot(root, dest) {
   fs.mkdirSync(dest, { recursive: true });
-  const archive = execFileSync('git', ['archive', 'HEAD'], { cwd: root, maxBuffer: 64e6 });
-  execFileSync('tar', ['-xf', '-', '-C', dest], { input: archive });
+  const archive = `${dest}.tar`;
+  try {
+    // macOS tar may close stdin after the archive end marker while Node 20
+    // is still writing padding, raising EPIPE despite a valid extraction.
+    execFileSync('git', ['archive', '--format=tar', `--output=${archive}`, 'HEAD'], { cwd: root });
+    execFileSync('tar', ['-xf', archive, '-C', dest]);
+  } finally { fs.rmSync(archive, { force: true }); }
 }
 export function commands(language) {
   if (language === 'node') return {
