@@ -5,7 +5,7 @@ on:
     - cron: '23 * * * *'
   workflow_dispatch:
   push:
-    branches: [main, crovia/resident-fleet]
+    branches: [main]
     paths: ['resident/**', '.github/workflows/resident.yml']
 
 permissions: {}

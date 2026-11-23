@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 
 export const LIMITS = Object.freeze({ turns: 8, files: 6, bytes: 48000, read: 10000 });
 export const digest = value => crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
+export const experimentKey = (proposal, baseSHA) => `exp-${digest({ baseSHA: baseSHA || null, edits: proposal.edits })}`;
 export const json = file => JSON.parse(fs.readFileSync(file, 'utf8'));
 export function writeJSON(file, value) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -119,7 +120,7 @@ export function remember(state, episode) {
     ...(e.proposal ? { proposal: { title: e.proposal.title, hypothesis: e.proposal.hypothesis,
       falsifier: e.proposal.falsifier, benefit: e.proposal.benefit } } : {}) });
   next.recent = [...next.recent, episode].slice(-30).map(compact);
-  if (episode.proposal) next.hypotheses = [...new Set([...next.hypotheses, digest(episode.proposal.edits)])].slice(-200);
+  if (episode.proposal) next.hypotheses = [...new Set([...next.hypotheses, experimentKey(episode.proposal, episode.baseSHA)])].slice(-200);
   const key = episode.focus || 'unknown';
   const skill = next.skills[key] ||= { attempts: 0, verified: 0, merged: 0, rejected: 0 };
   skill.attempts++;
@@ -215,7 +216,7 @@ For an existing file, prefer {"path":"src/file.js","before":"exact unique old te
           if (fs.existsSync(path.join(root, edit.path)) && !reads.has(edit.path)) throw new Error(`Read ${edit.path} before editing it`);
           if (edit.path.startsWith(language === 'node' ? 'resident-regressions/' : 'tests/resident_') && fs.existsSync(path.join(root, edit.path))) throw new Error('Regression filename already exists');
         }
-        if (state.hypotheses.includes(digest(p.edits))) throw new Error('Exact experiment already attempted');
+        if (state.hypotheses.includes(experimentKey(p, episode.baseSHA))) throw new Error('Exact experiment already attempted on this revision');
         episode.proposal = p; episode.status = 'proposed'; break;
       }
       const selected = answer.repository === 'sibling' ? sibling : root;
