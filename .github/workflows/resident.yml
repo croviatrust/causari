@@ -82,7 +82,8 @@ jobs:
           if-no-files-found: error
       - name: Backpressure
         if: steps.observe.outputs.active != 'true'
-        run: echo 'No new cycle: review backlog or recent feedback wake. Reports remain available for the next cycle.' >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo 'No new cycle: review backlog or recent feedback wake. Reports remain available for the next cycle.' >> "$GITHUB_STEP_SUMMARY"
 
   verify:
     needs: think
