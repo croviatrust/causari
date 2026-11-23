@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generation": 1,
+  "generation": 2,
   "recent": [
     {
       "id": "1795435861041-ecaf3226",
@@ -33,11 +33,52 @@
           }
         }
       ]
+    },
+    {
+      "id": "1795436080288-f5de3dbb",
+      "repo": "croviatrust/causari",
+      "baseSHA": "1201269b5d5f28e2270578068dfe5022b4eb633e",
+      "siblingSHA": "0e82d2f824223340820ac711270ba8a8dc1022a2",
+      "focus": "Remove a measurable obstacle to an agent adopting and using the product.",
+      "started": "2026-11-23T12:14:40.292Z",
+      "status": "stopped",
+      "reason": "The file does not exist in the repository.",
+      "finished": "2026-11-23T12:16:12.129Z",
+      "localEvidence": "stopped",
+      "error": "",
+      "inference": [
+        {
+          "turn": 0,
+          "model": "qwen2.5-coder:1.5b",
+          "usage": {
+            "input": 3706,
+            "output": 22
+          }
+        },
+        {
+          "turn": 0,
+          "error": "ENOENT: no such file or directory, lstat '/home/runner/work/causari/causari/controller/src/causari.rs'"
+        },
+        {
+          "turn": 1,
+          "model": "qwen2.5-coder:1.5b",
+          "usage": {
+            "input": 3780,
+            "output": 18
+          }
+        }
+      ]
     }
   ],
   "outcomes": {},
   "skills": {
     "Find a concrete failure in an existing user workflow and repair it with a regression test.": {
+      "attempts": 1,
+      "verified": 0,
+      "merged": 0,
+      "rejected": 0
+    },
+    "Remove a measurable obstacle to an agent adopting and using the product.": {
       "attempts": 1,
       "verified": 0,
       "merged": 0,

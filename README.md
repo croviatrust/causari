@@ -1,6 +1,6 @@
 # Crovia resident memory
 
-Generation: 1
+Generation: 2
 
 Latest: stopped
 
