@@ -113,6 +113,17 @@
     "sandbox": false,
     "content_sha256": "0601fea1644b2ae1f346bf2646e69647f70c1cd539bfce0f54cd41ced4085bd1",
     "published_at": "2026-11-16T17:46:04Z"
+   },
+   "2026/11": {
+    "doi": "10.5281/zenodo.24482991",
+    "concept_doi": "10.5281/zenodo.22863965",
+    "html": "https://zenodo.org/records/24482991",
+    "id": 24482991,
+    "version": "#11",
+    "revision": 1,
+    "sandbox": false,
+    "content_sha256": "7b59487b02b8cc86d320a5eec71ef43f18a4d21b7d1ba3236143c664331b83e7",
+    "published_at": "2026-11-23T21:13:09Z"
    }
   }
  },
