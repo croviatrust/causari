@@ -17,6 +17,10 @@ temporary, not a permanently running process. GitHub schedules can be delayed.
 ## What evolves
 
 - Memory of attempts, failed hypotheses and review outcomes persists between runs.
+- Unfinished research can carry observations tied to an actually read file and
+  commit SHA, plus a precise next question, into the next generation. Observations
+  remain explicitly unverified. Continuation is bounded to three attempts before
+  focus selection explores another direction.
 - Focus selection explores untried directions and uses observed review outcomes.
 - The model can propose a new `resident/strategy.json`, subject to a fixed schema
   and review. A schema-valid strategy is explicitly **not** a proven improvement.
@@ -37,6 +41,8 @@ the regression must fail on the original source, and both the regression and
 original suite must pass on the candidate. Failed or inconclusive attempts are
 recorded rather than published as successful improvements. Existing test files,
 workflow permissions, manifests and controller code cannot be edited by a proposal.
+The final two inference turns are reserved for a decision or a research handoff,
+so inspection cannot silently consume the entire cycle without a conclusion.
 
 The verifier copies the committed baseline. Candidate code runs in a read-only
 container with a writable temporary directory, no network, no host token, no

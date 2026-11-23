@@ -123,6 +123,34 @@ test('resident refuses blind edits and exact repeated experiments', async t => {
   assert.ok(result.trace.some(t => t.error?.includes('Read src/value.js')));
   assert.ok(result.trace.some(t => t.error?.includes('already attempted')));
 });
+test('unfinished research carries sourced observations into the next generation', async t => {
+  const root = fixture(t);
+  const answers = [{ action: 'read', path: 'src/value.js' }, { action: 'stop', reason: 'Need a focused test',
+    findings: [{ path: 'src/value.js', note: 'The implementation uses truthiness.' }, { path: 'src/invented.js', note: 'Invented' }],
+    next: 'Determine whether zero should be a valid value.' }];
+  const e = await investigate({ root, repo: 'croviatrust/agentcrash', state: initialState(), context: {}, strategy,
+    ask: async () => ({ text: JSON.stringify(answers.shift()), model: 'test-double' }) });
+  assert.equal(e.findings.length, 1);
+  assert.equal(e.findings[0].sha, e.baseSHA);
+  const state = remember(initialState(), e);
+  assert.equal(chooseFocus(strategy, state), e.focus);
+  assert.equal(state.pendingResearch.question, e.next);
+  assert.equal(state.recent[0].findings[0].confidence, 'unverified observation');
+});
+test('final turns require a decision instead of unlimited additional reading', async t => {
+  const root = fixture(t);
+  let decisionSeen = false;
+  const e = await investigate({ root, repo: 'croviatrust/agentcrash', state: initialState(), context: {}, strategy,
+    ask: async messages => {
+      if (messages.some(m => m.content.startsWith('Investigation time is over.'))) {
+        decisionSeen = true;
+        return { text: JSON.stringify({ action: 'stop', reason: 'Need a smaller experiment', next: 'Test the zero input contract.' }) };
+      }
+      return { text: JSON.stringify({ action: 'read', path: 'src/value.js' }) };
+    } });
+  assert.ok(decisionSeen);
+  assert.equal(e.next, 'Test the zero input contract.');
+});
 test('verifier demonstrates a real before/after regression on a disposable fixture', async t => {
   const root = fixture(t);
   const p = validateProposal(proposal(), 'node');

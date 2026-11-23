@@ -114,6 +114,7 @@ export function remember(state, episode) {
   const compact = e => ({ id: e.id, repo: e.repo, focus: e.focus, started: e.started, finished: e.finished,
     status: e.status, localEvidence: e.localEvidence, reason: e.reason?.slice(0, 1600),
     error: e.error?.slice(0, 1600), pr: e.pr, url: e.url,
+    findings: e.findings || [], next: e.next,
     ...(e.proposal ? { proposal: { title: e.proposal.title, hypothesis: e.proposal.hypothesis,
       falsifier: e.proposal.falsifier, benefit: e.proposal.benefit } } : {}) });
   next.recent = [...next.recent, episode].slice(-30).map(compact);
@@ -122,6 +123,8 @@ export function remember(state, episode) {
   const skill = next.skills[key] ||= { attempts: 0, verified: 0, merged: 0, rejected: 0 };
   skill.attempts++;
   if (episode.status === 'verified' || episode.localEvidence === 'verified') skill.verified++;
+  next.pendingResearch = episode.next ? { focus: episode.focus, question: episode.next,
+    attempts: state.pendingResearch?.focus === episode.focus ? state.pendingResearch.attempts + 1 : 1 } : null;
   return next;
 }
 export function reconcile(state, prs) {
@@ -138,6 +141,7 @@ export function reconcile(state, prs) {
   return state;
 }
 export function chooseFocus(strategy, state) {
+  if (state.pendingResearch?.attempts < 3 && strategy.focus.includes(state.pendingResearch.focus)) return state.pendingResearch.focus;
   // Explore untried directions first, then use observed review outcomes.
   return strategy.focus.map((focus, i) => {
     const s = state.skills[focus] || { attempts: 0, merged: 0, rejected: 0 };
@@ -172,14 +176,19 @@ Return exactly one JSON object per turn. Allowed actions:
 {"action":"read","path":"src/file.js","offset":0,"repository":"self"} (or repository="sibling")
 {"action":"search","query":"literal text","repository":"self"} to find text in tracked small files.
 {"action":"propose","title":"...","hypothesis":"...","falsifier":"...","benefit":"...","edits":[{"path":"src/file.js","content":"COMPLETE file content"},{"path":"${language === 'node' ? 'resident-regressions/name.test.mjs' : 'tests/resident_name.rs'}","content":"regression test"}]}
-{"action":"stop","reason":"specific reason, uncertainty or next experiment"}
+{"action":"stop","reason":"specific uncertainty","findings":[{"path":"src/file.js","repository":"self","note":"specific observation from a file you actually read"}],"next":"precise question or experiment for the next generation"}
 For an existing file, prefer {"path":"src/file.js","before":"exact unique old text","after":"new text"} instead of repeating the whole file. New files need content. Read every existing file before changing it. Do not read the same path and offset twice: use a new offset, inspect another file, propose or stop. Code edits only under src/ with .${language === 'node' ? 'js' : 'rs'} extension. Existing tests, workflows, credentials, package manifests and this controller cannot be edited. New regression tests must fail on the original code and pass after the change. Tests cannot use the network. A strategy experiment may edit only resident/strategy.json and must satisfy the fixed schema; schema validity is not evidence it improves results. No shell, no deletion, no external publishing. Inspect sibling code to discover complementary capabilities but edit only self. ${LIMITS.turns} turns maximum. Prefer one small coherent change.` },
-  { role: 'user', content: JSON.stringify({ repo, generation: state.generation, recent: state.recent.slice(-5).map(e => ({ status: e.status, focus: e.focus, title: e.proposal?.title, error: e.error, pr: e.pr })), skills: state.skills, context, files: files.slice(0, 250) }).slice(0, 14000) }];
+  { role: 'user', content: JSON.stringify({ repo, generation: state.generation, files: files.slice(0, 250),
+    pendingResearch: state.pendingResearch, recent: state.recent.slice(-3).map(e => ({ status: e.status, focus: e.focus,
+      title: e.proposal?.title, error: e.error, reason: e.reason, findings: e.findings, next: e.next, pr: e.pr })),
+    skills: state.skills, context }).slice(0, 14000) }];
   const sha = dir => execFileSync('git', ['rev-parse', 'HEAD'], { cwd: dir, encoding: 'utf8' }).trim();
   const episode = { id: `${Date.now()}-${crypto.randomBytes(4).toString('hex')}`, repo, baseSHA: sha(root), siblingSHA: sibling ? sha(sibling) : null, focus, started: new Date().toISOString(), status: 'stopped', trace: [] };
   const reads = new Set();
   const actions = new Set();
+  const evidence = new Map();
   for (let turn = 0; turn < LIMITS.turns; turn++) {
+    if (turn === LIMITS.turns - 2) messages.push({ role: 'user', content: 'Investigation time is over. The final two turns are reserved for a decision. Return propose with a concrete falsifiable change, or stop with evidence-linked findings and a precise next question. Do not read or search again. An honest unresolved question is better than an invented improvement.' });
     let answer;
     try {
       const response = await ask(messages);
@@ -188,7 +197,15 @@ For an existing file, prefer {"path":"src/file.js","before":"exact unique old te
       episode.trace.at(-1).action = answer.action;
       if (answer.path) episode.trace.at(-1).path = String(answer.path).slice(0, 200);
       messages.push({ role: 'assistant', content: response.text });
-      if (answer.action === 'stop') { episode.reason = String(answer.reason).slice(0, 2000); break; }
+      if (answer.action === 'stop') {
+        episode.reason = String(answer.reason).slice(0, 2000);
+        episode.findings = (Array.isArray(answer.findings) ? answer.findings : []).slice(0, 3).flatMap(f => {
+          const source = evidence.get(`${f.repository || 'self'}:${f.path}`);
+          return source && typeof f.note === 'string' ? [{ ...source, note: f.note.slice(0, 500), confidence: 'unverified observation' }] : [];
+        });
+        if (typeof answer.next === 'string' && answer.next.trim()) episode.next = answer.next.slice(0, 1200);
+        break;
+      }
       if (answer.action === 'propose') {
         const p = validateProposal(materialize(root, answer), language);
         for (const edit of p.edits) {
@@ -199,6 +216,7 @@ For an existing file, prefer {"path":"src/file.js","before":"exact unique old te
         episode.proposal = p; episode.status = 'proposed'; break;
       }
       const selected = answer.repository === 'sibling' ? sibling : root;
+      if (turn >= LIMITS.turns - 2) throw new Error('Decision required: propose, or stop with sourced findings and the next question.');
       if (!selected) throw new Error('Sibling unavailable');
       const actionKey = JSON.stringify([answer.action, answer.repository || 'self', answer.path, answer.offset || 0, answer.query]);
       if (actions.has(actionKey)) throw new Error('Already observed this exact input. Use a new offset or file, propose an experiment, or stop.');
@@ -206,6 +224,9 @@ For an existing file, prefer {"path":"src/file.js","before":"exact unique old te
       let result;
       if (answer.action === 'read') {
         result = readFile(selected, answer.path, answer.offset || 0);
+        if (!result.text) throw new Error('This offset is past the end of the file. Inspect another file or conclude.');
+        evidence.set(`${answer.repository || 'self'}:${answer.path}`, { path: answer.path,
+          repository: answer.repository || 'self', sha: selected === root ? episode.baseSHA : episode.siblingSHA });
         if (selected === root) reads.add(answer.path);
       } else if (answer.action === 'search') {
         if (typeof answer.query !== 'string' || answer.query.length < 2 || answer.query.length > 100) throw new Error('Invalid search');
