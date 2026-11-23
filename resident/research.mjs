@@ -7,7 +7,7 @@ export function publicURL(value, kind = 'documentation') {
   const url = new URL(value);
   if (url.protocol !== 'https:' || url.username || url.password || (url.port && url.port !== '443')) throw new Error('Public HTTPS source required');
   if (kind === 'documentation' ? !DOCS.has(url.hostname) : url.hostname !== 'api.github.com') throw new Error('Source host is outside the evidence policy');
-  if (kind === 'github' && !/^\/(search\/repositories|repos\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:\/(?:commits|readme|contents\/[^?]+))?)$/.test(url.pathname)) throw new Error('GitHub source route is outside policy');
+  if (kind === 'github' && !/^\/(search\/(?:repositories|issues)|repos\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:\/(?:commits|readme|issues\/[1-9][0-9]*|contents\/[^?]+))?)$/.test(url.pathname)) throw new Error('GitHub source route is outside policy');
   url.hash = '';
   return url;
 }
