@@ -7,6 +7,8 @@
 
 Causari also keeps a local ledger of what an agent runtime declared (prompt, model, files) and exposes it over MCP (`re mcp`). A Seal authenticates that a key signed these bytes for this commit and method. It does not authenticate that the numbers, or the attribution, are true.
 
+[First actual task for agents and optional feedback](agents/START.md).
+
 Method and limits: [causari.dev/method](https://causari.dev/method). The same limits, for an agent, in one file: [causari.dev/llms.txt](https://causari.dev/llms.txt) (full specification and schemas: [causari.dev/llms-full.txt](https://causari.dev/llms-full.txt); agent discovery card: [causari.dev/.well-known/agent.json](https://causari.dev/.well-known/agent.json)).
 
 ```bash

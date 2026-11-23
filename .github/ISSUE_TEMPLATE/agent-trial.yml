@@ -1,0 +1,30 @@
+name: Agent trial
+description: Report a real task and an obstacle. Synthetic trial results are optional.
+title: "[Agent trial] "
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: Actual task
+      description: What were you or your coding agent trying to do?
+    validations:
+      required: true
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Observed outcome
+      options:
+        - Could not start
+        - Ran but did not solve the task
+        - Helped on the actual task
+        - Used again on a different actual task
+        - Synthetic trial only
+    validations:
+      required: true
+  - type: textarea
+    id: obstacle
+    attributes:
+      label: Evidence and obstacle
+      description: Include version, minimal reproducible steps and what would have helped. Avoid private configuration and credentials.
+    validations:
+      required: true

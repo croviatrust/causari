@@ -164,3 +164,26 @@ proposal, critique, execution, capsule promotion and cross-repository retrieval.
 Model responses in these fixtures are test doubles. `docker-proof.mjs` separately
 uses real containers for the source regression and promotion gate. Neither is a
 claim that the live model has autonomously acquired or transferred a useful skill.
+
+## External needs and actual-use feedback
+
+Each observation cycle performs bounded read-only public GitHub issue searches.
+It checks repository visibility and canonical issue state, keeps URL, timestamp,
+content hash and excerpts, filters own-repository echoes and evidence older than
+180 days, and ranks topic matches with an explicit heuristic. This ranking is
+a research queue, not validated demand. Three attempts on unchanged issue
+evidence within retained recent history remove that source from the queue.
+
+The scout can select only a supplied opportunity id for the source linkage.
+The writer retains `opportunities.json` and `growth/<episode>.json` on the memory
+branch, connecting source, hypothesis, falsifier, checks and candidate. Inbound
+Agent trial issues are passed to research as unverified self-reports. No contact
+with issue authors or external publication is performed. Network/rate-limit
+errors are recorded and do not create fictional opportunities. A successful
+repair is still not automatically classified as adoption or publication.
+
+Opening or reopening an `[Agent trial]` issue can wake the trusted default-branch
+workflow. Feedback-triggered cycles are throttled when a cycle finished within
+the previous hour; the issue remains available for subsequent observation. The
+workflow pause and proposal-backpressure controls still apply. The hourly cron
+is a requested schedule, not a guarantee of an hourly completed generation.

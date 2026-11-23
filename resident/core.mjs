@@ -114,7 +114,7 @@ export function remember(state, episode) {
   // Keep the API-readable index small. Full source, traces and test logs live
   // in separate episode files; GitHub's contents API stops embedding large files.
   const compact = e => ({ id: e.id, repo: e.repo, focus: e.focus, started: e.started, finished: e.finished,
-    status: e.status, localEvidence: e.localEvidence, reason: e.reason?.slice(0, 1600),
+    opportunity: e.opportunity, status: e.status, localEvidence: e.localEvidence, reason: e.reason?.slice(0, 1600),
     error: e.error?.slice(0, 1600), pr: e.pr, url: e.url,
     findings: e.findings || [], next: e.next, probes: (e.probes || []).map(({ sourceSHA, testHash, status, code, log }) => ({ sourceSHA, testHash, status, code, log: log?.slice(-800) })),
     ...(e.proposal ? { proposal: { title: e.proposal.title, hypothesis: e.proposal.hypothesis,
