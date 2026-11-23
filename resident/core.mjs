@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 
 export const LIMITS = Object.freeze({ turns: 8, files: 6, bytes: 48000, read: 10000 });
 export const digest = value => crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
+export const experimentKey = (proposal, baseSHA) => `exp-${digest({ baseSHA: baseSHA || null, edits: proposal.edits })}`;
 export const json = file => JSON.parse(fs.readFileSync(file, 'utf8'));
 export function writeJSON(file, value) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -36,7 +37,8 @@ export function readFile(root, name, offset = 0) {
 }
 export function tracked(root) {
   return execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8', maxBuffer: 4e6 })
-    .split('\0').filter(Boolean).filter(p => !p.split('/').some(x => x.startsWith('.')));
+    .split('\0').filter(Boolean).filter(p => !p.split('/').some(x => x.startsWith('.')))
+    .sort((a, b) => Number(b.startsWith('src/')) - Number(a.startsWith('src/')) || a.localeCompare(b));
 }
 export function validateStrategy(value) {
   if (value?.version !== 1 || typeof value.mission !== 'string' || value.mission.length > 1200 ||
@@ -59,7 +61,7 @@ export function validateProposal(p, language) {
     seen.add(edit.path);
     if (typeof edit.content !== 'string' || edit.content.includes('\0')) throw new Error('Edits must be UTF-8 text');
     bytes += Buffer.byteLength(edit.content);
-    const source = language === 'node' ? /^src\/[A-Za-z0-9_./-]+\.js$/ : /^src\/[A-Za-z0-9_./-]+\.rs$/;
+    const source = language === 'node' ? /^(?:src|record\/lib)\/[A-Za-z0-9_./-]+\.js$/ : /^src\/[A-Za-z0-9_./-]+\.rs$/;
     const regression = language === 'node' ? /^resident-regressions\/[A-Za-z0-9_-]+\.test\.mjs$/ : /^tests\/resident_[A-Za-z0-9_]+\.rs$/;
     if (!source.test(edit.path) && !regression.test(edit.path) && edit.path !== 'resident/strategy.json')
       throw new Error('Edit outside source, new regressions or strategy');
@@ -118,7 +120,7 @@ export function remember(state, episode) {
     ...(e.proposal ? { proposal: { title: e.proposal.title, hypothesis: e.proposal.hypothesis,
       falsifier: e.proposal.falsifier, benefit: e.proposal.benefit } } : {}) });
   next.recent = [...next.recent, episode].slice(-30).map(compact);
-  if (episode.proposal) next.hypotheses = [...new Set([...next.hypotheses, digest(episode.proposal.edits)])].slice(-200);
+  if (episode.proposal) next.hypotheses = [...new Set([...next.hypotheses, experimentKey(episode.proposal, episode.baseSHA)])].slice(-200);
   const key = episode.focus || 'unknown';
   const skill = next.skills[key] ||= { attempts: 0, verified: 0, merged: 0, rejected: 0 };
   skill.attempts++;
@@ -149,6 +151,10 @@ export function chooseFocus(strategy, state) {
     return { focus, score, i };
   }).sort((a, b) => b.score - a.score || a.i - b.i)[0].focus;
 }
+export function activeResearch(state, focus) {
+  const pending = state.pendingResearch;
+  return pending?.attempts < 3 && pending.focus === focus ? pending : null;
+}
 export async function infer(messages, env = process.env) {
   const remote = Boolean(env.RESIDENT_API_URL);
   const url = remote ? new URL(env.RESIDENT_API_URL) : new URL('http://127.0.0.1:11434/api/chat');
@@ -164,7 +170,8 @@ export async function infer(messages, env = process.env) {
   return { text: remote ? data.choices?.[0]?.message?.content : data.message?.content,
     usage: remote ? data.usage : { input: data.prompt_eval_count, output: data.eval_count }, model };
 }
-export async function investigate({ root, sibling, repo, state, context, strategy, ask = infer }) {
+export async function investigate({ root, sibling, repo, state, context, strategy, ask = infer, turnBudget = LIMITS.turns }) {
+  if (!Number.isInteger(turnBudget) || turnBudget < 3 || turnBudget > LIMITS.turns) throw new Error('Invalid investigation budget');
   const language = profile(repo);
   validateStrategy(strategy);
   const focus = chooseFocus(strategy, state);
@@ -177,18 +184,18 @@ Return exactly one JSON object per turn. Allowed actions:
 {"action":"search","query":"literal text","repository":"self"} to find text in tracked small files.
 {"action":"propose","title":"...","hypothesis":"...","falsifier":"...","benefit":"...","edits":[{"path":"src/file.js","content":"COMPLETE file content"},{"path":"${language === 'node' ? 'resident-regressions/name.test.mjs' : 'tests/resident_name.rs'}","content":"regression test"}]}
 {"action":"stop","reason":"specific uncertainty","findings":[{"path":"src/file.js","repository":"self","note":"specific observation from a file you actually read"}],"next":"precise question or experiment for the next generation"}
-For an existing file, prefer {"path":"src/file.js","before":"exact unique old text","after":"new text"} instead of repeating the whole file. New files need content. Read every existing file before changing it. Do not read the same path and offset twice: use a new offset, inspect another file, propose or stop. Code edits only under src/ with .${language === 'node' ? 'js' : 'rs'} extension. Existing tests, workflows, credentials, package manifests and this controller cannot be edited. New regression tests must fail on the original code and pass after the change. Tests cannot use the network. A strategy experiment may edit only resident/strategy.json and must satisfy the fixed schema; schema validity is not evidence it improves results. No shell, no deletion, no external publishing. Inspect sibling code to discover complementary capabilities but edit only self. ${LIMITS.turns} turns maximum. Prefer one small coherent change.` },
-  { role: 'user', content: JSON.stringify({ repo, generation: state.generation, files: files.slice(0, 250),
-    pendingResearch: state.pendingResearch, recent: state.recent.slice(-3).map(e => ({ status: e.status, focus: e.focus,
+For an existing file, prefer {"path":"src/file.js","before":"exact unique old text","after":"new text"} instead of repeating the whole file. New files need content. Read every existing file before changing it. Do not read the same path and offset twice: use a new offset, inspect another file, propose or stop. Code edits only under ${language === 'node' ? 'src/ or record/lib/' : 'src/'} with .${language === 'node' ? 'js' : 'rs'} extension. Existing tests, workflows, credentials, package manifests and this controller cannot be edited. New regression tests must fail on the original code and pass after the change. Tests cannot use the network. A strategy experiment may edit only resident/strategy.json and must satisfy the fixed schema; schema validity is not evidence it improves results. No shell, no deletion, no external publishing. Inspect sibling code to discover complementary capabilities but edit only self. ${turnBudget} turns maximum. Prefer one small coherent change.` },
+  { role: 'user', content: JSON.stringify({ repo, generation: state.generation, context, files: files.slice(0, 250),
+    pendingResearch: activeResearch(state, focus), recent: state.recent.slice(-3).map(e => ({ status: e.status, focus: e.focus,
       title: e.proposal?.title, error: e.error, reason: e.reason, findings: e.findings, next: e.next, pr: e.pr })),
-    skills: state.skills, context }).slice(0, 14000) }];
+    skills: state.skills }).slice(0, 14000) }];
   const sha = dir => execFileSync('git', ['rev-parse', 'HEAD'], { cwd: dir, encoding: 'utf8' }).trim();
   const episode = { id: `${Date.now()}-${crypto.randomBytes(4).toString('hex')}`, repo, baseSHA: sha(root), siblingSHA: sibling ? sha(sibling) : null, focus, started: new Date().toISOString(), status: 'stopped', trace: [] };
   const reads = new Set();
   const actions = new Set();
   const evidence = new Map();
-  for (let turn = 0; turn < LIMITS.turns; turn++) {
-    if (turn === LIMITS.turns - 2) messages.push({ role: 'user', content: 'Investigation time is over. The final two turns are reserved for a decision. Return propose with a concrete falsifiable change, or stop with evidence-linked findings and a precise next question. Do not read or search again. An honest unresolved question is better than an invented improvement.' });
+  for (let turn = 0; turn < turnBudget; turn++) {
+    if (turn === turnBudget - 2) messages.push({ role: 'user', content: 'Investigation time is over. The final two turns are reserved for a decision. Return propose with a concrete falsifiable change, or stop with evidence-linked findings and a precise next question. Do not read or search again. An honest unresolved question is better than an invented improvement.' });
     let answer;
     try {
       const response = await ask(messages);
@@ -196,6 +203,7 @@ For an existing file, prefer {"path":"src/file.js","before":"exact unique old te
       answer = JSON.parse(response.text);
       episode.trace.at(-1).action = answer.action;
       if (answer.path) episode.trace.at(-1).path = String(answer.path).slice(0, 200);
+      if (answer.action === 'read') episode.trace.at(-1).offset = answer.offset || 0;
       messages.push({ role: 'assistant', content: response.text });
       if (answer.action === 'stop') {
         episode.reason = String(answer.reason).slice(0, 2000);
@@ -212,11 +220,11 @@ For an existing file, prefer {"path":"src/file.js","before":"exact unique old te
           if (fs.existsSync(path.join(root, edit.path)) && !reads.has(edit.path)) throw new Error(`Read ${edit.path} before editing it`);
           if (edit.path.startsWith(language === 'node' ? 'resident-regressions/' : 'tests/resident_') && fs.existsSync(path.join(root, edit.path))) throw new Error('Regression filename already exists');
         }
-        if (state.hypotheses.includes(digest(p.edits))) throw new Error('Exact experiment already attempted');
+        if (state.hypotheses.includes(experimentKey(p, episode.baseSHA))) throw new Error('Exact experiment already attempted on this revision');
         episode.proposal = p; episode.status = 'proposed'; break;
       }
       const selected = answer.repository === 'sibling' ? sibling : root;
-      if (turn >= LIMITS.turns - 2) throw new Error('Decision required: propose, or stop with sourced findings and the next question.');
+      if (turn >= turnBudget - 2) throw new Error('Decision required: propose, or stop with sourced findings and the next question.');
       if (!selected) throw new Error('Sibling unavailable');
       const actionKey = JSON.stringify([answer.action, answer.repository || 'self', answer.path, answer.offset || 0, answer.query]);
       if (actions.has(actionKey)) throw new Error('Already observed this exact input. Use a new offset or file, propose an experiment, or stop.');
@@ -224,7 +232,7 @@ For an existing file, prefer {"path":"src/file.js","before":"exact unique old te
       let result;
       if (answer.action === 'read') {
         result = readFile(selected, answer.path, answer.offset || 0);
-        if (!result.text) throw new Error('This offset is past the end of the file. Inspect another file or conclude.');
+        if (!result.text) throw new Error(`Offset is past the end-of-file (${result.total} characters). Read this file at offset 0, or inspect another file.`);
         evidence.set(`${answer.repository || 'self'}:${answer.path}`, { path: answer.path,
           repository: answer.repository || 'self', sha: selected === root ? episode.baseSHA : episode.siblingSHA });
         if (selected === root) reads.add(answer.path);
@@ -236,7 +244,7 @@ For an existing file, prefer {"path":"src/file.js","before":"exact unique old te
           if (result.length === 8) break;
         }
       } else throw new Error('Unknown action');
-      messages.push({ role: 'user', content: JSON.stringify({ evidence: result, turnsLeft: LIMITS.turns - turn - 1 }) });
+      messages.push({ role: 'user', content: JSON.stringify({ evidence: result, turnsLeft: turnBudget - turn - 1 }) });
     } catch (error) {
       episode.trace.push({ turn, error: error.message });
       messages.push({ role: 'user', content: JSON.stringify({ error: error.message, instruction: 'Correct the action or stop honestly.' }) });

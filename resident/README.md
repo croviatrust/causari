@@ -108,3 +108,51 @@ acceptance of a correction and rejection of an existing-behavior regression.
 Controller files are deliberately outside its own edit capability in this first
 version. Proposing broader changes to its runtime requires a separately reviewed
 expansion of the experiment format, preserving independent evaluation.
+
+## Research fleet and capability library
+
+The resident now runs three separate model contexts on the same runner:
+
+1. A scout chooses a concrete research question, public repository sources and
+   official documentation. It defines the mission of a generated specialist.
+2. The specialist inspects and edits the actual project using the existing bounded
+   actions, with external material clearly marked as untrusted evidence.
+3. An independent critic can veto the experiment. Acceptance means worth testing,
+   not proof that it works. The isolated execution job is still the evidence gate.
+
+The shared budget is eight model calls: one scout, up to six specialist calls,
+then one critic. These agents run sequentially; this version does not claim
+parallel speedup or independently hosted child repositories. Specialist identities
+are derived from their missions. The retained lineage contains at most six
+specialists plus the scout and critic, and records attempts and source-case
+verification outcomes.
+
+The scout can search public GitHub repositories and read files at pinned commit
+SHAs. A source record preserves the repository, path, revision, content hash,
+license metadata and retrieval time. Documentation retrieval is limited to the
+hosts coded in `research.mjs`; private repositories, arbitrary destinations,
+account APIs and cross-host token redirects are refused. External material is
+never installed or executed. Failed searches are recorded; they do not become
+fabricated evidence. Reading a source or its license metadata does not grant
+permission to copy it.
+
+A code experiment becomes a capability capsule only when the critic accepts it
+and independent verification proves the before/after change and original suite.
+Capsules contain the actual repair code, a runnable regression, contract,
+source provenance and specialist lineage. The memory branch stores detailed
+capsules under `capabilities/`, with at most 24 compact entries in its index.
+Each project can retrieve matching recipes from its sibling. Retrieval is not
+proof of successful transfer: adaptation to a new case must be verified again.
+These are tested repair recipes, not model weight updates or unrestricted tools.
+
+For independently verified experiments only, the writer also stores an English
+communication draft under `outreach/`. It distinguishes the hypothesis, intended
+benefit and observed test outcomes. No social account, email or discussion is
+contacted, and no claims about customers, revenue or broad transfer are generated
+as observed results. The draft is material for review and subsequent publication.
+
+`node --test resident/*.test.mjs` includes fixture-based complete research,
+proposal, critique, execution, capsule promotion and cross-repository retrieval.
+Model responses in these fixtures are test doubles. `docker-proof.mjs` separately
+uses real containers for the source regression and promotion gate. Neither is a
+claim that the live model has autonomously acquired or transferred a useful skill.

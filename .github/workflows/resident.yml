@@ -67,7 +67,8 @@ jobs:
           RESIDENT_API_URL: ${{ vars.RESIDENT_API_URL }}
           RESIDENT_MODEL: ${{ vars.RESIDENT_MODEL }}
           RESIDENT_API_KEY: ${{ secrets.RESIDENT_API_KEY }}
-        run: node controller/resident/core.mjs controller sibling "$RUNNER_TEMP/memory" "$RUNNER_TEMP/episode.json"
+          GH_TOKEN: ${{ github.token }}
+        run: node controller/resident/fleet.mjs controller sibling "$RUNNER_TEMP/memory" "$RUNNER_TEMP/episode.json"
       - uses: actions/upload-artifact@v4
         if: steps.observe.outputs.active == 'true'
         with:

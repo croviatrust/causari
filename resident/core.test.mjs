@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { safePath, readFile, validateProposal, applyProposal, initialState, remember, reconcile, chooseFocus, investigate, digest, validateStrategy, materialize } from './core.mjs';
+import { safePath, readFile, validateProposal, applyProposal, initialState, remember, reconcile, chooseFocus, investigate, digest, validateStrategy, materialize, experimentKey } from './core.mjs';
 import { verify, commands } from './verify.mjs';
 import { publishable } from './github.mjs';
 
@@ -54,6 +54,11 @@ test('source edits need regressions and cannot change authority or existing test
   for (const name of ['package.json', 'resident/core.mjs', 'test/existing.test.mjs', '.github/workflows/ci.yml', 'Cargo.toml'])
     assert.throws(() => validateProposal({ ...p, edits: [{ path: name, content: 'x' }, p.edits[1]] }, 'node'));
 });
+test('product record modules can be repaired while the resident controller stays protected', () => {
+  const p = proposal();
+  assert.equal(validateProposal({ ...p, edits: [{ path: 'record/lib/core.js', content: 'export const value = 1;' }, p.edits[1]] }, 'node').kind, 'code');
+  assert.throws(() => validateProposal({ ...p, edits: [{ path: 'resident/github.mjs', content: 'changed' }, p.edits[1]] }, 'node'));
+});
 test('exact replacements avoid repeating large files and reject ambiguous matches', t => {
   const root = fixture(t);
   const p = materialize(root, { edits: [{ path: 'src/value.js', before: '!!x', after: 'x !== null' }] });
@@ -94,13 +99,13 @@ test('focus learns review outcomes without calling tests adoption', () => {
   reconcile(state, [{ number: 5, state: 'closed', merged_at: '2026-11-23' }]);
   reconcile(state, [{ number: 5, state: 'closed', merged_at: '2026-11-23' }]);
   assert.equal(state.skills[strategy.focus[0]].merged, 1);
-  assert.equal(state.hypotheses[0], digest(proposal().edits));
+  assert.equal(state.hypotheses[0], experimentKey(proposal()));
 });
 test('durable memory index omits source bodies and bounds diagnostic size', () => {
   const state = remember(initialState(), { focus: strategy.focus[0], status: 'verified', proposal: proposal(), error: 'x'.repeat(5000) });
   assert.equal(state.recent[0].proposal.edits, undefined);
   assert.equal(state.recent[0].error.length, 1600);
-  assert.equal(state.hypotheses[0], digest(proposal().edits));
+  assert.equal(state.hypotheses[0], experimentKey(proposal()));
 });
 test('resident really reads code and produces a validated candidate', async t => {
   const root = fixture(t);
@@ -113,15 +118,39 @@ test('resident really reads code and produces a validated candidate', async t =>
   assert.equal(result.status, 'proposed');
   assert.equal(result.proposal.kind, 'code');
 });
+test('an out-of-range read exposes the actual file length and can be corrected', async t => {
+  const root = fixture(t); let call = 0;
+  const result = await investigate({ root, repo: 'croviatrust/agentcrash', state: initialState(), context: {}, strategy,
+    ask: async messages => {
+      call++;
+      if (call === 1) return { text: JSON.stringify({ action: 'read', path: 'src/value.js', offset: 99999 }) };
+      if (call === 2) {
+        assert.match(messages.at(-1).content, /end-of-file.*characters.*offset 0/);
+        return { text: JSON.stringify({ action: 'read', path: 'src/value.js', offset: 0 }) };
+      }
+      return { text: JSON.stringify({ action: 'propose', ...proposal() }) };
+    } });
+  assert.equal(result.status, 'proposed');
+  assert.equal(result.trace[0].offset, 99999);
+});
 test('resident refuses blind edits and exact repeated experiments', async t => {
   const root = fixture(t);
-  const state = remember(initialState(), { focus: strategy.focus[0], status: 'suite-failed', proposal: proposal() });
+  const baseSHA = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+  const state = remember(initialState(), { focus: strategy.focus[0], status: 'suite-failed', proposal: proposal(), baseSHA });
   const answers = [{ action: 'propose', ...proposal() }, { action: 'read', path: 'src/value.js' }, { action: 'propose', ...proposal() }, { action: 'stop', reason: 'No new evidence' }];
   const result = await investigate({ root, repo: 'croviatrust/agentcrash', state, context: {}, strategy,
     ask: async () => ({ text: JSON.stringify(answers.shift()), model: 'test-double' }) });
   assert.equal(result.status, 'stopped');
   assert.ok(result.trace.some(t => t.error?.includes('Read src/value.js')));
   assert.ok(result.trace.some(t => t.error?.includes('already attempted')));
+});
+test('a retained recipe can be reconsidered on a different source revision', async t => {
+  const root = fixture(t);
+  const state = remember(initialState(), { focus: strategy.focus[0], status: 'stale-base', proposal: proposal(), baseSHA: '0'.repeat(40) });
+  const answers = [{ action: 'read', path: 'src/value.js' }, { action: 'propose', ...proposal() }];
+  const result = await investigate({ root, repo: 'croviatrust/agentcrash', state, context: {}, strategy,
+    ask: async () => ({ text: JSON.stringify(answers.shift()), model: 'test-double' }) });
+  assert.equal(result.status, 'proposed');
 });
 test('unfinished research carries sourced observations into the next generation', async t => {
   const root = fixture(t);
