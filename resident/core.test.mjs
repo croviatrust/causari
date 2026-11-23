@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { safePath, readFile, validateProposal, applyProposal, initialState, remember, reconcile, chooseFocus, investigate, digest, validateStrategy } from './core.mjs';
+import { safePath, readFile, validateProposal, applyProposal, initialState, remember, reconcile, chooseFocus, investigate, digest, validateStrategy, materialize } from './core.mjs';
 import { verify, commands } from './verify.mjs';
 import { publishable } from './github.mjs';
 
@@ -53,6 +53,20 @@ test('source edits need regressions and cannot change authority or existing test
   assert.throws(() => validateProposal({ ...p, edits: p.edits.slice(0, 1) }, 'node'));
   for (const name of ['package.json', 'resident/core.mjs', 'test/existing.test.mjs', '.github/workflows/ci.yml', 'Cargo.toml'])
     assert.throws(() => validateProposal({ ...p, edits: [{ path: name, content: 'x' }, p.edits[1]] }, 'node'));
+});
+test('exact replacements avoid repeating large files and reject ambiguous matches', t => {
+  const root = fixture(t);
+  const p = materialize(root, { edits: [{ path: 'src/value.js', before: '!!x', after: 'x !== null' }] });
+  assert.match(p.edits[0].content, /x !== null/);
+  assert.throws(() => materialize(root, { edits: [{ path: 'src/value.js', before: 'missing', after: 'x' }] }));
+});
+test('repeated reads are detected instead of silently filling every turn', async t => {
+  const root = fixture(t);
+  const answers = [{ action: 'read', path: 'src/value.js' }, { action: 'read', path: 'src/value.js' }, { action: 'stop', reason: 'Need a different experiment' }];
+  const result = await investigate({ root, repo: 'croviatrust/agentcrash', state: initialState(), context: {}, strategy,
+    ask: async () => ({ text: JSON.stringify(answers.shift()), model: 'test-double' }) });
+  assert.ok(result.trace.some(t => t.error?.includes('Already observed')));
+  assert.equal(result.reason, 'Need a different experiment');
 });
 test('rejects duplicate paths, excessive output and null bytes', () => {
   const p = proposal();

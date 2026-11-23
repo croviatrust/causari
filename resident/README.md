@@ -52,9 +52,9 @@ resident → Run workflow**, or wait for the next hourly wake. The implementatio
 branch also triggers a bootstrap run when pushed. Run summaries and the memory
 branch show whether it actually ran and what happened.
 
-By default, Ollama runs `qwen2.5-coder:1.5b` on the GitHub runner CPU. It needs no
+By default, Ollama runs `qwen3.5:4b` on the GitHub runner CPU. It needs no
 external inference key. Its weights are cached; full job artifacts expire after
-seven days. The small bootstrap model trades capability for resource cost. Do not
+seven days. The CPU bootstrap model trades capability for resource cost. Do not
 assume it can match a frontier coding model. The model download, image pull and
 CPU inference may fail or exceed the time budget; these are execution failures,
 not evidence of autonomous progress. Cache eviction is possible.

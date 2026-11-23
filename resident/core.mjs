@@ -5,7 +5,7 @@ import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 
-export const LIMITS = Object.freeze({ turns: 10, files: 6, bytes: 48000, read: 10000 });
+export const LIMITS = Object.freeze({ turns: 8, files: 6, bytes: 48000, read: 10000 });
 export const digest = value => crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
 export const json = file => JSON.parse(fs.readFileSync(file, 'utf8'));
 export function writeJSON(file, value) {
@@ -71,6 +71,20 @@ export function validateProposal(p, language) {
     throw new Error('Code changes require a new regression test');
   return { ...p, kind: isStrategy ? 'strategy' : 'code' };
 }
+export function materialize(root, proposal) {
+  if (!Array.isArray(proposal.edits)) throw new Error('Missing edits');
+  return { ...proposal, edits: proposal.edits.map(edit => {
+    safePath(edit.path);
+    if (typeof edit.content === 'string') return { path: edit.path, content: edit.content };
+    if (typeof edit.before !== 'string' || !edit.before || typeof edit.after !== 'string' || edit.before.length + edit.after.length > 16000)
+      throw new Error('Use full content or one bounded before/after replacement');
+    // Verify containment even when materializing an edit, before reading it.
+    readFile(root, edit.path);
+    const original = fs.readFileSync(path.join(root, edit.path), 'utf8');
+    if (original.split(edit.before).length !== 2) throw new Error('Replacement must match exactly once');
+    return { path: edit.path, content: original.replace(edit.before, () => edit.after) };
+  }) };
+}
 export function applyProposal(root, p) {
   for (const edit of p.edits) {
     safePath(edit.path);
@@ -130,10 +144,10 @@ export async function infer(messages, env = process.env) {
   if (remote && url.protocol !== 'https:') throw new Error('Remote inference requires HTTPS');
   const headers = { 'Content-Type': 'application/json' };
   if (remote && env.RESIDENT_API_KEY) headers.Authorization = `Bearer ${env.RESIDENT_API_KEY}`;
-  const model = env.RESIDENT_MODEL || 'qwen2.5-coder:1.5b';
+  const model = env.RESIDENT_MODEL || 'qwen3.5:4b';
   const body = remote ? { model, messages, max_tokens: 2400, response_format: { type: 'json_object' } } :
-    { model, messages, stream: false, format: 'json', options: { num_ctx: 8192, num_predict: 2400, temperature: 0.2 } };
-  const response = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: AbortSignal.timeout(120000) });
+    { model, messages, stream: false, think: false, format: 'json', options: { num_ctx: 8192, num_predict: 2400, temperature: 0.2 } };
+  const response = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: AbortSignal.timeout(200000) });
   if (!response.ok) throw new Error(`Inference HTTP ${response.status}`);
   const data = await response.json();
   return { text: remote ? data.choices?.[0]?.message?.content : data.message?.content,
@@ -152,21 +166,24 @@ Return exactly one JSON object per turn. Allowed actions:
 {"action":"search","query":"literal text","repository":"self"} to find text in tracked small files.
 {"action":"propose","title":"...","hypothesis":"...","falsifier":"...","benefit":"...","edits":[{"path":"src/file.js","content":"COMPLETE file content"},{"path":"${language === 'node' ? 'resident-regressions/name.test.mjs' : 'tests/resident_name.rs'}","content":"regression test"}]}
 {"action":"stop","reason":"specific reason, uncertainty or next experiment"}
-Read every existing file before changing it. Code edits only under src/ with .${language === 'node' ? 'js' : 'rs'} extension. Existing tests, workflows, credentials, package manifests and this controller cannot be edited. New regression tests must fail on the original code and pass after the change. Tests cannot use the network. A strategy experiment may edit only resident/strategy.json and must satisfy the fixed schema; schema validity is not evidence it improves results. No shell, no deletion, no external publishing. Inspect sibling code to discover complementary capabilities but edit only self. ${LIMITS.turns} turns maximum. Prefer one small coherent change.` },
+For an existing file, prefer {"path":"src/file.js","before":"exact unique old text","after":"new text"} instead of repeating the whole file. New files need content. Read every existing file before changing it. Do not read the same path and offset twice: use a new offset, inspect another file, propose or stop. Code edits only under src/ with .${language === 'node' ? 'js' : 'rs'} extension. Existing tests, workflows, credentials, package manifests and this controller cannot be edited. New regression tests must fail on the original code and pass after the change. Tests cannot use the network. A strategy experiment may edit only resident/strategy.json and must satisfy the fixed schema; schema validity is not evidence it improves results. No shell, no deletion, no external publishing. Inspect sibling code to discover complementary capabilities but edit only self. ${LIMITS.turns} turns maximum. Prefer one small coherent change.` },
   { role: 'user', content: JSON.stringify({ repo, generation: state.generation, recent: state.recent.slice(-5).map(e => ({ status: e.status, focus: e.focus, title: e.proposal?.title, error: e.error, pr: e.pr })), skills: state.skills, context, files: files.slice(0, 250) }).slice(0, 14000) }];
   const sha = dir => execFileSync('git', ['rev-parse', 'HEAD'], { cwd: dir, encoding: 'utf8' }).trim();
   const episode = { id: `${Date.now()}-${crypto.randomBytes(4).toString('hex')}`, repo, baseSHA: sha(root), siblingSHA: sibling ? sha(sibling) : null, focus, started: new Date().toISOString(), status: 'stopped', trace: [] };
   const reads = new Set();
+  const actions = new Set();
   for (let turn = 0; turn < LIMITS.turns; turn++) {
     let answer;
     try {
       const response = await ask(messages);
       episode.trace.push({ turn, model: response.model, usage: response.usage });
       answer = JSON.parse(response.text);
+      episode.trace.at(-1).action = answer.action;
+      if (answer.path) episode.trace.at(-1).path = String(answer.path).slice(0, 200);
       messages.push({ role: 'assistant', content: response.text });
       if (answer.action === 'stop') { episode.reason = String(answer.reason).slice(0, 2000); break; }
       if (answer.action === 'propose') {
-        const p = validateProposal(answer, language);
+        const p = validateProposal(materialize(root, answer), language);
         for (const edit of p.edits) {
           if (fs.existsSync(path.join(root, edit.path)) && !reads.has(edit.path)) throw new Error(`Read ${edit.path} before editing it`);
           if (edit.path.startsWith(language === 'node' ? 'resident-regressions/' : 'tests/resident_') && fs.existsSync(path.join(root, edit.path))) throw new Error('Regression filename already exists');
@@ -176,6 +193,9 @@ Read every existing file before changing it. Code edits only under src/ with .${
       }
       const selected = answer.repository === 'sibling' ? sibling : root;
       if (!selected) throw new Error('Sibling unavailable');
+      const actionKey = JSON.stringify([answer.action, answer.repository || 'self', answer.path, answer.offset || 0, answer.query]);
+      if (actions.has(actionKey)) throw new Error('Already observed this exact input. Use a new offset or file, propose an experiment, or stop.');
+      actions.add(actionKey);
       let result;
       if (answer.action === 'read') {
         result = readFile(selected, answer.path, answer.offset || 0);
@@ -188,7 +208,7 @@ Read every existing file before changing it. Code edits only under src/ with .${
           if (result.length === 8) break;
         }
       } else throw new Error('Unknown action');
-      messages.push({ role: 'user', content: JSON.stringify({ evidence: result }) });
+      messages.push({ role: 'user', content: JSON.stringify({ evidence: result, turnsLeft: LIMITS.turns - turn - 1 }) });
     } catch (error) {
       episode.trace.push({ turn, error: error.message });
       messages.push({ role: 'user', content: JSON.stringify({ error: error.message, instruction: 'Correct the action or stop honestly.' }) });
