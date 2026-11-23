@@ -1,180 +1,62 @@
 {
   "version": 1,
-  "generation": 3,
+  "generation": 4,
   "recent": [
     {
       "id": "1795435861041-ecaf3226",
       "repo": "croviatrust/causari",
       "focus": "Find a concrete failure in an existing user workflow and repair it with a regression test.",
       "started": "2026-11-23T12:11:01.041Z",
+      "finished": "2026-11-23T12:12:30.633Z",
       "status": "stopped",
       "reason": "The file does not exist in the repository.",
-      "finished": "2026-11-23T12:12:30.633Z",
       "error": "",
-      "inference": [
-        {
-          "turn": 0,
-          "model": "qwen2.5-coder:1.5b",
-          "usage": {
-            "input": 3650,
-            "output": 21
-          }
-        },
-        {
-          "turn": 0,
-          "error": "ENOENT: no such file or directory, lstat '/home/runner/work/causari/causari/controller/src/core.mjs'"
-        },
-        {
-          "turn": 1,
-          "model": "qwen2.5-coder:1.5b",
-          "usage": {
-            "input": 3722,
-            "output": 18
-          }
-        }
-      ]
+      "findings": []
     },
     {
       "id": "1795436080288-f5de3dbb",
       "repo": "croviatrust/causari",
-      "baseSHA": "1201269b5d5f28e2270578068dfe5022b4eb633e",
-      "siblingSHA": "0e82d2f824223340820ac711270ba8a8dc1022a2",
       "focus": "Remove a measurable obstacle to an agent adopting and using the product.",
       "started": "2026-11-23T12:14:40.292Z",
-      "status": "stopped",
-      "reason": "The file does not exist in the repository.",
       "finished": "2026-11-23T12:16:12.129Z",
+      "status": "stopped",
       "localEvidence": "stopped",
+      "reason": "The file does not exist in the repository.",
       "error": "",
-      "inference": [
-        {
-          "turn": 0,
-          "model": "qwen2.5-coder:1.5b",
-          "usage": {
-            "input": 3706,
-            "output": 22
-          }
-        },
-        {
-          "turn": 0,
-          "error": "ENOENT: no such file or directory, lstat '/home/runner/work/causari/causari/controller/src/causari.rs'"
-        },
-        {
-          "turn": 1,
-          "model": "qwen2.5-coder:1.5b",
-          "usage": {
-            "input": 3780,
-            "output": 18
-          }
-        }
-      ]
+      "findings": []
     },
     {
       "id": "1795436328789-300db118",
       "repo": "croviatrust/causari",
-      "baseSHA": "9b629d60edb84b19e10ac7b5b0582a7fb545ad4d",
-      "siblingSHA": "0e82d2f824223340820ac711270ba8a8dc1022a2",
       "focus": "Explore a new capability by constructing a small falsifiable experiment.",
       "started": "2026-11-23T12:18:48.794Z",
-      "status": "stopped",
-      "reason": "Turn budget exhausted without a valid experiment.",
       "finished": "2026-11-23T12:23:57.362Z",
+      "status": "stopped",
       "localEvidence": "stopped",
+      "reason": "Turn budget exhausted without a valid experiment.",
       "error": "",
-      "inference": [
+      "findings": []
+    },
+    {
+      "id": "1795439170506-5d9c884e",
+      "repo": "croviatrust/causari",
+      "focus": "Improve the resident's own strategy using the recorded outcomes of previous experiments.",
+      "started": "2026-11-23T13:06:10.510Z",
+      "finished": "2026-11-23T13:12:34.231Z",
+      "status": "stopped",
+      "localEvidence": "stopped",
+      "reason": "The audit logic relies on `git blame` without `-w -M -C`, which fails when AI lines are re-indented in human commits, and the survival calculation excludes text files by default while including large binary/doc dumps (e.g., crewAI's 3.2M line copy-paste), skewing the 'survival' metric to near-zero for repos with heavy documentation churn rather than genuine AI degradation.",
+      "error": "",
+      "findings": [
         {
-          "turn": 0,
-          "model": "qwen3.5:4b",
-          "usage": {
-            "input": 3825,
-            "output": 21
-          },
-          "action": "read",
-          "path": "resident/core.mjs"
-        },
-        {
-          "turn": 1,
-          "model": "qwen3.5:4b",
-          "usage": {
-            "input": 6763,
-            "output": 21
-          },
-          "action": "read",
-          "path": "resident/strategy.json"
-        },
-        {
-          "turn": 2,
-          "model": "qwen3.5:4b",
-          "usage": {
-            "input": 7076,
-            "output": 36
-          },
-          "action": "read",
-          "path": "docs/review-2026-09-20/04-cli.md"
-        },
-        {
-          "turn": 3,
-          "model": "qwen3.5:4b",
-          "usage": {
-            "input": 6237,
-            "output": 21
-          },
-          "action": "read",
-          "path": "resident/core.mjs"
-        },
-        {
-          "turn": 3,
-          "error": "Already observed this exact input. Use a new offset or file, propose an experiment, or stop."
-        },
-        {
-          "turn": 4,
-          "model": "qwen3.5:4b",
-          "usage": {
-            "input": 6300,
-            "output": 23
-          },
-          "action": "read",
-          "path": "resident/core.mjs"
-        },
-        {
-          "turn": 5,
-          "model": "qwen3.5:4b",
-          "usage": {
-            "input": 6832,
-            "output": 21
-          },
-          "action": "read",
-          "path": "resident/strategy.json"
-        },
-        {
-          "turn": 5,
-          "error": "Already observed this exact input. Use a new offset or file, propose an experiment, or stop."
-        },
-        {
-          "turn": 6,
-          "model": "qwen3.5:4b",
-          "usage": {
-            "input": 6895,
-            "output": 23
-          },
-          "action": "read",
-          "path": "resident/strategy.json"
-        },
-        {
-          "turn": 7,
-          "model": "qwen3.5:4b",
-          "usage": {
-            "input": 7184,
-            "output": 21
-          },
-          "action": "read",
-          "path": "resident/strategy.json"
-        },
-        {
-          "turn": 7,
-          "error": "Already observed this exact input. Use a new offset or file, propose an experiment, or stop."
+          "path": "docs/review-2026-09-20/03-proofs-audit.md",
+          "repository": "self",
+          "sha": "b7ae8424f92a17e8d544a12771dcffce383e01f1",
+          "note": "The audit logic relies on `git blame` without `-w -M -C`, which fails when AI lines are re-indented in human commits, and the survival calculation excludes text files by default while including large binary/doc dumps (e.g., crewAI's 3.2M line copy-paste), skewing the 'survival' metric to near-zero for repos with heavy documentation churn rather than genuine AI degradation.",
+          "confidence": "unverified observation"
         }
-      ]
+      ],
+      "next": "How can we make the audit output robust against re-indentation and document dump noise without changing the core blame logic?"
     }
   ],
   "outcomes": {},
@@ -196,7 +78,18 @@
       "verified": 0,
       "merged": 0,
       "rejected": 0
+    },
+    "Improve the resident's own strategy using the recorded outcomes of previous experiments.": {
+      "attempts": 1,
+      "verified": 0,
+      "merged": 0,
+      "rejected": 0
     }
   },
-  "hypotheses": []
+  "hypotheses": [],
+  "pendingResearch": {
+    "focus": "Improve the resident's own strategy using the recorded outcomes of previous experiments.",
+    "question": "How can we make the audit output robust against re-indentation and document dump noise without changing the core blame logic?",
+    "attempts": 1
+  }
 }

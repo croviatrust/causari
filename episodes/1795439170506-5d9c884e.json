@@ -1,0 +1,144 @@
+{
+  "id": "1795439170506-5d9c884e",
+  "repo": "croviatrust/causari",
+  "baseSHA": "b7ae8424f92a17e8d544a12771dcffce383e01f1",
+  "siblingSHA": "2955637b182379112f8b464955e9ec71f31ee4db",
+  "focus": "Improve the resident's own strategy using the recorded outcomes of previous experiments.",
+  "started": "2026-11-23T13:06:10.510Z",
+  "status": "stopped",
+  "reason": "The audit logic relies on `git blame` without `-w -M -C`, which fails when AI lines are re-indented in human commits, and the survival calculation excludes text files by default while including large binary/doc dumps (e.g., crewAI's 3.2M line copy-paste), skewing the 'survival' metric to near-zero for repos with heavy documentation churn rather than genuine AI degradation.",
+  "findings": [
+    {
+      "path": "docs/review-2026-09-20/03-proofs-audit.md",
+      "repository": "self",
+      "sha": "b7ae8424f92a17e8d544a12771dcffce383e01f1",
+      "note": "The audit logic relies on `git blame` without `-w -M -C`, which fails when AI lines are re-indented in human commits, and the survival calculation excludes text files by default while including large binary/doc dumps (e.g., crewAI's 3.2M line copy-paste), skewing the 'survival' metric to near-zero for repos with heavy documentation churn rather than genuine AI degradation.",
+      "confidence": "unverified observation"
+    }
+  ],
+  "next": "How can we make the audit output robust against re-indentation and document dump noise without changing the core blame logic?",
+  "finished": "2026-11-23T13:12:34.231Z",
+  "localEvidence": "stopped",
+  "error": "",
+  "inference": [
+    {
+      "turn": 0,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 3923,
+        "output": 21
+      },
+      "action": "read",
+      "path": "resident/strategy.json"
+    },
+    {
+      "turn": 1,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 4236,
+        "output": 36
+      },
+      "action": "read",
+      "path": "docs/review-2026-09-20/04-cli.md"
+    },
+    {
+      "turn": 2,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 6335,
+        "output": 37
+      },
+      "action": "read",
+      "path": "docs/review-2026-09-20/02-capture.md"
+    },
+    {
+      "turn": 3,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 6870,
+        "output": 39
+      },
+      "action": "read",
+      "path": "docs/review-2026-09-20/03-proofs-audit.md"
+    },
+    {
+      "turn": 4,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 6970,
+        "output": 41
+      },
+      "action": "read",
+      "path": "docs/review-2026-09-20/03-proofs-audit.md"
+    },
+    {
+      "turn": 5,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 6949,
+        "output": 41
+      },
+      "action": "read",
+      "path": "docs/review-2026-09-20/03-proofs-audit.md"
+    },
+    {
+      "turn": 6,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 6990,
+        "output": 242
+      },
+      "action": "stop"
+    }
+  ],
+  "verdict": {
+    "episode": "1795439170506-5d9c884e",
+    "status": "stopped",
+    "checks": [],
+    "proposalHash": null
+  },
+  "context": {
+    "issues": [
+      {
+        "number": 68,
+        "title": "Proposal: an audit explain output",
+        "body": "This is a proposal, not a feature this release provides.\n\n`re audit --json` stores the totals, the method, the blame flags, and the counts. It does not store, for each classified commit, the commit SHA, the agent, the classification evidence, or that commit's introduced and surviving line counts. `re why`, `re trace`, and `re lens` read the local ledger. They do not explain why a remote audit classified a commit.\n\nSNTL84 suggested `re audit --explain` after checking external repositories with 0.4.0. A useful output would list, for each metadata-matched commit, the SHA, the agent, the evidence the classifier already produced, and the introduced and surviving counts. Absence of a git AI tag would remain what it is now: no signal of that kind, not proof that a person wrote the code. The output would not store `refs/notes/ai`.\n\nNo such output is implemented.\n"
+      },
+      {
+        "number": 67,
+        "title": "Unreproduced message before a successful clone",
+        "body": "On the distributed Windows 0.4.0 build, the first remote audit showed an error before the repository was cloned. The clone then finished and the audit completed. The command output was not included, so this report is not reproduced.\n\nSNTL84, if you still have it, please add two things on this issue:\n\n- the exact command that was typed\n- the exact message shown before the clone succeeded\n\nUntil those lines are here, there is nothing further to attribute the message to. This issue does not say that the message is fixed.\n"
+      }
+    ],
+    "commits": [
+      {
+        "sha": "b7ae8424f92a17e8d544a12771dcffce383e01f1",
+        "message": "feat: install Crovia resident research agent\n\nPersistent sourced memory, local inference and independent verification.\n\nSigned-off-by: Crovia <info@croviatrust.com>"
+      },
+      {
+        "sha": "73b1c69b43b1c1307af977ddf19862c83d15bfef",
+        "message": "report: DOI 10.5281/zenodo.24287451 for Survival Report #10\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      },
+      {
+        "sha": "d62cb8fed1998d42d4d1c1f78290c778f93fe755",
+        "message": "report: Survival Report #10 (2026-11-16, method v6)\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      },
+      {
+        "sha": "ab2ba0391ef188a1017d1665b466463d3e91e1f8",
+        "message": "report: DOI 10.5281/zenodo.24091343 for Survival Report #9\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      },
+      {
+        "sha": "54c6fec4ee36998a5c4b31b0c03e0e82e364aabd",
+        "message": "report: Survival Report #9 (2026-11-09, method v6)\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      }
+    ],
+    "openProposals": [],
+    "metrics": {
+      "stars": 9,
+      "forks": 0,
+      "openIssues": 8,
+      "observed": "2026-11-23T13:04:55.849Z",
+      "note": "Repository attention; not adoption or revenue."
+    }
+  }
+}
