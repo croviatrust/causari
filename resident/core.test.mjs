@@ -96,6 +96,12 @@ test('focus learns review outcomes without calling tests adoption', () => {
   assert.equal(state.skills[strategy.focus[0]].merged, 1);
   assert.equal(state.hypotheses[0], digest(proposal().edits));
 });
+test('durable memory index omits source bodies and bounds diagnostic size', () => {
+  const state = remember(initialState(), { focus: strategy.focus[0], status: 'verified', proposal: proposal(), error: 'x'.repeat(5000) });
+  assert.equal(state.recent[0].proposal.edits, undefined);
+  assert.equal(state.recent[0].error.length, 1600);
+  assert.equal(state.hypotheses[0], digest(proposal().edits));
+});
 test('resident really reads code and produces a validated candidate', async t => {
   const root = fixture(t);
   const answers = [{ action: 'read', path: 'src/value.js' }, { action: 'propose', ...proposal() }];

@@ -109,7 +109,14 @@ export function initialState() {
 export function remember(state, episode) {
   const next = structuredClone(state);
   next.generation++;
-  next.recent = [...next.recent, episode].slice(-30);
+  // Keep the API-readable index small. Full source, traces and test logs live
+  // in separate episode files; GitHub's contents API stops embedding large files.
+  const compact = e => ({ id: e.id, repo: e.repo, focus: e.focus, started: e.started, finished: e.finished,
+    status: e.status, localEvidence: e.localEvidence, reason: e.reason?.slice(0, 1600),
+    error: e.error?.slice(0, 1600), pr: e.pr, url: e.url,
+    ...(e.proposal ? { proposal: { title: e.proposal.title, hypothesis: e.proposal.hypothesis,
+      falsifier: e.proposal.falsifier, benefit: e.proposal.benefit } } : {}) });
+  next.recent = [...next.recent, episode].slice(-30).map(compact);
   if (episode.proposal) next.hypotheses = [...new Set([...next.hypotheses, digest(episode.proposal.edits)])].slice(-200);
   const key = episode.focus || 'unknown';
   const skill = next.skills[key] ||= { attempts: 0, verified: 0, merged: 0, rejected: 0 };
