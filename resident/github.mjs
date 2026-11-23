@@ -2,7 +2,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { json, writeJSON, initialState, remember, reconcile, validateProposal, profile, digest } from './core.mjs';
+import { json, writeJSON, initialState, remember, reconcile, validateProposal, profile, digest, chooseFocus } from './core.mjs';
+import { evidenceValid, makeCapsule, capsuleIndex, evolveFleet, selectCapabilities, communicationDraft } from './learning.mjs';
 
 const API = 'https://api.github.com';
 export async function api(route, { method = 'GET', body, missing = false } = {}) {
@@ -38,6 +39,25 @@ export async function prepare(repo, output) {
     openProposals: open.map(p => ({ number: p.number, title: p.title, url: p.html_url })),
     metrics: { stars: meta.stargazers_count, forks: meta.forks_count, openIssues: meta.open_issues_count, observed: new Date().toISOString(), note: 'Repository attention; not adoption or revenue.' }
   };
+  const sibling = repo === 'croviatrust/agentcrash' ? 'croviatrust/causari' : 'croviatrust/agentcrash';
+  try {
+    const other = await api(`/repos/${sibling}/contents/state.json?ref=crovia-memory`, { missing: true });
+    const saved = other ? JSON.parse(Buffer.from(other.content, 'base64').toString('utf8')) : {};
+    context.siblingCapabilities = (saved.capabilities || []).slice(-24).map(c => ({ ...c, repository: sibling }));
+  } catch (e) { context.siblingMemoryError = e.message; }
+  const index = [...(state.capabilities || []), ...(context.siblingCapabilities || [])];
+  const question = `${chooseFocus(json(new URL('./strategy.json', import.meta.url)), state)} ${state.pendingResearch?.question || ''}`;
+  context.capabilityTemplates = [];
+  for (const selected of selectCapabilities(index, question)) {
+    try {
+      profile(selected.repository);
+      const file = await api(`/repos/${selected.repository}/contents/capabilities/${selected.id}.json?ref=crovia-memory`, { missing: true });
+      if (file && file.content?.length < 200000) {
+        const capsule = JSON.parse(Buffer.from(file.content, 'base64').toString('utf8'));
+        if (capsule.id === selected.id && capsule.repository === selected.repository) context.capabilityTemplates.push(capsule);
+      }
+    } catch (e) { context.capabilityLoadError = e.message; }
+  }
   writeJSON(path.join(output, 'state.json'), state);
   writeJSON(path.join(output, 'context.json'), context);
   // Backpressure: improve the proposal process rather than flood the owner.
@@ -49,15 +69,9 @@ export async function prepare(repo, output) {
 export function publishable(episode, verdict) {
   if (verdict.episode !== episode.id || verdict.proposalHash !== digest(episode.proposal)) throw new Error('Verdict does not match proposal');
   const p = validateProposal(episode.proposal, profile(episode.repo));
+  if (episode.fleet && episode.fleet.review?.decision !== 'accept') return false;
   if (p.kind === 'strategy') return verdict.status === 'strategy-candidate';
-  if (verdict.status !== 'verified') return false;
-  const expected = ['baseline-suite', 'regression-before', 'regression-after', 'candidate-suite'];
-  for (const label of expected) {
-    const checks = verdict.checks.filter(c => c.label === label);
-    if (checks.length !== 1 || checks[0].error || !Number.isInteger(checks[0].code)) return false;
-    if (label === 'regression-before' ? checks[0].code === 0 : checks[0].code !== 0) return false;
-  }
-  return true;
+  return evidenceValid(episode, verdict);
 }
 async function commitFiles(repo, branch, files, message, parent) {
   const base = `/repos/${repo}`;
@@ -104,11 +118,17 @@ export async function publish(repo, stateDir, episodeFile, verdictFile, baseSHA)
     }
   }
   const next = remember(state, episode);
+  const capsule = makeCapsule(episode, verdict);
+  next.fleet = evolveFleet(state, episode, verdict, capsule);
+  next.capabilities = [...(state.capabilities || []).filter(c => c.id !== capsule?.id), ...(capsule ? [capsuleIndex(capsule)] : [])].slice(-24);
   const files = [
     { path: 'state.json', content: JSON.stringify(next, null, 2) + '\n' },
     { path: `episodes/${episode.id}.json`, content: JSON.stringify({ ...episode, verdict, context }, null, 2) + '\n' },
     { path: 'README.md', content: `# Crovia resident memory\n\nGeneration: ${next.generation}\n\nLatest: ${episode.status}\n\n${episode.url || 'No pull request produced.'}\n\nThis branch stores observations and experiments. It is not executable agent code.\n` }
   ];
+  if (capsule) files.push({ path: `capabilities/${capsule.id}.json`, content: JSON.stringify(capsule, null, 2) + '\n' });
+  const draft = communicationDraft(episode, verdict, capsule);
+  if (draft) files.push({ path: `outreach/${episode.id}.md`, content: draft });
   const ref = await api(`/repos/${repo}/git/ref/heads/crovia-memory`, { missing: true });
   if (!ref) {
     // Start the memory branch from an empty tree, not a second source checkout.
