@@ -1,0 +1,153 @@
+name: Crovia resident
+
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['resident/**', '.github/workflows/resident.yml']
+
+permissions: {}
+concurrency:
+  group: crovia-resident
+  cancel-in-progress: false
+
+jobs:
+  think:
+    if: vars.CROVIA_RESIDENT_PAUSED != 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    outputs:
+      active: ${{ steps.observe.outputs.active }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: controller
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository == 'croviatrust/agentcrash' && 'croviatrust/causari' || 'croviatrust/agentcrash' }}
+          persist-credentials: false
+          path: sibling
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Observe code, previous experiments and review outcomes
+        id: observe
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node controller/resident/github.mjs prepare "$GITHUB_REPOSITORY" "$RUNNER_TEMP/memory"
+      - name: Restore the local brain
+        if: steps.observe.outputs.active == 'true' && vars.RESIDENT_API_URL == ''
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ollama
+          key: crovia-brain-qwen3.5-4b-v1
+      - name: Start CPU inference without an API key
+        if: steps.observe.outputs.active == 'true' && vars.RESIDENT_API_URL == ''
+        env:
+          MODEL: ${{ vars.RESIDENT_MODEL || 'qwen3.5:4b' }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/ollama"
+          docker run -d --name crovia-brain --memory=8g --cpus=3 -p 127.0.0.1:11434:11434 \
+            -v "$RUNNER_TEMP/ollama:/root/.ollama" ollama/ollama:0.40.17
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:11434/api/version; then break; fi
+            sleep 2
+          done
+          docker exec crovia-brain ollama pull "$MODEL" > "$RUNNER_TEMP/model-pull.log" 2>&1 || { tail -20 "$RUNNER_TEMP/model-pull.log"; exit 1; }
+      - name: Investigate and propose
+        if: steps.observe.outputs.active == 'true'
+        env:
+          RESIDENT_API_URL: ${{ vars.RESIDENT_API_URL }}
+          RESIDENT_MODEL: ${{ vars.RESIDENT_MODEL }}
+          RESIDENT_API_KEY: ${{ secrets.RESIDENT_API_KEY }}
+        run: node controller/resident/core.mjs controller sibling "$RUNNER_TEMP/memory" "$RUNNER_TEMP/episode.json"
+      - uses: actions/upload-artifact@v4
+        if: steps.observe.outputs.active == 'true'
+        with:
+          name: crovia-experiment
+          path: |
+            ${{ runner.temp }}/memory
+            ${{ runner.temp }}/episode.json
+          retention-days: 7
+          if-no-files-found: error
+      - name: Backpressure
+        if: steps.observe.outputs.active != 'true'
+        run: echo 'Three resident PRs are awaiting review. Further proposals paused.' >> "$GITHUB_STEP_SUMMARY"
+
+  verify:
+    needs: think
+    if: needs.think.outputs.active == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: controller
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: crovia-experiment
+          path: ${{ runner.temp }}/experiment
+      - name: Fetch the isolated verifier image
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          if [ "$REPO" = croviatrust/agentcrash ]; then
+            docker pull node:22-bookworm
+          else
+            docker pull rust:1.93-bookworm
+          fi
+      - name: Prove the change against the original suite
+        run: node controller/resident/verify.mjs controller "$RUNNER_TEMP/experiment/episode.json" "$RUNNER_TEMP/verdict.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crovia-verdict
+          path: ${{ runner.temp }}/verdict.json
+          retention-days: 7
+          if-no-files-found: error
+
+  remember:
+    needs: [think, verify]
+    if: needs.think.outputs.active == 'true' && needs.verify.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: controller
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: crovia-experiment
+          path: ${{ runner.temp }}/experiment
+      - uses: actions/download-artifact@v4
+        with:
+          name: crovia-verdict
+          path: ${{ runner.temp }}/verdict
+      - name: Save the generation and any verified candidate
+        env:
+          GH_TOKEN: ${{ secrets.CROVIA_GITHUB_TOKEN || github.token }}
+          CROVIA_PR_IDENTITY: ${{ secrets.CROVIA_GITHUB_TOKEN != '' }}
+          BASE_SHA: ${{ github.sha }}
+        run: |
+          node controller/resident/github.mjs publish "$GITHUB_REPOSITORY" \
+            "$RUNNER_TEMP/experiment/memory" "$RUNNER_TEMP/experiment/episode.json" \
+            "$RUNNER_TEMP/verdict/verdict.json" "$BASE_SHA"

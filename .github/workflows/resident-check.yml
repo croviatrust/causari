@@ -1,0 +1,23 @@
+name: resident controller checks
+on:
+  pull_request:
+    paths: ['resident/**', '.github/workflows/resident*.yml']
+  push:
+    branches: [main]
+    paths: ['resident/**', '.github/workflows/resident*.yml']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test resident/core.test.mjs
+      - run: docker pull node:22-bookworm
+      - run: node resident/docker-proof.mjs
