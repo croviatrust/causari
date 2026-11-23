@@ -10,6 +10,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -18,3 +19,5 @@ jobs:
         with:
           node-version: 22
       - run: node --test resident/core.test.mjs
+      - run: docker pull node:22-bookworm
+      - run: node resident/docker-proof.mjs

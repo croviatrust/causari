@@ -4,9 +4,8 @@ on:
   schedule:
     - cron: '23 * * * *'
   workflow_dispatch:
-  # Bootstrap once on the implementation branch, then on controller changes.
   push:
-    branches: [main, crovia/resident-agent]
+    branches: [main]
     paths: ['resident/**', '.github/workflows/resident.yml']
 
 permissions: {}

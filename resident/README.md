@@ -49,7 +49,7 @@ not a complete security boundary or proof of correctness. All candidate PRs are 
 
 After merging the workflow into the default branch, use **Actions → Crovia
 resident → Run workflow**, or wait for the next hourly wake. The implementation
-branch also triggers a bootstrap run when pushed. Run summaries and the memory
+branch has been used for bootstrap testing. Run summaries and the memory
 branch show whether it actually ran and what happened.
 
 By default, Ollama runs `qwen3.5:4b` on the GitHub runner CPU. It needs no
@@ -92,9 +92,12 @@ metrics are recorded as attention, never as customers, recurring use or revenue.
 node --test resident/core.test.mjs
 ```
 
-These tests include a real before/after source regression in disposable local
+These unit tests include a real before/after source regression in disposable local
 repositories, plus test doubles for model output and container execution. They
 do not claim an actual model-generated improvement or a live Docker run.
+The separate `resident controller checks` workflow additionally runs
+`node resident/docker-proof.mjs` against real isolated containers and proves both
+acceptance of a correction and rejection of an existing-behavior regression.
 
 Controller files are deliberately outside its own edit capability in this first
 version. Proposing broader changes to its runtime requires a separately reviewed
