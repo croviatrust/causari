@@ -45,7 +45,10 @@ async function episode(t, decision = 'accept') {
 }
 function localRun(dir, command) {
   const env = { ...process.env }; delete env.NODE_TEST_CONTEXT;
-  const result = spawnSync(process.execPath, command.split(' ').slice(1), { cwd: dir, encoding: 'utf8', env, timeout: 10000 });
+  // Expand the one trusted wildcard explicitly: Node 20 does not expand it.
+  const args = command.split(' ').slice(1).flatMap(arg => arg === 'resident-regressions/*.test.mjs' ?
+    fs.readdirSync(path.join(dir, 'resident-regressions')).filter(n => n.endsWith('.test.mjs')).map(n => `resident-regressions/${n}`) : [arg]);
+  const result = spawnSync(process.execPath, args, { cwd: dir, encoding: 'utf8', env, timeout: 10000 });
   return { code: result.status, error: result.error?.message, log: `${result.stdout || ''}${result.stderr || ''}` };
 }
 async function executeFixture(root, e) { return verify(root, e, { run: localRun }); }
