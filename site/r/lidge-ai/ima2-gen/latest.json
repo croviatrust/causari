@@ -5,10 +5,10 @@
  "url": "https://causari.dev/r/lidge-ai/ima2-gen/",
  "badge": "https://causari.dev/r/lidge-ai/ima2-gen/badge.svg",
  "report": {
-  "number": 10,
-  "id": "2026/10",
-  "date": "2026-11-16",
-  "url": "https://causari.dev/reports/survival/2026/10/"
+  "number": 11,
+  "id": "2026/11",
+  "date": "2026-11-23",
+  "url": "https://causari.dev/reports/survival/2026/11/"
  },
  "method": "v6",
  "tool": {
@@ -18,23 +18,23 @@
  "verified": {
   "commits": 455,
   "introduced": 127661,
-  "surviving": 46566,
-  "survival_rate": 0.3647629268139839,
-  "capped_survival_rate": 0.5264818142512389,
-  "median_survival": 0.5987654320987654,
+  "surviving": 46456,
+  "survival_rate": 0.36390126976915427,
+  "capped_survival_rate": 0.5248231497876458,
+  "median_survival": 0.5903614457831325,
   "largest_commit_share": 0.19149936159046224
  },
  "interval_95": null,
  "baseline": {
   "untagged": {
-   "commits": 1661,
-   "introduced": 627023,
-   "surviving": 507025,
-   "survival_rate": 0.8086226502058138,
-   "median_survival": 0.8766756032171582,
-   "capped_survival_rate": 0.7563420420194849,
-   "cap_lines": 1204,
-   "largest_commit_share": 0.09750200550856986
+   "commits": 1794,
+   "introduced": 636618,
+   "surviving": 513879,
+   "survival_rate": 0.8072014928889852,
+   "median_survival": 0.8725465483632453,
+   "capped_survival_rate": 0.7559000857095158,
+   "cap_lines": 1130,
+   "largest_commit_share": 0.09603247159206935
   },
   "by_age": [
    {
@@ -47,10 +47,10 @@
      "survival_rate": null
     },
     "untagged": {
-     "commits": 46,
-     "introduced": 3139,
-     "surviving": 2825,
-     "survival_rate": 0.8999681427206117
+     "commits": 173,
+     "introduced": 12667,
+     "surviving": 10480,
+     "survival_rate": 0.8273466487724007
     }
    },
    {
@@ -59,46 +59,46 @@
     "tagged": {
      "commits": 38,
      "introduced": 14478,
-     "surviving": 12604,
-     "survival_rate": 0.8705622323525348
+     "surviving": 12563,
+     "survival_rate": 0.8677303494957868
     },
     "untagged": {
-     "commits": 681,
-     "introduced": 176216,
-     "surviving": 162906,
-     "survival_rate": 0.9244676987333726
+     "commits": 558,
+     "introduced": 148374,
+     "surviving": 136998,
+     "survival_rate": 0.9233288851146427
     }
    },
    {
     "from_days": 90,
     "to_days": 180,
     "tagged": {
-     "commits": 289,
-     "introduced": 74378,
-     "surviving": 17854,
-     "survival_rate": 0.24004409906155047
+     "commits": 283,
+     "introduced": 73118,
+     "surviving": 17272,
+     "survival_rate": 0.23622090319757105
     },
     "untagged": {
-     "commits": 693,
-     "introduced": 352179,
-     "surviving": 290506,
-     "survival_rate": 0.8248816652895261
+     "commits": 796,
+     "introduced": 371137,
+     "surviving": 309103,
+     "survival_rate": 0.8328541751428717
     }
    },
    {
     "from_days": 180,
     "to_days": 365,
     "tagged": {
-     "commits": 128,
-     "introduced": 38805,
-     "surviving": 16108,
-     "survival_rate": 0.4151011467594382
+     "commits": 134,
+     "introduced": 40065,
+     "surviving": 16621,
+     "survival_rate": 0.4148508673405716
     },
     "untagged": {
-     "commits": 241,
-     "introduced": 95489,
-     "surviving": 50788,
-     "survival_rate": 0.5318727811580392
+     "commits": 267,
+     "introduced": 104440,
+     "surviving": 57298,
+     "survival_rate": 0.548621217924167
     }
    },
    {
@@ -135,15 +135,15 @@
    }
   ],
   "age_matched": {
-   "tagged_rate": 0.3647629268139839,
-   "untagged_rate": 0.7471100423465572,
-   "gap": -0.3823471155325733,
+   "tagged_rate": 0.36390126976915427,
+   "untagged_rate": 0.7539115021260843,
+   "gap": -0.39001023235693,
    "buckets_used": 3,
    "tagged_lines_covered": 1.0
   },
   "oldest_surviving": {
    "date": "2026-04-21",
-   "age_days": 206,
+   "age_days": 215,
    "commits_before": 0,
    "introduced_before": 0,
    "tagged_commits_before": 0,
@@ -152,7 +152,7 @@
   }
  },
  "probable_commits": 0,
- "total_commits": 2116,
+ "total_commits": 2249,
  "aggregated": true,
  "coverage": {
   "method": "v6",
@@ -166,8 +166,8 @@
   "sample_floor": 5,
   "small_sample": false
  },
- "reports": 8,
+ "reports": 9,
  "reproduce": "re audit lidge-ai/ima2-gen --json",
- "bytes": "https://causari.dev/reports/survival/2026/10/repos/lidge-ai__ima2-gen.json",
+ "bytes": "https://causari.dev/reports/survival/2026/11/repos/lidge-ai__ima2-gen.json",
  "license": "CC-BY-4.0"
 }
