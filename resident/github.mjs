@@ -37,6 +37,8 @@ export async function prepare(repo, output) {
     issues: issues.filter(i => !i.pull_request).map(i => ({ number: i.number, title: i.title, body: i.body?.slice(0, 2000) })),
     commits: commits.map(c => ({ sha: c.sha, message: c.commit.message.slice(0, 1000) })),
     openProposals: open.map(p => ({ number: p.number, title: p.title, url: p.html_url })),
+    openWork: prs.filter(p => p.state === 'open' && !p.head?.ref.startsWith('crovia/resident-')).slice(0, 5)
+      .map(p => ({ number: p.number, title: p.title, body: p.body?.slice(0, 1200), url: p.html_url })),
     metrics: { stars: meta.stargazers_count, forks: meta.forks_count, openIssues: meta.open_issues_count, observed: new Date().toISOString(), note: 'Repository attention; not adoption or revenue.' }
   };
   const sibling = repo === 'croviatrust/agentcrash' ? 'croviatrust/causari' : 'croviatrust/agentcrash';
@@ -121,10 +123,12 @@ export async function publish(repo, stateDir, episodeFile, verdictFile, baseSHA)
   const capsule = makeCapsule(episode, verdict);
   next.fleet = evolveFleet(state, episode, verdict, capsule);
   next.capabilities = [...(state.capabilities || []).filter(c => c.id !== capsule?.id), ...(capsule ? [capsuleIndex(capsule)] : [])].slice(-24);
+  const roster = next.fleet.members.map(m => `| ${m.id} | ${m.role} | ${m.attempts} | ${m.verified} |`).join('\n');
+  const recipes = next.capabilities.length ? next.capabilities.map(c => `- [${c.id}](capabilities/${c.id}.json)`).join('\n') : 'No independently verified repair recipe retained yet.';
   const files = [
     { path: 'state.json', content: JSON.stringify(next, null, 2) + '\n' },
     { path: `episodes/${episode.id}.json`, content: JSON.stringify({ ...episode, verdict, context }, null, 2) + '\n' },
-    { path: 'README.md', content: `# Crovia resident memory\n\nGeneration: ${next.generation}\n\nLatest: ${episode.status}\n\n${episode.url || 'No pull request produced.'}\n\nThis branch stores observations and experiments. It is not executable agent code.\n` }
+    { path: 'README.md', content: `# Crovia resident memory\n\nGeneration: ${next.generation}\n\nLatest: ${episode.status}\n\n${episode.url || 'No pull request produced.'}\n\n## Fleet\n\n| Agent | Role | Attempts | Verified source-case repairs |\n| --- | --- | --- | --- |\n${roster}\n\nThe model contexts run sequentially on one runner. Repair credit is assigned to the specialist, after independent execution.\n\n## Retained repair recipes\n\n${recipes}\n\nTransfer to other cases and business growth are not inferred from these counters. This branch stores evidence and experiments.\n` }
   ];
   if (capsule) files.push({ path: `capabilities/${capsule.id}.json`, content: JSON.stringify(capsule, null, 2) + '\n' });
   const draft = communicationDraft(episode, verdict, capsule);

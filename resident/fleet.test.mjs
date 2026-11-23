@@ -76,8 +76,11 @@ test('network request and response size budgets are enforced', async () => {
   const get = reader({ maximum: 1, fetcher: async () => new Response('{}', { headers: { 'content-type': 'application/json' } }) });
   await get('https://api.github.com/repos/a/b');
   await assert.rejects(get('https://api.github.com/repos/a/b'), /budget/);
-  const large = reader({ fetcher: async () => new Response('x', { headers: { 'content-type': 'text/plain', 'content-length': '999999' } }) });
-  await assert.rejects(large('https://nodejs.org/api/', 'documentation'), /too large/);
+  const large = reader({ fetcher: async () => new Response('x', { headers: { 'content-type': 'application/json', 'content-length': '999999' } }) });
+  await assert.rejects(large('https://api.github.com/repos/a/b'), /too large/);
+  const doc = reader({ fetcher: async () => new Response('x'.repeat(300000), { headers: { 'content-type': 'text/plain' } }) });
+  const partial = await doc('https://nodejs.org/api/', 'documentation');
+  assert.equal(partial.text.length, 131072); assert.equal(partial.truncated, true);
 });
 test('repository evidence is pinned to a commit and retains license and content hash', async () => {
   const calls = [], sha = 'a'.repeat(40);

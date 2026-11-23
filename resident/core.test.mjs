@@ -54,6 +54,11 @@ test('source edits need regressions and cannot change authority or existing test
   for (const name of ['package.json', 'resident/core.mjs', 'test/existing.test.mjs', '.github/workflows/ci.yml', 'Cargo.toml'])
     assert.throws(() => validateProposal({ ...p, edits: [{ path: name, content: 'x' }, p.edits[1]] }, 'node'));
 });
+test('product record modules can be repaired while the resident controller stays protected', () => {
+  const p = proposal();
+  assert.equal(validateProposal({ ...p, edits: [{ path: 'record/lib/core.js', content: 'export const value = 1;' }, p.edits[1]] }, 'node').kind, 'code');
+  assert.throws(() => validateProposal({ ...p, edits: [{ path: 'resident/github.mjs', content: 'changed' }, p.edits[1]] }, 'node'));
+});
 test('exact replacements avoid repeating large files and reject ambiguous matches', t => {
   const root = fixture(t);
   const p = materialize(root, { edits: [{ path: 'src/value.js', before: '!!x', after: 'x !== null' }] });
@@ -112,6 +117,21 @@ test('resident really reads code and produces a validated candidate', async t =>
     } });
   assert.equal(result.status, 'proposed');
   assert.equal(result.proposal.kind, 'code');
+});
+test('an out-of-range read exposes the actual file length and can be corrected', async t => {
+  const root = fixture(t); let call = 0;
+  const result = await investigate({ root, repo: 'croviatrust/agentcrash', state: initialState(), context: {}, strategy,
+    ask: async messages => {
+      call++;
+      if (call === 1) return { text: JSON.stringify({ action: 'read', path: 'src/value.js', offset: 99999 }) };
+      if (call === 2) {
+        assert.match(messages.at(-1).content, /end-of-file.*characters.*offset 0/);
+        return { text: JSON.stringify({ action: 'read', path: 'src/value.js', offset: 0 }) };
+      }
+      return { text: JSON.stringify({ action: 'propose', ...proposal() }) };
+    } });
+  assert.equal(result.status, 'proposed');
+  assert.equal(result.trace[0].offset, 99999);
 });
 test('resident refuses blind edits and exact repeated experiments', async t => {
   const root = fixture(t);

@@ -60,7 +60,7 @@ export function validateProposal(p, language) {
     seen.add(edit.path);
     if (typeof edit.content !== 'string' || edit.content.includes('\0')) throw new Error('Edits must be UTF-8 text');
     bytes += Buffer.byteLength(edit.content);
-    const source = language === 'node' ? /^src\/[A-Za-z0-9_./-]+\.js$/ : /^src\/[A-Za-z0-9_./-]+\.rs$/;
+    const source = language === 'node' ? /^(?:src|record\/lib)\/[A-Za-z0-9_./-]+\.js$/ : /^src\/[A-Za-z0-9_./-]+\.rs$/;
     const regression = language === 'node' ? /^resident-regressions\/[A-Za-z0-9_-]+\.test\.mjs$/ : /^tests\/resident_[A-Za-z0-9_]+\.rs$/;
     if (!source.test(edit.path) && !regression.test(edit.path) && edit.path !== 'resident/strategy.json')
       throw new Error('Edit outside source, new regressions or strategy');
@@ -179,7 +179,7 @@ Return exactly one JSON object per turn. Allowed actions:
 {"action":"search","query":"literal text","repository":"self"} to find text in tracked small files.
 {"action":"propose","title":"...","hypothesis":"...","falsifier":"...","benefit":"...","edits":[{"path":"src/file.js","content":"COMPLETE file content"},{"path":"${language === 'node' ? 'resident-regressions/name.test.mjs' : 'tests/resident_name.rs'}","content":"regression test"}]}
 {"action":"stop","reason":"specific uncertainty","findings":[{"path":"src/file.js","repository":"self","note":"specific observation from a file you actually read"}],"next":"precise question or experiment for the next generation"}
-For an existing file, prefer {"path":"src/file.js","before":"exact unique old text","after":"new text"} instead of repeating the whole file. New files need content. Read every existing file before changing it. Do not read the same path and offset twice: use a new offset, inspect another file, propose or stop. Code edits only under src/ with .${language === 'node' ? 'js' : 'rs'} extension. Existing tests, workflows, credentials, package manifests and this controller cannot be edited. New regression tests must fail on the original code and pass after the change. Tests cannot use the network. A strategy experiment may edit only resident/strategy.json and must satisfy the fixed schema; schema validity is not evidence it improves results. No shell, no deletion, no external publishing. Inspect sibling code to discover complementary capabilities but edit only self. ${turnBudget} turns maximum. Prefer one small coherent change.` },
+For an existing file, prefer {"path":"src/file.js","before":"exact unique old text","after":"new text"} instead of repeating the whole file. New files need content. Read every existing file before changing it. Do not read the same path and offset twice: use a new offset, inspect another file, propose or stop. Code edits only under ${language === 'node' ? 'src/ or record/lib/' : 'src/'} with .${language === 'node' ? 'js' : 'rs'} extension. Existing tests, workflows, credentials, package manifests and this controller cannot be edited. New regression tests must fail on the original code and pass after the change. Tests cannot use the network. A strategy experiment may edit only resident/strategy.json and must satisfy the fixed schema; schema validity is not evidence it improves results. No shell, no deletion, no external publishing. Inspect sibling code to discover complementary capabilities but edit only self. ${turnBudget} turns maximum. Prefer one small coherent change.` },
   { role: 'user', content: JSON.stringify({ repo, generation: state.generation, context, files: files.slice(0, 250),
     pendingResearch: state.pendingResearch, recent: state.recent.slice(-3).map(e => ({ status: e.status, focus: e.focus,
       title: e.proposal?.title, error: e.error, reason: e.reason, findings: e.findings, next: e.next, pr: e.pr })),
@@ -198,6 +198,7 @@ For an existing file, prefer {"path":"src/file.js","before":"exact unique old te
       answer = JSON.parse(response.text);
       episode.trace.at(-1).action = answer.action;
       if (answer.path) episode.trace.at(-1).path = String(answer.path).slice(0, 200);
+      if (answer.action === 'read') episode.trace.at(-1).offset = answer.offset || 0;
       messages.push({ role: 'assistant', content: response.text });
       if (answer.action === 'stop') {
         episode.reason = String(answer.reason).slice(0, 2000);
@@ -226,7 +227,7 @@ For an existing file, prefer {"path":"src/file.js","before":"exact unique old te
       let result;
       if (answer.action === 'read') {
         result = readFile(selected, answer.path, answer.offset || 0);
-        if (!result.text) throw new Error('This offset is past the end of the file. Inspect another file or conclude.');
+        if (!result.text) throw new Error(`Offset is past the end-of-file (${result.total} characters). Read this file at offset 0, or inspect another file.`);
         evidence.set(`${answer.repository || 'self'}:${answer.path}`, { path: answer.path,
           repository: answer.repository || 'self', sha: selected === root ? episode.baseSHA : episode.siblingSHA });
         if (selected === root) reads.add(answer.path);

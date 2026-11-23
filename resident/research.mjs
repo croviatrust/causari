@@ -27,19 +27,24 @@ export function reader({ token = process.env.GH_TOKEN, fetcher = fetch, maximum 
       if (response.status >= 300 && response.status < 400) { url = publicURL(new URL(response.headers.get('location'), url).href, kind); continue; }
       if (!response.ok) throw new Error(`Evidence HTTP ${response.status}`);
       const declared = Number(response.headers.get('content-length') || 0);
-      if (declared > 262144) throw new Error('Evidence response too large');
+      if (kind === 'github' && declared > 262144) throw new Error('Evidence response too large');
       const type = response.headers.get('content-type') || '';
       if (!/text\/|application\/json/.test(type)) throw new Error('Evidence must be text or JSON');
-      const chunks = []; let length = 0;
+      const chunks = []; let length = 0, truncated = false;
+      const limit = kind === 'github' ? 262144 : 131072;
       const stream = response.body.getReader();
       try {
         while (true) {
           const { done, value: chunk } = await stream.read(); if (done) break;
-          length += chunk.length; if (length > 262144) throw new Error('Evidence response too large'); chunks.push(chunk);
+          if (length + chunk.length > limit) {
+            if (kind === 'github') throw new Error('Evidence response too large');
+            chunks.push(chunk.subarray(0, limit - length)); truncated = true; break;
+          }
+          length += chunk.length; chunks.push(chunk);
         }
       } finally { await stream.cancel(); }
       const text = Buffer.concat(chunks).toString('utf8');
-      return kind === 'github' ? JSON.parse(text) : { text, url: url.href, contentType: type };
+      return kind === 'github' ? JSON.parse(text) : { text, url: url.href, contentType: type, truncated };
     }
     throw new Error('Evidence redirect budget exhausted');
   };
@@ -75,14 +80,15 @@ export async function research(plan, { get = reader(), now = () => new Date().to
         url: `https://github.com/${name}/blob/${revision}/${filePath.split('/').map(encodeURIComponent).join('/')}`,
         license: metadata.license?.spdx_id || 'unknown', sha256: hashText(text), retrieved: now(),
         excerpt: text.slice(0, 6000), truncated: text.length > 6000, trust: 'untrusted evidence; license is metadata, not copying permission' });
-    } catch (e) { report.errors.push({ stage: 'repository', repository: String(source.repository).slice(0, 100), error: e.message }); }
+    } catch (e) { report.errors.push({ stage: 'repository', repository: String(source?.repository).slice(0, 100), error: e.message }); }
   }
   for (const value of (Array.isArray(plan.documents) ? plan.documents : []).slice(0, 2)) {
     try {
       const response = await get(publicURL(value).href, 'documentation');
       const text = response.text.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
       report.sources.push({ kind: 'documentation', url: response.url, license: 'check source terms', sha256: hashText(response.text),
-        retrieved: now(), excerpt: text.slice(0, 6000), truncated: text.length > 6000, trust: 'untrusted evidence' });
+        retrieved: now(), excerpt: text.slice(0, 6000), truncated: !!response.truncated || text.length > 6000,
+        capture: response.truncated ? 'bounded-prefix; hash covers captured bytes only' : 'complete response; excerpt may be shortened', trust: 'untrusted evidence' });
     } catch (e) { report.errors.push({ stage: 'documentation', error: e.message }); }
   }
   return report;
