@@ -17,7 +17,7 @@ jobs:
   think:
     if: vars.CROVIA_RESIDENT_PAUSED != 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 50
     permissions:
       contents: read
       issues: read

@@ -19,7 +19,7 @@ export function snapshot(root, dest) {
 export function commands(language) {
   if (language === 'node') return {
     image: 'node:22-bookworm',
-    full: 'node --test test/*.test.mjs resident/*.test.mjs',
+    full: 'node --test',
     regression: 'node --test resident-regressions/*.test.mjs'
   };
   return { image: 'rust:1.93-bookworm', full: 'cargo test --locked --offline', regression: 'cargo test --locked --offline --test resident_*' };

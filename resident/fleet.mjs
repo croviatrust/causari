@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { chooseFocus, activeResearch, digest, infer, investigate, tracked, readFile, json, writeJSON, initialState } from './core.mjs';
+import { runProbe } from './probe.mjs';
 import { research } from './research.mjs';
 import { selectCapabilities } from './learning.mjs';
 
@@ -27,14 +28,16 @@ function reviewEdits(root, proposal) {
       new: e.content.slice(Math.max(0, at - 350), at + 2400), excerptOnly: true };
   });
 }
-export async function runFleet({ root, sibling, repo, state, context, strategy, ask = messages => infer(messages), study = research, onEvent = () => {} }) {
+export async function runFleet({ root, sibling, repo, state, context, strategy, ask = messages => infer(messages), study = research, probe = runProbe, onEvent = () => {} }) {
   const focus = chooseFocus(strategy, state);
   const ledger = []; let calls = 0;
   const call = async (role, messages) => {
     if (calls >= 8) throw new Error('Shared fleet model-call budget exhausted');
     calls++;
     onEvent({ event: 'model-start', role, call: calls });
-    const response = await ask(messages, { role });
+    let response;
+    try { response = await ask(messages, { role }); }
+    catch (error) { ledger.push({ role, phase: 'inference', error: error.message }); onEvent({ event: 'model-failed', role, call: calls, error: error.message }); throw error; }
     ledger.push({ role, model: response.model, usage: response.usage });
     onEvent({ event: 'model-finished', role, call: calls, usage: response.usage });
     return response;
@@ -66,7 +69,8 @@ export async function runFleet({ root, sibling, repo, state, context, strategy, 
       tests: t.recipe?.edits?.filter(e => /resident-regressions|tests\/resident_/.test(e.path)).map(e => ({ path: e.path, excerpt: e.content.slice(0, 1200) })) })) };
   const builderStrategy = { ...strategy, focus: [specialist.mission] };
   const episode = await investigate({ root, sibling, repo, state, context: builderContext, strategy: builderStrategy,
-    ask: messages => call(specialist.id, messages), turnBudget: 6 });
+    ask: messages => call(specialist.id, messages), turnBudget: 6, requireProbe: true,
+    probe: async request => { onEvent({ event: 'probe-start' }); const result = await probe(request); onEvent({ event: 'probe-finished', status: result.status, code: result.code }); return result; } });
   episode.focus = focus;
   episode.research = { ...references, planningError };
   let review;
