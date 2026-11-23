@@ -122,6 +122,21 @@ test('fleet model calls stay inside a shared eight-call budget even on repeated 
     ask: async (_, { role }) => { calls++; return { text: role === 'scout' ? '{}' : role === 'critic' ? '{"decision":"revise","reason":"No valid experiment"}' : '{"action":"unknown"}' }; } });
   assert.equal(calls, 8); assert.equal(e.fleet.modelCalls, 8);
 });
+test('expired research does not keep directing the scout or a new specialist', async t => {
+  const root = fixture(t), state = initialState();
+  state.pendingResearch = { focus: strategy.focus[0], attempts: 3, question: 'EXPIRED_RESEARCH_QUESTION_123' };
+  let seenExpired = false, observed = 0;
+  await runFleet({ root, repo: 'croviatrust/agentcrash', state, context: {}, strategy, study,
+    ask: async (messages, { role }) => {
+      observed++;
+      seenExpired ||= JSON.stringify(messages).includes('EXPIRED_RESEARCH_QUESTION_123');
+      if (role === 'scout') return { text: '{"mission":"Investigate a new reported problem"}' };
+      if (role === 'critic') return { text: '{"decision":"revise","reason":"Need a reproducible case"}' };
+      return { text: '{"action":"stop","reason":"No reproducible case yet"}' };
+    } });
+  assert.ok(observed >= 3);
+  assert.equal(seenExpired, false);
+});
 test('the real before/after fixture promotes an executable capsule and an evidence-only draft', async t => {
   const { e, root } = await episode(t);
   const verdict = await executeFixture(root, e);

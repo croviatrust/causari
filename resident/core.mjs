@@ -151,6 +151,10 @@ export function chooseFocus(strategy, state) {
     return { focus, score, i };
   }).sort((a, b) => b.score - a.score || a.i - b.i)[0].focus;
 }
+export function activeResearch(state, focus) {
+  const pending = state.pendingResearch;
+  return pending?.attempts < 3 && pending.focus === focus ? pending : null;
+}
 export async function infer(messages, env = process.env) {
   const remote = Boolean(env.RESIDENT_API_URL);
   const url = remote ? new URL(env.RESIDENT_API_URL) : new URL('http://127.0.0.1:11434/api/chat');
@@ -182,7 +186,7 @@ Return exactly one JSON object per turn. Allowed actions:
 {"action":"stop","reason":"specific uncertainty","findings":[{"path":"src/file.js","repository":"self","note":"specific observation from a file you actually read"}],"next":"precise question or experiment for the next generation"}
 For an existing file, prefer {"path":"src/file.js","before":"exact unique old text","after":"new text"} instead of repeating the whole file. New files need content. Read every existing file before changing it. Do not read the same path and offset twice: use a new offset, inspect another file, propose or stop. Code edits only under ${language === 'node' ? 'src/ or record/lib/' : 'src/'} with .${language === 'node' ? 'js' : 'rs'} extension. Existing tests, workflows, credentials, package manifests and this controller cannot be edited. New regression tests must fail on the original code and pass after the change. Tests cannot use the network. A strategy experiment may edit only resident/strategy.json and must satisfy the fixed schema; schema validity is not evidence it improves results. No shell, no deletion, no external publishing. Inspect sibling code to discover complementary capabilities but edit only self. ${turnBudget} turns maximum. Prefer one small coherent change.` },
   { role: 'user', content: JSON.stringify({ repo, generation: state.generation, context, files: files.slice(0, 250),
-    pendingResearch: state.pendingResearch, recent: state.recent.slice(-3).map(e => ({ status: e.status, focus: e.focus,
+    pendingResearch: activeResearch(state, focus), recent: state.recent.slice(-3).map(e => ({ status: e.status, focus: e.focus,
       title: e.proposal?.title, error: e.error, reason: e.reason, findings: e.findings, next: e.next, pr: e.pr })),
     skills: state.skills }).slice(0, 14000) }];
   const sha = dir => execFileSync('git', ['rev-parse', 'HEAD'], { cwd: dir, encoding: 'utf8' }).trim();
