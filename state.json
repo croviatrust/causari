@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "generation": 1,
+  "recent": [
+    {
+      "id": "1795435861041-ecaf3226",
+      "repo": "croviatrust/causari",
+      "focus": "Find a concrete failure in an existing user workflow and repair it with a regression test.",
+      "started": "2026-11-23T12:11:01.041Z",
+      "status": "stopped",
+      "reason": "The file does not exist in the repository.",
+      "finished": "2026-11-23T12:12:30.633Z",
+      "error": "",
+      "inference": [
+        {
+          "turn": 0,
+          "model": "qwen2.5-coder:1.5b",
+          "usage": {
+            "input": 3650,
+            "output": 21
+          }
+        },
+        {
+          "turn": 0,
+          "error": "ENOENT: no such file or directory, lstat '/home/runner/work/causari/causari/controller/src/core.mjs'"
+        },
+        {
+          "turn": 1,
+          "model": "qwen2.5-coder:1.5b",
+          "usage": {
+            "input": 3722,
+            "output": 18
+          }
+        }
+      ]
+    }
+  ],
+  "outcomes": {},
+  "skills": {
+    "Find a concrete failure in an existing user workflow and repair it with a regression test.": {
+      "attempts": 1,
+      "verified": 0,
+      "merged": 0,
+      "rejected": 0
+    }
+  },
+  "hypotheses": []
+}
