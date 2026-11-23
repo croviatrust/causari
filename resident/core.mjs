@@ -116,7 +116,7 @@ export function remember(state, episode) {
   const compact = e => ({ id: e.id, repo: e.repo, focus: e.focus, started: e.started, finished: e.finished,
     status: e.status, localEvidence: e.localEvidence, reason: e.reason?.slice(0, 1600),
     error: e.error?.slice(0, 1600), pr: e.pr, url: e.url,
-    findings: e.findings || [], next: e.next,
+    findings: e.findings || [], next: e.next, probes: (e.probes || []).map(({ sourceSHA, testHash, status, code, log }) => ({ sourceSHA, testHash, status, code, log: log?.slice(-800) })),
     ...(e.proposal ? { proposal: { title: e.proposal.title, hypothesis: e.proposal.hypothesis,
       falsifier: e.proposal.falsifier, benefit: e.proposal.benefit } } : {}) });
   next.recent = [...next.recent, episode].slice(-30).map(compact);
@@ -170,7 +170,7 @@ export async function infer(messages, env = process.env) {
   return { text: remote ? data.choices?.[0]?.message?.content : data.message?.content,
     usage: remote ? data.usage : { input: data.prompt_eval_count, output: data.eval_count }, model };
 }
-export async function investigate({ root, sibling, repo, state, context, strategy, ask = infer, turnBudget = LIMITS.turns }) {
+export async function investigate({ root, sibling, repo, state, context, strategy, ask = infer, turnBudget = LIMITS.turns, probe, requireProbe = false }) {
   if (!Number.isInteger(turnBudget) || turnBudget < 3 || turnBudget > LIMITS.turns) throw new Error('Invalid investigation budget');
   const language = profile(repo);
   validateStrategy(strategy);
@@ -182,6 +182,8 @@ Principles: ${strategy.principles.join(' ')}
 Return exactly one JSON object per turn. Allowed actions:
 {"action":"read","path":"src/file.js","offset":0,"repository":"self"} (or repository="sibling")
 {"action":"search","query":"literal text","repository":"self"} to find text in tracked small files.
+{"action":"probe","content":"complete regression test source"} runs a test against the unchanged baseline in isolation (at most twice). Inspect its diagnostics; syntax/import failures are not bugs. Code proposals must include the exact test source from a failing baseline probe when probes are required. No arbitrary commands.
+Probe requirement for this generation: ${requireProbe}.
 {"action":"propose","title":"...","hypothesis":"...","falsifier":"...","benefit":"...","edits":[{"path":"src/file.js","content":"COMPLETE file content"},{"path":"${language === 'node' ? 'resident-regressions/name.test.mjs' : 'tests/resident_name.rs'}","content":"regression test"}]}
 {"action":"stop","reason":"specific uncertainty","findings":[{"path":"src/file.js","repository":"self","note":"specific observation from a file you actually read"}],"next":"precise question or experiment for the next generation"}
 For an existing file, prefer {"path":"src/file.js","before":"exact unique old text","after":"new text"} instead of repeating the whole file. New files need content. Read every existing file before changing it. Do not read the same path and offset twice: use a new offset, inspect another file, propose or stop. Code edits only under ${language === 'node' ? 'src/ or record/lib/' : 'src/'} with .${language === 'node' ? 'js' : 'rs'} extension. Existing tests, workflows, credentials, package manifests and this controller cannot be edited. New regression tests must fail on the original code and pass after the change. Tests cannot use the network. A strategy experiment may edit only resident/strategy.json and must satisfy the fixed schema; schema validity is not evidence it improves results. No shell, no deletion, no external publishing. Inspect sibling code to discover complementary capabilities but edit only self. ${turnBudget} turns maximum. Prefer one small coherent change.` },
@@ -190,16 +192,17 @@ For an existing file, prefer {"path":"src/file.js","before":"exact unique old te
       title: e.proposal?.title, error: e.error, reason: e.reason, findings: e.findings, next: e.next, pr: e.pr })),
     skills: state.skills }).slice(0, 14000) }];
   const sha = dir => execFileSync('git', ['rev-parse', 'HEAD'], { cwd: dir, encoding: 'utf8' }).trim();
-  const episode = { id: `${Date.now()}-${crypto.randomBytes(4).toString('hex')}`, repo, baseSHA: sha(root), siblingSHA: sibling ? sha(sibling) : null, focus, started: new Date().toISOString(), status: 'stopped', trace: [] };
+  const episode = { id: `${Date.now()}-${crypto.randomBytes(4).toString('hex')}`, repo, baseSHA: sha(root), siblingSHA: sibling ? sha(sibling) : null, focus, started: new Date().toISOString(), status: 'stopped', trace: [], probes: [] };
   const reads = new Set();
   const actions = new Set();
   const evidence = new Map();
   for (let turn = 0; turn < turnBudget; turn++) {
     if (turn === turnBudget - 2) messages.push({ role: 'user', content: 'Investigation time is over. The final two turns are reserved for a decision. Return propose with a concrete falsifiable change, or stop with evidence-linked findings and a precise next question. Do not read or search again. An honest unresolved question is better than an invented improvement.' });
-    let answer;
+    let answer, phase = 'inference';
     try {
       const response = await ask(messages);
       episode.trace.push({ turn, model: response.model, usage: response.usage });
+      phase = 'action';
       answer = JSON.parse(response.text);
       episode.trace.at(-1).action = answer.action;
       if (answer.path) episode.trace.at(-1).path = String(answer.path).slice(0, 200);
@@ -214,11 +217,26 @@ For an existing file, prefer {"path":"src/file.js","before":"exact unique old te
         if (typeof answer.next === 'string' && answer.next.trim()) episode.next = answer.next.slice(0, 1200);
         break;
       }
+      if (answer.action === 'probe') {
+        if (!probe) throw new Error('Probes unavailable in this execution');
+        if (episode.probes.length >= 2) throw new Error('Two-probe budget exhausted');
+        const hash = digest(answer.content);
+        if (episode.probes.some(p => p.testHash === hash && p.status !== 'infrastructure-failed')) throw new Error('This exact test was already probed');
+        const observed = await probe({ root, repo, content: answer.content });
+        episode.probes.push(observed);
+        messages.push({ role: 'user', content: JSON.stringify({ probe: observed, turnsLeft: turnBudget - turn - 1 }) });
+        continue;
+      }
       if (answer.action === 'propose') {
         const p = validateProposal(materialize(root, answer), language);
         for (const edit of p.edits) {
           if (fs.existsSync(path.join(root, edit.path)) && !reads.has(edit.path)) throw new Error(`Read ${edit.path} before editing it`);
           if (edit.path.startsWith(language === 'node' ? 'resident-regressions/' : 'tests/resident_') && fs.existsSync(path.join(root, edit.path))) throw new Error('Regression filename already exists');
+        }
+        if (requireProbe && p.kind !== 'strategy') {
+          const tests = p.edits.filter(e => e.path.startsWith(language === 'node' ? 'resident-regressions/' : 'tests/resident_'));
+          if (!tests.length || !tests.every(e => episode.probes.some(x => x.sourceSHA === episode.baseSHA && x.testHash === digest(e.content) && x.status === 'baseline-failed' && Number.isInteger(x.code) && x.code !== 0 && ![125,126,127].includes(x.code) && !x.error)))
+            throw new Error('Run a failing baseline probe using the exact proposed regression test before proposing code');
         }
         if (state.hypotheses.includes(experimentKey(p, episode.baseSHA))) throw new Error('Exact experiment already attempted on this revision');
         episode.proposal = p; episode.status = 'proposed'; break;
@@ -246,8 +264,8 @@ For an existing file, prefer {"path":"src/file.js","before":"exact unique old te
       } else throw new Error('Unknown action');
       messages.push({ role: 'user', content: JSON.stringify({ evidence: result, turnsLeft: turnBudget - turn - 1 }) });
     } catch (error) {
-      episode.trace.push({ turn, error: error.message });
-      messages.push({ role: 'user', content: JSON.stringify({ error: error.message, instruction: 'Correct the action or stop honestly.' }) });
+      episode.trace.push({ turn, phase, error: error.message });
+      messages.push({ role: 'user', content: JSON.stringify({ phase, error: error.message, instruction: 'Correct the action or stop honestly.' }) });
       if (episode.trace.filter(t => t.error?.startsWith('Inference HTTP')).length >= 2) {
         episode.reason = 'Inference unavailable; preserve the failed attempt and retry next cycle.'; break;
       }

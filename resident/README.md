@@ -4,8 +4,8 @@ A GitHub-resident engineering experiment for AgentCrash and Causari, authored by
 
 Each hourly wake reads the real repository, its sibling, recent commits, issues,
 past experiments and review outcomes. A language model chooses what to inspect
-and proposes a bounded experiment. The model has read and search actions, not a
-shell. A separate job runs the experiment in Docker without network access or
+and proposes a bounded experiment. The model has bounded read, search and isolated test-probe actions. It cannot
+choose shell commands. A separate job runs the experiment in Docker without network access or
 credentials. A final job records the generation on `crovia-memory` and saves
 verified changes on `crovia/resident-<id>` branches. It never runs candidate code
 with a write token and never merges changes automatically.
@@ -41,7 +41,15 @@ the regression must fail on the original source, and both the regression and
 original suite must pass on the candidate. Failed or inconclusive attempts are
 recorded rather than published as successful improvements. Existing test files,
 workflow permissions, manifests and controller code cannot be edited by a proposal.
-The final two inference turns are reserved for a decision or a research handoff,
+Fleet specialists can run up to two baseline probes before proposing code. Each
+probe writes only a randomly named new test in a disposable committed snapshot,
+then runs a fixed command in the same restricted Docker environment. The exact
+proposed regression must have failed on the same source revision. Syntax, import
+and compiler errors can also fail a probe: diagnostics require inspection, and
+only the independent before/after verifier can establish a successful repair.
+All existing learned regressions remain in the full Node test suite.
+
+The final two inference turns are reserved for a probe, decision or research handoff,
 so inspection cannot silently consume the entire cycle without a conclusion.
 
 The verifier copies the committed baseline. Candidate code runs in a read-only
