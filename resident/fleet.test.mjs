@@ -11,7 +11,7 @@ import { initialState, digest, remember, json } from './core.mjs';
 import { runProbe } from './probe.mjs';
 import { investigate } from './core.mjs';
 import { spawnSync } from 'node:child_process';
-import { verify } from './verify.mjs';
+import { verify, commands } from './verify.mjs';
 
 const strategy = json(new URL('./strategy.json', import.meta.url));
 function fixture(t) {
@@ -231,5 +231,5 @@ test('full verification retains regressions learned in earlier generations', asy
   assert.equal(verdict.status, 'regression-failed');
   assert.match(verdict.checks.find(c => c.label === 'regression-after').log, /legacy/);
   fs.writeFileSync(path.join(root, 'src/value.js'), e.proposal.edits[0].content);
-  assert.equal(localRun(root, 'node --test').code, 1);
+  assert.equal(localRun(root, commands('node').full).code, 1);
 });
