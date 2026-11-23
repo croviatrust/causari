@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generation": 2,
+  "generation": 3,
   "recent": [
     {
       "id": "1795435861041-ecaf3226",
@@ -68,6 +68,113 @@
           }
         }
       ]
+    },
+    {
+      "id": "1795436328789-300db118",
+      "repo": "croviatrust/causari",
+      "baseSHA": "9b629d60edb84b19e10ac7b5b0582a7fb545ad4d",
+      "siblingSHA": "0e82d2f824223340820ac711270ba8a8dc1022a2",
+      "focus": "Explore a new capability by constructing a small falsifiable experiment.",
+      "started": "2026-11-23T12:18:48.794Z",
+      "status": "stopped",
+      "reason": "Turn budget exhausted without a valid experiment.",
+      "finished": "2026-11-23T12:23:57.362Z",
+      "localEvidence": "stopped",
+      "error": "",
+      "inference": [
+        {
+          "turn": 0,
+          "model": "qwen3.5:4b",
+          "usage": {
+            "input": 3825,
+            "output": 21
+          },
+          "action": "read",
+          "path": "resident/core.mjs"
+        },
+        {
+          "turn": 1,
+          "model": "qwen3.5:4b",
+          "usage": {
+            "input": 6763,
+            "output": 21
+          },
+          "action": "read",
+          "path": "resident/strategy.json"
+        },
+        {
+          "turn": 2,
+          "model": "qwen3.5:4b",
+          "usage": {
+            "input": 7076,
+            "output": 36
+          },
+          "action": "read",
+          "path": "docs/review-2026-09-20/04-cli.md"
+        },
+        {
+          "turn": 3,
+          "model": "qwen3.5:4b",
+          "usage": {
+            "input": 6237,
+            "output": 21
+          },
+          "action": "read",
+          "path": "resident/core.mjs"
+        },
+        {
+          "turn": 3,
+          "error": "Already observed this exact input. Use a new offset or file, propose an experiment, or stop."
+        },
+        {
+          "turn": 4,
+          "model": "qwen3.5:4b",
+          "usage": {
+            "input": 6300,
+            "output": 23
+          },
+          "action": "read",
+          "path": "resident/core.mjs"
+        },
+        {
+          "turn": 5,
+          "model": "qwen3.5:4b",
+          "usage": {
+            "input": 6832,
+            "output": 21
+          },
+          "action": "read",
+          "path": "resident/strategy.json"
+        },
+        {
+          "turn": 5,
+          "error": "Already observed this exact input. Use a new offset or file, propose an experiment, or stop."
+        },
+        {
+          "turn": 6,
+          "model": "qwen3.5:4b",
+          "usage": {
+            "input": 6895,
+            "output": 23
+          },
+          "action": "read",
+          "path": "resident/strategy.json"
+        },
+        {
+          "turn": 7,
+          "model": "qwen3.5:4b",
+          "usage": {
+            "input": 7184,
+            "output": 21
+          },
+          "action": "read",
+          "path": "resident/strategy.json"
+        },
+        {
+          "turn": 7,
+          "error": "Already observed this exact input. Use a new offset or file, propose an experiment, or stop."
+        }
+      ]
     }
   ],
   "outcomes": {},
@@ -79,6 +186,12 @@
       "rejected": 0
     },
     "Remove a measurable obstacle to an agent adopting and using the product.": {
+      "attempts": 1,
+      "verified": 0,
+      "merged": 0,
+      "rejected": 0
+    },
+    "Explore a new capability by constructing a small falsifiable experiment.": {
       "attempts": 1,
       "verified": 0,
       "merged": 0,

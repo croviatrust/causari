@@ -1,0 +1,157 @@
+{
+  "id": "1795436328789-300db118",
+  "repo": "croviatrust/causari",
+  "baseSHA": "9b629d60edb84b19e10ac7b5b0582a7fb545ad4d",
+  "siblingSHA": "0e82d2f824223340820ac711270ba8a8dc1022a2",
+  "focus": "Explore a new capability by constructing a small falsifiable experiment.",
+  "started": "2026-11-23T12:18:48.794Z",
+  "status": "stopped",
+  "reason": "Turn budget exhausted without a valid experiment.",
+  "finished": "2026-11-23T12:23:57.362Z",
+  "localEvidence": "stopped",
+  "error": "",
+  "inference": [
+    {
+      "turn": 0,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 3825,
+        "output": 21
+      },
+      "action": "read",
+      "path": "resident/core.mjs"
+    },
+    {
+      "turn": 1,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 6763,
+        "output": 21
+      },
+      "action": "read",
+      "path": "resident/strategy.json"
+    },
+    {
+      "turn": 2,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 7076,
+        "output": 36
+      },
+      "action": "read",
+      "path": "docs/review-2026-09-20/04-cli.md"
+    },
+    {
+      "turn": 3,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 6237,
+        "output": 21
+      },
+      "action": "read",
+      "path": "resident/core.mjs"
+    },
+    {
+      "turn": 3,
+      "error": "Already observed this exact input. Use a new offset or file, propose an experiment, or stop."
+    },
+    {
+      "turn": 4,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 6300,
+        "output": 23
+      },
+      "action": "read",
+      "path": "resident/core.mjs"
+    },
+    {
+      "turn": 5,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 6832,
+        "output": 21
+      },
+      "action": "read",
+      "path": "resident/strategy.json"
+    },
+    {
+      "turn": 5,
+      "error": "Already observed this exact input. Use a new offset or file, propose an experiment, or stop."
+    },
+    {
+      "turn": 6,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 6895,
+        "output": 23
+      },
+      "action": "read",
+      "path": "resident/strategy.json"
+    },
+    {
+      "turn": 7,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 7184,
+        "output": 21
+      },
+      "action": "read",
+      "path": "resident/strategy.json"
+    },
+    {
+      "turn": 7,
+      "error": "Already observed this exact input. Use a new offset or file, propose an experiment, or stop."
+    }
+  ],
+  "verdict": {
+    "episode": "1795436328789-300db118",
+    "status": "stopped",
+    "checks": [],
+    "proposalHash": null
+  },
+  "context": {
+    "issues": [
+      {
+        "number": 68,
+        "title": "Proposal: an audit explain output",
+        "body": "This is a proposal, not a feature this release provides.\n\n`re audit --json` stores the totals, the method, the blame flags, and the counts. It does not store, for each classified commit, the commit SHA, the agent, the classification evidence, or that commit's introduced and surviving line counts. `re why`, `re trace`, and `re lens` read the local ledger. They do not explain why a remote audit classified a commit.\n\nSNTL84 suggested `re audit --explain` after checking external repositories with 0.4.0. A useful output would list, for each metadata-matched commit, the SHA, the agent, the evidence the classifier already produced, and the introduced and surviving counts. Absence of a git AI tag would remain what it is now: no signal of that kind, not proof that a person wrote the code. The output would not store `refs/notes/ai`.\n\nNo such output is implemented.\n"
+      },
+      {
+        "number": 67,
+        "title": "Unreproduced message before a successful clone",
+        "body": "On the distributed Windows 0.4.0 build, the first remote audit showed an error before the repository was cloned. The clone then finished and the audit completed. The command output was not included, so this report is not reproduced.\n\nSNTL84, if you still have it, please add two things on this issue:\n\n- the exact command that was typed\n- the exact message shown before the clone succeeded\n\nUntil those lines are here, there is nothing further to attribute the message to. This issue does not say that the message is fixed.\n"
+      }
+    ],
+    "commits": [
+      {
+        "sha": "73b1c69b43b1c1307af977ddf19862c83d15bfef",
+        "message": "report: DOI 10.5281/zenodo.24287451 for Survival Report #10\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      },
+      {
+        "sha": "d62cb8fed1998d42d4d1c1f78290c778f93fe755",
+        "message": "report: Survival Report #10 (2026-11-16, method v6)\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      },
+      {
+        "sha": "ab2ba0391ef188a1017d1665b466463d3e91e1f8",
+        "message": "report: DOI 10.5281/zenodo.24091343 for Survival Report #9\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      },
+      {
+        "sha": "54c6fec4ee36998a5c4b31b0c03e0e82e364aabd",
+        "message": "report: Survival Report #9 (2026-11-09, method v6)\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      },
+      {
+        "sha": "9ea30d9a00fd8c533a8b4f76ebea21e2b3d4eb7c",
+        "message": "report: DOI 10.5281/zenodo.23892452 for Survival Report #8\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      }
+    ],
+    "openProposals": [],
+    "metrics": {
+      "stars": 9,
+      "forks": 0,
+      "openIssues": 9,
+      "observed": "2026-11-23T12:17:53.086Z",
+      "note": "Repository attention; not adoption or revenue."
+    }
+  }
+}
