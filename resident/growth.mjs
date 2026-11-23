@@ -89,3 +89,10 @@ export function feedbackSignals(issues) {
   return (issues || []).filter(i => /\bagent trial\b/i.test(i.title || '')).slice(0, 5)
     .map(i => ({ number: i.number, title: String(i.title).slice(0, 200), body: String(i.body || '').slice(0, 1800), evidenceLevel: 'self-reported inbound feedback; unverified' }));
 }
+
+export function feedbackCooldown(state, event, now = Date.now()) {
+  if (event !== 'issues') return false;
+  const finished = Math.max(0, ...(state.recent || []).map(e => Date.parse(e.finished)).filter(Number.isFinite));
+  const age = now - finished;
+  return finished > 0 && age >= 0 && age < 3600000;
+}

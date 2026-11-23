@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { json, writeJSON, initialState, remember, reconcile, validateProposal, profile, digest, chooseFocus } from './core.mjs';
 import { evidenceValid, makeCapsule, capsuleIndex, evolveFleet, selectCapabilities, communicationDraft } from './learning.mjs';
 
-import { discoverOpportunities, growthRecord, feedbackSignals } from './growth.mjs';
+import { discoverOpportunities, growthRecord, feedbackSignals, feedbackCooldown } from './growth.mjs';
 
 const API = 'https://api.github.com';
 export async function api(route, { method = 'GET', body, missing = false } = {}) {
@@ -43,6 +43,11 @@ export async function prepare(repo, output) {
       .map(p => ({ number: p.number, title: p.title, body: p.body?.slice(0, 1200), url: p.html_url })),
     metrics: { stars: meta.stargazers_count, forks: meta.forks_count, openIssues: meta.open_issues_count, observed: new Date().toISOString(), note: 'Repository attention; not adoption or revenue.' }
   };
+  if (feedbackCooldown(state, process.env.GITHUB_EVENT_NAME)) {
+    writeJSON(path.join(output, 'state.json'), state); writeJSON(path.join(output, 'context.json'), context);
+    if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, 'active=false\n');
+    return { active: false, reason: 'Feedback wake limited to one cycle per hour; queued feedback remains in issues.' };
+  }
   const demand = await discoverOpportunities(repo, state);
   context.opportunities = demand.opportunities; context.opportunityErrors = demand.errors;
   context.inboundFeedback = feedbackSignals(context.issues);

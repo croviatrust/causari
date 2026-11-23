@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { discoverOpportunities, rankOpportunities, issueReference, selectOpportunity, growthRecord, feedbackSignals } from './growth.mjs';
+import { discoverOpportunities, rankOpportunities, issueReference, selectOpportunity, growthRecord, feedbackSignals, feedbackCooldown } from './growth.mjs';
 import { publicURL } from './research.mjs';
 import { runFleet } from './fleet.mjs';
 import { fileURLToPath } from 'node:url';
@@ -76,4 +76,12 @@ test('the engineering mission receives actual source candidates and preserves on
       return { text: role === 'critic' ? '{"decision":"revise","reason":"Reproduction still needed"}' : '{"action":"stop","reason":"Need to reproduce source evidence"}' };
     } });
   assert.ok(sawSource); assert.equal(episode.opportunity.url, source.url); assert.equal(episode.opportunity.evidenceHash, source.evidenceHash);
+});
+
+test('inbound feedback wakes are limited to one cycle per hour without suppressing normal cycles', () => {
+  const state = { recent: [{ finished: now() }] }, current = Date.parse(now());
+  assert.equal(feedbackCooldown(state, 'issues', current + 30 * 60000), true);
+  assert.equal(feedbackCooldown(state, 'issues', current + 61 * 60000), false);
+  assert.equal(feedbackCooldown(state, 'schedule', current + 60000), false);
+  assert.equal(feedbackCooldown({ recent: [{ finished: 'invalid' }] }, 'issues', current), false);
 });

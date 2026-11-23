@@ -181,3 +181,9 @@ Agent trial issues are passed to research as unverified self-reports. No contact
 with issue authors or external publication is performed. Network/rate-limit
 errors are recorded and do not create fictional opportunities. A successful
 repair is still not automatically classified as adoption or publication.
+
+Opening or reopening an `[Agent trial]` issue can wake the trusted default-branch
+workflow. Feedback-triggered cycles are throttled when a cycle finished within
+the previous hour; the issue remains available for subsequent observation. The
+workflow pause and proposal-backpressure controls still apply. The hourly cron
+is a requested schedule, not a guarantee of an hourly completed generation.
