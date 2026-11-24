@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generation": 9,
+  "generation": 10,
   "recent": [
     {
       "id": "1795435861041-ecaf3226",
@@ -171,6 +171,28 @@
       ],
       "next": "What specific error message or stack trace does the Windows 0.4.0 build produce when running `re audit`, and which module (e.g., `src/remote.rs` or `src/git.rs`) contains the initialization logic that is failing?",
       "probes": []
+    },
+    {
+      "id": "1795518614302-3ff8d30c",
+      "repo": "croviatrust/causari",
+      "focus": "Remove a measurable obstacle to an agent adopting and using the product.",
+      "started": "2026-11-24T11:10:14.308Z",
+      "finished": "2026-11-24T11:16:31.771Z",
+      "status": "stopped",
+      "localEvidence": "stopped",
+      "reason": "The `audit.rs` code defines the pipeline for detecting AI agents but lacks the logic to expose per-commit evidence in the output format requested (`re audit --explain`). The current implementation aggregates data into `SurvivalReport`, but does not structure the output to show SHA, agent, confidence, and line counts per commit. To implement this feature, I need to understand how the report is currently generated and formatted.",
+      "error": "",
+      "findings": [
+        {
+          "path": "src/audit.rs",
+          "repository": "self",
+          "sha": "31843a03e91d8d782faf6ed1b40a4596a7da7e2b",
+          "note": "The code defines `Detection` with fields for `agent`, `confidence`, and `evidence`, but the output aggregation logic (likely in a function not fully read yet) does not appear to expose these per-commit details in a way that satisfies the `--explain` requirement.",
+          "confidence": "unverified observation"
+        }
+      ],
+      "next": "What is the current structure of the `SurvivalReport` struct and how is it generated? I need to see the code that aggregates commit data to understand how to modify it to include per-commit evidence.",
+      "probes": []
     }
   ],
   "outcomes": {},
@@ -182,7 +204,7 @@
       "rejected": 0
     },
     "Remove a measurable obstacle to an agent adopting and using the product.": {
-      "attempts": 1,
+      "attempts": 2,
       "verified": 0,
       "merged": 0,
       "rejected": 0
@@ -202,9 +224,9 @@
   },
   "hypotheses": [],
   "pendingResearch": {
-    "focus": "Find a concrete failure in an existing user workflow and repair it with a regression test.",
-    "question": "What specific error message or stack trace does the Windows 0.4.0 build produce when running `re audit`, and which module (e.g., `src/remote.rs` or `src/git.rs`) contains the initialization logic that is failing?",
-    "attempts": 3
+    "focus": "Remove a measurable obstacle to an agent adopting and using the product.",
+    "question": "What is the current structure of the `SurvivalReport` struct and how is it generated? I need to see the code that aggregates commit data to understand how to modify it to include per-commit evidence.",
+    "attempts": 1
   },
   "fleet": {
     "version": 1,
@@ -216,9 +238,9 @@
         "mission": "Find external evidence and define the next specialization",
         "parent": "crovia",
         "born": 5,
-        "attempts": 5,
+        "attempts": 6,
         "verified": 0,
-        "lastSeen": 9
+        "lastSeen": 10
       },
       {
         "id": "critic",
@@ -226,9 +248,19 @@
         "mission": "Challenge the proposed experiment independently",
         "parent": "crovia",
         "born": 5,
-        "attempts": 5,
+        "attempts": 6,
         "verified": 0,
-        "lastSeen": 9
+        "lastSeen": 10
+      },
+      {
+        "id": "specialist-3bd1af6f131af3ad",
+        "role": "engineering",
+        "mission": "Implement `re audit --explain` to expose per-commit evidence (SHA, agent, confidence, lines introduced/surviving) instead of only aggregate totals.",
+        "parent": "crovia",
+        "born": 10,
+        "attempts": 1,
+        "verified": 0,
+        "lastSeen": 10
       },
       {
         "id": "specialist-93711c0a8beb0dbb",
@@ -282,11 +314,11 @@
       }
     ],
     "last": {
-      "episode": "1795482326090-82907bce",
+      "episode": "1795518614302-3ff8d30c",
       "status": "stopped",
       "membersUsed": [
         "scout",
-        "specialist-93711c0a8beb0dbb",
+        "specialist-3bd1af6f131af3ad",
         "critic"
       ],
       "modelCalls": 7,

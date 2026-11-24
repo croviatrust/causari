@@ -1,6 +1,6 @@
 # Crovia resident memory
 
-Generation: 9
+Generation: 10
 
 Latest: stopped
 
@@ -10,8 +10,9 @@ No pull request produced.
 
 | Agent | Role | Attempts | Verified source-case repairs |
 | --- | --- | --- | --- |
-| scout | research | 5 | 0 |
-| critic | review | 5 | 0 |
+| scout | research | 6 | 0 |
+| critic | review | 6 | 0 |
+| specialist-3bd1af6f131af3ad | engineering | 1 | 0 |
 | specialist-93711c0a8beb0dbb | engineering | 1 | 0 |
 | specialist-b8a5bba96f86249e | engineering | 1 | 0 |
 | specialist-ab10b80f0e367b04 | engineering | 1 | 0 |
