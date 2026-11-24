@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generation": 10,
+  "generation": 11,
   "recent": [
     {
       "id": "1795435861041-ecaf3226",
@@ -193,6 +193,20 @@
       ],
       "next": "What is the current structure of the `SurvivalReport` struct and how is it generated? I need to see the code that aggregates commit data to understand how to modify it to include per-commit evidence.",
       "probes": []
+    },
+    {
+      "id": "1795555639514-92a7e389",
+      "repo": "croviatrust/causari",
+      "focus": "Remove a measurable obstacle to an agent adopting and using the product.",
+      "started": "2026-11-24T21:27:19.526Z",
+      "finished": "2026-11-24T21:32:29.496Z",
+      "status": "stopped",
+      "localEvidence": "stopped",
+      "reason": "Timeout occurred while attempting to read files. The instruction requires honest correction of the action when timeouts happen.",
+      "error": "",
+      "findings": [],
+      "next": "I need to read the actual source code of src/commands/audit.rs to understand how the JSON output is structured before I can propose an edit that adds the missing per-commit explanation fields.",
+      "probes": []
     }
   ],
   "outcomes": {},
@@ -204,7 +218,7 @@
       "rejected": 0
     },
     "Remove a measurable obstacle to an agent adopting and using the product.": {
-      "attempts": 2,
+      "attempts": 3,
       "verified": 0,
       "merged": 0,
       "rejected": 0
@@ -225,8 +239,8 @@
   "hypotheses": [],
   "pendingResearch": {
     "focus": "Remove a measurable obstacle to an agent adopting and using the product.",
-    "question": "What is the current structure of the `SurvivalReport` struct and how is it generated? I need to see the code that aggregates commit data to understand how to modify it to include per-commit evidence.",
-    "attempts": 1
+    "question": "I need to read the actual source code of src/commands/audit.rs to understand how the JSON output is structured before I can propose an edit that adds the missing per-commit explanation fields.",
+    "attempts": 2
   },
   "fleet": {
     "version": 1,
@@ -238,9 +252,9 @@
         "mission": "Find external evidence and define the next specialization",
         "parent": "crovia",
         "born": 5,
-        "attempts": 6,
+        "attempts": 7,
         "verified": 0,
-        "lastSeen": 10
+        "lastSeen": 11
       },
       {
         "id": "critic",
@@ -248,9 +262,19 @@
         "mission": "Challenge the proposed experiment independently",
         "parent": "crovia",
         "born": 5,
-        "attempts": 6,
+        "attempts": 7,
         "verified": 0,
-        "lastSeen": 10
+        "lastSeen": 11
+      },
+      {
+        "id": "specialist-a94ab1b7e41b647d",
+        "role": "engineering",
+        "mission": "Remove a measurable obstacle to an agent adopting and using the product.",
+        "parent": "crovia",
+        "born": 11,
+        "attempts": 1,
+        "verified": 0,
+        "lastSeen": 11
       },
       {
         "id": "specialist-3bd1af6f131af3ad",
@@ -301,27 +325,17 @@
         "attempts": 1,
         "verified": 0,
         "lastSeen": 6
-      },
-      {
-        "id": "specialist-06b68998038abd2f",
-        "role": "engineering",
-        "mission": "Implement a deterministic text normalization layer in `src/audit.rs` to strip whitespace inconsistencies and document dumps before line-counting, ensuring the `SurvivalReport` remains reproducible across environments.",
-        "parent": "crovia",
-        "born": 5,
-        "attempts": 1,
-        "verified": 0,
-        "lastSeen": 5
       }
     ],
     "last": {
-      "episode": "1795518614302-3ff8d30c",
+      "episode": "1795555639514-92a7e389",
       "status": "stopped",
       "membersUsed": [
         "scout",
-        "specialist-3bd1af6f131af3ad",
+        "specialist-a94ab1b7e41b647d",
         "critic"
       ],
-      "modelCalls": 7,
+      "modelCalls": 4,
       "note": "Verified means source-case execution; business value and transfer remain unmeasured."
     }
   },
