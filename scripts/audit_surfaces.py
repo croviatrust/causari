@@ -29,6 +29,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SEVERITIES = ("critical", "high", "medium", "low", "info")
+ASSET_MAX_BYTES = 25 * 1024 * 1024  # largest static asset Cloudflare Workers accepts
 
 
 class Report:
@@ -267,6 +268,32 @@ def check_assets(canon: dict, r: Report) -> None:
         block = re.search(r"^/" + re.escape(name) + r"\n((?:  .*\n?)+)", read("site/_headers"), re.M)
         if not block or "immutable" not in block.group(1):
             r.add("assets", "high", "site/_headers", f"/{name} must be cached immutable: its URL carries the content version")
+
+
+def check_asset_sizes(_canon: dict, r: Report) -> None:
+    """Cloudflare Workers refuses a whole deploy that holds one static asset
+    above 25 MiB, and the site keeps serving the last deploy that worked. A
+    larger file must be left out by site/.assetsignore and its path
+    redirected, which scripts/survival_report.py does for the files it
+    generates."""
+    site = ROOT / "site"
+    ignore = site / ".assetsignore"
+    ignored = set()
+    if ignore.is_file():
+        ignored = {line.strip().lstrip("/") for line in ignore.read_text(encoding="utf-8").splitlines() if line.strip() and not line.startswith("#")}
+    redirects = load_redirects()
+    over = sorted(p for p in site.rglob("*") if p.is_file() and p.stat().st_size > ASSET_MAX_BYTES)
+    for p in over:
+        rel = p.relative_to(site).as_posix()
+        size = f"{p.stat().st_size / (1024 * 1024):.1f} MiB"
+        if rel not in ignored:
+            r.add("assets", "high", f"site/{rel}", f"{size}, above the 25 MiB Cloudflare asset limit and not in site/.assetsignore: the deploy fails")
+        elif f"/{rel}" not in redirects:
+            r.add("assets", "high", f"site/{rel}", f"{size}, left out of the deploy with no redirect in site/_redirects: the path answers 404")
+        else:
+            r.add("assets", "info", f"site/{rel}", f"{size}, left out of the deploy; the path redirects to {redirects['/' + rel]}")
+    if not over:
+        r.add("assets", "info", "site/**", "no file above the 25 MiB Cloudflare asset limit")
 
 
 def check_release(canon: dict, r: Report) -> None:
@@ -670,6 +697,19 @@ def check_live(canon: dict, r: Report) -> None:
             r.add("live", "high", path, f"200 but marker {marker!r} absent")
         else:
             r.add("live", "info", path, f"200 for a plain script client, {len(body)} bytes")
+    # A deploy that fails leaves the previous one up: every page above still
+    # answers 200 with its marker. The newest report in the repository must
+    # be the one the site serves.
+    latest = "/reports/survival/latest.json"
+    held = json.loads(read("site" + latest)).get("id")
+    status, _, body = fetch(base + latest, plain=True)
+    # fetch() reads the head of the body; the report id is among its first keys
+    found = re.search(r'"id":\s*"([^"]+)"', body.decode("utf-8", errors="replace")) if status == 200 else None
+    served = found.group(1) if found else None
+    if served != held:
+        r.add("live", "high", latest, f"the site serves report {served!r}, the repository holds {held!r}: stale deploy")
+    else:
+        r.add("live", "info", latest, f"the site serves the newest report in the repository ({held})")
 
 
 # ---------------------------------------------------------------- distribution
@@ -786,7 +826,7 @@ def main() -> int:
 
     canon = json.loads(read("canon/canon.json"))
     r = Report()
-    for check in (check_versions, check_forbidden, check_live_words_offline, check_required, check_files, check_html, check_assets, check_matrix, check_release, check_evidence_invariants, check_distribution, check_repo_card_offline):
+    for check in (check_versions, check_forbidden, check_live_words_offline, check_required, check_files, check_html, check_assets, check_asset_sizes, check_matrix, check_release, check_evidence_invariants, check_distribution, check_repo_card_offline):
         try:
             check(canon, r)
         except Exception as e:  # noqa: BLE001
