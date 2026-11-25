@@ -126,6 +126,15 @@ site/reports/survival/
 generator: `/survival` → `/reports/survival/`, `/survival-data.json` →
 `latest.json`, `/report` → the latest report.
 
+Cloudflare Workers refuses a deploy that holds one static asset above
+25 MiB, and the site then keeps serving the last deploy that worked. A
+generated file above that size (the audit of a large repository) stays in
+the repository with its bytes unchanged; the generator lists it in the
+managed block of `site/.assetsignore`, so it is not uploaded, and adds a
+redirect from its path to the same file on `raw.githubusercontent.com`.
+`scripts/audit_surfaces.py` fails when a file above the limit is not
+handled this way.
+
 ## How a report is made
 
 [`.github/workflows/survival-report.yml`](../.github/workflows/survival-report.yml),

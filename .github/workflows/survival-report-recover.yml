@@ -452,7 +452,7 @@ jobs:
           python3 scripts/recovery_publish_gate.py verify-worktree
           git config user.name "causari-report[bot]"
           git config user.email "noreply@causari.dev"
-          git add site/reports/survival site/r site/_redirects site/sitemap.xml
+          git add site/reports/survival site/r site/_redirects site/sitemap.xml site/.assetsignore
           git commit -s -m "$(python3 scripts/recovery_publish_gate.py report-subject)"
           git fetch origin main
           python3 scripts/recovery_publish_gate.py assert-control-plane --ref "$WORKFLOW_REF" --workflow-sha "$WORKFLOW_SHA" --origin-main "$(git rev-parse origin/main)"
@@ -526,7 +526,7 @@ jobs:
           fi
           git config user.name "causari-report[bot]"
           git config user.email "noreply@causari.dev"
-          git add site/reports/survival site/r site/_redirects site/sitemap.xml
+          git add site/reports/survival site/r site/_redirects site/sitemap.xml site/.assetsignore
           if git diff --cached --quiet; then
             echo "nothing to write back"
             exit 0

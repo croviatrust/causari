@@ -347,7 +347,7 @@ jobs:
           set -euo pipefail
           git config user.name "causari-report[bot]"
           git config user.email "noreply@causari.dev"
-          git add site/reports/survival site/r site/_redirects site/sitemap.xml
+          git add site/reports/survival site/r site/_redirects site/sitemap.xml site/.assetsignore
           if git diff --cached --quiet; then echo "no changes"; exit 0; fi
           git commit -s -m "report: $(jq -r .title "${{ steps.build.outputs.dir }}/report.json") ($(jq -r .date "${{ steps.build.outputs.dir }}/report.json"), method $(jq -r .method.version "${{ steps.build.outputs.dir }}/report.json"))"
           if [ -z "${PUSH_TOKEN}" ] || ! login="$(GH_TOKEN="$PUSH_TOKEN" gh api user --jq .login)"; then
@@ -406,7 +406,7 @@ jobs:
           python3 scripts/zenodo_deposit.py "${{ steps.build.outputs.dir }}" | tee /tmp/zenodo.log
           git config user.name "causari-report[bot]"
           git config user.email "noreply@causari.dev"
-          git add site/reports/survival site/r site/_redirects site/sitemap.xml
+          git add site/reports/survival site/r site/_redirects site/sitemap.xml site/.assetsignore
           if git diff --cached --quiet; then echo "nothing to write back"; exit 0; fi
           git commit -s -m "report: DOI $(jq -r '.doi // "n/a"' /tmp/zenodo.log) for $(jq -r .title "${{ steps.build.outputs.dir }}/report.json")"
           auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"

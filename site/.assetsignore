@@ -1,0 +1,6 @@
+# survival-report: begin (managed by scripts/survival_report.py)
+# files above the Cloudflare asset limit; site/_redirects sends each path to GitHub
+/reports/survival/2026/07/repos/microsoft__vscode.json
+/reports/survival/2026/08/repos/microsoft__vscode.json
+/reports/survival/2026/10/repos/microsoft__vscode.json
+# survival-report: end

@@ -25,7 +25,8 @@ Outputs (under site/reports/survival/)::
     index.html               archive, newest first
     feed.xml                 Atom, one entry per report
     latest.json              copy of the newest report.json
-    plus managed blocks in site/_redirects and site/sitemap.xml
+    plus managed blocks in site/_redirects, site/sitemap.xml and
+    site/.assetsignore (files above the Cloudflare asset limit)
 
 and, for every repository measured in any report (under site/r/, paths
 always lowercase)::
@@ -94,6 +95,11 @@ REDIRECT_BEGIN = "# survival-report: begin (managed by scripts/survival_report.p
 REDIRECT_END = "# survival-report: end"
 SITEMAP_BEGIN = "<!-- survival-report: begin (managed by scripts/survival_report.py) -->"
 SITEMAP_END = "<!-- survival-report: end -->"
+# Cloudflare Workers refuses a whole deploy that holds one static asset above
+# 25 MiB. A larger report file stays in the repository, is left out of the
+# upload by site/.assetsignore, and its path redirects to the same bytes here.
+ASSET_MAX_BYTES = 25 * 1024 * 1024
+ASSET_RAW_BASE = "https://raw.githubusercontent.com/croviatrust/causari/main/site"
 
 
 # ----------------------------------------------------------------------------- helpers
@@ -1971,7 +1977,24 @@ def replace_block(text: str, begin: str, end: str, body: str, insert_before: str
     return text.rstrip("\n") + "\n\n" + block + "\n"
 
 
-def update_redirects(site: Path, latest: dict[str, Any] | None, repos: list[dict[str, Any]] = (), aliases: list[tuple[str, str]] = ()) -> None:
+def oversize_assets(site: Path) -> list[str]:
+    """Site-relative paths of the generated files Cloudflare will not accept."""
+    out = []
+    for rel in (REPORTS_REL, REPOS_REL):
+        base = site / rel
+        if base.is_dir():
+            out += [p.relative_to(site).as_posix() for p in base.rglob("*") if p.is_file() and p.stat().st_size > ASSET_MAX_BYTES]
+    return sorted(out)
+
+
+def update_assetsignore(site: Path, oversize: list[str]) -> None:
+    path = site / ".assetsignore"
+    text = path.read_text(encoding="utf-8") if path.exists() else ""
+    body = "\n".join(["# files above the Cloudflare asset limit; site/_redirects sends each path to GitHub"] + [f"/{p}" for p in oversize])
+    path.write_text(replace_block(text, REDIRECT_BEGIN, REDIRECT_END, body, None).lstrip("\n"), encoding="utf-8")
+
+
+def update_redirects(site: Path, latest: dict[str, Any] | None, repos: list[dict[str, Any]] = (), aliases: list[tuple[str, str]] = (), oversize: list[str] = ()) -> None:
     path = site / "_redirects"
     text = path.read_text(encoding="utf-8") if path.exists() else ""
     lines = [
@@ -1990,6 +2013,8 @@ def update_redirects(site: Path, latest: dict[str, Any] | None, repos: list[dict
     for alias, kept in aliases:
         for name in ("", "badge.svg", "badge-dark.svg", "latest.json"):
             lines.append(f"/{REPOS_REL}/{alias}/{name}".ljust(21) + f" {kept}{name}   301")
+    for rel in oversize:
+        lines.append(f"/{rel} {ASSET_RAW_BASE}/{rel}   302")
     path.write_text(replace_block(text, REDIRECT_BEGIN, REDIRECT_END, "\n".join(lines), None), encoding="utf-8")
 
 
@@ -2024,8 +2049,8 @@ def next_number(site: Path) -> int:
 def rebuild(site: Path) -> list[dict[str, Any]]:
     """Everything derived from the report.json files: each report page (so a
     change to the templates reaches every report), archive, feed, latest.json,
-    the repository pages and badges, and the managed redirect and sitemap
-    blocks. Deterministic: the same inputs give the same bytes."""
+    the repository pages and badges, and the managed redirect, sitemap and
+    asset-ignore blocks. Deterministic: the same inputs give the same bytes."""
     archive = load_archive(site)
     base = site / REPORTS_REL
     base.mkdir(parents=True, exist_ok=True)
@@ -2036,7 +2061,9 @@ def rebuild(site: Path) -> list[dict[str, Any]]:
     if archive:
         dump_json(base / "latest.json", archive[0])
     repos = write_repo_pages(site, archive)
-    update_redirects(site, archive[0] if archive else None, repos, repo_aliases(archive, repos))
+    oversize = oversize_assets(site)
+    update_redirects(site, archive[0] if archive else None, repos, repo_aliases(archive, repos), oversize)
+    update_assetsignore(site, oversize)
     update_sitemap(site, archive, repos)
     return archive
 

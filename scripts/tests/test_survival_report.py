@@ -720,6 +720,54 @@ class DuplicateTests(unittest.TestCase):
                          (s.site / "reports" / "survival" / "2026" / "01" / "index.html").read_text(encoding="utf-8"))
 
 
+class OversizeAssetTests(unittest.TestCase):
+    """Cloudflare refuses a whole deploy over one asset above its size limit.
+    A larger generated file keeps its bytes, is left out of the upload and
+    its path redirects to the same file on GitHub."""
+
+    def setUp(self) -> None:
+        self.s = Scratch()
+        self.addCleanup(self.s.close)
+        self.addCleanup(setattr, sr, "ASSET_MAX_BYTES", sr.ASSET_MAX_BYTES)
+        self.s.build()
+        self.repos = self.s.site / "reports" / "survival" / "2026" / "01" / "repos"
+
+    def ignored(self) -> list[str]:
+        text = (self.s.site / ".assetsignore").read_text(encoding="utf-8")
+        self.assertEqual(text.count(sr.REDIRECT_BEGIN), 1)
+        return [line for line in text.splitlines() if line.startswith("/")]
+
+    def raw_redirects(self) -> list[str]:
+        return [line for line in (self.s.site / "_redirects").read_text(encoding="utf-8").splitlines() if "raw.githubusercontent.com" in line]
+
+    def test_nothing_above_the_limit(self) -> None:
+        self.assertEqual(self.ignored(), [])
+        self.assertEqual(self.raw_redirects(), [])
+
+    def test_oversize_file_is_left_out_and_redirected(self) -> None:
+        generated = [p for rel in (sr.REPORTS_REL, sr.REPOS_REL) for p in (self.s.site / rel).rglob("*") if p.is_file()]
+        sr.ASSET_MAX_BYTES = max(p.stat().st_size for p in generated)
+        big = self.repos / "big__repo.json"
+        big.write_bytes(b"x" * (sr.ASSET_MAX_BYTES + 1))
+        rel = big.relative_to(self.s.site).as_posix()
+        for _ in range(2):  # a second rebuild changes nothing
+            sr.rebuild(self.s.site)
+            self.assertEqual(self.ignored(), [f"/{rel}"])
+            self.assertEqual(self.raw_redirects(), [f"/{rel} https://raw.githubusercontent.com/croviatrust/causari/main/site/{rel}   302"])
+        self.assertEqual(big.stat().st_size, sr.ASSET_MAX_BYTES + 1)
+        self.assertIn("/github https://github.com/croviatrust/causari 302", (self.s.site / "_redirects").read_text(encoding="utf-8"))
+        big.unlink()
+        sr.rebuild(self.s.site)
+        self.assertEqual(self.ignored(), [])
+        self.assertEqual(self.raw_redirects(), [])
+
+    def test_file_at_the_limit_is_served(self) -> None:
+        generated = [p for rel in (sr.REPORTS_REL, sr.REPOS_REL) for p in (self.s.site / rel).rglob("*") if p.is_file()]
+        sr.ASSET_MAX_BYTES = max(p.stat().st_size for p in generated)
+        sr.rebuild(self.s.site)
+        self.assertEqual(self.ignored(), [])
+
+
 class RevisionTests(unittest.TestCase):
     """A correction is a new revision of the same report: the old bytes stay,
     the page says what changed, the archive and feed carry the revision, and

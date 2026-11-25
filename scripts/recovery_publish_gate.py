@@ -46,7 +46,7 @@ DOI_VALUE = re.compile(r"^10\.5281/zenodo\.\d+$")
 SHA = re.compile(r"^[0-9a-f]{40}$")
 PRODUCTION_SANDBOX = {"", "0", "false", "no"}
 ALLOWED_DIRS = ("site/reports/survival/", "site/r/")
-ALLOWED_FILES = {"site/_redirects", "site/sitemap.xml"}
+ALLOWED_FILES = {"site/_redirects", "site/sitemap.xml", "site/.assetsignore"}
 ZENODO_API = "https://zenodo.org/api"
 
 

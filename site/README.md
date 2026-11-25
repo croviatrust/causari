@@ -24,6 +24,7 @@ python3 -m http.server 8080 --directory site
 | `app.js` | theme toggle, copy buttons, year; nothing else |
 | `_headers` | security headers, CSP, caching (one hour under `/r/` so badges follow the weekly report), feed and JSON content types |
 | `_redirects` | vanity URLs, renamed asset paths, `/survival`, `/report` and the cased spellings of `/r/` pages (the last two managed by the generator) |
+| `.assetsignore` | files Cloudflare does not upload: generated files above its 25 MiB asset limit, each with a redirect in `_redirects` to the same bytes on GitHub (managed by the generator) |
 | `assets/` | identity: `mark.svg`, `mark-white.svg`, `favicon.svg`, `wordmark*.svg`, `og.png` |
 | `llms.txt`, `robots.txt`, `sitemap.xml` | machine readers (the report block of the sitemap is managed by the generator) |
 | `install.sh`, `install.ps1` | installers, checksum-verified |
