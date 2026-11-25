@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generation": 11,
+  "generation": 12,
   "recent": [
     {
       "id": "1795435861041-ecaf3226",
@@ -207,6 +207,20 @@
       "findings": [],
       "next": "I need to read the actual source code of src/commands/audit.rs to understand how the JSON output is structured before I can propose an edit that adds the missing per-commit explanation fields.",
       "probes": []
+    },
+    {
+      "id": "1795580795271-77d99911",
+      "repo": "croviatrust/causari",
+      "focus": "Remove a measurable obstacle to an agent adopting and using the product.",
+      "started": "2026-11-25T04:26:35.275Z",
+      "finished": "2026-11-25T04:29:59.120Z",
+      "status": "stopped",
+      "localEvidence": "stopped",
+      "reason": "JSON syntax error in user input: Unterminated string at position 51. The instruction 'Correct the action or stop honestly.' was not properly quoted within the JSON structure.",
+      "error": "",
+      "findings": [],
+      "next": "Please provide a valid JSON object for the next turn.",
+      "probes": []
     }
   ],
   "outcomes": {},
@@ -218,7 +232,7 @@
       "rejected": 0
     },
     "Remove a measurable obstacle to an agent adopting and using the product.": {
-      "attempts": 3,
+      "attempts": 4,
       "verified": 0,
       "merged": 0,
       "rejected": 0
@@ -239,8 +253,8 @@
   "hypotheses": [],
   "pendingResearch": {
     "focus": "Remove a measurable obstacle to an agent adopting and using the product.",
-    "question": "I need to read the actual source code of src/commands/audit.rs to understand how the JSON output is structured before I can propose an edit that adds the missing per-commit explanation fields.",
-    "attempts": 2
+    "question": "Please provide a valid JSON object for the next turn.",
+    "attempts": 3
   },
   "fleet": {
     "version": 1,
@@ -252,9 +266,9 @@
         "mission": "Find external evidence and define the next specialization",
         "parent": "crovia",
         "born": 5,
-        "attempts": 7,
+        "attempts": 8,
         "verified": 0,
-        "lastSeen": 11
+        "lastSeen": 12
       },
       {
         "id": "critic",
@@ -262,9 +276,19 @@
         "mission": "Challenge the proposed experiment independently",
         "parent": "crovia",
         "born": 5,
-        "attempts": 7,
+        "attempts": 8,
         "verified": 0,
-        "lastSeen": 11
+        "lastSeen": 12
+      },
+      {
+        "id": "specialist-a2721643d5d0d471",
+        "role": "engineering",
+        "mission": "Implement `--explain` flag in `re audit` to expose per-commit classification evidence, commit SHA, agent attribution, and line counts (introduced/surviving) directly in the JSON output, removing the current gap where only aggregate totals are visible.",
+        "parent": "crovia",
+        "born": 12,
+        "attempts": 1,
+        "verified": 0,
+        "lastSeen": 12
       },
       {
         "id": "specialist-a94ab1b7e41b647d",
@@ -315,27 +339,17 @@
         "attempts": 1,
         "verified": 0,
         "lastSeen": 7
-      },
-      {
-        "id": "specialist-7e0d3b5aaeed1523",
-        "role": "engineering",
-        "mission": "Normalize text content in `src/audit.rs` by stripping trailing newlines and collapsing whitespace before line-counting to ensure reproducible survival metrics across environments.",
-        "parent": "crovia",
-        "born": 6,
-        "attempts": 1,
-        "verified": 0,
-        "lastSeen": 6
       }
     ],
     "last": {
-      "episode": "1795555639514-92a7e389",
+      "episode": "1795580795271-77d99911",
       "status": "stopped",
       "membersUsed": [
         "scout",
-        "specialist-a94ab1b7e41b647d",
+        "specialist-a2721643d5d0d471",
         "critic"
       ],
-      "modelCalls": 4,
+      "modelCalls": 5,
       "note": "Verified means source-case execution; business value and transfer remain unmeasured."
     }
   },
