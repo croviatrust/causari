@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generation": 13,
+  "generation": 14,
   "recent": [
     {
       "id": "1795435861041-ecaf3226",
@@ -243,6 +243,28 @@
       ],
       "next": "Read the specific section of src/pnx_reach.rs that handles connection attempts and output flushing, or search for 'flush' and 'stdout' in the file to locate the relevant code logic.",
       "probes": []
+    },
+    {
+      "id": "1795650293758-4d359004",
+      "repo": "croviatrust/causari",
+      "focus": "Explore a new capability by constructing a small falsifiable experiment.",
+      "started": "2026-11-25T23:44:53.763Z",
+      "finished": "2026-11-25T23:51:13.199Z",
+      "status": "stopped",
+      "localEvidence": "stopped",
+      "reason": "The hypothesis that the 'UNKNOWN' classification rate for commits lacking machine-readable authorship signals is stable across different repository clones cannot be falsified with the current codebase structure and available evidence.",
+      "error": "",
+      "findings": [
+        {
+          "path": "src/audit.rs",
+          "repository": "self",
+          "sha": "18d7e046f97aafd07fcc5092f77bef4c19b4f5fe",
+          "note": "The codebase contains extensive tests for binary blobs, symlinks, non-UTF8 filenames, and commit message parsing, but there is no test case or logic path that specifically measures an 'UNKNOWN' classification rate based on the absence of machine-readable authorship signals across different clone types (bare vs. working). The `audit_repo` function appears to handle various edge cases, but the specific metric requested does not exist in the current implementation.",
+          "confidence": "unverified observation"
+        }
+      ],
+      "next": "What is the exact definition of 'machine-readable authorship signals' in this codebase, and where is the logic for classifying commits as 'UNKNOWN' located?",
+      "probes": []
     }
   ],
   "outcomes": {},
@@ -260,7 +282,7 @@
       "rejected": 0
     },
     "Explore a new capability by constructing a small falsifiable experiment.": {
-      "attempts": 2,
+      "attempts": 3,
       "verified": 0,
       "merged": 0,
       "rejected": 0
@@ -275,8 +297,8 @@
   "hypotheses": [],
   "pendingResearch": {
     "focus": "Explore a new capability by constructing a small falsifiable experiment.",
-    "question": "Read the specific section of src/pnx_reach.rs that handles connection attempts and output flushing, or search for 'flush' and 'stdout' in the file to locate the relevant code logic.",
-    "attempts": 1
+    "question": "What is the exact definition of 'machine-readable authorship signals' in this codebase, and where is the logic for classifying commits as 'UNKNOWN' located?",
+    "attempts": 2
   },
   "fleet": {
     "version": 1,
@@ -288,9 +310,9 @@
         "mission": "Find external evidence and define the next specialization",
         "parent": "crovia",
         "born": 5,
-        "attempts": 9,
+        "attempts": 10,
         "verified": 0,
-        "lastSeen": 13
+        "lastSeen": 14
       },
       {
         "id": "critic",
@@ -298,9 +320,19 @@
         "mission": "Challenge the proposed experiment independently",
         "parent": "crovia",
         "born": 5,
-        "attempts": 9,
+        "attempts": 10,
         "verified": 0,
-        "lastSeen": 13
+        "lastSeen": 14
+      },
+      {
+        "id": "specialist-903a707cb0267e35",
+        "role": "engineering",
+        "mission": "Construct a falsifiable experiment to verify if the `re audit` engine's 'UNKNOWN' classification rate for commits lacking machine-readable authorship signals is stable across different repository clones, specifically testing the hypothesis that the current baseline calculation in `src/audit.rs` correctly excludes untagged commits from headline figures.",
+        "parent": "crovia",
+        "born": 14,
+        "attempts": 1,
+        "verified": 0,
+        "lastSeen": 14
       },
       {
         "id": "specialist-42990aec71b01d3d",
@@ -351,24 +383,14 @@
         "attempts": 1,
         "verified": 0,
         "lastSeen": 9
-      },
-      {
-        "id": "specialist-b8a5bba96f86249e",
-        "role": "engineering",
-        "mission": "Reproduce and fix the 'Unreproduced message before a successful clone' issue (Issue #67) where `re audit` fails on Windows 0.4.0 prior to repository cloning, then add a regression test.",
-        "parent": "crovia",
-        "born": 8,
-        "attempts": 1,
-        "verified": 0,
-        "lastSeen": 8
       }
     ],
     "last": {
-      "episode": "1795617979594-4727b9d5",
+      "episode": "1795650293758-4d359004",
       "status": "stopped",
       "membersUsed": [
         "scout",
-        "specialist-42990aec71b01d3d",
+        "specialist-903a707cb0267e35",
         "critic"
       ],
       "modelCalls": 7,
