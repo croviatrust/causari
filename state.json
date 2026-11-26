@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generation": 14,
+  "generation": 15,
   "recent": [
     {
       "id": "1795435861041-ecaf3226",
@@ -265,6 +265,28 @@
       ],
       "next": "What is the exact definition of 'machine-readable authorship signals' in this codebase, and where is the logic for classifying commits as 'UNKNOWN' located?",
       "probes": []
+    },
+    {
+      "id": "1795682416128-062300e3",
+      "repo": "croviatrust/causari",
+      "focus": "Explore a new capability by constructing a small falsifiable experiment.",
+      "started": "2026-11-26T08:40:16.133Z",
+      "finished": "2026-11-26T08:47:08.485Z",
+      "status": "stopped",
+      "localEvidence": "stopped",
+      "reason": "Cannot construct a falsifiable experiment without reading the Group-0 audit engine source code to locate the byte-level logic for classifying commits as 'UNKNOWN'. The evidence policy forbids inventing files, measurements, or definitions. Without seeing how the classification is computed in `src/audit.rs` or similar, I cannot define what observation would disprove the hypothesis.",
+      "error": "",
+      "findings": [
+        {
+          "path": "src/audit.rs",
+          "repository": "self",
+          "sha": "18d7e046f97aafd07fcc5092f77bef4c19b4f5fe",
+          "note": "Source file exists but was not read. The audit engine's logic for determining 'UNKNOWN' classification is unknown.",
+          "confidence": "unverified observation"
+        }
+      ],
+      "next": "Read src/audit.rs (or similar audit engine files) to find where the 'UNKNOWN' classification logic is implemented and what specific byte patterns or metadata it checks. Then construct a falsifiable experiment based on that evidence.",
+      "probes": []
     }
   ],
   "outcomes": {},
@@ -282,7 +304,7 @@
       "rejected": 0
     },
     "Explore a new capability by constructing a small falsifiable experiment.": {
-      "attempts": 3,
+      "attempts": 4,
       "verified": 0,
       "merged": 0,
       "rejected": 0
@@ -297,8 +319,8 @@
   "hypotheses": [],
   "pendingResearch": {
     "focus": "Explore a new capability by constructing a small falsifiable experiment.",
-    "question": "What is the exact definition of 'machine-readable authorship signals' in this codebase, and where is the logic for classifying commits as 'UNKNOWN' located?",
-    "attempts": 2
+    "question": "Read src/audit.rs (or similar audit engine files) to find where the 'UNKNOWN' classification logic is implemented and what specific byte patterns or metadata it checks. Then construct a falsifiable experiment based on that evidence.",
+    "attempts": 3
   },
   "fleet": {
     "version": 1,
@@ -310,9 +332,9 @@
         "mission": "Find external evidence and define the next specialization",
         "parent": "crovia",
         "born": 5,
-        "attempts": 10,
+        "attempts": 11,
         "verified": 0,
-        "lastSeen": 14
+        "lastSeen": 15
       },
       {
         "id": "critic",
@@ -320,9 +342,19 @@
         "mission": "Challenge the proposed experiment independently",
         "parent": "crovia",
         "born": 5,
-        "attempts": 10,
+        "attempts": 11,
         "verified": 0,
-        "lastSeen": 14
+        "lastSeen": 15
+      },
+      {
+        "id": "specialist-228bafbd31c98baa",
+        "role": "engineering",
+        "mission": "Construct a falsifiable experiment to verify the exact byte-level definition of 'machine-readable authorship signals' and confirm that commits lacking these signals are classified as UNKNOWN by the Group-0 audit engine.",
+        "parent": "crovia",
+        "born": 15,
+        "attempts": 1,
+        "verified": 0,
+        "lastSeen": 15
       },
       {
         "id": "specialist-903a707cb0267e35",
@@ -373,27 +405,17 @@
         "attempts": 1,
         "verified": 0,
         "lastSeen": 10
-      },
-      {
-        "id": "specialist-93711c0a8beb0dbb",
-        "role": "engineering",
-        "mission": "Fix the network timeout or initialization failure in `re audit` on Windows 0.4.0 by adding a pre-clone health check and retry logic for remote repository access.",
-        "parent": "crovia",
-        "born": 9,
-        "attempts": 1,
-        "verified": 0,
-        "lastSeen": 9
       }
     ],
     "last": {
-      "episode": "1795650293758-4d359004",
+      "episode": "1795682416128-062300e3",
       "status": "stopped",
       "membersUsed": [
         "scout",
-        "specialist-903a707cb0267e35",
+        "specialist-228bafbd31c98baa",
         "critic"
       ],
-      "modelCalls": 7,
+      "modelCalls": 8,
       "note": "Verified means source-case execution; business value and transfer remain unmeasured."
     }
   },

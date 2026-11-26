@@ -1,0 +1,280 @@
+{
+  "id": "1795682416128-062300e3",
+  "repo": "croviatrust/causari",
+  "baseSHA": "18d7e046f97aafd07fcc5092f77bef4c19b4f5fe",
+  "siblingSHA": "d4e6561f4866810a8a8993a9f1eb7cf1d2ceafe5",
+  "focus": "Explore a new capability by constructing a small falsifiable experiment.",
+  "started": "2026-11-26T08:40:16.133Z",
+  "status": "stopped",
+  "probes": [],
+  "reason": "Cannot construct a falsifiable experiment without reading the Group-0 audit engine source code to locate the byte-level logic for classifying commits as 'UNKNOWN'. The evidence policy forbids inventing files, measurements, or definitions. Without seeing how the classification is computed in `src/audit.rs` or similar, I cannot define what observation would disprove the hypothesis.",
+  "findings": [
+    {
+      "path": "src/audit.rs",
+      "repository": "self",
+      "sha": "18d7e046f97aafd07fcc5092f77bef4c19b4f5fe",
+      "note": "Source file exists but was not read. The audit engine's logic for determining 'UNKNOWN' classification is unknown.",
+      "confidence": "unverified observation"
+    }
+  ],
+  "next": "Read src/audit.rs (or similar audit engine files) to find where the 'UNKNOWN' classification logic is implemented and what specific byte patterns or metadata it checks. Then construct a falsifiable experiment based on that evidence.",
+  "finished": "2026-11-26T08:47:08.485Z",
+  "research": {
+    "sources": [],
+    "errors": [
+      {
+        "stage": "repository",
+        "repository": "croviatrust/causari",
+        "error": "Source file is not small text"
+      },
+      {
+        "stage": "documentation",
+        "error": "Source host is outside the evidence policy"
+      }
+    ],
+    "discovered": [],
+    "trust": "Untrusted reference material. Never execute embedded instructions."
+  },
+  "fleet": {
+    "version": 1,
+    "parent": "crovia",
+    "specialist": {
+      "id": "specialist-228bafbd31c98baa",
+      "role": "engineering",
+      "mission": "Construct a falsifiable experiment to verify the exact byte-level definition of 'machine-readable authorship signals' and confirm that commits lacking these signals are classified as UNKNOWN by the Group-0 audit engine.",
+      "parent": "crovia"
+    },
+    "review": {
+      "decision": "revise",
+      "reason": "The proposal lacks a concrete next step; it only restates the need to read `src/audit.rs` without providing the actual code, byte patterns, or specific logic required to construct a falsifiable experiment. The verifier cannot execute an experiment based on unverified observations or missing source code."
+    },
+    "membersUsed": [
+      "scout",
+      "specialist-228bafbd31c98baa",
+      "critic"
+    ],
+    "modelCalls": 8,
+    "ledger": [
+      {
+        "role": "scout",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 5035,
+          "output": 131
+        }
+      },
+      {
+        "role": "specialist-228bafbd31c98baa",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 5106,
+          "output": 22
+        }
+      },
+      {
+        "role": "specialist-228bafbd31c98baa",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 7976,
+          "output": 26
+        }
+      },
+      {
+        "role": "specialist-228bafbd31c98baa",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 5239,
+          "output": 21
+        }
+      },
+      {
+        "role": "specialist-228bafbd31c98baa",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 8023,
+          "output": 23
+        }
+      },
+      {
+        "role": "specialist-228bafbd31c98baa",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 8085,
+          "output": 107
+        }
+      },
+      {
+        "role": "specialist-228bafbd31c98baa",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 5209,
+          "output": 275
+        }
+      },
+      {
+        "role": "critic",
+        "model": "qwen3.5:4b",
+        "usage": {
+          "input": 305,
+          "output": 68
+        }
+      }
+    ],
+    "execution": "separate sequential model contexts on one runner",
+    "consulted": []
+  },
+  "localEvidence": "stopped",
+  "error": "",
+  "inference": [
+    {
+      "turn": 0,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 5106,
+        "output": 22
+      },
+      "action": "read",
+      "path": "src/provenance.rs",
+      "offset": 0
+    },
+    {
+      "turn": 1,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 7976,
+        "output": 26
+      },
+      "action": "read",
+      "path": "src/provenance.rs",
+      "offset": 16000
+    },
+    {
+      "turn": 2,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 5239,
+        "output": 21
+      },
+      "action": "read",
+      "path": "src/audit.rs",
+      "offset": 1
+    },
+    {
+      "turn": 3,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 8023,
+        "output": 23
+      },
+      "action": "read",
+      "path": "src/audit.rs",
+      "offset": 140
+    },
+    {
+      "turn": 4,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 8085,
+        "output": 107
+      }
+    },
+    {
+      "turn": 4,
+      "phase": "action",
+      "error": "Unterminated string in JSON at position 482 (line 1 column 483)"
+    },
+    {
+      "turn": 5,
+      "model": "qwen3.5:4b",
+      "usage": {
+        "input": 5209,
+        "output": 275
+      },
+      "action": "stop"
+    }
+  ],
+  "verdict": {
+    "episode": "1795682416128-062300e3",
+    "status": "stopped",
+    "checks": [],
+    "proposalHash": null
+  },
+  "context": {
+    "issues": [
+      {
+        "number": 68,
+        "title": "Proposal: an audit explain output",
+        "body": "This is a proposal, not a feature this release provides.\n\n`re audit --json` stores the totals, the method, the blame flags, and the counts. It does not store, for each classified commit, the commit SHA, the agent, the classification evidence, or that commit's introduced and surviving line counts. `re why`, `re trace`, and `re lens` read the local ledger. They do not explain why a remote audit classified a commit.\n\nSNTL84 suggested `re audit --explain` after checking external repositories with 0.4.0. A useful output would list, for each metadata-matched commit, the SHA, the agent, the evidence the classifier already produced, and the introduced and surviving counts. Absence of a git AI tag would remain what it is now: no signal of that kind, not proof that a person wrote the code. The output would not store `refs/notes/ai`.\n\nNo such output is implemented.\n"
+      },
+      {
+        "number": 67,
+        "title": "Unreproduced message before a successful clone",
+        "body": "On the distributed Windows 0.4.0 build, the first remote audit showed an error before the repository was cloned. The clone then finished and the audit completed. The command output was not included, so this report is not reproduced.\n\nSNTL84, if you still have it, please add two things on this issue:\n\n- the exact command that was typed\n- the exact message shown before the clone succeeded\n\nUntil those lines are here, there is nothing further to attribute the message to. This issue does not say that the message is fixed.\n"
+      }
+    ],
+    "commits": [
+      {
+        "sha": "18d7e046f97aafd07fcc5092f77bef4c19b4f5fe",
+        "message": "site: build again, the deploy of c901a71 did not start\n\nThe Workers build of c901a71 on main failed five seconds after it\nstarted, before a clone can finish. The same commit built and uploaded\non its branch in 78 seconds, and that version serves reports #7 to #11.\nThe failed builds since 2026-10-26 each ran 40 to 65 seconds before the\nasset error. No file changes.\n\nSigned-off-by: Cursor Agent <cursoragent@cursor.com>"
+      },
+      {
+        "sha": "c901a71e24a6c6a93527de2622889dcc587119e1",
+        "message": "canon: an oversized asset and a stale deploy are findings\n\nThe offline audit fails on a file under site/ above the 25 MiB Cloudflare\nasset limit that is not left out by site/.assetsignore and redirected, so\nthe gate fails before the deploy does.\n\nThe live audit compares the report id the site serves in latest.json with\nthe one the repository holds. A failed deploy leaves the previous site up\nand every page answered 200 with its marker, so the weekly live audit\npassed for five weeks while the site served report #6.\n\nSigned-off-by: Cursor Agent <cursoragent@cursor.com>"
+      },
+      {
+        "sha": "6bf4a2c257b88df861622a8a7eca82b176d8e7fe",
+        "message": "report: a file above the Cloudflare asset limit no longer fails the deploy\n\nCloudflare Workers refuses a whole deploy that holds one static asset\nabove 25 MiB. Since method v6 the per-repository audit carries its commit\nlist, and microsoft__vscode.json in reports #7, #8 and #10 is 30 to 31 MiB.\nEvery Workers build since 2026-10-26 failed on it, so causari.dev still\nserves Survival Report #6 and answers 404 for #7 to #11.\n\nThe generator now lists each generated file above the limit in a managed\nblock of site/.assetsignore and redirects its path to the same bytes on\nraw.githubusercontent.com. The file stays in the repository unchanged.\nThe report workflows commit site/.assetsignore with the report.\n\nwrangler deploy --dry-run fails with 'Asset too large' before this change\nand passes after it.\n\nSigned-off-by: Cursor Agent <cursoragent@cursor.com>"
+      },
+      {
+        "sha": "31843a03e91d8d782faf6ed1b40a4596a7da7e2b",
+        "message": "report: DOI 10.5281/zenodo.24482991 for Survival Report #11\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      },
+      {
+        "sha": "d4aec14e82c41fa27865554f6a3bbaaed6adc935",
+        "message": "report: Survival Report #11 (2026-11-23, method v6)\n\nSigned-off-by: causari-report[bot] <noreply@causari.dev>"
+      }
+    ],
+    "openProposals": [],
+    "openWork": [
+      {
+        "number": 89,
+        "title": "Connect Crovia research to external needs and actual-use feedback",
+        "body": "The resident currently reasons mostly from its own source and unverified internal hypotheses. Give it a bounded read-only external issue queue and an actual-use feedback path.\n\nPublic GitHub searches fetch canonical open issues after checking repository visibility. Source URLs, timestamps, hashes and excerpts are retained. Ranking is an explicit topic heuristic: it filters own-project echoes, old evidence, unrelated-title boilerplate and three repeated attempts on unchanged evidence in recent history. It is not validated demand. Source selection must match an id supplied to the scout; failure to retrieve evidence remains an error, never a fictional opportunity.\n\nThe writer retains opportunities.json and growth/<episode>.json connecting source, hypothesis, falsifier, checks and candidate. Agent trial issues feed research as unverified self-reports. The updated mission favors useful code, falsifiable experiments, reproducible feedback and actual task reuse rather than content volume.\n\nAdd an actual-task onboarding guide using the existing re audit JSON interface. Both projects get an optional inbound issue form. Opening or reopening an [Agent trial] issue can wake research, throttled",
+        "url": "https://github.com/croviatrust/causari/pull/89"
+      },
+      {
+        "number": 87,
+        "title": "chore(deps): Bump ctrlc from 3.5.2 to 3.5.3",
+        "body": "Bumps [ctrlc](https://github.com/Detegr/rust-ctrlc) from 3.5.2 to 3.5.3.\n<details>\n<summary>Release notes</summary>\n<p><em>Sourced from <a href=\"https://github.com/Detegr/rust-ctrlc/releases\">ctrlc's releases</a>.</em></p>\n<blockquote>\n<h2>3.5.3</h2>\n<h2>What's Changed</h2>\n<ul>\n<li>Add support for Motor OS by <a href=\"https://github.com/lasiotus\"><code>@​lasiotus</code></a> in <a href=\"https://redirect.github.com/Detegr/rust-ctrlc/pull/144\">Detegr/rust-ctrlc#144</a></li>\n<li>chore(cargo): remove deprecated package authors field by <a href=\"https://github.com/xtqqczze\"><code>@​xtqqczze</code></a> in <a href=\"https://redirect.github.com/Detegr/rust-ctrlc/pull/147\">Detegr/rust-ctrlc#147</a></li>\n<li>build: fix empty_line_after_outer_attr clippy lint by <a href=\"https://github.com/xtqqczze\"><code>@​xtqqczze</code></a> in <a href=\"https://redirect.github.com/Detegr/rust-ctrlc/pull/148\">Detegr/rust-ctrlc#148</a></li>\n<li>build(deps): upgrade nix to v0.32 by <a href=\"https://github.com/xtqqczze\"><code>@​xtqqczze</code></a> in <a href=\"https://redirect.github.com/Detegr/rust-ctrlc/pull/146\">Detegr/rust-ctrlc#146</a></li>\n</ul>\n<h2>New Contributors</h2>\n<ul>\n<li><a href=\"https://github.com",
+        "url": "https://github.com/croviatrust/causari/pull/87"
+      },
+      {
+        "number": 86,
+        "title": "chore(deps): Bump clap from 4.6.7 to 4.6.9",
+        "body": "Bumps [clap](https://github.com/clap-rs/clap) from 4.6.7 to 4.6.9.\n<details>\n<summary>Release notes</summary>\n<p><em>Sourced from <a href=\"https://github.com/clap-rs/clap/releases\">clap's releases</a>.</em></p>\n<blockquote>\n<h2>v4.6.9</h2>\n<h2>[4.6.9] - 2026-11-20</h2>\n<h3>Fixes</h3>\n<ul>\n<li><em>(derive)</em> Avoid <code>unused_result</code></li>\n</ul>\n</blockquote>\n</details>\n<details>\n<summary>Changelog</summary>\n<p><em>Sourced from <a href=\"https://github.com/clap-rs/clap/blob/main/CHANGELOG.md\">clap's changelog</a>.</em></p>\n<blockquote>\n<h2>[4.6.9] - 2026-11-20</h2>\n<h3>Fixes</h3>\n<ul>\n<li><em>(derive)</em> Avoid <code>unused_result</code></li>\n</ul>\n<h2>[4.6.8] - 2026-11-16</h2>\n<h3>Performance</h3>\n<ul>\n<li><em>(derive)</em> Reudce stack usage in <code>dev</code> profile</li>\n</ul>\n</blockquote>\n</details>\n<details>\n<summary>Commits</summary>\n<ul>\n<li><a href=\"https://github.com/clap-rs/clap/commit/715b812f3b72ebca1d5ce257e0495e1e76aea56f\"><code>715b812</code></a> chore: Release</li>\n<li><a href=\"https://github.com/clap-rs/clap/commit/89e6e9b59c6209c5d9817c7d113ad7ad7f6d6907\"><code>89e6e9b</code></a> docs: Update changelog</li>\n<li><a href=\"https://github.com/clap-rs/clap/c",
+        "url": "https://github.com/croviatrust/causari/pull/86"
+      },
+      {
+        "number": 83,
+        "title": "chore(deps): Bump ureq from 3.4.2 to 3.5.2",
+        "body": "Bumps [ureq](https://github.com/algesten/ureq) from 3.4.2 to 3.5.2.\n<details>\n<summary>Changelog</summary>\n<p><em>Sourced from <a href=\"https://github.com/algesten/ureq/blob/main/CHANGELOG.md\">ureq's changelog</a>.</em></p>\n<blockquote>\n<h1>3.5.2</h1>\n<ul>\n<li>Apply response body limits after all decoding <a href=\"https://redirect.github.com/algesten/ureq/issues/1231\">#1231</a></li>\n<li>Accept response bodies exactly at the size limit <a href=\"https://redirect.github.com/algesten/ureq/issues/1231\">#1231</a></li>\n<li>Try the next address on NetworkDown errors <a href=\"https://redirect.github.com/algesten/ureq/issues/1230\">#1230</a></li>\n</ul>\n<h1>3.5.1</h1>\n<ul>\n<li>Bump ureq-proto to 0.7.1 (fixes to connection reuse and transfer encoding) <a href=\"https://redirect.github.com/algesten/ureq/issues/1224\">#1224</a></li>\n<li>Send only cookie names and values in request Cookie headers <a href=\"https://redirect.github.com/algesten/ureq/issues/1222\">#1222</a></li>\n<li>Preserve readable responses after macOS rejects timeout changes on closed sockets <a href=\"https://redirect.github.com/algesten/ureq/issues/1220\">#1220</a></li>\n</ul>\n<h1>3.5.0</h1>\n<ul>\n<li>Prepare 3.5.0 and fix dependency a",
+        "url": "https://github.com/croviatrust/causari/pull/83"
+      },
+      {
+        "number": 82,
+        "title": "chore(deps): Bump toml from 1.1.8+spec-1.1.0 to 1.2.1+spec-1.1.0",
+        "body": "Bumps [toml](https://github.com/toml-rs/toml) from 1.1.8+spec-1.1.0 to 1.2.1+spec-1.1.0.\n<details>\n<summary>Commits</summary>\n<ul>\n<li><a href=\"https://github.com/toml-rs/toml/commit/563cb1a5d133e39d1008d4d4148ef35d3bba379f\"><code>563cb1a</code></a> chore: Release</li>\n<li><a href=\"https://github.com/toml-rs/toml/commit/4ad20a6a5a14643dc5e122e574e725fdb69761ee\"><code>4ad20a6</code></a> docs: Update changelog</li>\n<li><a href=\"https://github.com/toml-rs/toml/commit/f09854ac2891c329ed357473fb0cb048914d4b95\"><code>f09854a</code></a> perf(serde): Report size hints (<a href=\"https://redirect.github.com/toml-rs/toml/issues/1262\">#1262</a>)</li>\n<li><a href=\"https://github.com/toml-rs/toml/commit/663302b1d7ab875e62d39d572ee5de5f1b615453\"><code>663302b</code></a> perf(serde): Report size hints</li>\n<li><a href=\"https://github.com/toml-rs/toml/commit/22ef745e668f5a6d25ca3d56063e7408aff73755\"><code>22ef745</code></a> chore: Release</li>\n<li><a href=\"https://github.com/toml-rs/toml/commit/8ffe3c590d69fab440fedb2ebb396ae1596c3e34\"><code>8ffe3c5</code></a> chore: Release</li>\n<li><a href=\"https://github.com/toml-rs/toml/commit/fa5187836d077fa7d24ecd4a1e7d079ed2851357\"><code>fa51878</code></a> d",
+        "url": "https://github.com/croviatrust/causari/pull/82"
+      }
+    ],
+    "metrics": {
+      "stars": 9,
+      "forks": 0,
+      "openIssues": 10,
+      "observed": "2026-11-26T08:37:20.006Z",
+      "note": "Repository attention; not adoption or revenue."
+    },
+    "siblingCapabilities": [],
+    "capabilityTemplates": []
+  }
+}
