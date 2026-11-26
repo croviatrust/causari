@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generation": 15,
+  "generation": 16,
   "recent": [
     {
       "id": "1795435861041-ecaf3226",
@@ -287,6 +287,20 @@
       ],
       "next": "Read src/audit.rs (or similar audit engine files) to find where the 'UNKNOWN' classification logic is implemented and what specific byte patterns or metadata it checks. Then construct a falsifiable experiment based on that evidence.",
       "probes": []
+    },
+    {
+      "id": "1795720315467-a836196a",
+      "repo": "croviatrust/causari",
+      "focus": "Improve the resident's own strategy using the recorded outcomes of previous experiments.",
+      "started": "2026-11-26T19:11:55.480Z",
+      "finished": "2026-11-26T19:14:48.923Z",
+      "status": "stopped",
+      "localEvidence": "stopped",
+      "reason": "The previous turn's input contained a malformed JSON object with an unterminated string, which violates the protocol. I cannot correct it as I am the agent; the error indicates the user's input was truncated or incomplete.",
+      "error": "",
+      "findings": [],
+      "next": "Please provide a complete, valid JSON object for the next action.",
+      "probes": []
     }
   ],
   "outcomes": {},
@@ -310,7 +324,7 @@
       "rejected": 0
     },
     "Improve the resident's own strategy using the recorded outcomes of previous experiments.": {
-      "attempts": 3,
+      "attempts": 4,
       "verified": 0,
       "merged": 0,
       "rejected": 0
@@ -318,9 +332,9 @@
   },
   "hypotheses": [],
   "pendingResearch": {
-    "focus": "Explore a new capability by constructing a small falsifiable experiment.",
-    "question": "Read src/audit.rs (or similar audit engine files) to find where the 'UNKNOWN' classification logic is implemented and what specific byte patterns or metadata it checks. Then construct a falsifiable experiment based on that evidence.",
-    "attempts": 3
+    "focus": "Improve the resident's own strategy using the recorded outcomes of previous experiments.",
+    "question": "Please provide a complete, valid JSON object for the next action.",
+    "attempts": 1
   },
   "fleet": {
     "version": 1,
@@ -332,9 +346,9 @@
         "mission": "Find external evidence and define the next specialization",
         "parent": "crovia",
         "born": 5,
-        "attempts": 11,
+        "attempts": 12,
         "verified": 0,
-        "lastSeen": 15
+        "lastSeen": 16
       },
       {
         "id": "critic",
@@ -342,9 +356,19 @@
         "mission": "Challenge the proposed experiment independently",
         "parent": "crovia",
         "born": 5,
-        "attempts": 11,
+        "attempts": 12,
         "verified": 0,
-        "lastSeen": 15
+        "lastSeen": 16
+      },
+      {
+        "id": "specialist-c3196a8d3272f4a4",
+        "role": "engineering",
+        "mission": "Verify that the 're audit --explain' command (proposed in issue #68) correctly reconstructs per-commit evidence by cross-referencing local ledger entries with raw git blame output, specifically testing if the current implementation can handle commits lacking machine-readable authorship signals.",
+        "parent": "crovia",
+        "born": 16,
+        "attempts": 1,
+        "verified": 0,
+        "lastSeen": 16
       },
       {
         "id": "specialist-228bafbd31c98baa",
@@ -395,27 +419,17 @@
         "attempts": 1,
         "verified": 0,
         "lastSeen": 11
-      },
-      {
-        "id": "specialist-3bd1af6f131af3ad",
-        "role": "engineering",
-        "mission": "Implement `re audit --explain` to expose per-commit evidence (SHA, agent, confidence, lines introduced/surviving) instead of only aggregate totals.",
-        "parent": "crovia",
-        "born": 10,
-        "attempts": 1,
-        "verified": 0,
-        "lastSeen": 10
       }
     ],
     "last": {
-      "episode": "1795682416128-062300e3",
+      "episode": "1795720315467-a836196a",
       "status": "stopped",
       "membersUsed": [
         "scout",
-        "specialist-228bafbd31c98baa",
+        "specialist-c3196a8d3272f4a4",
         "critic"
       ],
-      "modelCalls": 8,
+      "modelCalls": 5,
       "note": "Verified means source-case execution; business value and transfer remain unmeasured."
     }
   },
