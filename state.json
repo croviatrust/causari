@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generation": 16,
+  "generation": 17,
   "recent": [
     {
       "id": "1795435861041-ecaf3226",
@@ -301,6 +301,28 @@
       "findings": [],
       "next": "Please provide a complete, valid JSON object for the next action.",
       "probes": []
+    },
+    {
+      "id": "1795746065245-cede0ee3",
+      "repo": "croviatrust/causari",
+      "focus": "Improve the resident's own strategy using the recorded outcomes of previous experiments.",
+      "started": "2026-11-27T02:21:05.253Z",
+      "finished": "2026-11-27T02:26:41.580Z",
+      "status": "stopped",
+      "localEvidence": "stopped",
+      "reason": "The `detect_ai` function logic was cut off at the end of the previous read (offset 1250), preventing verification of how it handles the specific case where multiple signals exist or how it aggregates evidence for a single commit. Without seeing the full implementation, I cannot confirm if it correctly returns per-commit evidence for VERIFIED commits or only aggregates totals.",
+      "error": "",
+      "findings": [
+        {
+          "path": "src/audit.rs",
+          "repository": "self",
+          "sha": "18d7e046f97aafd07fcc5092f77bef4c19b4f5fe",
+          "note": "The `detect_ai` function definition was truncated at offset 1250: 'pub fn detect_ai(commit: &CommitMeta) -> Option<Detection> { ... let msg_lower = com'... The implementation logic for combining signals and determining the final confidence level is missing.",
+          "confidence": "unverified observation"
+        }
+      ],
+      "next": "Read the complete `detect_ai` function to verify how it processes multiple evidence sources and determines if a commit is classified as VERIFIED before returning per-commit data.",
+      "probes": []
     }
   ],
   "outcomes": {},
@@ -324,7 +346,7 @@
       "rejected": 0
     },
     "Improve the resident's own strategy using the recorded outcomes of previous experiments.": {
-      "attempts": 4,
+      "attempts": 5,
       "verified": 0,
       "merged": 0,
       "rejected": 0
@@ -333,8 +355,8 @@
   "hypotheses": [],
   "pendingResearch": {
     "focus": "Improve the resident's own strategy using the recorded outcomes of previous experiments.",
-    "question": "Please provide a complete, valid JSON object for the next action.",
-    "attempts": 1
+    "question": "Read the complete `detect_ai` function to verify how it processes multiple evidence sources and determines if a commit is classified as VERIFIED before returning per-commit data.",
+    "attempts": 2
   },
   "fleet": {
     "version": 1,
@@ -346,9 +368,9 @@
         "mission": "Find external evidence and define the next specialization",
         "parent": "crovia",
         "born": 5,
-        "attempts": 12,
+        "attempts": 13,
         "verified": 0,
-        "lastSeen": 16
+        "lastSeen": 17
       },
       {
         "id": "critic",
@@ -356,9 +378,19 @@
         "mission": "Challenge the proposed experiment independently",
         "parent": "crovia",
         "born": 5,
-        "attempts": 12,
+        "attempts": 13,
         "verified": 0,
-        "lastSeen": 16
+        "lastSeen": 17
+      },
+      {
+        "id": "specialist-5eb0043c9c835652",
+        "role": "engineering",
+        "mission": "Verify that the `re audit --explain` command can successfully retrieve per-commit evidence (SHA, agent, confidence) for commits classified as VERIFIED in a local ledger, rather than only returning aggregate totals.",
+        "parent": "crovia",
+        "born": 17,
+        "attempts": 1,
+        "verified": 0,
+        "lastSeen": 17
       },
       {
         "id": "specialist-c3196a8d3272f4a4",
@@ -409,27 +441,17 @@
         "attempts": 1,
         "verified": 0,
         "lastSeen": 12
-      },
-      {
-        "id": "specialist-a94ab1b7e41b647d",
-        "role": "engineering",
-        "mission": "Remove a measurable obstacle to an agent adopting and using the product.",
-        "parent": "crovia",
-        "born": 11,
-        "attempts": 1,
-        "verified": 0,
-        "lastSeen": 11
       }
     ],
     "last": {
-      "episode": "1795720315467-a836196a",
+      "episode": "1795746065245-cede0ee3",
       "status": "stopped",
       "membersUsed": [
         "scout",
-        "specialist-c3196a8d3272f4a4",
+        "specialist-5eb0043c9c835652",
         "critic"
       ],
-      "modelCalls": 5,
+      "modelCalls": 7,
       "note": "Verified means source-case execution; business value and transfer remain unmeasured."
     }
   },
