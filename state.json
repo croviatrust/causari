@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generation": 17,
+  "generation": 18,
   "recent": [
     {
       "id": "1795435861041-ecaf3226",
@@ -323,6 +323,20 @@
       ],
       "next": "Read the complete `detect_ai` function to verify how it processes multiple evidence sources and determines if a commit is classified as VERIFIED before returning per-commit data.",
       "probes": []
+    },
+    {
+      "id": "1795777414329-77b0feed",
+      "repo": "croviatrust/causari",
+      "focus": "Improve the resident's own strategy using the recorded outcomes of previous experiments.",
+      "started": "2026-11-27T11:03:34.335Z",
+      "finished": "2026-11-27T11:07:12.681Z",
+      "status": "stopped",
+      "localEvidence": "stopped",
+      "reason": "Evidence exhausted without finding the specific `detect_ai` aggregation logic to verify against.",
+      "error": "",
+      "findings": [],
+      "next": "Can you provide the full text of src/detect_ai.rs or a specific line number where the evidence aggregation logic resides? Without reading the actual code, I cannot verify if it correctly aggregates author metadata, commit message patterns, and file extension heuristics before classifying as VERIFIED.",
+      "probes": []
     }
   ],
   "outcomes": {},
@@ -346,7 +360,7 @@
       "rejected": 0
     },
     "Improve the resident's own strategy using the recorded outcomes of previous experiments.": {
-      "attempts": 5,
+      "attempts": 6,
       "verified": 0,
       "merged": 0,
       "rejected": 0
@@ -355,8 +369,8 @@
   "hypotheses": [],
   "pendingResearch": {
     "focus": "Improve the resident's own strategy using the recorded outcomes of previous experiments.",
-    "question": "Read the complete `detect_ai` function to verify how it processes multiple evidence sources and determines if a commit is classified as VERIFIED before returning per-commit data.",
-    "attempts": 2
+    "question": "Can you provide the full text of src/detect_ai.rs or a specific line number where the evidence aggregation logic resides? Without reading the actual code, I cannot verify if it correctly aggregates author metadata, commit message patterns, and file extension heuristics before classifying as VERIFIED.",
+    "attempts": 3
   },
   "fleet": {
     "version": 1,
@@ -368,9 +382,9 @@
         "mission": "Find external evidence and define the next specialization",
         "parent": "crovia",
         "born": 5,
-        "attempts": 13,
+        "attempts": 14,
         "verified": 0,
-        "lastSeen": 17
+        "lastSeen": 18
       },
       {
         "id": "critic",
@@ -378,9 +392,19 @@
         "mission": "Challenge the proposed experiment independently",
         "parent": "crovia",
         "born": 5,
-        "attempts": 13,
+        "attempts": 14,
         "verified": 0,
-        "lastSeen": 17
+        "lastSeen": 18
+      },
+      {
+        "id": "specialist-a7da8f09f07ddb49",
+        "role": "engineering",
+        "mission": "Verify if `detect_ai` in `src/detect_ai.rs` correctly aggregates evidence from multiple sources (e.g., author metadata, commit message patterns, file extension heuristics) before classifying a commit as VERIFIED, and check if the current implementation handles cases where evidence confidence is borderline.",
+        "parent": "crovia",
+        "born": 18,
+        "attempts": 1,
+        "verified": 0,
+        "lastSeen": 18
       },
       {
         "id": "specialist-5eb0043c9c835652",
@@ -431,24 +455,14 @@
         "attempts": 1,
         "verified": 0,
         "lastSeen": 13
-      },
-      {
-        "id": "specialist-a2721643d5d0d471",
-        "role": "engineering",
-        "mission": "Implement `--explain` flag in `re audit` to expose per-commit classification evidence, commit SHA, agent attribution, and line counts (introduced/surviving) directly in the JSON output, removing the current gap where only aggregate totals are visible.",
-        "parent": "crovia",
-        "born": 12,
-        "attempts": 1,
-        "verified": 0,
-        "lastSeen": 12
       }
     ],
     "last": {
-      "episode": "1795746065245-cede0ee3",
+      "episode": "1795777414329-77b0feed",
       "status": "stopped",
       "membersUsed": [
         "scout",
-        "specialist-5eb0043c9c835652",
+        "specialist-a7da8f09f07ddb49",
         "critic"
       ],
       "modelCalls": 7,
