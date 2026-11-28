@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generation": 21,
+  "generation": 22,
   "recent": [
     {
       "id": "1795435861041-ecaf3226",
@@ -387,6 +387,20 @@
       ],
       "next": "What specific data structures in src/audit.rs need to be extended to store per-commit evidence and line counts before the --explain flag can be implemented?",
       "probes": []
+    },
+    {
+      "id": "1795897383950-347d2ff8",
+      "repo": "croviatrust/causari",
+      "focus": "Remove a measurable obstacle to an agent adopting and using the product.",
+      "started": "2026-11-28T20:23:03.955Z",
+      "finished": "2026-11-28T20:28:02.987Z",
+      "status": "stopped",
+      "localEvidence": "stopped",
+      "reason": "The user's input contained invalid JSON syntax ('Unterminated string'), which prevented me from executing the requested action. I must acknowledge this error and correct my response format.",
+      "error": "",
+      "findings": [],
+      "next": "I will implement `re audit --explain` to expose per-commit evidence directly in the CLI output. This requires reading the current audit.rs implementation and modifying it to include detailed commit-level information.",
+      "probes": []
     }
   ],
   "outcomes": {},
@@ -398,7 +412,7 @@
       "rejected": 0
     },
     "Remove a measurable obstacle to an agent adopting and using the product.": {
-      "attempts": 4,
+      "attempts": 5,
       "verified": 0,
       "merged": 0,
       "rejected": 0
@@ -418,9 +432,9 @@
   },
   "hypotheses": [],
   "pendingResearch": {
-    "focus": "Find a concrete failure in an existing user workflow and repair it with a regression test.",
-    "question": "What specific data structures in src/audit.rs need to be extended to store per-commit evidence and line counts before the --explain flag can be implemented?",
-    "attempts": 3
+    "focus": "Remove a measurable obstacle to an agent adopting and using the product.",
+    "question": "I will implement `re audit --explain` to expose per-commit evidence directly in the CLI output. This requires reading the current audit.rs implementation and modifying it to include detailed commit-level information.",
+    "attempts": 1
   },
   "fleet": {
     "version": 1,
@@ -432,9 +446,9 @@
         "mission": "Find external evidence and define the next specialization",
         "parent": "crovia",
         "born": 5,
-        "attempts": 17,
+        "attempts": 18,
         "verified": 0,
-        "lastSeen": 21
+        "lastSeen": 22
       },
       {
         "id": "critic",
@@ -442,9 +456,19 @@
         "mission": "Challenge the proposed experiment independently",
         "parent": "crovia",
         "born": 5,
-        "attempts": 17,
+        "attempts": 18,
         "verified": 0,
-        "lastSeen": 21
+        "lastSeen": 22
+      },
+      {
+        "id": "specialist-9bd1c01cd171f720",
+        "role": "engineering",
+        "mission": "Implement `re audit --explain` to expose per-commit evidence (SHA, agent, confidence, lines introduced/surviving) directly in the CLI output, removing the current gap where only aggregate totals are visible.",
+        "parent": "crovia",
+        "born": 22,
+        "attempts": 1,
+        "verified": 0,
+        "lastSeen": 22
       },
       {
         "id": "specialist-939564a5c090769a",
@@ -495,27 +519,17 @@
         "attempts": 1,
         "verified": 0,
         "lastSeen": 17
-      },
-      {
-        "id": "specialist-c3196a8d3272f4a4",
-        "role": "engineering",
-        "mission": "Verify that the 're audit --explain' command (proposed in issue #68) correctly reconstructs per-commit evidence by cross-referencing local ledger entries with raw git blame output, specifically testing if the current implementation can handle commits lacking machine-readable authorship signals.",
-        "parent": "crovia",
-        "born": 16,
-        "attempts": 1,
-        "verified": 0,
-        "lastSeen": 16
       }
     ],
     "last": {
-      "episode": "1795867407784-1cecde59",
+      "episode": "1795897383950-347d2ff8",
       "status": "stopped",
       "membersUsed": [
         "scout",
-        "specialist-939564a5c090769a",
+        "specialist-9bd1c01cd171f720",
         "critic"
       ],
-      "modelCalls": 7,
+      "modelCalls": 6,
       "note": "Verified means source-case execution; business value and transfer remain unmeasured."
     }
   },
